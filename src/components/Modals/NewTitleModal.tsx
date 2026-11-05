@@ -33,6 +33,7 @@ import { addMonthsSafe, advanceCompetence, getDaysInMonth } from '../../utils/da
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
+import { formatCompetenceShort } from '../../utils/dateUtils';
 
 interface NewTitleModalProps {
   isOpen: boolean;
@@ -524,9 +525,9 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
               </div>
               <div className="min-w-0">
                 <h2 className="text-sm sm:text-base font-bold text-slate-900 truncate flex items-center gap-2">
-                  <span className="truncate">{type === 'PAGAR' ? 'Lançamento de Contas a Pagar' : 'Lançamento de Contas a Receber'}</span>
+                  <span className="truncate">{simple ? (type === 'PAGAR' ? 'Nova despesa' : 'Novo recebimento') : (type === 'PAGAR' ? 'Lançamento de Contas a Pagar' : 'Lançamento de Contas a Receber')}</span>
                 </h2>
-                <p className="text-[11px] sm:text-xs text-slate-500 truncate hidden xs:block">
+                <p className="adv-only text-[11px] sm:text-xs text-slate-500 truncate hidden xs:block">
                   Lançamento avulso, parcelamento de compras ou contas recorrentes com Magic Board
                 </p>
               </div>
@@ -800,7 +801,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">
-                      Valor do Título (R$) *
+                      {simple ? 'Valor (R$) *' : 'Valor do Título (R$) *'}
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-2 font-bold text-slate-400">R$</span>
@@ -1151,7 +1152,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
             {/* SEÇÃO 5: MARCAR SE JÁ FOI PAGO OU RECEBIDO (CONFIGURAÇÕES DE PAGAMENTO) */}
             <div className={`p-4 rounded-xl border transition-all ${
               isAlreadySettled 
-                ? (type === 'PAGAR' ? 'bg-rose-50/50 border-rose-300 shadow-xs' : 'bg-emerald-50/50 border-emerald-300 shadow-xs')
+                ? (type === 'PAGAR' ? 'bg-[var(--status-danger-bg)] border-[var(--status-danger)]/40' : 'bg-[var(--status-success-bg)] border-[var(--status-success)]/40')
                 : 'bg-slate-50/80 border-slate-200 hover:border-slate-300'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1178,7 +1179,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           ? 'Este lançamento já foi pago? (Registrar liquidação imediata)'
                           : 'Este lançamento já foi recebido? (Registrar recebimento imediato)'}
                     </span>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="adv-only text-[11px] text-slate-500 mt-0.5">
                       {type === 'PAGAR'
                         ? 'Ao marcar, o título será salvo como quitado e a saída será debitada da conta bancária no extrato.'
                         : 'Ao marcar, o título será salvo como quitado e a entrada será creditada na conta bancária no extrato.'}
@@ -1187,7 +1188,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 </label>
 
                 {isAlreadySettled && (
-                  <span className={`self-start sm:self-auto text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  <span className={`${simple ? 'hidden' : ''} self-start sm:self-auto text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                     type === 'PAGAR' 
                       ? 'bg-rose-100 text-rose-800 border-rose-200' 
                       : 'bg-emerald-100 text-emerald-800 border-emerald-200'
@@ -1260,7 +1261,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   </div>
 
                   {/* Componentes de Ajuste Financeiro (Desconto, Juros, Tarifa) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                  <div className="adv-only grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
                     <div>
                       <label className="block text-slate-600 text-[10px] font-semibold mb-1">
                         Desconto Obtido/Concedido (R$)
@@ -1329,7 +1330,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   {launchMode !== 'UNICO' && (
                     <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-xs flex flex-wrap items-center justify-between gap-2">
                       <span className="text-slate-700 font-medium">
-                        Como este lançamento possui {calculatedItems.length} ocorrências:
+                        {simple ? `Como são ${calculatedItems.length} parcelas:` : `Como este lançamento possui ${calculatedItems.length} ocorrências:`}
                       </span>
                       <div className="flex items-center space-x-3">
                         <label className="flex items-center space-x-1.5 cursor-pointer">
@@ -1340,7 +1341,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                             onChange={() => setSettlementScope('FIRST')}
                             className="text-amber-500"
                           />
-                          <span>Liquidar apenas a 1ª parcela/ocorrência agora</span>
+                          <span>{simple ? (type === 'PAGAR' ? 'Marcar só a 1ª parcela como paga' : 'Marcar só a 1ª parcela como recebida') : 'Liquidar apenas a 1ª parcela/ocorrência agora'}</span>
                         </label>
                         <label className="flex items-center space-x-1.5 cursor-pointer">
                           <input
@@ -1350,7 +1351,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                             onChange={() => setSettlementScope('ALL')}
                             className="text-amber-500"
                           />
-                          <span>Liquidar todas as {calculatedItems.length} ocorrências</span>
+                          <span>{simple ? `Marcar as ${calculatedItems.length} parcelas` : `Liquidar todas as ${calculatedItems.length} ocorrências`}</span>
                         </label>
                       </div>
                     </div>
@@ -1385,7 +1386,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span className="font-bold text-xs uppercase tracking-wider text-slate-200">
-                      Magic Board de Pré-visualização ({calculatedItems.length} títulos gerados)
+                      {simple ? `Parcelas (${calculatedItems.length})` : `Magic Board de Pré-visualização (${calculatedItems.length} títulos gerados)`}
                     </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-emerald-400">
@@ -1403,7 +1404,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       <div className="flex items-center justify-between text-slate-400">
                         <span className="font-bold text-white">#{item.index}</span>
                         <span className="text-[9px] px-1 py-0.2 bg-slate-700 text-slate-300 rounded font-mono">
-                          {item.competence}
+                          {simple ? formatCompetenceShort(item.competence) : item.competence}
                         </span>
                       </div>
                       <div className="font-bold text-emerald-400 truncate">
@@ -1422,7 +1423,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
             {/* Observações */}
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Observações Adicionais
+                {simple ? 'Observações' : 'Observações Adicionais'}
               </label>
               <input
                 type="text"
@@ -1490,7 +1491,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <PlusCircle className="w-4 h-4 shrink-0" />
                   <span>
                     {calculatedItems.length > 1 
-                      ? `Lançar ${calculatedItems.length} Títulos (${formatBRL(totalCalculatedAmount)})`
+                      ? (simple ? `Salvar ${calculatedItems.length} parcelas (${formatBRL(totalCalculatedAmount)})` : `Lançar ${calculatedItems.length} Títulos (${formatBRL(totalCalculatedAmount)})`)
                       : 'Salvar Lançamento'
                     }
                   </span>

@@ -1561,7 +1561,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                               <Folder className={`w-3 h-3 ${catColors.icon} shrink-0`} />
                               <span className="truncate">{formatAccountNameWithoutCode(chartAcc)}</span>
                             </span>
-                            <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                            <span className="adv-only font-mono text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-800">
                               #{t.titleNumber}
                             </span>
                           </div>
@@ -2052,7 +2052,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                 </th>
 
                 {/* Temporal Situation (Adaptativo: oculto em notebooks, visível em Mac/Desktops) */}
-                <th className="hidden xl:table-cell py-3 px-4 text-center">Situação Temporal</th>
+                <th className="adv-only hidden xl:table-cell py-3 px-4 text-center">Situação Temporal</th>
 
                 {/* Sortable Column: Status */}
                 <th 
@@ -2153,7 +2153,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                               <span 
                                 title={`Número do título: ${t.titleNumber}`}
-                                className="font-mono text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-200/80 dark:border-slate-800"
+                                className="adv-only font-mono text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-200/80 dark:border-slate-800"
                               >
                                 #{t.titleNumber}
                               </span>
@@ -2230,7 +2230,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                         {formatBRL(t.balancePrincipal)}
                       </td>
 
-                      <td className="hidden xl:table-cell py-3 px-4 text-center">
+                      <td className="adv-only hidden xl:table-cell py-3 px-4 text-center">
                         {t.balancePrincipal <= 0 ? (
                           <span className="text-[10px] font-medium text-slate-500">-</span>
                         ) : (
@@ -2247,7 +2247,23 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                       </td>
 
                       <td className="py-3 px-4 text-center whitespace-nowrap min-w-[96px]">
-                        <div className="flex flex-col items-center justify-center gap-1">
+                        <div className="simple-only">
+                          {(() => {
+                            const cancelled = t.documentState === 'CANCELADO';
+                            const done = t.settlementState === 'LIQUIDADO';
+                            const partial = t.settlementState === 'PARCIAL';
+                            const label = cancelled ? 'Cancelado' : done ? 'Recebido' : tempStatus === 'VENCIDO' ? (partial ? 'Parcial em atraso' : 'Em atraso') : partial ? 'Parcial' : tempStatus === 'VENCE_HOJE' ? 'Vence hoje' : 'A vencer';
+                            const tone = cancelled
+                              ? 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
+                              : done
+                              ? 'bg-[var(--status-success-bg)] text-[var(--status-success)]'
+                              : tempStatus === 'VENCIDO'
+                              ? 'bg-[var(--status-danger-bg)] text-[var(--status-danger)]'
+                              : 'bg-[var(--brand-gold-soft)] text-[var(--brand-gold)]';
+                            return <span className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap ${tone}`}>{label}</span>;
+                          })()}
+                        </div>
+                        <div className="adv-only flex flex-col items-center justify-center gap-1">
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
                             t.documentState === 'CANCELADO'
                               ? 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
