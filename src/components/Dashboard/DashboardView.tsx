@@ -48,7 +48,7 @@ import { CohortRetentionView } from './CohortRetentionView';
 import { StressTestingView } from './StressTestingView';
 import { BankAccountStatementModal } from '../Financial/BankAccountStatementModal';
 import { EditTitleModal } from '../Modals/EditTitleModal';
-import { PageToolbar, Button, TabPills, Card, IconTile, IconBadge, Badge } from '../Common/ui';
+import { PageToolbar, Button, TabPills, Card, IconTile, IconBadge, Badge, Disclosure, MoreMenu } from '../Common/ui';
 import { TReceipt, TBank, TWallet, TTrendUp, TChart, TAlert, TRepeat } from '../Common/tileIcons';
 
 interface DashboardViewProps {
@@ -86,6 +86,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [dashboardRefreshTrigger, setDashboardRefreshTrigger] = useState(0);
 
   // Tab: 'DASHBOARD' | 'ANNUAL_KPIS' | 'COHORT' | 'CHURN_RISK' | 'STRESS_TEST' | 'KPIS_CONFIG'
+  const [openSec, setOpenSec] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ANNUAL_KPIS' | 'COHORT' | 'CHURN_RISK' | 'STRESS_TEST' | 'KPIS_CONFIG'>('DASHBOARD');
   // Modo de exibição no bloco de KPIs: 'MONTH_CARDS' | 'ANNUAL_TABLE'
   const [kpiDisplayMode, setKpiDisplayMode] = useState<'MONTH_CARDS' | 'ANNUAL_TABLE'>('MONTH_CARDS');
@@ -420,33 +421,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6">
       
-      <PageToolbar description="Gestão executiva por regime de competência (DRE), disponibilidades financeiras e acompanhamento da carteira.">
-        <Button variant="secondary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => onNavigate('CONCILIACAO')}>
-          Conciliação bancária
-        </Button>
+      <PageToolbar description="Seu caixa, o que vence nos próximos dias e o resultado do mês.">
         <Button variant="primary" icon={<Calendar className="w-4 h-4" />} onClick={onOpenBillingModal}>
           Faturamento mensal
         </Button>
+        <MoreMenu
+          items={[
+            { label: 'Conciliação bancária', icon: <CheckCircle2 className="w-4 h-4" />, onClick: () => onNavigate('CONCILIACAO'), hint: 'Conferir o extrato com os lançamentos' },
+            { label: 'Personalizar painel', icon: <Settings2 className="w-4 h-4" />, onClick: () => setActiveTab('KPIS_CONFIG'), hint: 'Escolher o que aparece nas análises' }
+          ]}
+        />
       </PageToolbar>
 
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="min-w-0 max-w-full">
-          <TabPills
-            tabs={[
-              { id: 'DASHBOARD', label: 'Visão geral' },
-              { id: 'ANNUAL_KPIS', label: 'Evolução anual' },
-              { id: 'COHORT', label: 'Retenção' },
-              { id: 'CHURN_RISK', label: 'Risco de churn' },
-              { id: 'STRESS_TEST', label: 'Estresse de caixa' },
-              { id: 'KPIS_CONFIG', label: `Personalizar (${safeVisibleKpis.length})` }
-            ]}
-            value={activeTab}
-            onChange={id => setActiveTab(id as any)}
-          />
-        </div>
-        <span className="text-sm text-[var(--text-muted)] hidden lg:block">
-          {safeVisibleKpis.length} indicadores e {safeVisibleWidgets.length} widgets ativos
-        </span>
+      <div className="min-w-0 max-w-full">
+        <TabPills
+          tabs={[
+            { id: 'DASHBOARD', label: 'Visão geral' },
+            { id: 'ANNUAL_KPIS', label: 'Evolução anual' },
+            { id: 'CARTEIRA', label: 'Clientes' },
+            { id: 'STRESS_TEST', label: 'Estresse de caixa' }
+          ]}
+          value={activeTab === 'COHORT' || activeTab === 'CHURN_RISK' ? 'CARTEIRA' : activeTab}
+          onChange={id => setActiveTab(id === 'CARTEIRA' ? 'COHORT' : (id as any))}
+        />
       </div>
 
       {/* Dashboard Period Navigator */}
@@ -516,6 +513,160 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             />
           )}
 
+          {/* WIDGET 6: PRÓXIMOS VENCIMENTOS */}
+          {safeVisibleWidgets.includes('widget_proximos_vencimentos') && (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+              
+              {/* Contas a Receber Próximas */}
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1.5 text-emerald-600" />
+                    Próximos Vencimentos a Receber
+                  </h3>
+                  <button
+                    onClick={() => onNavigate('CONTAS_RECEBER')}
+                    className="text-xs font-semibold text-amber-500 hover:text-amber-400"
+                  >
+                    Ver todos ({receivables.filter(t => t.balancePrincipal > 0).length}) →
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-700 font-medium">
+                        <th className="py-2">Cliente</th>
+                        <th className="py-2">Vencimento</th>
+                        <th className="py-2 text-right">Saldo</th>
+                        <th className="py-2 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {upcomingReceivables.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-4 text-center text-slate-700">Nenhum vencimento pendente</td>
+                        </tr>
+                      ) : (
+                        upcomingReceivables.map(t => {
+                          const client = counterparties.find(c => c.id === t.counterpartyId);
+                          const tempStatus = getTemporalStatus(t, today);
+                          return (
+                            <tr 
+                              key={t.id} 
+                              onClick={() => handleOpenEditTitle(t)}
+                              className="hover:bg-amber-50/60 dark:hover:bg-amber-950/20 cursor-pointer transition-colors group"
+                              title="Clique para abrir e editar este lançamento"
+                            >
+                              <td className="py-2.5 font-medium text-slate-900">
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-xs text-slate-900 group-hover:text-amber-500 transition-colors">
+                                    {client?.name || 'Cliente não identificado'}
+                                  </span>
+                                  <span className="text-[11px] text-slate-700 truncate max-w-[200px]">
+                                    {t.description}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-2.5 text-slate-600 font-mono">{formatDateBR(t.dueDate)}</td>
+                              <td className="py-2.5 text-right font-bold text-slate-900 font-mono">{formatBRL(t.balancePrincipal)}</td>
+                              <td className="py-2.5 text-center">
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                                  tempStatus === 'VENCE_HOJE' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                                }`}>
+                                  {tempStatus === 'VENCE_HOJE' ? 'Vence Hoje' : 'A Vencer'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Contas a Pagar Próximas */}
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center">
+                    <TrendingDown className="w-4 h-4 mr-1.5 text-rose-600" />
+                    Próximos Vencimentos a Pagar
+                  </h3>
+                  <button
+                    onClick={() => onNavigate('CONTAS_PAGAR')}
+                    className="text-xs font-semibold text-amber-500 hover:text-amber-400"
+                  >
+                    Ver todos ({payables.filter(t => t.balancePrincipal > 0).length}) →
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-700 font-medium">
+                        <th className="py-2">Fornecedor</th>
+                        <th className="py-2">Vencimento</th>
+                        <th className="py-2 text-right">Saldo</th>
+                        <th className="py-2 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {upcomingPayables.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-4 text-center text-slate-700">Nenhum pagamento pendente</td>
+                        </tr>
+                      ) : (
+                        upcomingPayables.map(t => {
+                          const supplier = counterparties.find(c => c.id === t.counterpartyId);
+                          const tempStatus = getTemporalStatus(t, today);
+                          return (
+                            <tr 
+                              key={t.id} 
+                              onClick={() => handleOpenEditTitle(t)}
+                              className="hover:bg-rose-50/60 dark:hover:bg-rose-950/20 cursor-pointer transition-colors group"
+                              title="Clique para abrir e editar esta obrigação"
+                            >
+                              <td className="py-2.5 font-medium text-slate-900">
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-xs text-slate-900 group-hover:text-rose-600 transition-colors">
+                                    {supplier?.name || 'Fornecedor não identificado'}
+                                  </span>
+                                  <span className="text-[11px] text-slate-700 truncate max-w-[200px]">
+                                    {t.description}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-2.5 text-slate-600 font-mono">{formatDateBR(t.dueDate)}</td>
+                              <td className="py-2.5 text-right font-bold text-rose-700 font-mono">{formatBRL(t.balancePrincipal)}</td>
+                              <td className="py-2.5 text-center">
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                                  tempStatus === 'VENCE_HOJE' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                                }`}>
+                                  {tempStatus === 'VENCE_HOJE' ? 'Vence Hoje' : 'A Vencer'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          <p className="pt-2 text-sm font-medium text-[var(--text-muted)]">Análises detalhadas</p>
+
+          <Disclosure
+            icon={<TWallet />}
+            title="Projeção de caixa e inadimplência"
+            subtitle="Quanto deve sobrar nos próximos meses"
+            open={!!openSec['projecao']}
+            onToggle={() => setOpenSec(p => ({ ...p, projecao: !p['projecao'] }))}
+          >
           {/* NOVO WIDGET SOLICITADO: PROJEÇÃO DE CAIXA LÍQUIDO & SIMULAÇÃO DE INADIMPLÊNCIA ESPERADA */}
           <CashLiquiditySimulationWidget
             currentCompetenceStr={currentCompetenceStr}
@@ -528,11 +679,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onOpenStressTesting={() => setActiveTab('STRESS_TEST')}
           />
 
+          </Disclosure>
+
+          <Disclosure
+            icon={<TAlert />}
+            title="Risco de perder clientes"
+            subtitle="Contratos com sinal de cancelamento"
+            open={!!openSec['churn']}
+            onToggle={() => setOpenSec(p => ({ ...p, churn: !p['churn'] }))}
+          >
           {/* WIDGET: DETECÇÃO PREDITIVA DE RISCO DE CHURN (HEALTH SCORE) */}
           {safeVisibleWidgets.includes('widget_risco_churn') && (
             <ChurnRiskWidget onNavigateScreen={onNavigate} isCompactMode={true} />
           )}
 
+          </Disclosure>
+
+          <Disclosure
+            icon={<TReceipt />}
+            title="Faturamento, saldos e clientes"
+            subtitle="Resumo do mês, contas bancárias e carteira"
+            open={!!openSec['resumo']}
+            onToggle={() => setOpenSec(p => ({ ...p, resumo: !p['resumo'] }))}
+          >
           {/* WIDGETS CONFIGURÁVEIS SOLICITADOS: FATURAMENTO & SALDOS BANCÁRIOS CONSOLIDADOS */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
             
@@ -797,6 +966,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           </div>
 
+          </Disclosure>
+
+          <Disclosure
+            icon={<TChart />}
+            title="Indicadores do período"
+            subtitle="Os indicadores que você escolheu"
+            open={!!openSec['kpis']}
+            onToggle={() => setOpenSec(p => ({ ...p, kpis: !p['kpis'] }))}
+          >
           {/* GRID DE KPIS DINÂMICOS CONFORME CONFIGURAÇÃO DO USUÁRIO */}
           {safeVisibleKpis.length > 0 && (
             <div className="bg-[var(--surface-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-2xs space-y-4">
@@ -897,6 +1075,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
+          </Disclosure>
+
+          <Disclosure
+            icon={<TTrendUp />}
+            title="Resultado do mês"
+            subtitle="Receitas, custos e lucro por competência"
+            open={!!openSec['dre']}
+            onToggle={() => setOpenSec(p => ({ ...p, dre: !p['dre'] }))}
+          >
           {/* BLOCO 1: RESULTADO POR COMPETÊNCIA (DRE ECONÔMICO) */}
           {safeVisibleWidgets.includes('widget_dre_economico') && (
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4">
@@ -980,6 +1167,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
+          </Disclosure>
+
+          <Disclosure
+            icon={<TBank />}
+            title="Posição de caixa e carteira"
+            subtitle="Saldo, a receber e a pagar consolidados"
+            open={!!openSec['posicao']}
+            onToggle={() => setOpenSec(p => ({ ...p, posicao: !p['posicao'] }))}
+          >
           {/* BLOCO 2: POSIÇÃO FINANCEIRA DE CAIXA E CARTEIRA */}
           {safeVisibleWidgets.includes('widget_posicao_caixa') && (
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4">
@@ -1054,150 +1250,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
-          {/* WIDGET 6: PRÓXIMOS VENCIMENTOS */}
-          {safeVisibleWidgets.includes('widget_proximos_vencimentos') && (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-              
-              {/* Contas a Receber Próximas */}
-              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center">
-                    <TrendingUp className="w-4 h-4 mr-1.5 text-emerald-600" />
-                    Próximos Vencimentos a Receber
-                  </h3>
-                  <button
-                    onClick={() => onNavigate('CONTAS_RECEBER')}
-                    className="text-xs font-semibold text-amber-500 hover:text-amber-400"
-                  >
-                    Ver todos ({receivables.filter(t => t.balancePrincipal > 0).length}) →
-                  </button>
-                </div>
+          </Disclosure>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-slate-700 font-medium">
-                        <th className="py-2">Cliente</th>
-                        <th className="py-2">Vencimento</th>
-                        <th className="py-2 text-right">Saldo</th>
-                        <th className="py-2 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {upcomingReceivables.length === 0 ? (
-                        <tr>
-                          <td colSpan={4} className="py-4 text-center text-slate-700">Nenhum vencimento pendente</td>
-                        </tr>
-                      ) : (
-                        upcomingReceivables.map(t => {
-                          const client = counterparties.find(c => c.id === t.counterpartyId);
-                          const tempStatus = getTemporalStatus(t, today);
-                          return (
-                            <tr 
-                              key={t.id} 
-                              onClick={() => handleOpenEditTitle(t)}
-                              className="hover:bg-amber-50/60 dark:hover:bg-amber-950/20 cursor-pointer transition-colors group"
-                              title="Clique para abrir e editar este lançamento"
-                            >
-                              <td className="py-2.5 font-medium text-slate-900">
-                                <div className="flex flex-col">
-                                  <span className="font-bold text-xs text-slate-900 group-hover:text-amber-500 transition-colors">
-                                    {client?.name || 'Cliente não identificado'}
-                                  </span>
-                                  <span className="text-[11px] text-slate-700 truncate max-w-[200px]">
-                                    {t.description}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-2.5 text-slate-600 font-mono">{formatDateBR(t.dueDate)}</td>
-                              <td className="py-2.5 text-right font-bold text-slate-900 font-mono">{formatBRL(t.balancePrincipal)}</td>
-                              <td className="py-2.5 text-center">
-                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                                  tempStatus === 'VENCE_HOJE' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
-                                }`}>
-                                  {tempStatus === 'VENCE_HOJE' ? 'Vence Hoje' : 'A Vencer'}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Contas a Pagar Próximas */}
-              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center">
-                    <TrendingDown className="w-4 h-4 mr-1.5 text-rose-600" />
-                    Próximos Vencimentos a Pagar
-                  </h3>
-                  <button
-                    onClick={() => onNavigate('CONTAS_PAGAR')}
-                    className="text-xs font-semibold text-amber-500 hover:text-amber-400"
-                  >
-                    Ver todos ({payables.filter(t => t.balancePrincipal > 0).length}) →
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-slate-700 font-medium">
-                        <th className="py-2">Fornecedor</th>
-                        <th className="py-2">Vencimento</th>
-                        <th className="py-2 text-right">Saldo</th>
-                        <th className="py-2 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {upcomingPayables.length === 0 ? (
-                        <tr>
-                          <td colSpan={4} className="py-4 text-center text-slate-700">Nenhum pagamento pendente</td>
-                        </tr>
-                      ) : (
-                        upcomingPayables.map(t => {
-                          const supplier = counterparties.find(c => c.id === t.counterpartyId);
-                          const tempStatus = getTemporalStatus(t, today);
-                          return (
-                            <tr 
-                              key={t.id} 
-                              onClick={() => handleOpenEditTitle(t)}
-                              className="hover:bg-rose-50/60 dark:hover:bg-rose-950/20 cursor-pointer transition-colors group"
-                              title="Clique para abrir e editar esta obrigação"
-                            >
-                              <td className="py-2.5 font-medium text-slate-900">
-                                <div className="flex flex-col">
-                                  <span className="font-bold text-xs text-slate-900 group-hover:text-rose-600 transition-colors">
-                                    {supplier?.name || 'Fornecedor não identificado'}
-                                  </span>
-                                  <span className="text-[11px] text-slate-700 truncate max-w-[200px]">
-                                    {t.description}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-2.5 text-slate-600 font-mono">{formatDateBR(t.dueDate)}</td>
-                              <td className="py-2.5 text-right font-bold text-rose-700 font-mono">{formatBRL(t.balancePrincipal)}</td>
-                              <td className="py-2.5 text-center">
-                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                                  tempStatus === 'VENCE_HOJE' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
-                                }`}>
-                                  {tempStatus === 'VENCE_HOJE' ? 'Vence Hoje' : 'A Vencer'}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-            </div>
-          )}
 
         </div>
       )}
@@ -1219,6 +1273,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* ========================================================================= */}
       {/* TAB 3: ANÁLISE DE COORTES (RETENÇÃO DE CONTRATOS & NRR)                   */}
       {/* ========================================================================= */}
+      {(activeTab === 'COHORT' || activeTab === 'CHURN_RISK') && (
+        <TabPills
+          tabs={[{ id: 'COHORT', label: 'Retenção' }, { id: 'CHURN_RISK', label: 'Risco de cancelamento' }]}
+          value={activeTab}
+          onChange={id => setActiveTab(id as any)}
+        />
+      )}
+
       {activeTab === 'COHORT' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <CohortRetentionView onNavigateScreen={onNavigate} />

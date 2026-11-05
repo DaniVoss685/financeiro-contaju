@@ -30,6 +30,8 @@ function lazyWithRetry<T extends React.ComponentType<any>>(
 }
 
 // Demais Views carregadas sob demanda via Code-Splitting
+// Cópia do painel como era antes da limpeza (abrir com ?painel=antes para comparar)
+const DashboardViewAntes = lazyWithRetry(() => import('./components/Dashboard/DashboardViewAntes').then(m => ({ default: m.DashboardViewAntes })));
 const ConsultoriaView = lazyWithRetry(() => import('./components/Consultoria/ConsultoriaView').then(m => ({ default: m.ConsultoriaView })));
 const ClientsView = lazyWithRetry(() => import('./components/Commercial/ClientsView').then(m => ({ default: m.ClientsView })));
 const ServicesView = lazyWithRetry(() => import('./components/Commercial/ServicesView').then(m => ({ default: m.ServicesView })));
@@ -235,15 +237,17 @@ function AppContent() {
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
-      case 'DASHBOARD':
+      case 'DASHBOARD': {
+        const PainelEscolhido = new URLSearchParams(window.location.search).get('painel') === 'antes' ? DashboardViewAntes : DashboardView;
         return (
-          <DashboardView
+          <PainelEscolhido
             onNavigate={handleNavigate}
             onOpenNewTitleModal={handleOpenNewTitleModal}
             onOpenBillingModal={() => setIsBillingModalOpen(true)}
             onOpenTransferModal={() => setIsTransferModalOpen(true)}
           />
         );
+      }
       
       // Commercial
       case 'CLIENTES':

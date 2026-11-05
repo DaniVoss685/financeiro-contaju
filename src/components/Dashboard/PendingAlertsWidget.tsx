@@ -103,6 +103,27 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
     );
   };
 
+  // Nada vencendo: uma linha só, sem ocupar a tela
+  if (totalAlertsCount === 0) {
+    return (
+      <Card className="!py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <IconTile><CheckCircle2 /></IconTile>
+            <div className="min-w-0">
+              <p className="text-[15px] font-semibold">Tudo em dia nos próximos 3 dias</p>
+              <p className="text-sm text-[var(--text-muted)]">Nenhuma conta a pagar ou a receber vence de {formatDateBR(todayStr)} a {formatDateBR(in3DaysStr)}.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 flex-wrap">
+            <button onClick={() => onNavigate('CONTAS_PAGAR')} className="h-9 px-3 text-sm whitespace-nowrap text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors cursor-pointer">Contas a pagar</button>
+            <button onClick={() => onNavigate('CONTAS_RECEBER')} className="h-9 px-3 text-sm whitespace-nowrap text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors cursor-pointer">Contas a receber</button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="space-y-5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
