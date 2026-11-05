@@ -780,6 +780,9 @@ export interface GlobalPeriodFilter {
   active: boolean;
   year: number;
   month: number; // 1 to 12 (or 0 for whole year)
+  /** Dia único ou período personalizado (AAAA-MM-DD). Quando existem, valem no lugar de mês/ano. */
+  fromDate?: string;
+  toDate?: string;
 }
 
 export interface DashboardConfig {

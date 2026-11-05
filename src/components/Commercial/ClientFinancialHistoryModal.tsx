@@ -25,6 +25,7 @@ import {
 import { Counterparty, Contract, FinancialTitle, Settlement, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface ClientFinancialHistoryModalProps {
@@ -58,6 +59,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
   onClose,
   onEditClient
 }) => {
+  const simple = useIsSimpleMode();
   const [activeTab, setActiveTab] = useState<TabType>('VISAO_GERAL');
   const [selectedContractFilter, setSelectedContractFilter] = useState<string>(initialContractId || 'ALL');
   const [movementFilter, setMovementFilter] = useState<'ALL' | 'PAGAMENTO' | 'FATURA' | 'CONTRATO' | 'ATRASO'>('ALL');
@@ -278,10 +280,10 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
       <div className="bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-[var(--border-subtle)] transition-all">
         
         {/* MODAL HEADER */}
-        <div className="p-5 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-6 sm:p-7 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-400/30">
+              <span className="adv-only text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-400/30">
                 Ficha Financeira & Histórico Operacional
               </span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
@@ -293,11 +295,11 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
               </span>
               {activeContracts.length > 0 && (
                 <span className="text-[10px] font-semibold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">
-                  {activeContracts.length} Contrato(s) Ativo(s)
+                  {activeContracts.length} {activeContracts.length === 1 ? 'contrato ativo' : 'contratos ativos'}
                 </span>
               )}
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-[var(--text-primary)] mt-1.5 flex items-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)] mt-1.5 flex items-center">
               {client.name}
               {client.tradeName && (
                 <span className="text-sm font-normal text-[var(--text-secondary)] ml-2">
@@ -305,14 +307,14 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                 </span>
               )}
             </h2>
-            <div className="text-xs text-[var(--text-secondary)] font-mono mt-0.5">
-              CNPJ/CPF: {client.document || 'Não informado'} • E-mail: {client.email || 'Não informado'} • Tel: {client.phone || '-'}
+            <div className="text-sm text-[var(--text-secondary)] mt-1.5">
+              <span className="adv-only">CNPJ/CPF: {client.document || 'Não informado'} • </span>E-mail: {client.email || 'Não informado'} • Tel: {client.phone || '-'}
             </div>
           </div>
 
           {/* DROPDOWN DE VINCULAÇÃO COM CONTRATOS ATIVOS (SEMPRE VISÍVEL NO TOPO) */}
           <div className="flex items-center space-x-3">
-            <div className="relative min-w-[260px] sm:min-w-[320px]">
+            <div className="adv-only relative min-w-[260px] sm:min-w-[320px]">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1 flex items-center">
                 <FileText className="w-3 h-3 mr-1 text-amber-400" />
                 Vínculo com Contrato Ativo:
@@ -361,7 +363,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
         {/* ACTIVE CONTRACT SUMMARY BANNER (When a contract is selected) */}
         {currentSelectedContract && (
-          <div className="bg-amber-950/30 border-b border-amber-500/20 px-5 py-2.5 flex flex-wrap items-center justify-between text-xs gap-3">
+          <div className="adv-only bg-amber-950/30 border-b border-amber-500/20 px-5 py-2.5 flex flex-wrap items-center justify-between text-xs gap-3">
             <div className="flex items-center space-x-2">
               <span className={`w-2 h-2 rounded-full ${currentSelectedContract.status === 'ATIVO' ? 'bg-amber-400 animate-pulse' : 'bg-slate-400'}`} />
               <strong className="text-amber-300 font-mono">{currentSelectedContract.contractNumber}</strong>
@@ -389,29 +391,29 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
         )}
 
         {/* NAVIGATION TABS */}
-        <div className="border-b border-[var(--border-subtle)] px-5 flex items-center space-x-1 bg-[var(--surface-elevated)] overflow-x-auto text-xs">
+        <div className="border-b border-[var(--border-subtle)] px-6 flex items-center space-x-2 bg-[var(--surface-elevated)] overflow-x-auto text-sm">
           <button
             onClick={() => setActiveTab('VISAO_GERAL')}
-            className={`py-3 px-3.5 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
               activeTab === 'VISAO_GERAL'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>Visão Geral & Indicadores</span>
+            <span>{simple ? 'Resumo' : 'Visão Geral & Indicadores'}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('PAGAMENTOS')}
-            className={`py-3 px-3.5 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
               activeTab === 'PAGAMENTOS'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
-            <span>Histórico de Pagamentos</span>
+            <span>{simple ? 'Pagamentos' : 'Histórico de Pagamentos'}</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold ml-1">
               {filteredSettlements.length}
             </span>
@@ -419,7 +421,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
           <button
             onClick={() => setActiveTab('CONTRATOS')}
-            className={`py-3 px-3.5 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
               activeTab === 'CONTRATOS'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -436,14 +438,14 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
           <button
             onClick={() => setActiveTab('ATRASOS')}
-            className={`py-3 px-3.5 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
               activeTab === 'ATRASOS'
                 ? 'border-rose-400 text-rose-400 bg-rose-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-            <span>Atrasos & Inadimplência</span>
+            <span>{simple ? 'Em atraso' : 'Atrasos & Inadimplência'}</span>
             {metrics.overdueCount > 0 && (
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold ml-1 animate-pulse">
                 {metrics.overdueCount}
@@ -453,7 +455,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
           <button
             onClick={() => setActiveTab('MOVIMENTACOES')}
-            className={`py-3 px-3.5 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`adv-only py-3 px-3.5 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
               activeTab === 'MOVIMENTACOES'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -468,82 +470,67 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
         </div>
 
         {/* TAB CONTENTS */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+        <div className="p-6 sm:p-8 overflow-y-auto space-y-8 flex-1 text-sm">
           
           {/* TAB 1: VISÃO GERAL */}
           {activeTab === 'VISAO_GERAL' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               
-              {/* Top KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-[var(--surface-elevated)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-                  <div className="flex justify-between items-center text-[11px] text-[var(--text-secondary)] uppercase font-semibold">
-                    <span>Total Faturado</span>
-                    <Receipt className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <div className="text-xl font-bold font-mono text-[var(--text-primary)]">
-                    {formatBRL(metrics.totalInvoiced)}
-                  </div>
-                  <div className="text-[11px] text-[var(--text-secondary)]">
-                    {filteredTitles.length} títulos emitidos
-                  </div>
-                </div>
-
-                <div className="bg-[var(--surface-elevated)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-                  <div className="flex justify-between items-center text-[11px] text-emerald-400 uppercase font-semibold">
-                    <span>Total Recebido</span>
-                    <DollarSign className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <div className="text-xl font-bold font-mono text-emerald-400">
-                    {formatBRL(metrics.totalReceived)}
-                  </div>
-                  <div className="text-[11px] text-[var(--text-secondary)]">
-                    {filteredSettlements.length} pagamentos realizados
-                  </div>
-                </div>
-
-                <div className="bg-[var(--surface-elevated)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-                  <div className="flex justify-between items-center text-[11px] text-amber-400 uppercase font-semibold">
-                    <span>Saldo em Aberto</span>
-                    <Clock className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <div className="text-xl font-bold font-mono text-amber-400">
-                    {formatBRL(metrics.openBalance)}
-                  </div>
-                  <div className="text-[11px] text-[var(--text-secondary)]">
-                    A receber no período
-                  </div>
-                </div>
-
-                <div className={`p-4 rounded-xl border space-y-1 ${
-                  metrics.overdueCount > 0 
-                    ? 'bg-rose-950/20 border-rose-500/40 text-rose-400' 
-                    : 'bg-[var(--surface-elevated)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+              {/* O que mais importa: atraso e quanto falta receber */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className={`p-6 rounded-2xl border ${
+                  metrics.overdueCount > 0
+                    ? 'bg-[var(--status-danger-bg)] border-[var(--status-danger)]/40'
+                    : 'bg-[var(--status-success-bg)] border-[var(--status-success)]/30'
                 }`}>
-                  <div className="flex justify-between items-center text-[11px] uppercase font-semibold">
-                    <span>Total em Atraso</span>
-                    <AlertTriangle className="w-4 h-4" />
+                  <div className={`flex items-center gap-2 text-sm font-medium ${metrics.overdueCount > 0 ? 'text-[var(--status-danger)]' : 'text-[var(--status-success)]'}`}>
+                    {metrics.overdueCount > 0 ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                    <span>{metrics.overdueCount > 0 ? 'Em atraso' : 'Tudo em dia'}</span>
                   </div>
-                  <div className="text-xl font-bold font-mono text-rose-400">
+                  <div className={`mt-2 text-3xl font-semibold tabular-nums tracking-tight ${metrics.overdueCount > 0 ? 'text-[var(--status-danger)]' : 'text-[var(--text-primary)]'}`}>
                     {formatBRL(metrics.overdueBalance)}
                   </div>
-                  <div className="text-[11px]">
-                    {metrics.overdueCount > 0 
-                      ? `${metrics.overdueCount} título(s) vencido(s) • Média: ${metrics.avgDelayDays} dias`
-                      : 'Nenhum atraso registrado'}
+                  <div className="mt-1.5 text-sm text-[var(--text-secondary)]">
+                    {metrics.overdueCount > 0
+                      ? `${metrics.overdueCount} ${metrics.overdueCount === 1 ? 'conta vencida' : 'contas vencidas'}, em média ${metrics.avgDelayDays} dias de atraso`
+                      : 'Nenhuma conta vencida'}
                   </div>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-[var(--gold-edge)] bg-[var(--brand-gold-soft)]">
+                  <div className="flex items-center gap-2 text-sm font-medium text-[var(--brand-gold)]">
+                    <Clock className="w-4 h-4" />
+                    <span>A receber</span>
+                  </div>
+                  <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-[var(--text-primary)]">
+                    {formatBRL(metrics.openBalance)}
+                  </div>
+                  <div className="mt-1.5 text-sm text-[var(--text-secondary)]">Saldo em aberto deste cliente</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-5">
+                <div className="px-6 py-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)]">
+                  <div className="text-sm text-[var(--text-secondary)]">Total faturado</div>
+                  <div className="mt-1 text-xl font-semibold tabular-nums">{formatBRL(metrics.totalInvoiced)}</div>
+                  <div className="mt-0.5 text-xs text-[var(--text-muted)]">{filteredTitles.length} {simple ? 'cobranças' : 'títulos emitidos'}</div>
+                </div>
+                <div className="px-6 py-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)]">
+                  <div className="text-sm text-[var(--text-secondary)]">Total recebido</div>
+                  <div className="mt-1 text-xl font-semibold tabular-nums text-[var(--status-success)]">{formatBRL(metrics.totalReceived)}</div>
+                  <div className="mt-0.5 text-xs text-[var(--text-muted)]">{filteredSettlements.length} pagamentos</div>
                 </div>
               </div>
 
               {/* Active Contracts Quick Glance */}
-              <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border-subtle)] p-4 space-y-3">
+              <div className="bg-[var(--surface-elevated)] rounded-2xl border border-[var(--border-subtle)] p-6 space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-bold text-[var(--text-primary)] flex items-center text-sm">
+                  <h3 className="font-semibold text-[var(--text-primary)] flex items-center text-base">
                     <FileText className="w-4 h-4 mr-1.5 text-amber-400" />
-                    Contratos Recorrentes do Cliente
+                    {simple ? 'Contratos' : 'Contratos Recorrentes do Cliente'}
                   </h3>
                   <div className="text-xs text-[var(--text-secondary)]">
-                    Receita recorrente ativa: <strong className="text-amber-400 font-mono">{formatBRL(metrics.recurringMonthly)}/mês</strong>
+                    {simple ? 'Receita mensal' : 'Receita recorrente ativa'}: <strong className="text-amber-400 font-mono">{formatBRL(metrics.recurringMonthly)}/mês</strong>
                   </div>
                 </div>
 
@@ -556,15 +543,15 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                     {clientContracts.map(ct => (
                       <div 
                         key={ct.id} 
-                        className={`p-3 rounded-lg border transition-all ${
+                        className={`p-5 rounded-xl border transition-all ${
                           ct.status === 'ATIVO' 
-                            ? 'bg-amber-950/20 border-amber-500/30' 
+                            ? 'bg-[var(--brand-gold-soft)] border-[var(--gold-edge)]' 
                             : 'bg-[var(--surface-card)] border-[var(--border-subtle)] opacity-75'
                         }`}
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <span className="font-bold font-mono text-amber-300">{ct.contractNumber}</span>
+                            <span className="adv-only font-semibold tabular-nums text-amber-300">{ct.contractNumber}</span>
                             <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.2 rounded border ${
                               ct.status === 'ATIVO' 
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
@@ -578,7 +565,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold font-mono text-[var(--text-primary)] text-sm block">
+                            <span className="font-semibold tabular-nums text-[var(--text-primary)] text-sm block">
                               {formatBRL(ct.monthlyTotal)}
                             </span>
                             <span className="text-[10px] text-[var(--text-secondary)]">/mês</span>
@@ -586,7 +573,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                         </div>
 
                         <div className="mt-2 pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px]">
-                          <span className="text-[var(--text-secondary)] truncate max-w-[200px]">
+                          <span className="adv-only text-[var(--text-secondary)] truncate max-w-[200px]">
                             {ct.items.map(i => i.description).join(', ')}
                           </span>
                           <button
@@ -610,11 +597,11 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 
                 {/* Recent Payments Box */}
-                <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border-subtle)] p-4 space-y-3">
+                <div className="bg-[var(--surface-elevated)] rounded-2xl border border-[var(--border-subtle)] p-6 space-y-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-[var(--text-primary)] flex items-center text-sm">
+                    <h3 className="font-semibold text-[var(--text-primary)] flex items-center text-base">
                       <CreditCard className="w-4 h-4 mr-1.5 text-emerald-400" />
-                      Últimos Pagamentos Recebidos
+                      {simple ? 'Últimos pagamentos' : 'Últimos Pagamentos Recebidos'}
                     </h3>
                     <button
                       onClick={() => setActiveTab('PAGAMENTOS')}
@@ -632,19 +619,19 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                         const title = clientTitlesMap.get(s.titleId);
                         const bank = bankAccounts.find(b => b.id === s.bankAccountId);
                         return (
-                          <div key={s.id} className="p-2.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] flex justify-between items-center">
+                          <div key={s.id} className="px-4 py-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex justify-between items-center">
                             <div>
                               <div className="font-semibold text-[var(--text-primary)] flex items-center space-x-1.5">
-                                <span>{s.settlementNumber}</span>
+                                <span className="adv-only">{s.settlementNumber}</span><span className="simple-only">{title?.description || 'Pagamento'}</span>
                                 <span className="text-[10px] text-[var(--text-secondary)] font-normal font-mono">
                                   ({formatDateBR(s.settlementDate)})
                                 </span>
                               </div>
                               <div className="text-[11px] text-[var(--text-secondary)]">
-                                {title?.titleNumber} - {title?.description} • {bank?.name || 'Banco'}
+                                <span className="adv-only">{title?.titleNumber} - {title?.description} • </span>{bank?.name || 'Banco'}
                               </div>
                             </div>
-                            <span className="font-bold font-mono text-emerald-400">
+                            <span className="font-semibold tabular-nums text-emerald-400">
                               {formatBRL(s.components.netFinancialAmount)}
                             </span>
                           </div>
@@ -655,11 +642,11 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                 </div>
 
                 {/* Overdue Delays Box */}
-                <div className="bg-[var(--surface-elevated)] rounded-xl border border-[var(--border-subtle)] p-4 space-y-3">
+                <div className="bg-[var(--surface-elevated)] rounded-2xl border border-[var(--border-subtle)] p-6 space-y-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-rose-400 flex items-center text-sm">
+                    <h3 className="font-semibold text-[var(--status-danger)] flex items-center text-base">
                       <AlertTriangle className="w-4 h-4 mr-1.5 text-rose-400" />
-                      Situação de Atrasos & Cobrança
+                      {simple ? 'Em atraso' : 'Situação de Atrasos & Cobrança'}
                     </h3>
                     <button
                       onClick={() => setActiveTab('ATRASOS')}
@@ -680,20 +667,20 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                       {delayedTitles.slice(0, 4).map(t => {
                         const diff = Math.max(0, Math.floor((new Date(today).getTime() - new Date(t.dueDate).getTime()) / 86400000));
                         return (
-                          <div key={t.id} className="p-2.5 rounded-lg bg-rose-950/20 border border-rose-500/30 flex justify-between items-center">
+                          <div key={t.id} className="px-4 py-3 rounded-xl bg-[var(--status-danger-bg)] border border-[var(--status-danger)]/30 flex justify-between items-center">
                             <div>
                               <div className="font-semibold text-rose-300 flex items-center space-x-1.5">
-                                <span>{t.titleNumber}</span>
+                                <span className="adv-only">{t.titleNumber}</span><span className="simple-only">{t.description}</span>
                                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300">
                                   {diff} dias de atraso
                                 </span>
                               </div>
                               <div className="text-[11px] text-[var(--text-secondary)]">
-                                Venceu em {formatDateBR(t.dueDate)} • Comp: {t.competence}
+                                Venceu em {formatDateBR(t.dueDate)}<span className="adv-only"> • Comp: {t.competence}</span>
                               </div>
                             </div>
                             <div className="text-right">
-                              <span className="font-bold font-mono text-rose-400 block">
+                              <span className="font-semibold tabular-nums text-rose-400 block">
                                 {formatBRL(t.balancePrincipal)}
                               </span>
                               <span className="text-[10px] text-[var(--text-secondary)]">Saldo a liquidar</span>
@@ -796,7 +783,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                                 <span className="text-amber-400 font-medium">+{formatBRL(additions)}</span>
                               ) : '-'}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-bold font-mono text-emerald-400">
+                            <td className="py-2.5 px-3 text-right font-semibold tabular-nums text-emerald-400">
                               {formatBRL(s.components.netFinancialAmount)}
                             </td>
                             <td className="py-2.5 px-3 text-[var(--text-secondary)]">
@@ -901,7 +888,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                               </div>
                               <div>
                                 <div className="flex items-center space-x-2">
-                                  <span className="font-bold font-mono text-base text-[var(--text-primary)]">{ct.contractNumber}</span>
+                                  <span className="font-semibold tabular-nums text-base text-[var(--text-primary)]">{ct.contractNumber}</span>
                                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                                     ct.status === 'ATIVO' 
                                       ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
@@ -929,7 +916,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                             <div className="flex items-center space-x-3">
                               <div className="text-right">
                                 <span className="text-[10px] text-[var(--text-secondary)] block">Valor Mensal:</span>
-                                <span className="font-bold font-mono text-amber-400 text-base">{formatBRL(ct.monthlyTotal)}</span>
+                                <span className="font-semibold tabular-nums text-amber-400 text-base">{formatBRL(ct.monthlyTotal)}</span>
                               </div>
                               <button
                                 onClick={() => {
@@ -1083,7 +1070,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                               <td className="py-2.5 px-3 text-right font-medium text-[var(--text-secondary)]">
                                 {formatBRL(t.originalAmount)}
                               </td>
-                              <td className="py-2.5 px-3 text-right font-bold font-mono text-rose-400">
+                              <td className="py-2.5 px-3 text-right font-semibold tabular-nums text-rose-400">
                                 {formatBRL(t.balancePrincipal)}
                               </td>
                               <td className="py-2.5 px-3 text-right text-[11px] text-amber-400">

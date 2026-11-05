@@ -483,27 +483,16 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                     {/* MENU DROPDOWN DE VINCULAÇÃO COM CONTRATOS ATIVOS */}
                     <td className="py-3 px-4">
                       {activeContracts.length > 0 ? (
-                        <div className="relative">
-                          <PremiumSelect
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                handleOpenClientHistory(client, e.target.value);
-                              }
-                            }}
-                            className="w-full text-[11px] font-medium py-1.5 pl-2.5 pr-6 rounded-lg bg-[var(--surface-elevated)] text-amber-300 border border-amber-500/30 hover:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400 cursor-pointer appearance-none transition-colors"
-                            defaultValue=""
-                          >
-                            <option value="" disabled>
-                              📋 Contratos Ativos ({activeContracts.length}) ▾
-                            </option>
-                            {activeContracts.map(ct => (
-                              <option key={ct.id} value={ct.id}>
-                                {ct.contractNumber} • {formatBRL(ct.monthlyTotal)}/mês (Dia {ct.dueDay})
-                              </option>
-                            ))}
-                          </PremiumSelect>
-                          <ChevronDown className="w-3.5 h-3.5 text-amber-400 absolute right-2 top-2 pointer-events-none" />
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenClientHistory(client, activeContracts.length === 1 ? activeContracts[0].id : undefined)}
+                          className="inline-flex items-center gap-2 h-8 px-3 rounded-full text-xs font-semibold bg-[var(--status-success-bg)] text-[var(--status-success)] hover:brightness-110 transition cursor-pointer"
+                          title="Ver os contratos deste cliente"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-success)]" />
+                          {activeContracts.length === 1 ? '1 contrato ativo' : `${activeContracts.length} contratos ativos`}
+                          <span className="font-normal opacity-80 tabular-nums">• {formatBRL(activeContracts.reduce((acc, c) => acc + (Number(c.monthlyTotal) || 0), 0))}/mês</span>
+                        </button>
                       ) : (
                         <div className="flex items-center space-x-1">
                           <span className="text-[10px] text-[var(--text-secondary)] bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-2 py-0.5 rounded">

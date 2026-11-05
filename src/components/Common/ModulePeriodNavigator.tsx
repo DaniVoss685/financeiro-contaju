@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useModulePeriod, ModulePeriodType } from '../../hooks/useModulePeriod';
-import { formatPeriodRangeBR } from '../../utils/dateUtils';
+import { formatPeriodLabelBR } from '../../utils/dateUtils';
 import { GlobalPeriodSelectorModal } from './GlobalPeriodSelectorModal';
 
 interface ModulePeriodNavigatorProps {
@@ -28,8 +28,8 @@ export const ModulePeriodNavigator: React.FC<ModulePeriodNavigatorProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const now = new Date();
-  const isCurrentMonthActive = period.active && period.year === now.getFullYear() && period.month === now.getMonth() + 1;
-  const rangeText = period.active ? formatPeriodRangeBR(period.month, period.year) : 'Todo o período';
+  const isCurrentMonthActive = period.active && !period.fromDate && period.year === now.getFullYear() && period.month === now.getMonth() + 1;
+  const rangeText = formatPeriodLabelBR(period);
 
   return (
     <>

@@ -37,7 +37,7 @@ import {
 } from 'lucide-react';
 import { FinancialTitle, ChartAccount } from '../../types';
 import { storage } from '../../services/storageService';
-import { formatCompetenceShort } from '../../utils/dateUtils';
+import { formatCompetenceShort, periodContainsDate } from '../../utils/dateUtils';
 import { FinancialEngine, formatBRL, formatDateBR, getTemporalStatus, getFilteredChartAccounts, formatAccountNameWithoutCode, getAccountBadgeColorClasses, triggerWhatsAppForTitle } from '../../services/financialEngine';
 import { matchesSearch } from '../../utils/searchUtils';
 import { SettlementModal } from '../Modals/SettlementModal';
@@ -57,7 +57,8 @@ import { useModulePeriod } from '../../hooks/useModulePeriod';
 import { toast } from '../../hooks/useToast';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
-import { Card, PageToolbar, Button, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
+import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
+import { MoneyField } from '../Common/MoneyField';
 import { TWallet, TClock, TCalendar, TAlert, TCheck } from '../Common/tileIcons';
 
 interface PayablesViewProps {
@@ -69,6 +70,8 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   const today = new Date().toISOString().split('T')[0];
   const { period } = useModulePeriod('PAYABLES');
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [minAmount, setMinAmount] = useState(0);
+  const [maxAmount, setMaxAmount] = useState(0);
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>(
     initialSearch ? 'TODOS' : 'ABERTO'
   );
@@ -225,21 +228,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     try {
       return titles.filter(t => {
         if (!t) return false;
-        if (period && period.active) {
-          const pYear = period.year;
-          const pMonth = period.month;
-          const dueStr = String(t.dueDate || '');
-
-          if (pMonth === 0) {
-            // Todos os meses do ano
-            const yStr = String(pYear);
-            if (!dueStr.startsWith(yStr)) return false;
-          } else {
-            // Mês específico
-            const ymStr = `${pYear}-${String(pMonth).padStart(2, '0')}`;
-            if (!dueStr.startsWith(ymStr)) return false;
-          }
-        }
+        if (!periodContainsDate(period, t.dueDate)) return false;
         return true;
       });
     } catch (err) {
@@ -438,6 +427,9 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
         const balance = Number(t.balancePrincipal) || 0;
         const due = String(t.dueDate || '');
+        const valorTitulo = Number(t.originalAmount) || 0;
+        if (minAmount > 0 && valorTitulo < minAmount) return false;
+        if (maxAmount > 0 && valorTitulo > maxAmount) return false;
 
         // Quick Date filter
         if (quickDateFilter === 'HOJE') {
@@ -470,7 +462,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       console.error('Erro ao filtrar títulos a pagar:', err);
       return [];
     }
-  }, [periodTitles, searchTerm, categoryFilter, counterpartyFilter, bankFilter, originFilter, quickDateFilter, statusFilter, today, weekRange, counterparties, chartAccounts]);
+  }, [periodTitles, minAmount, maxAmount, searchTerm, categoryFilter, counterpartyFilter, bankFilter, originFilter, quickDateFilter, statusFilter, today, weekRange, counterparties, chartAccounts]);
 
   // Sorting
   const sortedTitles = useMemo(() => {
@@ -546,12 +538,14 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     setCategoryFilter('ALL');
     setCounterpartyFilter('ALL');
     setBankFilter('ALL');
+    setMinAmount(0);
+    setMaxAmount(0);
     setOriginFilter('ALL');
     setQuickDateFilter('ALL');
     setStatusFilter('ABERTO');
   };
 
-  const hasActiveFilters = searchTerm !== '' || categoryFilter !== 'ALL' || counterpartyFilter !== 'ALL' || bankFilter !== 'ALL' || originFilter !== 'ALL' || quickDateFilter !== 'ALL';
+  const hasActiveFilters = minAmount > 0 || maxAmount > 0 || searchTerm !== '' || categoryFilter !== 'ALL' || counterpartyFilter !== 'ALL' || bankFilter !== 'ALL' || originFilter !== 'ALL' || quickDateFilter !== 'ALL';
 
   // Batch selection helpers - Permite selecionar qualquer lançamento, inclusive cancelados para exclusão em lote
   const selectableTitles = filteredTitles;
@@ -933,10 +927,13 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       </div>
 
       {/* Filtros */}
-      <Card className="space-y-5">
-        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
-          <div className="min-w-0 2xl:flex-1">
-            <TabPills
+      <Card className="space-y-6">
+        <div>
+          <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">Filtros</h3>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">Siga os passos abaixo para achar o que procura.</p>
+        </div>
+        <FilterGroup step={1} title="Situação" hint="Em que pé está cada conta">
+          <TabPills
               tabs={[
                 { id: 'ABERTO', label: 'Em aberto', count: stats.openCount },
                 { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
@@ -951,20 +948,51 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                 setQuickDateFilter('ALL');
               }}
             />
+        </FilterGroup>
+
+        <FilterGroup step={2} title="Vencimento" hint="Quando a conta vence. O mês fica no topo da tela.">
+          <div className="flex flex-wrap gap-2">
+            {([['ALL', 'Todos'], ['HOJE', 'Vence hoje'], ['ESTA_SEMANA', 'Esta semana'], ['ESTE_MES', 'Este mês'], ['VENCIDO', 'Atrasados']] as const).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setQuickDateFilter(id as any)}
+                className={`h-9 px-3.5 rounded-lg text-sm border transition-colors cursor-pointer ${
+                  quickDateFilter === id ? 'btn-gold font-semibold border-transparent' : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-          <div className="relative w-full 2xl:w-72 shrink-0">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
-            <input
+        </FilterGroup>
+
+        <FilterGroup step={3} title="Valor" hint="Só contas dentro de uma faixa de valor">
+          <div className="grid grid-cols-2 gap-3 max-w-md">
+            <div>
+              <label className="block text-xs text-[var(--text-muted)] mb-1">A partir de (R$)</label>
+              <MoneyField value={minAmount} onChange={setMinAmount} className="w-full h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]" />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-muted)] mb-1">Até (R$)</label>
+              <MoneyField value={maxAmount} onChange={setMaxAmount} className="w-full h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]" />
+            </div>
+          </div>
+        </FilterGroup>
+
+        <FilterGroup step={4} title="Fornecedor e descrição" hint="Procure pelo nome, pelo texto ou escolha na lista">
+          <div className="space-y-3">
+            <div className="relative w-full max-w-xl">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+              <input
               type="text"
               placeholder="Buscar por fornecedor, documento ou descrição"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
             />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl">
           <div className="adv-only">
             <FieldLabel>Plano de contas</FieldLabel>
             <PremiumSelect
@@ -1122,6 +1150,8 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
             </div>
           </div>
         )}
+          </div>
+        </FilterGroup>
       </Card>
 
       {/* Payables Period Navigator (Vencimento) */}

@@ -101,3 +101,25 @@ export function formatCompetenceShort(comp?: string | null): string {
   const m = /^(\d{4})-(\d{2})/.exec(comp);
   return m ? `${m[2]}/${m[1]}` : comp;
 }
+
+const MESES_LONGOS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const ymdToBR = (d: string) => d.split('-').reverse().join('/');
+
+/** Texto curto do período escolhido: "Novembro de 2026", "Ano de 2026", "05/11/2026" ou "01/11/2026 a 07/11/2026". */
+export function formatPeriodLabelBR(p: { active: boolean; month: number; year: number; fromDate?: string; toDate?: string }): string {
+  if (!p.active) return 'Todo o período';
+  if (p.fromDate && p.toDate) {
+    return p.fromDate === p.toDate ? ymdToBR(p.fromDate) : `${ymdToBR(p.fromDate)} a ${ymdToBR(p.toDate)}`;
+  }
+  if (p.month === 0) return `Ano de ${p.year}`;
+  return `${MESES_LONGOS[p.month - 1] || ''} de ${p.year}`;
+}
+
+/** A data (AAAA-MM-DD) está dentro do período escolhido? Sem filtro ativo, sempre sim. */
+export function periodContainsDate(p: { active: boolean; month: number; year: number; fromDate?: string; toDate?: string } | undefined, dateStr?: string | null): boolean {
+  if (!p || !p.active) return true;
+  const d = String(dateStr || '');
+  if (p.fromDate && p.toDate) return d >= p.fromDate && d <= p.toDate;
+  if (p.month === 0) return d.startsWith(String(p.year));
+  return d.startsWith(`${p.year}-${String(p.month).padStart(2, '0')}`);
+}

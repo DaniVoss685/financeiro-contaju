@@ -276,3 +276,54 @@ export const MoreMenu: React.FC<{
     </div>
   );
 };
+
+/** Painel de filtros guiado: cada grupo diz o que filtra, em ordem (1, 2, 3…). */
+export const FilterPanel: React.FC<{
+  title?: string;
+  subtitle?: string;
+  active?: boolean;
+  onClear?: () => void;
+  summary?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ title = 'Filtros', subtitle = 'Escolha o que você quer ver na lista.', active = false, onClear, summary, children }) => (
+  <Card className="space-y-6">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">{title}</h3>
+        <p className="text-sm text-[var(--text-muted)] mt-0.5">{subtitle}</p>
+      </div>
+      <div className="flex items-center gap-4 flex-wrap">
+        {summary && <p className="text-sm text-[var(--text-secondary)]">{summary}</p>}
+        {active && onClear && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="h-9 px-3.5 rounded-lg text-sm border border-[var(--border-highlight)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          >
+            Limpar filtros
+          </button>
+        )}
+      </div>
+    </div>
+    <div className="space-y-6">{children}</div>
+  </Card>
+);
+
+export const FilterGroup: React.FC<{
+  step: number;
+  title: string;
+  hint?: string;
+  className?: string;
+  children: React.ReactNode;
+}> = ({ step, title, hint, className = '', children }) => (
+  <div className={`flex flex-col lg:flex-row lg:items-start gap-3 lg:gap-6 ${className}`}>
+    <div className="lg:w-52 shrink-0 flex items-start gap-3">
+      <span className="w-6 h-6 rounded-full bg-[var(--brand-gold-soft)] text-[var(--brand-gold)] text-xs font-semibold flex items-center justify-center shrink-0 mt-0.5">{step}</span>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-[var(--text-primary)]">{title}</p>
+        {hint && <p className="text-xs text-[var(--text-muted)] mt-0.5">{hint}</p>}
+      </div>
+    </div>
+    <div className="min-w-0 flex-1">{children}</div>
+  </div>
+);

@@ -22,14 +22,16 @@ import {
   Eye
 } from 'lucide-react';
 import { isConsultant } from '../services/authService';
-import { useIsSimpleMode, setViewMode } from '../hooks/useViewMode';
+import { useIsSimpleMode, setViewMode, getIsSimpleMode } from '../hooks/useViewMode';
+import { NotificationsModal } from './Common/NotificationsModal';
+import { collectNotifications } from '../services/notificationSummary';
 import { User, UserRole } from '../types';
 import { NavigationScreen, getScreenTitle } from './Sidebar';
 import { storage } from '../services/storageService';
 import { FinancialEngine, formatBRL } from '../services/financialEngine';
 import { useModulePeriod } from '../hooks/useModulePeriod';
 import { useToast } from '../hooks/useToast';
-import { formatPeriodRangeBR } from '../utils/dateUtils';
+import { formatPeriodLabelBR } from '../utils/dateUtils';
 import { GlobalPeriodSelectorModal } from './Common/GlobalPeriodSelectorModal';
 import { GlobalSearchModal } from './Common/GlobalSearchModal';
 import { PWAInstallButton } from './Common/PWAInstallButton';
@@ -103,6 +105,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { showSuccess, showError } = useToast();
   const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>(storage.getTheme());
   const newMenu = usePopover();
@@ -165,19 +168,10 @@ export const Header: React.FC<HeaderProps> = ({
 
   const computeNotifications = useCallback(() => {
     try {
-      const titles = storage.getTitles();
-      const todayStr = new Date().toISOString().split('T')[0];
-      const nowTime = new Date().getTime();
-      const expiring = storage.getContracts().filter(c => {
-        if (c.status !== 'ATIVO' || !c.endDate) return false;
-        const diffDays = Math.ceil((new Date(c.endDate).getTime() - nowTime) / (1000 * 3600 * 24));
-        return diffDays >= 0 && diffDays <= 30;
-      }).length;
-      const payToday = titles.filter(t => t.type === 'PAGAR' && t.balancePrincipal > 0 && t.dueDate === todayStr).length;
-      const pendingReconcile = storage.getStatementEntries().filter(
-        s => s.reconciliationStatus === 'PENDENTE' || s.reconciliationStatus === 'SUGESTAO'
-      ).length;
-      return expiring + payToday + pendingReconcile;
+      const simple = getIsSimpleMode();
+      return collectNotifications()
+        .filter(g => !(simple && g.id === 'CONCILIACAO'))
+        .reduce((acc, g) => acc + g.items.length, 0);
     } catch {
       return 0;
     }
@@ -245,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const { title, group } = getScreenTitle(currentScreen as NavigationScreen);
   const period = currentPeriodConfig.period;
-  const periodText = period.active ? formatPeriodRangeBR(period.month, period.year) : 'Todo o período';
+  const periodText = formatPeriodLabelBR(period);
   const calculatorActive = isCalculatorOpen && !isCalculatorMinimized;
 
   return (
@@ -367,9 +361,9 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             type="button"
-            onClick={() => onNavigate && onNavigate('NOTIFICACOES')}
+            onClick={() => setIsNotificationsOpen(true)}
             className={iconButton}
-            title="Central de notificações"
+            title="Notificações"
             aria-label="Notificações"
           >
             <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
@@ -496,6 +490,12 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
     </header>
+
+      <NotificationsModal
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        onNavigate={screen => onNavigate && onNavigate(screen)}
+      />
 
       {isPeriodModalOpen && (
         <GlobalPeriodSelectorModal
