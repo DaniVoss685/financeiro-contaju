@@ -314,7 +314,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
   const handleSelectQuickUser = (user: User) => {
     setEmail(user.email);
-    setPassword(user.password || 'contaju123');
+    setPassword(user.password || '');
     setErrorMessage(null);
     setSuccessNotice(null);
   };
@@ -324,7 +324,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setErrorMessage(null);
     setSuccessNotice(null);
     try {
-      const result = await storage.login(user.email, user.password || 'contaju123');
+      const result = await storage.login(user.email, user.password || '');
       setIsLoading(false);
       if (result.requiresTwoFactor && result.twoFactorUserId) {
         setTwoFactorUserId(result.twoFactorUserId);
@@ -420,10 +420,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </header>
 
       {/* Conteúdo Central */}
-      <main className="login-main w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] gap-8 xl:gap-12 items-center my-auto">
+      <main className="login-main w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] gap-8 xl:gap-16 items-center my-auto">
 
         {/* Painel de marca (somente telas grandes) */}
-        <section className="hidden lg:flex flex-col justify-between gap-12 relative overflow-hidden rounded-3xl border border-[var(--gold-edge)] hero-glow bg-[var(--surface-card)] p-10 xl:p-12 min-h-[600px]">
+        <section className="hidden lg:flex flex-col justify-between gap-12 relative overflow-hidden rounded-3xl border border-[var(--gold-edge)] hero-glow bg-[var(--surface-card)] p-10 xl:p-12 min-h-[520px]">
           <div>
             <IconTile className="w-14 h-14 rounded-2xl [&>svg]:w-7 [&>svg]:h-7"><TWallet /></IconTile>
             <h2 className="mt-10 text-[34px] leading-[42px] xl:text-[40px] xl:leading-[48px] font-semibold tracking-tight max-w-lg">
@@ -516,21 +516,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && <KeyRound className="w-3.5 h-3.5 text-amber-500" />}
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && <KeyRound className="w-3.5 h-3.5 text-amber-500" />}
                 
-                {authMode === 'LOGIN' && 'Acesso Seguro ao Sistema'}
+                {authMode === 'LOGIN' && 'Acesso seguro'}
                 {authMode === 'REGISTER' && 'Aprovação por E-mail (Resend)'}
                 {authMode === 'TWO_FACTOR' && 'Autenticação em Duas Etapas'}
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && 'Recuperação de Credencial'}
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && 'Redefinição de Senha'}
               </span>
               <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
-                {authMode === 'LOGIN' && 'Acessar o Painel'}
+                {authMode === 'LOGIN' && 'Entrar'}
                 {authMode === 'REGISTER' && 'Criar Nova Conta'}
                 {authMode === 'TWO_FACTOR' && 'Código de Verificação (2FA)'}
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && 'Esqueceu sua Senha?'}
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && 'Criar Nova Senha'}
               </h1>
               <p className="text-xs text-[var(--text-secondary)] mt-1">
-                {authMode === 'LOGIN' && 'Informe seu e-mail e senha cadastrados para acessar a tesouraria.'}
+                {authMode === 'LOGIN' && 'Use seu e-mail e senha.'}
                 {authMode === 'REGISTER' && 'Cadastre-se com e-mail e senha. A solicitação será enviada para aprovação do administrador.'}
                 {authMode === 'TWO_FACTOR' && `Digite o código de 6 dígitos enviado para ${maskedEmail}.`}
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && 'Informe o seu e-mail corporativo cadastrado para receber o código de recuperação.'}
@@ -562,7 +562,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1.5">
-                    E-mail Corporativo
+                    E-mail
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--text-secondary)]">
@@ -572,7 +572,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="exemplo@contaju.com.br"
+                      placeholder="seu@email.com"
                       required
                       className="w-full pl-10 pr-4 h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium"
                     />
@@ -582,7 +582,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
                     <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
-                      Senha de Acesso
+                      Senha
                     </label>
                     <button
                       type="button"
@@ -618,32 +618,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     </button>
                   </div>
                 </div>
-
-                {/* Atalho Gestor Geral (Leonardo) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('leonardoricardoarantes@gmail.com');
-                    setPassword('contaju123');
-                    setErrorMessage(null);
-                  }}
-                  className="w-full p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-left flex items-center justify-between text-xs transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-base shrink-0">👑</span>
-                    <div className="min-w-0">
-                      <span className="font-bold text-[var(--text-primary)] block group-hover:text-amber-500 transition-colors truncate">
-                        Preencher Credencial do Gestor Geral
-                      </span>
-                      <span className="text-[10px] text-[var(--text-secondary)] block truncate">
-                        Preenche o e-mail e a senha do gestor geral
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-amber-500 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-md shrink-0">
-                    Preencher
-                  </span>
-                </button>
 
                 <button
                   type="submit"
@@ -933,204 +907,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
           </div>
 
-          <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] text-center">
-            <p className="text-[11px] text-[var(--text-secondary)] flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              Sessão protegida e integrada com a API do Resend
-            </p>
-          </div>
         </div>
-
-        {/* Painel Lateral: Usuários Ativos e Solicitações Pendentes */}
-        <div className="elevate w-full flex flex-col justify-between bg-[var(--surface-card)] p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)]">
-          <div>
-            
-            {/* Se houver solicitações pendentes */}
-            {pendingUsers.length > 0 && (
-              <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-amber-500 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Clock className="w-4 h-4" />
-                    Aguardando Aprovação ({pendingUsers.length})
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {pendingUsers.map(pu => (
-                    <div key={pu.id} className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between text-xs">
-                      <div>
-                        <p className="font-bold text-[var(--text-primary)]">{pu.name}</p>
-                        <p className="text-[10px] text-[var(--text-secondary)]">{pu.email}</p>
-                      </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                        Pendente
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-amber-500" />
-                  <span>Acesso ao Sistema</span>
-                </h2>
-                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                  Acesso rápido para o Gestor Geral e contas salvas neste dispositivo:
-                </p>
-              </div>
-            </div>
-
-            {/* Cartão de Destaque Master: Gestor Geral */}
-            <div className="mb-4 p-3.5 rounded-2xl border-2 border-amber-500/60 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent flex items-center justify-between gap-3 shadow-sm">
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('leonardoricardoarantes@gmail.com');
-                  setPassword('contaju123');
-                  setErrorMessage(null);
-                }}
-                className="flex items-center gap-3 text-left flex-1 cursor-pointer min-w-0"
-              >
-                <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-sm shadow-md shrink-0">
-                  👑
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-black text-amber-500 truncate">
-                      Leonardo Ricardo Arantes
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-[var(--text-secondary)] block truncate">
-                    leonardoricardoarantes@gmail.com
-                  </span>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="inline-block text-[9px] px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/60 font-black">
-                      👑 GESTOR GERAL (TOTAL)
-                    </span>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={async () => {
-                  setEmail('leonardoricardoarantes@gmail.com');
-                  setPassword('contaju123');
-                  setIsLoading(true);
-                  const res = await storage.login('leonardoricardoarantes@gmail.com', 'contaju123');
-                  setIsLoading(false);
-                  if (res.success && res.user) {
-                    onLoginSuccess(res.user);
-                  }
-                }}
-                title="Entrar direto como Gestor Geral"
-                className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-md flex items-center gap-1 shrink-0"
-              >
-                <span>Entrar</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {rememberedUsers.length > 0 ? (
-              <div className="space-y-2.5">
-                {rememberedUsers.map((u) => {
-                  const roleBadge = getRoleBadge(u.role);
-                  const isSelected = email.toLowerCase() === u.email.toLowerCase();
-
-                  return (
-                    <div
-                      key={u.id}
-                      className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                        isSelected
-                          ? 'border-amber-500 bg-amber-500/10 shadow-xs'
-                          : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-amber-500/40 hover:bg-[var(--surface-card)]'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => handleSelectQuickUser(u)}
-                        className="flex items-center gap-3 text-left flex-1 cursor-pointer min-w-0"
-                      >
-                        {u.avatar ? (
-                          <img
-                            src={u.avatar}
-                            alt={u.name}
-                            className="w-10 h-10 rounded-xl object-cover border border-[var(--border-subtle)] shrink-0"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 font-bold flex items-center justify-center text-xs border border-[var(--border-subtle)] shrink-0">
-                            {u.name.slice(0, 2).toUpperCase()}
-                          </div>
-                        )}
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-[var(--text-primary)] truncate">
-                              {u.name}
-                            </span>
-                          </div>
-                          <span className="text-[11px] text-[var(--text-secondary)] block truncate">
-                            {u.email}
-                          </span>
-                          <div className="mt-1">
-                            <span className={`inline-block text-[9px] px-2 py-0.5 rounded-full ${roleBadge.badgeClass}`}>
-                              {roleBadge.label}
-                            </span>
-                          </div>
-                        </div>
-                      </button>
-
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleDirectQuickLogin(u)}
-                          title={`Entrar como ${u.name}`}
-                          className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-2xs flex items-center gap-1"
-                        >
-                          <span>Entrar</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleForgetQuickUser(e, u.id)}
-                          title="Remover este usuário deste navegador"
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center space-y-2">
-                <div className="w-10 h-10 mx-auto rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center border border-[var(--border-subtle)]">
-                  <UserX className="w-5 h-5 text-amber-500/70" />
-                </div>
-                <h3 className="text-xs font-bold text-[var(--text-primary)]">
-                  Nenhum usuário salvo neste navegador
-                </h3>
-                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                  Por proteção e privacidade, contas de terceiros não ficam visíveis. Assim que você fizer login com seu e-mail e senha, seu perfil ficará salvo neste dispositivo para acesso facilitado.
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6 p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[11px] text-[var(--text-secondary)] space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)]">
-              <Briefcase className="w-3.5 h-3.5 text-amber-500" />
-              <span>Controle de Segurança e Alçadas</span>
-            </div>
-            <p className="text-[10px] leading-relaxed">
-              Novos colaboradores cadastrados entram com status <strong>Pendente</strong> e precisam da aprovação formal de <strong>leonardoricardoarantes@gmail.com</strong> para acessar dados da tesouraria.
-            </p>
-          </div>
-        </div>
-
         </div>
       </main>
 

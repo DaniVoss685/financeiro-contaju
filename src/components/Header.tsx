@@ -17,7 +17,8 @@ import {
   Calculator,
   Menu,
   LogOut,
-  Check
+  Check,
+  Bot
 } from 'lucide-react';
 import { User, UserRole } from '../types';
 import { NavigationScreen, getScreenTitle } from './Sidebar';
@@ -245,7 +246,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
     <header className="sticky top-0 z-30 w-full border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/90 backdrop-blur-md">
-      <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-3 sm:gap-4">
+      <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-3 sm:gap-5">
 
         {/* Menu (celular) + título da tela */}
         {onOpenMobileSidebar && (
@@ -281,7 +282,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="hidden md:block flex-1" />
 
         {/* Disponibilidade */}
-        <div className="hidden 2xl:flex flex-col items-end leading-tight pr-1" title="Saldo consolidado em todas as contas">
+        <div className="hidden" title="Saldo consolidado em todas as contas">
           <span className="text-xs text-[var(--text-muted)] flex items-center gap-1.5">
             <Wallet className="w-3.5 h-3.5" strokeWidth={1.75} />
             Disponível
@@ -293,7 +294,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={() => setIsPeriodModalOpen(true)}
-          className="hidden lg:flex h-10 items-center gap-2.5 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] hover:border-[var(--border-highlight)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer whitespace-nowrap"
+          className="hidden xl:flex h-10 items-center gap-2.5 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] hover:border-[var(--border-highlight)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer whitespace-nowrap"
           title={`Período: ${currentPeriodConfig.label}`}
         >
           <CalendarDays className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
@@ -345,17 +346,13 @@ export const Header: React.FC<HeaderProps> = ({
             <Search className="w-[18px] h-[18px]" strokeWidth={1.75} />
           </button>
 
-          <div className="hidden 2xl:flex items-center gap-1 mr-1">
-            <AiHealthStatusPill onNavigate={onNavigate} />
-          </div>
-          <OfflineSyncIndicator />
-          <PWAInstallButton variant="header" />
+                    <OfflineSyncIndicator />
 
           {onToggleCalculator && (
             <button
               type="button"
               onClick={onToggleCalculator}
-              className={`${iconButton} hidden sm:flex ${calculatorActive ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)]' : ''}`}
+              className={`${iconButton} hidden`}
               title="Calculadora (Alt+C)"
               aria-label="Calculadora"
             >
@@ -379,7 +376,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={toggleTheme}
-            className={`${iconButton} hidden sm:flex`}
+            className={`${iconButton} hidden`}
             title={theme === 'dark' ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'}
             aria-label="Alternar tema"
           >
@@ -441,6 +438,23 @@ export const Header: React.FC<HeaderProps> = ({
                 </>
               )}
 
+              <button type="button" role="menuitem" onClick={() => { userMenu.setOpen(false); toggleTheme(); }} className={menuItem}>
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} /> : <Moon className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />}
+                {theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+              </button>
+              {onToggleCalculator && (
+                <button type="button" role="menuitem" onClick={() => { userMenu.setOpen(false); onToggleCalculator(); }} className={menuItem}>
+                  <Calculator className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
+                  Calculadora
+                </button>
+              )}
+              {onNavigate && (
+                <button type="button" role="menuitem" onClick={() => { userMenu.setOpen(false); onNavigate('IA'); }} className={menuItem}>
+                  <Bot className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
+                  Central de IA
+                </button>
+              )}
+              <div className="my-1.5 h-px bg-[var(--border-subtle)]" />
               <button type="button" role="menuitem" onClick={handleExportBackup} className={menuItem}>
                 <Download className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
                 Exportar backup

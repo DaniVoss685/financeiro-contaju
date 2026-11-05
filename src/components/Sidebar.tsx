@@ -92,6 +92,27 @@ export function getScreenTitle(screen: NavigationScreen): { title: string; group
   return SCREEN_TITLES[screen] || { title: 'ContaJu', group: '' };
 }
 
+const SHORT_LABELS: Partial<Record<NavigationScreen, string>> = {
+  DASHBOARD: 'Painel',
+  CLIENTES: 'Clientes',
+  SERVICOS: 'Serviços',
+  CONTRATOS: 'Contratos',
+  VENDAS_FATURAMENTO: 'Vendas',
+  CONTAS_RECEBER: 'Receber',
+  CONTAS_PAGAR: 'Pagar',
+  CARTAO_CREDITO: 'Cartões',
+  MOVIMENTACOES: 'Caixa',
+  BANCOS_CONTAS: 'Bancos',
+  CONCILIACAO: 'Conciliar',
+  DRE: 'DRE',
+  FLUXO_CAIXA: 'Fluxo',
+  PLANEJAMENTO_ORCAMENTARIO: 'Orçamento',
+  COMPARE_DRE_CAIXA: 'DRE x Caixa',
+  RELATORIOS: 'Relatórios',
+  IA: 'IA',
+  CONFIGURACOES: 'Ajustes'
+};
+
 interface SidebarProps {
   currentScreen: NavigationScreen;
   onNavigate: (screen: NavigationScreen) => void;
@@ -139,6 +160,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
     return typeof window !== 'undefined' && window.innerWidth < 1280;
   });
+
+  // Recolhe sozinho depois de 5 segundos sem mexer (somente computador)
+  const idleRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetIdle = useCallback(() => {
+    if (idleRef.current) clearTimeout(idleRef.current);
+    if (typeof window === 'undefined' || window.innerWidth < 1024) return;
+    idleRef.current = setTimeout(() => setIsMinimized(true), 5000);
+  }, []);
+  useEffect(() => {
+    resetIdle();
+    return () => {
+      if (idleRef.current) clearTimeout(idleRef.current);
+    };
+  }, [resetIdle, currentScreen]);
 
   // O menu em gaveta (celular) nunca fica recolhido
   const collapsed = isMinimized && !isOpenMobile;
@@ -262,9 +297,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <aside
         aria-label="Menu principal"
+        onMouseMove={resetIdle}
+        onMouseEnter={resetIdle}
         className={`
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto flex flex-col shrink-0 select-none
-          w-[300px] max-w-[88vw] ${collapsed ? 'lg:w-[76px]' : 'lg:w-[264px]'}
+          w-[300px] max-w-[88vw] ${collapsed ? 'lg:w-[92px]' : 'lg:w-[264px]'}
           bg-[var(--surface-card)] border-r border-[var(--border-subtle)]
           transition-[width,transform] duration-300 ease-out
           ${isOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
@@ -329,8 +366,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         title={collapsed ? `${item.label}${item.badge ? ` (${item.badge})` : ''}` : undefined}
                         aria-current={isActive ? 'page' : undefined}
                         className={`
-                          group relative w-full h-10 flex items-center rounded-lg text-sm transition-colors cursor-pointer
-                          ${collapsed ? 'justify-center' : 'gap-3 px-3'}
+                          group relative w-full flex rounded-lg text-sm transition-colors cursor-pointer
+                          ${collapsed ? 'flex-col items-center justify-center gap-1 py-2 min-h-[56px]' : 'h-10 items-center gap-3 px-3'}
                           ${isActive
                             ? 'bg-[linear-gradient(90deg,rgba(201,162,74,0.18),rgba(201,162,74,0.04))] ring-1 ring-[var(--gold-edge)] text-[var(--text-primary)] font-medium'
                             : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'}
@@ -349,6 +386,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           )}
                         </span>
                         {!collapsed && <span className="truncate">{item.label}</span>}
+                        {collapsed && <span className="text-xs leading-tight text-center max-w-[76px] truncate">{SHORT_LABELS[item.id] || item.label}</span>}
                         {!collapsed && item.badge !== undefined && (
                           <span className={`ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-medium flex items-center justify-center tabular-nums ${badgeClass}`}>
                             {item.badge}
