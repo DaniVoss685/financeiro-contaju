@@ -196,6 +196,15 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
     }
   }, [isOpen]);
 
+  // Hooks ficam ANTES do retorno antecipado (regra dos hooks do React)
+  const chartAccountOptions: SelectOption[] = useMemo(() => {
+    return formatChartAccountSelectOptions(chartAccounts || [], title?.type === 'RECEBER' ? 'RECEBER' : 'PAGAR');
+  }, [chartAccounts, title?.type]);
+
+  const selectedAccount = useMemo(() => {
+    return (chartAccounts || []).find(a => a.id === accountId);
+  }, [chartAccounts, accountId]);
+
   if (!isOpen || !title) return null;
 
   const isReceber = title.type === 'RECEBER';
@@ -225,14 +234,6 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
         badge: c.status === 'ATIVO' ? typeBadge : 'Inativo'
       };
     });
-
-  const chartAccountOptions: SelectOption[] = useMemo(() => {
-    return formatChartAccountSelectOptions(chartAccounts || [], isReceber ? 'RECEBER' : 'PAGAR');
-  }, [chartAccounts, isReceber]);
-
-  const selectedAccount = useMemo(() => {
-    return (chartAccounts || []).find(a => a.id === accountId);
-  }, [chartAccounts, accountId]);
 
   const bankAccountOptions: SelectOption[] = [
     { value: '', label: 'Indiferente / Não definida' },
