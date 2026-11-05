@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { MoneyField } from '../Common/MoneyField';
 import { 
   X, 
@@ -85,6 +85,8 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
 
   // Despesa no cartão de crédito: a fatura é definida pelo dia de fechamento
   const cards = useMemo(() => storage.getCreditCards().filter(c => c.status !== 'INATIVO' as any), [isOpen]);
+  const finishRef = useRef<(() => void) | null>(null);
+  const [successInfo, setSuccessInfo] = useState<{ type: TitleType; count: number; total: number; description: string; onCard: boolean } | null>(null);
   const [onCard, setOnCard] = useState(false);
   const [cardId, setCardId] = useState('');
   const [dueDate, setDueDate] = useState(today);
@@ -390,10 +392,6 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
       if (onError) onError(msg);
     };
 
-    if (!counterpartyId) {
-      notifyError(type === 'RECEBER' ? 'Selecione ou cadastre o cliente.' : 'Selecione ou cadastre o fornecedor ou cliente.');
-      return;
-    }
     if (!description.trim()) {
       notifyError('Informe a descrição do lançamento.');
       return;
@@ -432,7 +430,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
 
     const currentUser = storage.getCurrentUser();
     if (currentUser.role === 'CONSULTA') {
-      notifyError('Perfil de consulta não possui permissão para cadastrar títulos.', 'Permissão Negada');
+      notifyError('Perfil de consulta não possui permissão para lançar.', 'Permissão Negada');
       return;
     }
 
@@ -468,9 +466,12 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
         recordId: purchase.id,
         details: `Despesa no cartão ${selectedCard.name}: ${purchase.description} no valor de R$ ${total.toFixed(2)}.`
       });
-      if (onSaved) onSaved({ count, type, description: description.trim(), totalAmount: total });
-      if (onCreated) onCreated();
-      onClose();
+      finishRef.current = () => {
+        if (onSaved) onSaved({ count, type, description: description.trim(), totalAmount: total });
+        if (onCreated) onCreated();
+        onClose();
+      };
+      setSuccessInfo({ type, count, total, description: description.trim(), onCard: true });
       return;
     }
 
@@ -549,24 +550,58 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
       }
     }
 
-    if (quickCreatedId && openCompleteAfterSave) {
-      setOpenCompleteModal(true);
-    } else {
-      if (onSaved) {
-        onSaved({
-          count: newTitles.length,
-          type,
-          description: description.trim(),
-          totalAmount: totalCalculatedAmount
-        });
+    finishRef.current = () => {
+      if (quickCreatedId && openCompleteAfterSave) {
+        setOpenCompleteModal(true);
+      } else {
+        if (onSaved) {
+          onSaved({
+            count: newTitles.length,
+            type,
+            description: description.trim(),
+            totalAmount: totalCalculatedAmount
+          });
+        }
+        if (onCreated) onCreated();
+        onClose();
       }
-      if (onCreated) onCreated();
-      onClose();
-    }
+    };
+    setSuccessInfo({ type, count: newTitles.length, total: totalCalculatedAmount, description: description.trim(), onCard: false });
   };
 
   return (
     <>
+      {successInfo && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 backdrop-blur-xs" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-2xl p-8 text-center space-y-5">
+            <span className="icon-tile-gold w-16 h-16 rounded-2xl mx-auto [&>svg]:w-8 [&>svg]:h-8"><CheckCircle2 /></span>
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">
+                {successInfo.type === 'RECEBER' ? 'Receita lançada com sucesso' : (successInfo.onCard ? 'Despesa no cartão lançada com sucesso' : 'Despesa lançada com sucesso')}
+              </h2>
+              <p className="text-sm text-[var(--text-secondary)]">
+                {successInfo.description}
+                {successInfo.count > 1 ? ` em ${successInfo.count} parcelas` : ''}
+              </p>
+              <p className="text-2xl font-semibold tabular-nums text-[var(--text-primary)]">{formatBRL(successInfo.total)}</p>
+            </div>
+            <button
+              type="button"
+              autoFocus
+              onClick={() => {
+                const done = finishRef.current;
+                finishRef.current = null;
+                setSuccessInfo(null);
+                if (done) done();
+              }}
+              className="h-11 px-8 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
+            >
+              Concluir
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl max-w-4xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden border border-slate-200 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 my-0 sm:my-4 flex flex-col">
           
@@ -688,7 +723,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <div className="flex items-center gap-2">
                     <label className="font-semibold text-slate-700 flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{type === 'RECEBER' ? 'Cliente' : 'Fornecedor ou Cliente'} *</span>
+                      <span>{type === 'RECEBER' ? 'Cliente' : (simple ? 'Fornecedor' : 'Fornecedor ou Cliente')} <span className="font-normal text-slate-500">(opcional)</span></span>
                     </label>
 
                     {/* No Contas a Pagar, permitir alternar filtro entre Todos / Apenas Fornecedores / Apenas Clientes */}
@@ -766,7 +801,6 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   allowQuickCreate={true}
                   quickCreateLabel={(q) => `+ Cadastrar rápido "${q}"`}
                   onQuickCreate={handleQuickCreateCounterparty}
-                  required
                 />
               </div>
 

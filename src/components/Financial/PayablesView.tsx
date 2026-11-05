@@ -59,6 +59,7 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { TWallet, TClock, TCalendar, TAlert, TCheck } from '../Common/tileIcons';
@@ -71,6 +72,7 @@ interface PayablesViewProps {
 export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal, initialSearch = '' }) => {
   const today = new Date().toISOString().split('T')[0];
   const { period } = useModulePeriod('PAYABLES');
+  const simple = useIsSimpleMode();
   const [searchTerm, setSearchTerm] = usePersistentState<string>('pagar_busca', initialSearch);
   const [minAmount, setMinAmount] = usePersistentState<number>('pagar_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('pagar_max', 0);
@@ -573,7 +575,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       setRefreshKey(k => k + 1);
       setToastMessage({
         type: 'success',
-        text: `Obrigação ${t.titleNumber} duplicada com sucesso!`
+        text: `Despesa copiada com sucesso!`
       });
     }
   };
@@ -605,7 +607,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     setRefreshKey(k => k + 1);
     setToastMessage({
       type: 'success',
-      text: `${created.length} obrigação(ões) duplicada(s) com sucesso!`
+      text: `${created.length} despesa(s) copiada(s) com sucesso!`
     });
   };
 
@@ -636,7 +638,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     if (t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank) {
       setToastMessage({
         type: 'info',
-        text: `🔒 O título #${t.titleNumber} está conciliado via banco e não pode ser editado. Para fazer alterações, desfaça a conciliação na tela de Conciliação Bancária.`
+        text: `🔒 Esta despesa já foi conferida com o banco e não pode ser editada. Para fazer alterações, desfaça a conciliação na tela de Conciliação Bancária.`
       });
       return;
     }
@@ -648,7 +650,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     if (t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank) {
       setToastMessage({
         type: 'info',
-        text: `🔒 O título #${t.titleNumber} está conciliado via banco e não pode ser excluído. Desfaça a conciliação bancária primeiro na tela de Conciliação.`
+        text: `🔒 Esta despesa já foi conferida com o banco e não pode ser excluída. Desfaça a conciliação bancária primeiro na tela de Conciliação.`
       });
       return;
     }
@@ -664,7 +666,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     if (t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank) {
       setToastMessage({
         type: 'info',
-        text: `🔒 O título #${t.titleNumber} está conciliado via banco e não pode ser cancelado. Desfaça a conciliação bancária primeiro na tela de Conciliação.`
+        text: `🔒 Esta despesa já foi conferida com o banco e não pode ser cancelada. Desfaça a conciliação bancária primeiro na tela de Conciliação.`
       });
       return;
     }
@@ -680,7 +682,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     if (t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank) {
       setToastMessage({
         type: 'info',
-        text: `🔒 O título #${t.titleNumber} está conciliado via banco. Para estornar ou reabrir este título, desfaça a conciliação na tela de Conciliação Bancária.`
+        text: `🔒 Esta despesa já foi conferida com o banco. Para estornar ou reabrir esta despesa, desfaça a conciliação na tela de Conciliação Bancária.`
       });
       return;
     }
@@ -702,7 +704,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     if (targetTitles.length === 0) {
       setToastMessage({
         type: 'info',
-        text: 'Nenhuma das obrigações selecionadas pode ser reaberta (títulos conciliados via banco devem ser desconciliados na Conciliação Bancária).'
+        text: 'Nenhuma das despesas selecionadas pode ser reaberta (as conferidas com o banco devem ser desconciliados na Conciliação Bancária).'
       });
       return;
     }
@@ -747,7 +749,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       setRefreshKey(k => k + 1);
       setToastMessage({
         type: 'success',
-        text: `${res.deletedCount} obrigação(ões) excluída(s) permanentemente com sucesso!${res.affectedSettlements > 0 ? ` (${res.affectedSettlements} pagamento(s) estornado(s))` : ''}`
+        text: `${res.deletedCount} despesa(s) excluída(s) com sucesso!${res.affectedSettlements > 0 ? ` (${res.affectedSettlements} pagamento(s) estornado(s))` : ''}`
       });
     } else {
       const res = storage.batchCancelTitles(ids);
@@ -756,7 +758,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       setRefreshKey(k => k + 1);
       setToastMessage({
         type: res.cancelledCount > 0 ? 'success' : 'info',
-        text: `${res.cancelledCount} obrigação(ões) cancelada(s) com sucesso.${res.ignoredCount > 0 ? ` (${res.ignoredCount} ignorados por possuírem baixas ou já cancelados)` : ''}`
+        text: `${res.cancelledCount} despesa(s) cancelada(s) com sucesso.${res.ignoredCount > 0 ? ` (${res.ignoredCount} ignorados por possuírem baixas ou já cancelados)` : ''}`
       });
     }
   };
@@ -825,7 +827,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
     exportToExcel(`lote-pagar-selecionados-${today}`, 'Lote Selecionado', headers, rows);
     setToastMessage({
       type: 'success',
-      text: `${targetTitles.length} títulos selecionados exportados para planilha Excel!`
+      text: `${targetTitles.length} despesas exportadas para o Excel!`
     });
   };
 
@@ -838,7 +840,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   return (
     <div className="space-y-6">
       
-      <PageToolbar description="Obrigações, fornecedores, impostos, salários, pró-labore e liquidações.">
+      <PageToolbar description="Despesas, fornecedores, impostos, salários e pagamentos.">
         <MoreMenu
           attention={duplicateCandidates.length > 0}
           items={[
@@ -930,21 +932,26 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       {/* Filtros: ficam suspensos e guardam a escolha ao trocar de aba */}
       <Card className="space-y-4">
         <div className="flex flex-wrap items-center gap-2.5">
-          <TabPills
-              tabs={[
-                { id: 'ABERTO', label: 'Em aberto', count: stats.openCount },
-                { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
-                { id: 'LIQUIDADO', label: 'Liquidados', count: stats.liquidadosCount },
-                { id: 'CONCILIADO', label: 'Conciliados', count: stats.conciliadosCount },
-                { id: 'TODOS', label: 'Todos', count: stats.todosCount },
-                { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
-              ]}
-              value={quickDateFilter === 'ALL' ? statusFilter : ''}
-              onChange={id => {
-                setStatusFilter(id as any);
-                setQuickDateFilter('ALL');
-              }}
-            />
+          <FilterChipSelect
+            label="Situação"
+            value={statusFilter}
+            allValue="__nenhum__"
+            allLabel="Mostrar tudo"
+            showValue
+            options={[
+              { value: 'ABERTO', label: `Em aberto (${stats.openCount})` },
+              { value: 'VENCIDO', label: `Atrasadas (${stats.vencidosCount})` },
+              { value: 'LIQUIDADO', label: `Pagas (${stats.liquidadosCount})` },
+              ...(simple ? [] : [{ value: 'CONCILIADO', label: `Conciliadas (${stats.conciliadosCount})` }]),
+              { value: 'TODOS', label: `Todas (${stats.todosCount})` },
+              { value: 'CANCELADO', label: `Canceladas (${stats.canceladosCount})` }
+            ]}
+            onChange={v => {
+              if (v === '__nenhum__') return;
+              setStatusFilter(v as any);
+              setQuickDateFilter('ALL');
+            }}
+          />
           <FilterChipSelect
             label="Vencimento"
             value={quickDateFilter}
@@ -1101,7 +1108,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                     setSelectedIds(filteredTitles.map(t => t.id));
                     setToastMessage({
                       type: 'info',
-                      text: `${filteredTitles.length} títulos desta categoria selecionados! Você pode classificá-los em lote usando a barra de ações.`
+                      text: `${filteredTitles.length} despesas desta categoria selecionadas! Você pode classificá-los em lote usando a barra de ações.`
                     });
                   }}
                 >
@@ -1241,10 +1248,10 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                 type="button"
                 onClick={() => handleBatchDuplicate(false)}
                 className="min-h-[40px] px-3 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-xl text-xs font-medium border border-white/20 transition-colors flex items-center cursor-pointer shrink-0"
-                title="Duplicar obrigações para a mesma competência"
+                title="Copiar as despesas selecionadas"
               >
                 <Copy className="w-3.5 h-3.5 mr-1.5" />
-                Duplicar
+                Copiar
               </button>
 
               {/* Duplicar (+1 Mês) */}
@@ -1252,7 +1259,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                 type="button"
                 onClick={() => handleBatchDuplicate(true)}
                 className="min-h-[40px] px-3 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-xl text-xs font-medium border border-white/20 transition-colors flex items-center cursor-pointer shrink-0"
-                title="Duplicar avançando competência e vencimento em +1 mês"
+                title="Copiar para o mês seguinte"
               >
                 <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-300" />
                 +1 Mês
@@ -1313,7 +1320,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       <div className={`block md:hidden space-y-2.5 ${selectedIds.length > 0 ? 'pb-28 sm:pb-0' : ''}`}>
         {sortedTitles.length === 0 ? (
           <div className="bg-white dark:bg-[#1b1b20] p-8 rounded-xl border border-slate-200 dark:border-[#26262b] text-center text-slate-600 dark:text-slate-300 text-xs shadow-2xs">
-            Nenhuma obrigação a pagar localizada para os filtros informados.
+            Nenhuma despesa encontrada com esses filtros.
           </div>
         ) : (
           sortedTitles.map(t => {
@@ -1661,7 +1668,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                           className="min-h-[42px] flex-1 py-2.5 px-4 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                         >
                           <CheckCircle2 className="w-4 h-4" />
-                          <span>Pagar Obrigação</span>
+                          <span>Pagar</span>
                         </button>
                       )}
 
@@ -1709,10 +1716,10 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         type="button"
                         onClick={(e) => handleDuplicateOne(t, e)}
                         className="min-h-[40px] min-w-[40px] py-2 px-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-                        title="Duplicar obrigação"
+                        title="Copiar despesa"
                       >
                         <Copy className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                        <span>Duplicar</span>
+                        <span>Copiar</span>
                       </button>
 
                       {t.balancePrincipal > 0 && t.documentState !== 'CANCELADO' && (
@@ -1766,7 +1773,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         }`}
                         title={
                           t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
-                            ? 'Bloqueado: Título conciliado via banco não pode ser excluído.'
+                            ? 'Bloqueado: despesa já conferida com o banco não pode ser excluída.'
                             : 'Excluir definitivamente'
                         }
                       >
@@ -1946,7 +1953,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
               {sortedTitles.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="py-8 text-center text-slate-700">
-                    Nenhuma obrigação a pagar localizada para os filtros informados.
+                    Nenhuma despesa encontrada com esses filtros.
                   </td>
                 </tr>
               ) : (
@@ -2215,7 +2222,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         <button
                           onClick={(e) => handleDuplicateOne(t, e)}
                           className="p-1 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer"
-                          title="Duplicar esta obrigação"
+                          title="Copiar esta despesa"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -2250,7 +2257,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                             title={
                               t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
                                 ? 'Bloqueado: Título conciliado via banco não pode ser cancelado.'
-                                : 'Cancelar Obrigação (muda status para CANCELADO)'
+                                : 'Cancelar despesa'
                             }
                           >
                             <Ban className="w-4 h-4" />
@@ -2267,7 +2274,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                           }`}
                           title={
                             t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
-                              ? 'Bloqueado: Título conciliado via banco não pode ser excluído.'
+                              ? 'Bloqueado: despesa já conferida com o banco não pode ser excluída.'
                               : 'Excluir Lançamento Definitivamente'
                           }
                         >
@@ -2416,7 +2423,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
           setRefreshKey(k => k + 1);
           setToastMessage({
             type: 'success',
-            text: `✓ ${deletedCount} duplicata(s) de títulos a pagar removida(s) com sucesso!`
+            text: `✓ ${deletedCount} despesa(s) repetida(s) removida(s) com sucesso!`
           });
         }}
       />

@@ -144,7 +144,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
             </div>
             <div>
               <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-                Assistente de Limpeza de Duplicidades
+                Limpar lançamentos repetidos
                 <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
                   {type === 'RECEBER' ? 'Contas a Receber' : 'Contas a Pagar'}
                 </span>
@@ -174,7 +174,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
                 Nenhuma duplicidade encontrada!
               </h3>
               <p className="text-[var(--text-secondary)] max-w-md mx-auto text-xs">
-                Sua carteira de títulos a {type.toLowerCase()} está consistente e saudável. Não há lançamentos sobrepostos com mesmo credor/devedor, mesma data de vencimento, mesma descrição e mesmo valor.
+                Seus lançamentos a {type.toLowerCase()} estão em ordem. Não há lançamentos sobrepostos com mesmo credor/devedor, mesma data de vencimento, mesma descrição e mesmo valor.
               </p>
             </div>
           ) : (
@@ -183,7 +183,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
               <div className="p-3.5 bg-blue-500/10 border border-blue-500/30 rounded-xl space-y-2">
                 <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-bold text-xs">
                   <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                  <span>Regra Estrita de Validação de Duplicidades</span>
+                  <span>Como identificamos os repetidos</span>
                 </div>
                 <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
                   Para máxima segurança contábil, um lançamento só é agrupado como duplicidade quando possuir <strong>exatamente a mesma data de vencimento</strong>, <strong>mesma competência</strong>, <strong>mesma descrição</strong>, <strong>mesma contraparte</strong> e <strong>mesmo valor</strong>. Títulos com vencimentos em meses ou dias diferentes (recorrências ou parcelamentos) <strong>não são duplicidades</strong> e estão preservados.
@@ -230,7 +230,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
                               {g.description}
                             </div>
                             <span className="text-[11px] text-[var(--text-secondary)] block">
-                              {g.titles.length} títulos idênticos no valor de <strong>{formatBRL(g.amount)}</strong> cada
+                              {g.titles.length} lançamentos iguais no valor de <strong>{formatBRL(g.amount)}</strong> cada
                             </span>
                           </div>
                         </div>
@@ -239,7 +239,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
                           <span className="font-mono font-bold text-amber-600 dark:text-amber-400 text-base">
                             {formatBRL(g.amount)}
                           </span>
-                          <span className="text-[10px] text-[var(--text-secondary)] block">por título</span>
+                          <span className="text-[10px] text-[var(--text-secondary)] block">por lançamento</span>
                         </div>
                       </div>
 
@@ -329,7 +329,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
                                 ) : (
                                   <span className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1">
                                     <Trash2 className="w-3 h-3" />
-                                    Excluir Duplicata
+                                    Excluir este
                                   </span>
                                 )}
                               </div>
@@ -350,10 +350,10 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
           <div className="text-xs text-[var(--text-secondary)]">
             {totalTitlesToDelete > 0 ? (
               <span>
-                <strong>{totalTitlesToDelete}</strong> título(s) duplicado(s) serão removidos em <strong>{groupsToResolve.length}</strong> grupo(s).
+                <strong>{totalTitlesToDelete}</strong> lançamento(s) repetido(s) serão removidos em <strong>{groupsToResolve.length}</strong> grupo(s).
               </span>
             ) : (
-              <span>Nenhuma duplicata selecionada para exclusão.</span>
+              <span>Nenhum lançamento repetido selecionado.</span>
             )}
           </div>
 
@@ -374,7 +374,7 @@ export const DeduplicationWizardModal: React.FC<DeduplicationWizardModalProps> =
                 className="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl shadow-md cursor-pointer transition-all flex items-center gap-1.5"
               >
                 <Trash2 className="w-4 h-4" />
-                <span>{isProcessing ? 'Excluindo...' : `Excluir ${totalTitlesToDelete} Duplicata(s)`}</span>
+                <span>{isProcessing ? 'Excluindo...' : `Excluir ${totalTitlesToDelete} repetido(s)`}</span>
               </button>
             )}
           </div>

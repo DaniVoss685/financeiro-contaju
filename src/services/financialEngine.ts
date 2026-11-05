@@ -2889,6 +2889,9 @@ export class FinancialEngine {
  */
 export const isRevenueAccount = (account: ChartAccount): boolean => {
   if (!account) return false;
+
+  // Ajuste de caixa (entrada): aparece nas receitas, mas não entra na DRE
+  if (account.id === 'acc-8.1.05') return true;
   
   // Naturezas explícitas de receita
   if (

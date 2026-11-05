@@ -239,7 +239,7 @@
     --text-primary: #f4f4f5;
     --text-secondary: #b4b4bc;
     --text-muted: #85858f;
-    --text-tertiary: #5e5e68;
+    --text-tertiary: #7a7a85;
 
     --brand-gold: #d2b063;
     --brand-gold-fill: #c9a24a;
@@ -289,7 +289,7 @@
     --text-primary: #18181b;
     --text-secondary: #52525b;
     --text-muted: #71717a;
-    --text-tertiary: #a1a1aa;
+    --text-tertiary: #85858f;
 
     --brand-gold: #85651f;
     --brand-gold-fill: #c9a24a;
@@ -1003,4 +1003,116 @@ textarea::placeholder {
 }
 html.simple-mode .simple-only {
   display: revert-layer;
+}
+
+/* Botões/seletores ativos nas cores que o tema neutralizou (teal, roxo, ciano...) ficam dourados e legíveis */
+button[class~="bg-teal-500"],
+button[class~="bg-cyan-500"],
+button[class~="bg-purple-500"],
+button[class~="bg-purple-600"],
+button[class~="bg-indigo-500"],
+button[class~="bg-indigo-600"],
+button[class~="bg-sky-500"],
+button[class~="bg-blue-500"],
+button[class~="bg-violet-500"] {
+  background-image: var(--gold-gradient);
+  background-color: #c9a24a;
+  color: #18181b;
+  border-color: transparent;
+  box-shadow: var(--gold-btn-shadow);
+}
+
+/* ========================================================================= */
+/* CONTRASTE: cores pensadas para um tema aparecendo no outro                  */
+/* ========================================================================= */
+/* Modo claro: textos "claros" (amber-300, emerald-400...) ficam no tom escuro do tema */
+html.light .text-amber-300:not([class*="dark:text-"]),
+html.light .text-amber-400:not([class*="dark:text-"]),
+html.light .text-yellow-300:not([class*="dark:text-"]),
+html.light .text-yellow-400:not([class*="dark:text-"]),
+html.light .text-purple-300:not([class*="dark:text-"]),
+html.light .text-purple-400:not([class*="dark:text-"]),
+html.light .text-indigo-300:not([class*="dark:text-"]),
+html.light .text-indigo-400:not([class*="dark:text-"]) {
+  color: var(--brand-gold);
+}
+html.light .text-emerald-300:not([class*="dark:text-"]),
+html.light .text-emerald-400:not([class*="dark:text-"]),
+html.light .text-green-300:not([class*="dark:text-"]),
+html.light .text-green-400:not([class*="dark:text-"]) {
+  color: var(--status-success);
+}
+html.light .text-rose-300:not([class*="dark:text-"]),
+html.light .text-rose-400:not([class*="dark:text-"]),
+html.light .text-red-300:not([class*="dark:text-"]),
+html.light .text-red-400:not([class*="dark:text-"]) {
+  color: var(--status-danger);
+}
+html.light .text-sky-300:not([class*="dark:text-"]),
+html.light .text-sky-400:not([class*="dark:text-"]),
+html.light .text-blue-300:not([class*="dark:text-"]),
+html.light .text-blue-400:not([class*="dark:text-"]),
+html.light .text-cyan-300:not([class*="dark:text-"]),
+html.light .text-cyan-400:not([class*="dark:text-"]) {
+  color: var(--status-info);
+}
+
+/* Modo escuro: textos "escuros" (rose-600, emerald-600...) ficam legíveis */
+html.dark .text-rose-600:not([class*="dark:text-"]),
+html.dark .text-red-600:not([class*="dark:text-"]) {
+  color: #e8828f;
+}
+html.dark .text-emerald-600:not([class*="dark:text-"]),
+html.dark .text-green-600:not([class*="dark:text-"]) {
+  color: #55ae81;
+}
+html.dark .text-amber-600:not([class*="dark:text-"]) {
+  color: #d8b765;
+}
+
+/* Fundo dourado sempre leva texto escuro (o tema escuro trocava text-black por branco) */
+html.dark [class~="bg-amber-500"]:is(.text-black, .text-slate-900, .text-slate-950, .text-gray-900),
+html.dark [class~="bg-amber-400"]:is(.text-black, .text-slate-900, .text-slate-950, .text-gray-900),
+html.dark [class~="bg-amber-300"]:is(.text-black, .text-slate-900, .text-slate-950, .text-gray-900) {
+  color: #18181b;
+}
+
+/* Modo escuro: etiquetas com fundo claro viram fundos escuros translúcidos (texto continua legível) */
+html.dark .bg-rose-50:not([class*="dark:bg-"]),
+html.dark .bg-rose-100:not([class*="dark:bg-"]),
+html.dark .bg-red-50:not([class*="dark:bg-"]),
+html.dark .bg-red-100:not([class*="dark:bg-"]) {
+  background-color: var(--status-danger-bg);
+}
+html.dark .bg-emerald-50:not([class*="dark:bg-"]),
+html.dark .bg-emerald-100:not([class*="dark:bg-"]),
+html.dark .bg-green-50:not([class*="dark:bg-"]),
+html.dark .bg-green-100:not([class*="dark:bg-"]) {
+  background-color: var(--status-success-bg);
+}
+html.dark .bg-amber-50:not([class*="dark:bg-"]),
+html.dark .bg-amber-100:not([class*="dark:bg-"]),
+html.dark .bg-yellow-50:not([class*="dark:bg-"]),
+html.dark .bg-yellow-100:not([class*="dark:bg-"]) {
+  background-color: var(--brand-gold-soft);
+}
+html.dark .bg-sky-50:not([class*="dark:bg-"]),
+html.dark .bg-sky-100:not([class*="dark:bg-"]),
+html.dark .bg-blue-50:not([class*="dark:bg-"]),
+html.dark .bg-blue-100:not([class*="dark:bg-"]) {
+  background-color: var(--status-info-bg);
+}
+
+/* Botões em degradê dourado levam texto escuro nos dois temas */
+button[class*="from-amber"] {
+  color: #18181b;
+}
+html.dark button[class*="from-amber"]:is(.text-black, .text-slate-950, .text-slate-900) {
+  color: #18181b;
+}
+
+/* Modo claro: cinza claro demais para texto */
+html.light .text-slate-400:not([class*="dark:text-"]),
+html.light .text-gray-400:not([class*="dark:text-"]) {
+  color: var(--text-muted);
 }

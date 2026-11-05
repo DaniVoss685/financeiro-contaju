@@ -1405,6 +1405,19 @@ class StorageService {
     const base = this.isTenantSession() && !this.isOwnerFirmSession() ? GENERIC_CHART_ACCOUNTS : INITIAL_CHART_ACCOUNTS;
     const list = this.get<ChartAccount[]>(STORAGE_KEYS.CHART_ACCOUNTS, base);
     if (!Array.isArray(list) || list.length === 0) return base;
+    // Garante as contas de ajuste de caixa em planos criados antes delas existirem
+    for (const adjId of ['acc-8.1.05', 'acc-8.1.06']) {
+      if (!list.some(a => a.id === adjId)) {
+        const adj = INITIAL_CHART_ACCOUNTS.find(a => a.id === adjId);
+        if (adj) {
+          if (!list.some(a => a.id === 'grp-8')) {
+            const g8 = INITIAL_CHART_ACCOUNTS.find(a => a.id === 'grp-8');
+            if (g8) list.push(g8);
+          }
+          list.push(adj);
+        }
+      }
+    }
     if (!list.some(a => a.id === 'grp-3.4' || (a.code === '3.4' && !a.isAnalytical))) {
       const grp34 = INITIAL_CHART_ACCOUNTS.find(a => a.id === 'grp-3.4');
       if (grp34) {

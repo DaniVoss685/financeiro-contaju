@@ -338,7 +338,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
       });
 
       if (seriesInfo && seriesInfo.isSeries) {
-        toast.success('Título atualizado! A alteração foi aplicada apenas a este lançamento.');
+        toast.success(isReceber ? 'Receita atualizada com sucesso!' : 'Despesa atualizada com sucesso!');
       }
     }
 

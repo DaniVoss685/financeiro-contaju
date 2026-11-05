@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { describeCardInvoice } from '../../utils/cardInvoice';
 import { formatDateBR } from '../../services/financialEngine';
 import { formatCompetenceShort } from '../../utils/dateUtils';
 import { 
@@ -110,18 +111,26 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
   // Invoices for active card
   const invoices = useMemo(() => {
     if (!activeCard) return [];
-    return FinancialEngine.getCardInvoices(activeCard.id);
+    // Da fatura mais antiga para a mais nova (a atual fica no meio, destacada)
+    return [...FinancialEngine.getCardInvoices(activeCard.id)].sort((a, b) => a.invoiceMonth.localeCompare(b.invoiceMonth));
   }, [activeCard, purchases]);
 
   // Set default invoice month if not set
   useEffect(() => {
     if (invoices.length > 0) {
       if (!selectedInvoiceMonth || !invoices.some(inv => inv.invoiceMonth === selectedInvoiceMonth)) {
-        const preferred = invoices.find(i => i.status !== 'PAGA' && i.totalAmount > 0) || invoices[0];
+        // A fatura atual é a que está aberta hoje (depende do dia de fechamento)
+        const current = activeCard ? describeCardInvoice(activeCard, new Date().toISOString().split('T')[0]).invoiceMonth : '';
+        const preferred = invoices.find(i => i.invoiceMonth === current) || invoices.find(i => i.status !== 'PAGA' && i.totalAmount > 0) || invoices[0];
         setSelectedInvoiceMonth(preferred.invoiceMonth);
       }
     }
   }, [invoices, selectedInvoiceMonth]);
+
+  // Deixa a fatura escolhida visível na faixa de meses
+  useEffect(() => {
+    document.querySelector('[data-selected="true"]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+  }, [selectedInvoiceMonth, invoices.length]);
 
   const activeInvoice = useMemo(() => {
     return invoices.find(i => i.invoiceMonth === selectedInvoiceMonth) || invoices[0];
@@ -374,6 +383,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                     return (
                       <button
                         key={inv.invoiceMonth}
+                        data-selected={isSelected ? 'true' : undefined}
                         onClick={() => setSelectedInvoiceMonth(inv.invoiceMonth)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
                           isSelected
@@ -460,8 +470,8 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                       onClick={handleOpenPayInvoice}
                       className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all ${
                         activeInvoice.balance > 0
-                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-105 text-white shadow-emerald-900/20 active:scale-95 cursor-pointer'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                          ? 'btn-gold active:scale-95 cursor-pointer'
+                          : 'bg-[var(--surface-elevated)] text-[var(--text-muted)] border border-[var(--border-subtle)] cursor-not-allowed'
                       }`}
                     >
                       <CheckCircle2 className="w-4 h-4" />

@@ -57,14 +57,16 @@ export const FilterChipSelect: React.FC<{
   options: Option[];
   onChange: (value: string) => void;
   width?: number;
-}> = ({ label, value, allValue = 'ALL', allLabel, options, onChange, width }) => {
+  /** Mostra sempre o valor escolhido no botão (para filtros que nunca ficam "desligados"). */
+  showValue?: boolean;
+}> = ({ label, value, allValue = 'ALL', allLabel, options, onChange, width, showValue }) => {
   const [query, setQuery] = useState('');
-  const current = value === allValue ? '' : options.find(o => o.value === value)?.label || value;
+  const current = value === allValue ? '' : (options.find(o => o.value === value)?.label || value).replace(/\s*\(\d+\)$/, '');
   const filtered = useMemo(
     () => (query ? options.filter(o => o.label.toLowerCase().includes(query.toLowerCase())) : options),
     [options, query]
   );
-  const all: Option[] = [{ value: allValue, label: allLabel }, ...filtered];
+  const all: Option[] = showValue ? filtered : [{ value: allValue, label: allLabel }, ...filtered];
 
   return (
     <FilterChip label={label} valueLabel={current} width={width}>

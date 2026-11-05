@@ -462,16 +462,9 @@ function AppContent() {
           isOpen={isNewTitleModalOpen}
           defaultType={newTitleType}
           onClose={() => setIsNewTitleModalOpen(false)}
-          onSaved={(details) => {
+          onSaved={() => {
+            // O aviso de sucesso agora aparece dentro do próprio modal de lançamento
             setIsNewTitleModalOpen(false);
-            const tipoLabel = (details?.type || newTitleType) === 'RECEBER' ? 'Título a receber' : 'Título a pagar';
-            const countLabel = details?.count && details.count > 1 ? ` (${details.count} lançamentos/parcelas)` : '';
-            const descLabel = details?.description ? `: "${details.description}"` : '';
-            showSuccess(
-              `${tipoLabel}${countLabel}${descLabel} salvo com sucesso no sistema!`,
-              'Lançamento Concluído'
-            );
-            // force re-render
             setCurrentScreen(prev => prev);
           }}
           onCreated={() => {
@@ -479,7 +472,7 @@ function AppContent() {
             setCurrentScreen(prev => prev);
           }}
           onError={(err) => {
-            showError(err, 'Erro ao Salvar Título');
+            showError(err, 'Não foi possível salvar');
           }}
         />
       )}

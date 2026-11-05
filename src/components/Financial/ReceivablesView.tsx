@@ -74,6 +74,7 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { formatPeriodLabelBR, formatCompetenceShort, periodContainsDate } from '../../utils/dateUtils';
@@ -87,6 +88,7 @@ interface ReceivablesViewProps {
 export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitleModal, initialSearch = '' }) => {
   const today = new Date().toISOString().split('T')[0];
   const { period } = useModulePeriod('RECEIVABLES');
+  const simple = useIsSimpleMode();
   const [searchTerm, setSearchTerm] = usePersistentState<string>('receber_busca', initialSearch);
   const [minAmount, setMinAmount] = usePersistentState<number>('receber_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('receber_max', 0);
@@ -601,7 +603,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       setRefreshKey(k => k + 1);
       setToastMessage({
         type: 'success',
-        text: `Título ${t.titleNumber} duplicado com sucesso!`
+        text: `Receita copiada com sucesso!`
       });
     }
   };
@@ -633,7 +635,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
     setRefreshKey(k => k + 1);
     setToastMessage({
       type: 'success',
-      text: `${created.length} título(s) duplicado(s) com sucesso!`
+      text: `${created.length} receita(s) copiada(s) com sucesso!`
     });
   };
 
@@ -730,7 +732,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
     if (targetTitles.length === 0) {
       setToastMessage({
         type: 'info',
-        text: 'Nenhum dos títulos selecionados pode ser reaberto (títulos conciliados via banco devem ser desconciliados na tela de Conciliação antes de serem estornados).'
+        text: 'Nenhuma das receitas selecionadas pode ser reaberta (as conferidas com o banco devem ser desconciliados na tela de Conciliação antes de serem estornados).'
       });
       return;
     }
@@ -785,7 +787,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       setRefreshKey(k => k + 1);
       setToastMessage({
         type: res.cancelledCount > 0 ? 'success' : 'info',
-        text: `${res.cancelledCount} título(s) cancelado(s) com sucesso.${res.ignoredCount > 0 ? ` (${res.ignoredCount} ignorados por possuírem baixas ou já cancelados)` : ''}`
+        text: `${res.cancelledCount} receita(s) cancelada(s) com sucesso.${res.ignoredCount > 0 ? ` (${res.ignoredCount} ignorados por possuírem baixas ou já cancelados)` : ''}`
       });
     }
   };
@@ -855,7 +857,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
     exportToExcel(`lote-receber-selecionados-${today}`, 'Lote Selecionado', headers, rows);
     setToastMessage({
       type: 'success',
-      text: `${targetTitles.length} títulos selecionados exportados para planilha Excel!`
+      text: `${targetTitles.length} receitas exportadas para o Excel!`
     });
   };
 
@@ -999,18 +1001,23 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       {/* Filtros: ficam suspensos e guardam a escolha ao trocar de aba */}
       <Card className="space-y-4">
         <div className="flex flex-wrap items-center gap-2.5">
-          <TabPills
-            tabs={[
-              { id: 'ABERTO', label: 'Em aberto', count: stats.openCount },
-              { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
-              { id: 'LIQUIDADO', label: 'Liquidados', count: stats.liquidadosCount },
-              { id: 'CONCILIADO', label: 'Conciliados', count: stats.conciliadosCount },
-              { id: 'TODOS', label: 'Todos', count: stats.todosCount },
-              { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
+          <FilterChipSelect
+            label="Situação"
+            value={statusFilter}
+            allValue="__nenhum__"
+            allLabel="Mostrar tudo"
+            showValue
+            options={[
+              { value: 'ABERTO', label: `Em aberto (${stats.openCount})` },
+              { value: 'VENCIDO', label: `Atrasadas (${stats.vencidosCount})` },
+              { value: 'LIQUIDADO', label: `Recebidas (${stats.liquidadosCount})` },
+              ...(simple ? [] : [{ value: 'CONCILIADO', label: `Conciliadas (${stats.conciliadosCount})` }]),
+              { value: 'TODOS', label: `Todas (${stats.todosCount})` },
+              { value: 'CANCELADO', label: `Canceladas (${stats.canceladosCount})` }
             ]}
-            value={quickDateFilter === 'ALL' ? statusFilter : ''}
-            onChange={id => {
-              setStatusFilter(id as any);
+            onChange={v => {
+              if (v === '__nenhum__') return;
+              setStatusFilter(v as any);
               setQuickDateFilter('ALL');
             }}
           />
@@ -1171,7 +1178,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                     setSelectedIds(filteredTitles.map(t => t.id));
                     setToastMessage({
                       type: 'info',
-                      text: `${filteredTitles.length} títulos desta categoria selecionados! Você pode classificá-los em lote usando a barra de ações.`
+                      text: `${filteredTitles.length} receitas desta categoria selecionadas! Você pode classificá-los em lote usando a barra de ações.`
                     });
                   }}
                 >
@@ -1311,10 +1318,10 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                 type="button"
                 onClick={() => handleBatchDuplicate(false)}
                 className="min-h-[40px] px-3 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-xl text-xs font-medium border border-white/20 transition-colors flex items-center cursor-pointer shrink-0"
-                title="Duplicar lançamentos para a mesma competência"
+                title="Copiar as receitas selecionadas"
               >
                 <Copy className="w-3.5 h-3.5 mr-1.5" />
-                Duplicar
+                Copiar
               </button>
 
               {/* Duplicar (+1 Mês) */}
@@ -1383,7 +1390,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       <div className={`block md:hidden space-y-2.5 ${selectedIds.length > 0 ? 'pb-28 sm:pb-0' : ''}`}>
         {sortedTitles.length === 0 ? (
           <div className="bg-white dark:bg-[#1b1b20] p-8 rounded-xl border border-slate-200 dark:border-[#26262b] text-center text-slate-600 dark:text-slate-300 text-xs shadow-2xs">
-            Nenhum título a receber localizado para os filtros informados.
+            Nenhuma receita encontrada com esses filtros.
           </div>
         ) : (
           sortedTitles.map(t => {
@@ -1837,7 +1844,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                         title="Duplicar lançamento"
                       >
                         <Copy className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                        <span>Duplicar</span>
+                        <span>Copiar</span>
                       </button>
 
                       {t.balancePrincipal > 0 && t.documentState !== 'CANCELADO' && (
@@ -2080,7 +2087,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
               {sortedTitles.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="py-8 text-center text-slate-500">
-                    Nenhum título a receber localizado para os filtros informados.
+                    Nenhuma receita encontrada com esses filtros.
                   </td>
                 </tr>
               ) : (
@@ -2550,7 +2557,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
           setRefreshKey(k => k + 1);
           setToastMessage({
             type: 'success',
-            text: `✓ ${deletedCount} duplicata(s) de títulos a receber removida(s) com sucesso!`
+            text: `✓ ${deletedCount} receita(s) repetida(s) removida(s) com sucesso!`
           });
         }}
       />
