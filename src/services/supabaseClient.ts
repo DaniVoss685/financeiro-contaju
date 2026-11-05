@@ -92,6 +92,57 @@ export function clearSupabaseCustomConfig(): void {
   cachedClientKey = '';
 }
 
+
+// ---------------------------------------------------------------------------
+// Multiempresa: toda tabela de dados (contaju_*) é isolada pela empresa ativa.
+// Aqui o cliente passa a filtrar leituras/exclusões pela empresa e a gravar o
+// org_id em cada linha. O banco (RLS) é quem garante o isolamento de verdade.
+// ---------------------------------------------------------------------------
+const ORG_FREE_TABLES = new Set([
+  'contaju_organizations',
+  'contaju_memberships',
+  'contaju_consultants',
+  'contaju_invitations',
+  'contaju_consultant_access_log'
+]);
+
+function activeOrgId(): string | null {
+  try {
+    return localStorage.getItem('contaju_active_org');
+  } catch {
+    return null;
+  }
+}
+
+function withOrg(rows: any, org: string): any {
+  if (Array.isArray(rows)) return rows.map(r => ({ ...r, org_id: org }));
+  return rows && typeof rows === 'object' ? { ...rows, org_id: org } : rows;
+}
+
+function scopeToOrg(client: SupabaseClient): SupabaseClient {
+  const originalFrom = client.from.bind(client);
+  (client as any).from = (table: string) => {
+    const builder: any = originalFrom(table);
+    const org = activeOrgId();
+    if (!table.startsWith('contaju_') || ORG_FREE_TABLES.has(table) || !org) return builder;
+    return new Proxy(builder, {
+      get(target, prop) {
+        if (prop === 'select') return (...a: any[]) => target.select(...a).eq('org_id', org);
+        if (prop === 'insert') return (rows: any, ...a: any[]) => target.insert(withOrg(rows, org), ...a);
+        if (prop === 'upsert') {
+          return (rows: any, opts?: any, ...a: any[]) =>
+            target.upsert(withOrg(rows, org), opts?.onConflict === 'id' ? { ...opts, onConflict: 'org_id,id' } : opts, ...a);
+        }
+        if (prop === 'update') return (v: any, ...a: any[]) => target.update(v, ...a).eq('org_id', org);
+        if (prop === 'delete') return (...a: any[]) => target.delete(...a).eq('org_id', org);
+        const value = target[prop];
+        return typeof value === 'function' ? value.bind(target) : value;
+      }
+    });
+  };
+  return client;
+}
+
 export function getSupabaseClient(): SupabaseClient | null {
   const config = getSupabaseConfig();
   if (!config.url || !config.anonKey || !config.url.startsWith('http')) {
@@ -104,12 +155,12 @@ export function getSupabaseClient(): SupabaseClient | null {
   }
 
   try {
-    cachedClient = createClient(config.url, config.anonKey, {
+    cachedClient = scopeToOrg(createClient(config.url, config.anonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true
       }
-    });
+    }));
     cachedClientKey = clientKey;
     return cachedClient;
   } catch (err) {

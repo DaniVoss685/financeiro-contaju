@@ -36,6 +36,32 @@ export function setActiveOrgId(id: string): void {
   localStorage.setItem(KEY_ACTIVE, id);
 }
 
+const KEEP_KEYS = new Set([
+  'contaju_auth_session', 'contaju_current_user_id', 'contaju_theme', 'contaju_orgs', 'contaju_active_org',
+  'contaju_is_consultant', 'contaju_cache_org', 'contaju_supabase_url', 'contaju_supabase_anon_key',
+  'contaju_supabase_auto_sync', 'contaju_sidebar_minimized', 'contaju_calc_open', 'contaju_calc_minimized'
+]);
+
+/** Apaga o cache local dos dados (nunca mistura empresas no mesmo navegador). */
+export function purgeLocalData(): void {
+  const toRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('contaju_') && !KEEP_KEYS.has(k) && !k.startsWith('sb-')) toRemove.push(k);
+  }
+  toRemove.forEach(k => localStorage.removeItem(k));
+}
+
+/** Troca a empresa ativa (consultor) e recarrega com os dados dela. */
+export async function switchOrg(orgId: string): Promise<void> {
+  setActiveOrgId(orgId);
+  const client = getSupabaseClient();
+  if (isConsultant()) await client?.rpc('contaju_log_access', { p_org: orgId });
+  purgeLocalData();
+  localStorage.setItem('contaju_cache_org', orgId);
+  window.location.reload();
+}
+
 function friendlyError(message: string): string {
   const m = (message || '').toLowerCase();
   if (m.includes('invalid login')) return 'E-mail ou senha incorretos.';
@@ -104,6 +130,11 @@ async function finishLogin(): Promise<{ success: boolean; user?: User; error?: s
   const own = orgs.find(o => o.role !== 'CONSULTOR') || orgs[0];
   if (!getActiveOrgId() || !orgs.some(o => o.id === getActiveOrgId())) setActiveOrgId(own.id);
 
+  const active = getActiveOrgId() as string;
+  if (localStorage.getItem('contaju_cache_org') !== active) {
+    purgeLocalData();
+    localStorage.setItem('contaju_cache_org', active);
+  }
   storage.startSession(user);
   return { success: true, user };
 }
@@ -167,4 +198,6 @@ export async function signOut() {
   localStorage.removeItem(KEY_ORGS);
   localStorage.removeItem(KEY_ACTIVE);
   localStorage.removeItem(KEY_CONSULTANT);
+  localStorage.removeItem('contaju_cache_org');
+  purgeLocalData();
 }
