@@ -23,6 +23,7 @@ import {
   exportDREToCSV, 
   exportCashFlowToCSV 
 } from '../../utils/pdfExportUtils';
+import { PageToolbar, Button, TabPills } from '../Common/ui';
 
 type ReportTab = 'DRE_CONTABIL' | 'FLUXO_CAIXA_CONTABIL' | 'AGING' | 'TOP_CLIENTS' | 'EXPENSE_CATEGORIES';
 
@@ -183,141 +184,57 @@ export const ReportsView: React.FC = () => {
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <FileSpreadsheet className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Central de Relatórios & Apresentações Contábeis</h1>
-          </div>
-          <p className="text-xs text-slate-600 mt-0.5">
-            Extração de DRE e Fluxo de Caixa em PDF e CSV para reuniões de diretoria, contadores e auditorias externas.
-          </p>
-        </div>
+      <PageToolbar description="DRE e fluxo de caixa em PDF e CSV para reuniões de diretoria, contadores e auditorias externas.">
+        {activeReport === 'DRE_CONTABIL' && (
+          <>
+            <Button id="btn-export-dre-csv" variant="secondary" icon={<Download className="w-4 h-4" />} onClick={handleExportDRE_CSV}>
+              Exportar CSV
+            </Button>
+            <Button id="btn-export-dre-pdf" variant="primary" icon={<FileText className="w-4 h-4" />} onClick={handleExportDRE_PDF} disabled={isExporting}>
+              Exportar DRE em PDF
+            </Button>
+          </>
+        )}
 
-        {/* Action buttons header */}
-        <div className="flex flex-wrap items-center gap-2">
-          {activeReport === 'DRE_CONTABIL' && (
-            <>
-              <button
-                id="btn-export-dre-pdf"
-                onClick={handleExportDRE_PDF}
-                disabled={isExporting}
-                className="px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs font-semibold transition-colors flex items-center shadow-sm"
-              >
-                <FileText className="w-4 h-4 mr-1.5" />
-                Exportar DRE em PDF
-              </button>
-              <button
-                id="btn-export-dre-csv"
-                onClick={handleExportDRE_CSV}
-                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-sm"
-              >
-                <Download className="w-4 h-4 mr-1.5 text-amber-400" />
-                Exportar DRE em CSV
-              </button>
-            </>
-          )}
+        {activeReport === 'FLUXO_CAIXA_CONTABIL' && (
+          <>
+            <Button id="btn-export-cashflow-csv" variant="secondary" icon={<Download className="w-4 h-4" />} onClick={handleExportCashFlow_CSV}>
+              Exportar CSV
+            </Button>
+            <Button id="btn-export-cashflow-pdf" variant="primary" icon={<FileText className="w-4 h-4" />} onClick={handleExportCashFlow_PDF} disabled={isExporting}>
+              Exportar fluxo em PDF
+            </Button>
+          </>
+        )}
 
-          {activeReport === 'FLUXO_CAIXA_CONTABIL' && (
-            <>
-              <button
-                id="btn-export-cashflow-pdf"
-                onClick={handleExportCashFlow_PDF}
-                disabled={isExporting}
-                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors flex items-center shadow-sm"
-              >
-                <FileText className="w-4 h-4 mr-1.5 text-amber-400" />
-                Exportar Fluxo de Caixa PDF
-              </button>
-              <button
-                id="btn-export-cashflow-csv"
-                onClick={handleExportCashFlow_CSV}
-                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-sm"
-              >
-                <Download className="w-4 h-4 mr-1.5 text-amber-400" />
-                Exportar Fluxo de Caixa CSV
-              </button>
-            </>
-          )}
-
-          {activeReport !== 'DRE_CONTABIL' && activeReport !== 'FLUXO_CAIXA_CONTABIL' && (
-            <button
-              onClick={handleExportStandard}
-              className="px-3.5 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
-            >
-              <Download className="w-4 h-4 mr-1.5 text-slate-600" />
-              Exportar Tabela Excel (XLSX)
-            </button>
-          )}
-        </div>
-      </div>
+        {activeReport !== 'DRE_CONTABIL' && activeReport !== 'FLUXO_CAIXA_CONTABIL' && (
+          <Button variant="primary" icon={<Download className="w-4 h-4" />} onClick={handleExportStandard}>
+            Exportar tabela (Excel)
+          </Button>
+        )}
+      </PageToolbar>
 
       {feedbackMsg && (
-        <div className="p-3 bg-slate-900 border border-amber-500/40 rounded-xl text-amber-300 text-xs font-medium flex items-center justify-between animate-in fade-in shadow-xs">
-          <div className="flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+        <div className="px-4 py-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-[var(--status-success)] shrink-0" />
             <span>{feedbackMsg}</span>
           </div>
-          <span className="text-[10px] text-amber-400 font-mono">Arquivo baixado com sucesso</span>
+          <span className="text-xs text-[var(--text-muted)]">Arquivo baixado com sucesso</span>
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 text-xs">
-        <button
-          onClick={() => setActiveReport('DRE_CONTABIL')}
-          className={`pb-3 px-3.5 font-semibold transition-colors border-b-2 flex items-center ${
-            activeReport === 'DRE_CONTABIL'
-              ? 'border-indigo-600 text-amber-500'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <TrendingUp className="w-4 h-4 mr-1.5" />
-          DRE Demonstrativo Contábil
-        </button>
-        <button
-          onClick={() => setActiveReport('FLUXO_CAIXA_CONTABIL')}
-          className={`pb-3 px-3.5 font-semibold transition-colors border-b-2 flex items-center ${
-            activeReport === 'FLUXO_CAIXA_CONTABIL'
-              ? 'border-indigo-600 text-amber-500'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Wallet className="w-4 h-4 mr-1.5" />
-          Fluxo de Caixa Estruturado
-        </button>
-        <button
-          onClick={() => setActiveReport('AGING')}
-          className={`pb-3 px-3.5 font-semibold transition-colors border-b-2 ${
-            activeReport === 'AGING'
-              ? 'border-indigo-600 text-amber-500'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Inadimplência (Aging List)
-        </button>
-        <button
-          onClick={() => setActiveReport('TOP_CLIENTS')}
-          className={`pb-3 px-3.5 font-semibold transition-colors border-b-2 ${
-            activeReport === 'TOP_CLIENTS'
-              ? 'border-indigo-600 text-amber-500'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Ranking de Clientes
-        </button>
-        <button
-          onClick={() => setActiveReport('EXPENSE_CATEGORIES')}
-          className={`pb-3 px-3.5 font-semibold transition-colors border-b-2 ${
-            activeReport === 'EXPENSE_CATEGORIES'
-              ? 'border-indigo-600 text-amber-500'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          Despesas por Categoria
-        </button>
-      </div>
+      <TabPills
+        tabs={[
+          { id: 'DRE_CONTABIL', label: 'DRE contábil' },
+          { id: 'FLUXO_CAIXA_CONTABIL', label: 'Fluxo de caixa' },
+          { id: 'AGING', label: 'Inadimplência' },
+          { id: 'TOP_CLIENTS', label: 'Ranking de clientes' },
+          { id: 'EXPENSE_CATEGORIES', label: 'Despesas por categoria' }
+        ]}
+        value={activeReport}
+        onChange={id => setActiveReport(id as any)}
+      />
 
       {/* 1. DRE CONTÁBIL TAB */}
       {activeReport === 'DRE_CONTABIL' && (

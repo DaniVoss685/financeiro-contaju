@@ -4,6 +4,7 @@ import { ReportingEngine } from '../../services/reportingEngine';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatCompetence } from '../../services/financialEngine';
 import { MonthField } from '../Common/DateField';
+import { Card, PageToolbar } from '../Common/ui';
 
 export const CompareDRECashView: React.FC = () => {
   const currentMonth = new Date().toISOString().substring(0, 7);
@@ -59,44 +60,26 @@ export const CompareDRECashView: React.FC = () => {
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Scale className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Conciliação Executiva: DRE (Competência) x Caixa (Realizado)
-            </h1>
-          </div>
-          <p className="text-xs text-slate-700 mt-0.5">
-            Compreenda a diferença matemática entre <strong>Lucro Contábil</strong> e <strong>Saldo Financeiro em Banco</strong>.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <label className="text-xs font-semibold text-slate-700">Mês de Análise:</label>
+      <PageToolbar description={<>Entenda a diferença entre o <strong>lucro contábil</strong> (DRE) e o <strong>saldo financeiro em banco</strong> (caixa).</>}>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-[var(--text-secondary)]">Mês de análise</span>
           <MonthField
             value={selectedCompetence}
-            onChange={(e) => setSelectedCompetence(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-900 bg-white"
+            onChange={e => setSelectedCompetence(e.target.value)}
+            className="w-36 h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]"
           />
         </div>
-      </div>
+      </PageToolbar>
 
-      {/* Explanatory Rule Box */}
-      <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs text-slate-900 dark:text-slate-100 flex items-start space-x-3">
-        <Info className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+      <Card className="flex items-start gap-4">
+        <Info className="w-5 h-5 text-[var(--text-muted)] mt-0.5 shrink-0" strokeWidth={1.75} />
         <div className="space-y-1">
-          <span className="font-bold text-slate-900 dark:text-slate-100">
-            Princípio Contábil Fundamental
-          </span>
-          <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-            "Lucro não é caixa." A DRE reconhece os direitos e obrigações no momento em que o serviço é prestado ou o custo incorrido (Regime de Competência). 
-            O Fluxo de Caixa registra o dinheiro apenas no momento de sua efetiva liquidação bancária.
-            A conciliação abaixo mapeia exatamente as pontes e defasagens temporais entre os dois universos.
+          <h3>Lucro não é caixa</h3>
+          <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+            A DRE reconhece direitos e obrigações quando o serviço é prestado ou o custo acontece (regime de competência). O fluxo de caixa só registra o dinheiro quando ele é liquidado no banco. A conciliação abaixo mostra as pontes e as defasagens entre esses dois mundos.
           </p>
         </div>
-      </div>
+      </Card>
 
       {/* Main Dual Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -32,6 +32,7 @@ import { CompleteCounterpartyModal } from '../Modals/CompleteCounterpartyModal';
 import { useGlobalPeriod } from '../../hooks/useGlobalPeriod';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
+import { Card, PageToolbar, Button, StatCard, TabPills } from '../Common/ui';
 
 interface SalesViewProps {
   onOpenBillingModal?: () => void;
@@ -637,304 +638,173 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-xl border border-[var(--border-subtle)] shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Receipt className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Vendas & Faturamento de Contratos</h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Registro unificado de vendas geradas a partir de contratos recorrentes e faturamento de serviços avulsos.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="h-9 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-md flex items-center cursor-pointer"
-        >
-          <Plus className="w-4 h-4 mr-1.5" />
-          Faturar Venda Avulsa / Serviço
-        </button>
-      </div>
+      <PageToolbar description="Vendas geradas por contratos recorrentes e faturamento de serviços avulsos. O contrato gera a venda (receita no DRE) e a venda gera as parcelas a receber (caixa).">
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={() => setIsModalOpen(true)}>
+          Faturar venda avulsa
+        </Button>
+      </PageToolbar>
 
       {successMessage && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center text-xs text-emerald-800 dark:text-emerald-300 font-semibold">
-          <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500 shrink-0" />
+        <div className="px-4 py-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center gap-3 text-sm">
+          <CheckCircle2 className="w-4 h-4 text-[var(--status-success)] shrink-0" />
           <span>{successMessage}</span>
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)]">Total Faturado no Período</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-700 dark:text-slate-300">
-              {metrics.totalCount} vendas
-            </span>
-          </div>
-          <div className="text-xl font-bold text-[var(--text-primary)] mt-1.5 font-mono">
-            {formatBRL(metrics.totalSalesAmount)}
-          </div>
-          <p className="text-[10px] text-[var(--text-secondary)] mt-1 truncate" title={`${activePeriodLabel} • ${activeDateTypeLabel}`}>
-            {activePeriodLabel} • {activeDateTypeLabel}
-          </p>
-        </div>
-
-        <div className="p-4 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400">Vendas de Contratos (MRR)</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
-              {metrics.contractSalesCount} faturas
-            </span>
-          </div>
-          <div className="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1.5 font-mono">
-            {formatBRL(metrics.contractSalesAmount)}
-          </div>
-          <p className="text-[10px] text-[var(--text-secondary)] mt-1">Faturamento recorrente do período</p>
-        </div>
-
-        <div className="p-4 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-[var(--text-primary)]">Vendas Avulsas / Pontuais</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-700 dark:text-slate-300">
-              {metrics.standaloneSalesCount} vendas
-            </span>
-          </div>
-          <div className="text-xl font-bold text-[var(--text-primary)] mt-1.5 font-mono">
-            {formatBRL(metrics.standaloneSalesAmount)}
-          </div>
-          <p className="text-[10px] text-[var(--text-secondary)] mt-1">Consultorias e serviços do período</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <StatCard
+          label={`Total faturado • ${metrics.totalCount} vendas`}
+          value={formatBRL(metrics.totalSalesAmount)}
+          hint={`${activePeriodLabel} • ${activeDateTypeLabel}`}
+        />
+        <StatCard
+          label={`Contratos recorrentes • ${metrics.contractSalesCount} faturas`}
+          value={formatBRL(metrics.contractSalesAmount)}
+          hint="Faturamento recorrente do período"
+        />
+        <StatCard
+          label={`Vendas avulsas • ${metrics.standaloneSalesCount} vendas`}
+          value={formatBRL(metrics.standaloneSalesAmount)}
+          hint="Consultorias e serviços do período"
+        />
       </div>
 
-      {/* Concept Explanatory Card */}
-      <div className="bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-xl p-4 text-xs flex items-start space-x-3">
-        <Info className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-        <div className="space-y-1">
-          <span className="font-bold text-[var(--text-primary)]">
-            Fluxo Integrado: Contrato ➔ Venda (DRE) ➔ Parcelas a Receber (Caixa)
-          </span>
-          <p className="text-[var(--text-secondary)] leading-relaxed text-[11px]">
-            O <strong>Contrato</strong> é a matriz mestra de controle. Ao gerar o faturamento, cria-se a <strong>Venda</strong> (que reconhece a receita no mês econômico do DRE) e, a partir da venda, geram-se as <strong>Parcelas a Receber</strong> com seus respectivos vencimentos no Fluxo de Caixa.
-          </p>
-        </div>
-      </div>
-
-      {/* Filters & Tabs */}
-      <div className="bg-[var(--surface-card)] rounded-xl border border-[var(--border-subtle)] p-4 shadow-2xs space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-
-          {/* Tabs de Tipo de Venda */}
-          <div className="flex items-center gap-1.5 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] overflow-x-auto">
-            <button
-              onClick={() => setSalesTab('ALL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                salesTab === 'ALL'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Todas as Vendas ({salesMatchingPeriod.length})
-            </button>
-            <button
-              onClick={() => setSalesTab('CONTRATO')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                salesTab === 'CONTRATO'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Contratos Recorrentes ({metrics.contractSalesCount})
-            </button>
-            <button
-              onClick={() => setSalesTab('AVULSO')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                salesTab === 'AVULSO'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Vendas Avulsas ({metrics.standaloneSalesCount})
-            </button>
+      <Card className="space-y-5">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
+          <div className="min-w-0 2xl:flex-1">
+            <TabPills
+              tabs={[
+                { id: 'ALL', label: 'Todas', count: salesMatchingPeriod.length },
+                { id: 'CONTRATO', label: 'Contratos recorrentes', count: metrics.contractSalesCount },
+                { id: 'AVULSO', label: 'Avulsas', count: metrics.standaloneSalesCount }
+              ]}
+              value={salesTab}
+              onChange={id => setSalesTab(id as any)}
+            />
           </div>
-
-          {/* Search Input */}
-          <div className="relative min-w-[220px] sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+          <div className="relative w-full 2xl:w-72 shrink-0">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              placeholder="Buscar cliente, venda ou contrato..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 focus:outline-none"
+              placeholder="Buscar cliente, venda ou contrato"
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
             />
           </div>
-
         </div>
 
-        {/* Linha de Filtros de Período & Modo Temporal */}
-        <div className="pt-2 border-t border-[var(--border-subtle)]/60 flex flex-wrap items-center justify-between gap-3">
-          
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Toggle Tipo de Data */}
-            <div className="flex items-center gap-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-[11px] font-medium">
-              <span className="text-[10px] text-[var(--text-secondary)] px-1 font-semibold uppercase">Filtrar por:</span>
-              <button
-                type="button"
-                onClick={() => setFilterDateType('COMPETENCIA')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  filterDateType === 'COMPETENCIA'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="Filtrar pelo mês contábil da competência econômica (como no DRE)"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                Competência (DRE)
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterDateType('VENCIMENTO')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  filterDateType === 'VENCIMENTO'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="Filtrar pela data de vencimento financeiro das parcelas (como no Fluxo de Caixa / Contas a Receber)"
-              >
-                <Clock className="w-3.5 h-3.5" />
-                Vencimento (Caixa)
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterDateType('EMISSAO')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  filterDateType === 'EMISSAO'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="Filtrar pela data em que a venda foi faturada / emitida"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                Emissão
-              </button>
+        <div className="pt-5 border-t border-[var(--border-subtle)] space-y-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium text-[var(--text-secondary)]">Filtrar pela data de</p>
+              <TabPills
+                tabs={[
+                  { id: 'COMPETENCIA', label: 'Competência (DRE)' },
+                  { id: 'VENCIMENTO', label: 'Vencimento (caixa)' },
+                  { id: 'EMISSAO', label: 'Emissão' }
+                ]}
+                value={filterDateType}
+                onChange={id => setFilterDateType(id as any)}
+              />
             </div>
 
-            {/* Atalhos Rápidos de Período */}
-            <div className="flex items-center gap-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-[11px]">
-              <button
-                type="button"
-                onClick={() => setPeriodPreset('ALL')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium text-[var(--text-secondary)]">Período</p>
+              <TabPills
+                tabs={[
+                  { id: 'ALL', label: 'Todos' },
+                  { id: 'CURRENT_MONTH', label: 'Mês atual' },
+                  { id: 'NEXT_MONTH', label: 'Próximo mês' }
+                ]}
+                value={
                   periodPreset === 'ALL'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                Todos
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodPreset('CURRENT_MONTH')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  periodPreset === 'CURRENT_MONTH' || periodPreset === currentMonth
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title={`Mês Atual: ${formatCompetence(currentMonth)}`}
-              >
-                Mês Atual
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodPreset('NEXT_MONTH')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  periodPreset === 'NEXT_MONTH' || periodPreset === nextMonth
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title={`Próximo Mês: ${formatCompetence(nextMonth)}`}
-              >
-                Próximo Mês
-              </button>
+                    ? 'ALL'
+                    : periodPreset === 'CURRENT_MONTH' || periodPreset === currentMonth
+                    ? 'CURRENT_MONTH'
+                    : periodPreset === 'NEXT_MONTH' || periodPreset === nextMonth
+                    ? 'NEXT_MONTH'
+                    : ''
+                }
+                onChange={id => setPeriodPreset(id)}
+              />
             </div>
 
-            {/* Dropdown Geral de Seleção de Mês e Intervalos */}
-            <PremiumSelect
-              value={periodPreset}
-              onChange={e => setPeriodPreset(e.target.value)}
-              className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
-            >
-              <option value="ALL">Todo o Histórico (Sem filtro)</option>
-              
-              <optgroup label="Atalhos Rápidos">
-                <option value="CURRENT_MONTH">Mês Atual ({formatCompetence(currentMonth)})</option>
-                <option value="NEXT_MONTH">Próximo Mês ({formatCompetence(nextMonth)})</option>
-                <option value="PREV_MONTH">Mês Anterior ({formatCompetence(prevMonth)})</option>
-                <option value="CURRENT_YEAR">Ano Completo ({currentYear})</option>
-              </optgroup>
+            <div className="space-y-1.5 w-full sm:w-64">
+              <p className="text-sm font-medium text-[var(--text-secondary)]">Mês específico</p>
+              <PremiumSelect
+                value={periodPreset}
+                onChange={e => setPeriodPreset(e.target.value)}
+                sheetTitle="Período"
+                className="w-full h-10 px-3 text-sm"
+              >
+                <option value="ALL">Todo o histórico (sem filtro)</option>
 
-              <optgroup label="Meses Específicos">
-                {availableCompetences.map(c => (
-                  <option key={c} value={c}>
-                    {formatCompetence(c)} ({c.split('-').reverse().join('/')})
-                  </option>
-                ))}
-              </optgroup>
+                <optgroup label="Atalhos">
+                  <option value="CURRENT_MONTH">Mês atual ({formatCompetence(currentMonth)})</option>
+                  <option value="NEXT_MONTH">Próximo mês ({formatCompetence(nextMonth)})</option>
+                  <option value="PREV_MONTH">Mês anterior ({formatCompetence(prevMonth)})</option>
+                  <option value="CURRENT_YEAR">Ano completo ({currentYear})</option>
+                </optgroup>
 
-              <optgroup label="Intervalo Personalizado">
-                <option value="CUSTOM_RANGE">Personalizado (De / Até)...</option>
-              </optgroup>
-            </PremiumSelect>
+                <optgroup label="Meses específicos">
+                  {availableCompetences.map(c => (
+                    <option key={c} value={c}>
+                      {formatCompetence(c)} ({c.split('-').reverse().join('/')})
+                    </option>
+                  ))}
+                </optgroup>
 
-            {/* Inputs quando for Intervalo Personalizado */}
+                <optgroup label="Intervalo personalizado">
+                  <option value="CUSTOM_RANGE">Personalizado (de / até)</option>
+                </optgroup>
+              </PremiumSelect>
+            </div>
+
             {periodPreset === 'CUSTOM_RANGE' && (
-              <div className="flex items-center gap-1.5 bg-[var(--surface-elevated)] p-1 rounded-xl border border-amber-500/30">
-                <DateField
-                  value={customStartDate}
-                  onChange={e => setCustomStartDate(e.target.value)}
-                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] px-2.5 py-1 text-xs text-[var(--text-primary)]"
-                  placeholder="Data Início"
-                />
-                <span className="text-xs text-[var(--text-secondary)]">até</span>
-                <DateField
-                  value={customEndDate}
-                  onChange={e => setCustomEndDate(e.target.value)}
-                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] px-2.5 py-1 text-xs text-[var(--text-primary)]"
-                  placeholder="Data Fim"
-                />
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium text-[var(--text-secondary)]">Intervalo</p>
+                <div className="flex items-center gap-2">
+                  <DateField
+                    value={customStartDate}
+                    onChange={e => setCustomStartDate(e.target.value)}
+                    className="w-36 h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]"
+                    placeholder="Início"
+                  />
+                  <span className="text-sm text-[var(--text-muted)]">até</span>
+                  <DateField
+                    value={customEndDate}
+                    onChange={e => setCustomEndDate(e.target.value)}
+                    className="w-36 h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]"
+                    placeholder="Fim"
+                  />
+                </div>
               </div>
             )}
           </div>
 
-          {/* Reset / Indicador de Filtro Ativo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <span className="text-sm text-[var(--text-muted)]">
+              {filteredSales.length} de {sales.length} vendas
+            </span>
             {(periodPreset !== 'ALL' || searchTerm) && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                className="h-9"
+                icon={<RotateCcw className="w-4 h-4" />}
                 onClick={() => {
                   setPeriodPreset('ALL');
                   setSearchTerm('');
                   setCustomStartDate('');
                   setCustomEndDate('');
                 }}
-                className="text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <RotateCcw className="w-3 h-3" />
-                Limpar Filtros
-              </button>
+                Limpar filtros
+              </Button>
             )}
-
-            <span className="text-[10px] text-[var(--text-secondary)] bg-[var(--surface-elevated)] px-2.5 py-1 rounded-md border border-[var(--border-subtle)] font-medium">
-              {filteredSales.length} de {sales.length} vendas
-            </span>
           </div>
-
         </div>
-
-      </div>
+      </Card>
 
       {/* Batch Actions Toolbar */}
       {selectedSaleIds.length > 0 && (

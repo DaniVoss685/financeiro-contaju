@@ -824,7 +824,8 @@ main [class*="text-amber-"]:not([class*="bg-"]) {
 /* CARTÃO-TÍTULO REPETIDO: o nome da tela já aparece no topo, então o cartão    */
 /* vira só "descrição + ações", sem moldura e sem título duplicado.             */
 /* ========================================================================= */
-main > div > div > :first-child:has(h1) {
+main > div > div > :first-child:has(h1),
+.settings-content > div > :first-child:has(h1) {
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -832,10 +833,13 @@ main > div > div > :first-child:has(h1) {
   padding: 0;
 }
 main > div > div > :first-child:has(h1) div:has(> h1),
-main > div > div > :first-child:has(h1) :is(div, span):has(+ div h1) {
+main > div > div > :first-child:has(h1) :is(div, span):has(+ div h1),
+.settings-content > div > :first-child:has(h1) div:has(> h1),
+.settings-content > div > :first-child:has(h1) :is(div, span):has(+ div h1) {
   display: none;
 }
-main > div > div > :first-child:has(h1) p {
+main > div > div > :first-child:has(h1) p,
+.settings-content > div > :first-child:has(h1) p {
   font-size: 0.875rem;
   line-height: 1.375rem;
   color: var(--text-secondary);

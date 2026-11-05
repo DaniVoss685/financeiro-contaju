@@ -9,11 +9,11 @@ const files = [];
 const text = files.map(f=>fs.readFileSync(f,'utf8')).join('\n');
 
 const NEUTRALIZE = ['emerald','green','amber','yellow','orange']; // tintas decorativas
-const tokens = new Set(text.match(/[a-z:\-\[\]#0-9]*(?:bg|border)-(?:emerald|green|amber|yellow|orange)-\d{2,3}(?:\/\d{1,3})?/g) || []);
+const tokens = new Set(text.match(/[a-z:\-\[\]#0-9]*(?:bg|border)-(?:emerald|green|amber|yellow|orange)-\d{2,3}(?:\/\[[0-9.]+\]|\/\d{1,3})?/g) || []);
 
 const rules = { bg: [], bgHover: [], border: [], darkBg: [], darkBgHover: [], darkBorder: [], solidGold: [], solidHover: [] };
 for (const t of tokens) {
-  const m = t.match(/^((?:dark:)?(?:hover:)?)(bg|border)-(emerald|green|amber|yellow|orange)-(\d{2,3})(\/\d{1,3})?$/);
+  const m = t.match(/^((?:dark:)?(?:hover:)?)(bg|border)-(emerald|green|amber|yellow|orange)-(\d{2,3})(\/\[[0-9.]+\]|\/\d{1,3})?$/);
   if (!m) continue;
   const [, variant, kind, fam, shade, alpha] = m;
   const sel = `[class~="${t}"]`;

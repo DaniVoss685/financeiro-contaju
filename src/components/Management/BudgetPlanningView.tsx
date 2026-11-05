@@ -41,6 +41,7 @@ import { BudgetApprovalModal } from './BudgetApprovalModal';
 import { BudgetVersionDetailsModal } from './BudgetVersionDetailsModal';
 import { BudgetDreCashProjectionTab } from './BudgetDreCashProjectionTab';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { PageToolbar, Button, TabPills } from '../Common/ui';
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -740,146 +741,38 @@ export const BudgetPlanningView: React.FC = () => {
         </div>
       )}
 
-      {/* Header Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs">
-        <div>
-          <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-xs">
-              <Target className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-                  Planejamento Orçamentário & Simulação
-                </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  Exercício {selectedYear}
-                </span>
-                {changesList.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-[#18181b] animate-pulse">
-                    {changesList.length} {changesList.length === 1 ? 'alteração pendente' : 'alterações pendentes'}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                Elabore cenários, simule crescimento ou corte de despesas linha a linha e aprove novas metas com histórico rastreado.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Year Selector & Primary Actions */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs font-semibold">
-            {[currentYear - 1, currentYear, currentYear + 1].map(yr => (
-              <button
-                key={yr}
-                onClick={() => handleYearChange(yr)}
-                className={`px-3 py-1 rounded-lg transition-all ${
-                  selectedYear === yr
-                    ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]'
-                }`}
-              >
-                {yr}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={activeTab === 'PLANNING' ? handleExportMatrixExcel : handleExportComparisonExcel}
-            className="px-3.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-xl text-xs font-semibold flex items-center transition-colors shadow-xs"
-            title="Exportar matriz orçamentária para planilha Excel"
-          >
-            <Download className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-            Exportar Excel
-          </button>
-
-          {/* Botão de Aprovação em Destaque Dourado */}
-          {changesList.length > 0 && (
-            <button
-              onClick={() => setIsApprovalModalOpen(true)}
-              className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-[#18181b] rounded-xl text-xs font-bold flex items-center transition-all shadow-md shadow-amber-500/20"
-            >
-              <Award className="w-4 h-4 mr-1.5" />
-              Aprovar Novas Metas ({changesList.length})
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Main Tab Navigation */}
-      <div className="flex flex-wrap border-b border-[var(--border-subtle)] gap-2 sm:gap-6">
-        <button
-          onClick={() => setActiveTab('PLANNING')}
-          className={`pb-3 text-sm font-semibold flex items-center space-x-2 border-b-2 transition-all ${
-            activeTab === 'PLANNING'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-          }`}
+      <PageToolbar description="Elabore cenários, simule crescimento ou corte de despesas linha a linha e aprove novas metas com histórico rastreado.">
+        <TabPills
+          tabs={[currentYear - 1, currentYear, currentYear + 1].map(yr => ({ id: String(yr), label: String(yr) }))}
+          value={String(selectedYear)}
+          onChange={id => handleYearChange(Number(id))}
+        />
+        <Button
+          variant="secondary"
+          icon={<Download className="w-4 h-4" />}
+          onClick={activeTab === 'PLANNING' ? handleExportMatrixExcel : handleExportComparisonExcel}
+          title="Exportar a matriz orçamentária para planilha Excel"
         >
-          <SlidersHorizontal className="w-4 h-4" />
-          <span>Elaboração & Simulação de Metas</span>
-          {changesList.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-[#18181b]">
-              {changesList.length}
-            </span>
-          )}
-        </button>
+          Exportar Excel
+        </Button>
+        {changesList.length > 0 && (
+          <Button variant="primary" icon={<Award className="w-4 h-4" />} onClick={() => setIsApprovalModalOpen(true)}>
+            Aprovar novas metas ({changesList.length})
+          </Button>
+        )}
+      </PageToolbar>
 
-        <button
-          onClick={() => setActiveTab('DRE_CASH_PROJECTION')}
-          className={`pb-3 text-sm font-semibold flex items-center space-x-2 border-b-2 transition-all ${
-            activeTab === 'DRE_CASH_PROJECTION'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Demonstrativo DRE x Caixa Simulado</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('ANNUAL_12M')}
-          className={`pb-3 text-sm font-semibold flex items-center space-x-2 border-b-2 transition-all ${
-            activeTab === 'ANNUAL_12M'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-          }`}
-        >
-          <Table className="w-4 h-4" />
-          <span>Visão Anual 12 Meses (Orçado x Realizado)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('COMPARISON')}
-          className={`pb-3 text-sm font-semibold flex items-center space-x-2 border-b-2 transition-all ${
-            activeTab === 'COMPARISON'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" />
-          <span>Acompanhamento Mensal & Desvios</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('VERSIONS')}
-          className={`pb-3 text-sm font-semibold flex items-center space-x-2 border-b-2 transition-all ${
-            activeTab === 'VERSIONS'
-              ? 'border-amber-400 text-amber-400'
-              : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-          }`}
-        >
-          <History className="w-4 h-4" />
-          <span>Histórico de Versões & Metas</span>
-          {versionsList.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-              {versionsList.length}
-            </span>
-          )}
-        </button>
-      </div>
+      <TabPills
+        tabs={[
+          { id: 'PLANNING', label: 'Elaboração e simulação', count: changesList.length > 0 ? changesList.length : undefined },
+          { id: 'DRE_CASH_PROJECTION', label: 'DRE x caixa simulado' },
+          { id: 'ANNUAL_12M', label: 'Visão anual (orçado x realizado)' },
+          { id: 'COMPARISON', label: 'Acompanhamento e desvios' },
+          { id: 'VERSIONS', label: 'Histórico de versões', count: versionsList.length > 0 ? versionsList.length : undefined }
+        ]}
+        value={activeTab}
+        onChange={id => setActiveTab(id as any)}
+      />
 
       {/* Executive KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

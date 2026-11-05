@@ -7,6 +7,7 @@ import { CashCalculatorModal } from './CashCalculatorModal';
 import { BankAccountStatementModal } from './BankAccountStatementModal';
 import { BankBalanceClosingModal } from './BankBalanceClosingModal';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { Card, PageToolbar, Button, MoreMenu } from '../Common/ui';
 
 interface BankAccountsViewProps {
   onOpenTransferModal: () => void;
@@ -130,160 +131,126 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-2xs">
+      <PageToolbar description="Contas correntes, aplicações de liquidez imediata e caixas físicos.">
+        <MoreMenu
+          items={[
+            {
+              label: 'Conferência de saldos (fechamento)',
+              icon: <Scale className="w-4 h-4" />,
+              onClick: () => {
+                setClosingAccount(null);
+                setIsClosingModalOpen(true);
+              },
+              hint: 'Compara o saldo do sistema com o saldo real do banco'
+            },
+            {
+              label: 'Calculadora de caixa físico',
+              icon: <Calculator className="w-4 h-4" />,
+              onClick: () => handleOpenCashCalculator(),
+              hint: 'Contagem de cédulas e moedas'
+            }
+          ]}
+        />
+        <Button variant="secondary" icon={<ArrowLeftRight className="w-4 h-4" />} onClick={onOpenTransferModal}>
+          Nova transferência
+        </Button>
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={handleOpenNew}>
+          Cadastrar conta
+        </Button>
+      </PageToolbar>
+
+      <Card className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <Landmark className="w-5 h-5 text-amber-400" />
-            <h1 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight">Bancos e Contas de Caixa</h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Gestão de contas correntes, aplicações de liquidez imediata e caixas físicos.
-          </p>
+          <p className="text-sm text-[var(--text-secondary)]">Disponibilidade líquida consolidada</p>
+          <p className="mt-2 text-[32px] leading-10 font-semibold tracking-tight tabular-nums">{formatBRL(consolidated)}</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">Total disponível em todas as contas ativas do escritório</p>
         </div>
+        <p className="text-sm text-[var(--text-muted)]">{accounts.length} contas ativas</p>
+      </Card>
 
-        <div className="flex items-center space-x-2 flex-wrap gap-y-2">
-          <button
-            onClick={() => {
-              setClosingAccount(null);
-              setIsClosingModalOpen(true);
-            }}
-            className="px-3.5 py-2 bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25 rounded-lg text-xs font-bold transition-colors flex items-center shadow-2xs cursor-pointer"
-            title="Confrontar saldos atuais do sistema com o saldo real que você tem no banco para o fechamento perfeito"
-          >
-            <Scale className="w-4 h-4 mr-1.5 text-amber-400" />
-            Conferência de Saldos (Fechamento)
-          </button>
-          <button
-            id="btn-open-cash-calculator"
-            onClick={() => handleOpenCashCalculator()}
-            className="px-3.5 py-2 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-2xs cursor-pointer"
-          >
-            <Calculator className="w-4 h-4 mr-1.5 text-emerald-400" />
-            Calculadora de Caixa Físico
-          </button>
-          <button
-            onClick={onOpenTransferModal}
-            className="px-3.5 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-amber-500/40 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs cursor-pointer"
-          >
-            <ArrowLeftRight className="w-4 h-4 mr-1.5 text-amber-400" />
-            Nova Transferência
-          </button>
-          <button
-            onClick={handleOpenNew}
-            className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition-colors shadow-2xs flex items-center cursor-pointer"
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            Cadastrar Conta
-          </button>
-        </div>
-      </div>
-
-      {/* Consolidated Total Card */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-6 text-white shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-amber-500/30">
-        <div>
-          <span className="text-xs text-amber-400 uppercase font-bold tracking-wider">
-            Disponibilidade Líquida Consolidada
-          </span>
-          <div className="text-3xl font-extrabold mt-1 tracking-tight font-mono text-white">
-            {formatBRL(consolidated)}
-          </div>
-          <p className="text-xs text-slate-300 mt-1">
-            Total disponível em todas as contas ativas do escritório
-          </p>
-        </div>
-        <div className="bg-slate-800/80 px-4 py-2.5 rounded-xl border border-amber-500/30 text-xs">
-          <span className="text-slate-300 block">Contas cadastradas:</span>
-          <span className="font-bold text-amber-400 text-base">{accounts.length} contas ativas</span>
-        </div>
-      </div>
-
-      {/* Grid of Bank Accounts Adaptativo (1 col celular, 2 col tablet/notebook, 3-4 col Mac/Desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
         {accounts.map(acc => {
           const balance = FinancialEngine.getAccountBalance(acc.id);
           return (
-            <div 
-              key={acc.id} 
+            <div
+              key={acc.id}
               onDoubleClick={() => handleOpenStatement(acc)}
-              className="bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-2xs flex flex-col justify-between hover:border-amber-400/50 hover:shadow-xs transition-all cursor-pointer group"
-              title="Dê dois cliques para abrir o extrato completo e movimentações"
+              className="bg-[var(--surface-card)] p-5 sm:p-6 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between hover:border-[var(--border-highlight)] transition-colors cursor-pointer group"
+              title="Dê dois cliques para abrir o extrato completo e as movimentações"
             >
               <div>
-                <div className="flex justify-between items-start">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                    <Landmark className="w-5 h-5" />
+                <div className="flex justify-between items-start gap-3">
+                  <div className="min-w-0">
+                    <h3 className="truncate">{acc.name}</h3>
+                    <p className="text-sm text-[var(--text-muted)] mt-1 tabular-nums">
+                      {[acc.agency && `Ag ${acc.agency}`, acc.accountNumber && `CC ${acc.accountNumber}`].filter(Boolean).join(' • ') || 'Sem dados bancários'}
+                    </p>
                   </div>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center gap-0.5 shrink-0 -mr-2 -mt-1">
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleOpenStatement(acc);
                       }}
-                      className="text-[var(--text-muted)] hover:text-amber-400 hover:bg-amber-500/10 p-1 rounded-lg cursor-pointer transition-colors"
-                      title="Ver Extrato Bancário Completo"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer transition-colors"
+                      title="Ver extrato completo"
+                      aria-label={`Ver extrato de ${acc.name}`}
                     >
-                      <FileText className="w-3.5 h-3.5" />
+                      <FileText className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleEdit(acc);
                       }}
-                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] p-1 rounded-lg cursor-pointer transition-colors"
-                      title="Editar Conta"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer transition-colors"
+                      title="Editar conta"
+                      aria-label={`Editar ${acc.name}`}
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-1.5 mt-3">
-                  <h3 className="font-bold text-[var(--text-primary)] text-sm group-hover:text-amber-400">{acc.name}</h3>
-                  <span className="text-[9px] font-medium text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    (2 cliques = extrato)
-                  </span>
-                </div>
-                <div className="text-[11px] text-[var(--text-secondary)] space-y-0.5 mt-1 font-mono">
-                  {acc.agency && <div>Agência: {acc.agency}</div>}
-                  {acc.accountNumber && <div>Conta: {acc.accountNumber}</div>}
-                  <div className="uppercase text-[10px] font-sans font-bold text-amber-400/80 pt-0.5">{acc.type}</div>
-                </div>
+                <span className="inline-flex items-center h-6 px-2.5 mt-3 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)]">
+                  {acc.type}
+                </span>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-[var(--border-subtle)]">
-                <span className="text-[10px] text-[var(--text-secondary)] block">Saldo Atual em Caixa:</span>
-                <span className={`text-lg font-bold font-mono ${balance >= 0 ? 'text-[var(--text-primary)]' : 'text-rose-400'}`}>
+              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)]">
+                <p className="text-sm text-[var(--text-muted)]">Saldo atual</p>
+                <p className={`mt-1 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${balance < 0 ? 'text-[var(--status-danger)]' : ''}`}>
                   {formatBRL(balance)}
-                </span>
+                </p>
 
-                {acc.type === 'CAIXA_FISICO' && (
-                  <button
-                    id={`btn-count-cash-${acc.id}`}
-                    onClick={(e) => {
+                <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                  {acc.type === 'CAIXA_FISICO' && (
+                    <Button
+                      variant="secondary"
+                      className="h-9 flex-1"
+                      icon={<Calculator className="w-4 h-4" />}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleOpenCashCalculator(acc);
+                      }}
+                    >
+                      Contar cédulas
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    className="h-9 flex-1"
+                    icon={<Scale className="w-4 h-4" />}
+                    title="Conferir o saldo do sistema com o saldo real no banco"
+                    onClick={e => {
                       e.stopPropagation();
-                      handleOpenCashCalculator(acc);
+                      setClosingAccount(acc);
+                      setIsClosingModalOpen(true);
                     }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                   >
-                    <Calculator className="w-3.5 h-3.5 text-emerald-700" />
-                    Contar Cédulas & Moedas
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setClosingAccount(acc);
-                    setIsClosingModalOpen(true);
-                  }}
-                  className="mt-2 w-full py-1.5 px-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
-                  title="Conferir saldo do sistema versus saldo real no banco"
-                >
-                  <Scale className="w-3.5 h-3.5 text-amber-500" />
-                  Conferir com Banco
-                </button>
+                    Conferir com o banco
+                  </Button>
+                </div>
               </div>
             </div>
           );

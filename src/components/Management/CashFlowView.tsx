@@ -30,6 +30,7 @@ import { exportCashFlowToPDF } from '../../utils/pdfExportUtils';
 import { useGlobalPeriod } from '../../hooks/useGlobalPeriod';
 import { GlobalPeriodBanner } from '../Common/GlobalPeriodBanner';
 import { storage } from '../../services/storageService';
+import { Card, PageToolbar, Button, TabPills, MoreMenu } from '../Common/ui';
 
 export type CashFlowTimeHorizon = 'ANO' | 'SEMESTRE' | 'TRIMESTRE' | 'MES';
 
@@ -338,121 +339,31 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
   return (
     <div className="space-y-6">
 
-      {/* Header Principal */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <LineChart className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-              Fluxo de Caixa Direto
-            </h1>
-            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
-              {horizonLabel}
-            </span>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Demonstração estruturada da liquidez por regime de caixa (entradas e saídas efetivas e projetadas).
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Realizado / Projetado / Combinado Toggles */}
-          <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs font-medium">
-            <button
-              onClick={() => setMode('REALIZADO')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                mode === 'REALIZADO'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Realizado
-            </button>
-            <button
-              onClick={() => setMode('PROJETADO')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                mode === 'PROJETADO'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Projetado
-            </button>
-            <button
-              onClick={() => setMode('COMBINADO')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                mode === 'COMBINADO'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Combinado
-            </button>
-          </div>
-
-          {/* Seletor de Ano */}
-          <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
-            <span className="font-semibold text-[var(--text-secondary)] px-1.5">Ano:</span>
-            {[currentYear - 1, currentYear, currentYear + 1].map(y => (
-              <button
-                key={y}
-                onClick={() => setSelectedYear(y)}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                  selectedYear === y
-                    ? 'bg-[var(--surface-card)] font-bold text-[var(--text-primary)] shadow-xs border border-[var(--border-highlight)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                {y}
-              </button>
-            ))}
-          </div>
-
-          {/* Exportações */}
-          <button
-            onClick={handleExportPDF}
-            className="px-3.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-xl text-xs font-semibold transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Exportar demonstração executiva do fluxo de caixa em PDF (A4 Paisagem)"
+      <PageToolbar description="Demonstração da liquidez por regime de caixa, com entradas e saídas efetivas e projetadas.">
+        <TabPills
+          tabs={[currentYear - 1, currentYear, currentYear + 1].map(y => ({ id: String(y), label: String(y) }))}
+          value={String(selectedYear)}
+          onChange={id => setSelectedYear(Number(id))}
+        />
+        <MoreMenu
+          items={[
+            { label: 'PDF (A4 paisagem)', icon: <Download className="w-4 h-4" />, onClick: handleExportPDF, hint: 'Demonstração executiva do fluxo de caixa' },
+            { label: 'Imprimir', icon: <Printer className="w-4 h-4" />, onClick: handlePrint },
+            { label: 'Exportar para Excel', icon: <FileSpreadsheet className="w-4 h-4" />, onClick: handleExportExcel }
+          ]}
+          label="Exportar"
+        />
+        {onToggleFocusMode && (
+          <Button
+            variant="secondary"
+            onClick={onToggleFocusMode}
+            icon={isFocusMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            title={isFocusMode ? 'Sair do modo foco (Esc)' : 'Esconde o cabeçalho e o menu lateral para focar no fluxo financeiro'}
           >
-            <Download className="w-4 h-4 mr-1.5 text-amber-500 shrink-0" />
-            PDF (A4)
-          </button>
-
-          <button
-            onClick={handlePrint}
-            className="px-3.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-xl text-xs font-semibold transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Imprimir ou Salvar em PDF pelo navegador (com variáveis de tema)"
-          >
-            <Printer className="w-4 h-4 mr-1.5 text-[var(--text-secondary)] shrink-0" />
-            Imprimir
-          </button>
-
-          <button
-            onClick={handleExportExcel}
-            className="px-3.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-xl text-xs font-semibold transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Exportar fluxo de caixa para planilha Excel"
-          >
-            <FileSpreadsheet className="w-4 h-4 mr-1.5 text-[var(--text-secondary)]" />
-            Excel
-          </button>
-
-          {/* Modo Foco */}
-          {onToggleFocusMode && (
-            <button
-              onClick={onToggleFocusMode}
-              className={`px-3.5 py-1.5 border rounded-xl text-xs font-semibold transition-all flex items-center shadow-xs cursor-pointer ${
-                isFocusMode
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-[var(--border-highlight)] font-bold'
-                  : 'bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
-              }`}
-              title={isFocusMode ? "Sair do Modo Foco (Esc)" : "Ocultar cabeçalho e menu lateral para focar no fluxo financeiro"}
-            >
-              {isFocusMode ? <Minimize2 className="w-4 h-4 mr-1.5" /> : <Maximize2 className="w-4 h-4 mr-1.5" />}
-              {isFocusMode ? 'Sair do Modo Foco' : 'Modo Foco'}
-            </button>
-          )}
-        </div>
-      </div>
+            {isFocusMode ? 'Sair do modo foco' : 'Modo foco'}
+          </Button>
+        )}
+      </PageToolbar>
 
       {/* Global Period Banner */}
       <GlobalPeriodBanner
@@ -461,163 +372,85 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
         totalCount={allTitles.length}
       />
 
-      {/* Barra de Filtros de Prazos: Ano (12 meses) / Semestre / Trimestre */}
-      <div className="bg-[var(--surface-card)] p-4 rounded-2xl border border-[var(--border-subtle)] shadow-xs space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-
-          {/* Seletores Principais de Prazo */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center mr-1">
-              <Calendar className="w-3.5 h-3.5 mr-1 text-[var(--text-secondary)]" />
-              Horizonte de Análise:
-            </span>
-
-            {/* Opção Ano Todo (12 meses) */}
-            <button
-              onClick={() => setTimeHorizon('ANO')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer ${
-                timeHorizon === 'ANO'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                  : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
-              }`}
-            >
-              Ano Todo (12 Meses)
-            </button>
-
-            {/* Opção Semestre */}
-            <button
-              onClick={() => setTimeHorizon('SEMESTRE')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer ${
-                timeHorizon === 'SEMESTRE'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                  : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
-              }`}
-            >
-              Semestre
-            </button>
-
-            {/* Opção Trimestre */}
-            <button
-              onClick={() => setTimeHorizon('TRIMESTRE')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer ${
-                timeHorizon === 'TRIMESTRE'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                  : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
-              }`}
-            >
-              Trimestre
-            </button>
-
-            {/* Opção Mês */}
-            <button
-              onClick={() => setTimeHorizon('MES')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer min-h-[40px] sm:min-h-0 ${
-                timeHorizon === 'MES'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                  : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
-              }`}
-            >
-              Mês
-            </button>
+      <Card className="space-y-5">
+        <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
+          <div className="space-y-1.5 min-w-0 max-w-full">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">Visão</p>
+            <TabPills
+              tabs={[
+                { id: 'REALIZADO', label: 'Realizado' },
+                { id: 'PROJETADO', label: 'Projetado' },
+                { id: 'COMBINADO', label: 'Combinado' }
+              ]}
+              value={mode}
+              onChange={id => setMode(id as any)}
+            />
           </div>
 
-          {/* Sub-filtros quando Mês, Semestre ou Trimestre está selecionado */}
-          <div className="flex items-center space-x-2 overflow-x-auto scrollbar-none max-w-full">
-            {timeHorizon === 'MES' && (
-              <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs overflow-x-auto scrollbar-none">
-                {cashData.months.map((mName, mIdx) => (
-                  <button
-                    key={mIdx}
-                    onClick={() => setSelectedMonth(mIdx)}
-                    className={`px-2.5 py-1.5 min-h-[40px] sm:min-h-0 rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0 ${
-                      selectedMonth === mIdx
-                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {mName}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {timeHorizon === 'SEMESTRE' && (
-              <div className="flex items-center space-x-1.5 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                <button
-                  onClick={() => setSelectedSemester(1)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                    selectedSemester === 1
-                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  1º Semestre (Jan - Jun)
-                </button>
-                <button
-                  onClick={() => setSelectedSemester(2)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                    selectedSemester === 2
-                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  2º Semestre (Jul - Dez)
-                </button>
-              </div>
-            )}
-
-            {timeHorizon === 'TRIMESTRE' && (
-              <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                {([1, 2, 3, 4] as const).map(q => {
-                  const qLabels = ['1T (Jan-Mar)', '2T (Abr-Jun)', '3T (Jul-Set)', '4T (Out-Dez)'];
-                  return (
-                    <button
-                      key={q}
-                      onClick={() => setSelectedQuarter(q)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                        selectedQuarter === q
-                          ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-xs'
-                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                      }`}
-                    >
-                      {qLabels[q - 1]}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+          <div className="space-y-1.5 min-w-0 max-w-full">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">Horizonte de análise</p>
+            <TabPills
+              tabs={[
+                { id: 'ANO', label: 'Ano todo' },
+                { id: 'SEMESTRE', label: 'Semestre' },
+                { id: 'TRIMESTRE', label: 'Trimestre' },
+                { id: 'MES', label: 'Mês' }
+              ]}
+              value={timeHorizon}
+              onChange={id => setTimeHorizon(id as any)}
+            />
           </div>
         </div>
 
-        {/* Banner informativo de regime */}
-        <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-3 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-[var(--text-secondary)]">
-          <div className="flex items-center space-x-2">
-            <Wallet className="w-4 h-4 text-[var(--text-secondary)] shrink-0" />
-            <span>
-              Visão <strong>{mode}</strong> do Fluxo de Caixa para <strong>{horizonLabel}</strong>.
-            </span>
-          </div>
-          <span className="text-[11px] text-[var(--text-secondary)]">
-            {mode === 'REALIZADO'
-              ? 'Considera liquidações bancárias efetivadas'
-              : mode === 'PROJETADO'
-              ? 'Considera títulos abertos pela data prevista de caixa'
-              : 'Unifica histórico realizado com saldo futuro projetado'}
-          </span>
-        </div>
-      </div>
+        {timeHorizon === 'MES' && (
+          <TabPills
+            tabs={cashData.months.map((mName, mIdx) => ({ id: String(mIdx), label: mName }))}
+            value={String(selectedMonth)}
+            onChange={id => setSelectedMonth(Number(id))}
+          />
+        )}
 
-      {/* Toast de Exportação de PDF */}
+        {timeHorizon === 'SEMESTRE' && (
+          <TabPills
+            tabs={[
+              { id: '1', label: '1º semestre (jan a jun)' },
+              { id: '2', label: '2º semestre (jul a dez)' }
+            ]}
+            value={String(selectedSemester)}
+            onChange={id => setSelectedSemester(Number(id) as any)}
+          />
+        )}
+
+        {timeHorizon === 'TRIMESTRE' && (
+          <TabPills
+            tabs={[
+              { id: '1', label: '1º tri (jan a mar)' },
+              { id: '2', label: '2º tri (abr a jun)' },
+              { id: '3', label: '3º tri (jul a set)' },
+              { id: '4', label: '4º tri (out a dez)' }
+            ]}
+            value={String(selectedQuarter)}
+            onChange={id => setSelectedQuarter(Number(id) as any)}
+          />
+        )}
+
+        <p className="text-sm text-[var(--text-muted)]">
+          Visão {mode.toLowerCase()} do fluxo de caixa para {horizonLabel}.{' '}
+          {mode === 'REALIZADO'
+            ? 'Considera as liquidações bancárias efetivadas.'
+            : mode === 'PROJETADO'
+            ? 'Considera os títulos abertos pela data prevista de caixa.'
+            : 'Une o histórico realizado ao saldo futuro projetado.'}
+        </p>
+      </Card>
+
       {pdfToast && (
-        <div className="bg-amber-500 text-slate-950 px-4 py-3 rounded-xl font-bold text-xs flex items-center justify-between shadow-lg animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 stroke-[3]" />
+        <div className="px-4 py-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2.5">
+            <Check className="w-4 h-4 text-[var(--status-success)]" />
             <span>{pdfToast}</span>
           </div>
-          <button
-            onClick={() => setPdfToast(null)}
-            className="text-slate-900 hover:text-black font-extrabold text-sm px-2 cursor-pointer"
-          >
+          <button onClick={() => setPdfToast(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer" aria-label="Fechar aviso">
             ✕
           </button>
         </div>

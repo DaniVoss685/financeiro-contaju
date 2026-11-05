@@ -19,6 +19,7 @@ import { FinancialMovement, FinancialTitle } from '../../types';
 import { EditTitleModal } from '../Modals/EditTitleModal';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField } from '../Common/DateField';
+import { Card, PageToolbar, StatCard, FieldLabel, MoreMenu } from '../Common/ui';
 
 interface MovementsViewProps {
   initialSearch?: string;
@@ -189,109 +190,63 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
   return (
     <div className="space-y-6" key={refreshKey}>
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131316] p-5 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
+      <PageToolbar description="Extrato integrado com o Contas a Pagar e a Receber. Dê dois cliques numa linha para abrir a edição do lançamento.">
+        <MoreMenu
+          items={[
+            { label: 'Exportar para Excel', icon: <FileSpreadsheet className="w-4 h-4" />, onClick: handleExportExcel },
+            { label: 'Exportar para CSV', icon: <Download className="w-4 h-4" />, onClick: handleExportCSV }
+          ]}
+          label="Exportar"
+        />
+      </PageToolbar>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <StatCard label="Total de entradas" value={formatBRL(totalIn)} tone={totalIn > 0 ? 'success' : 'neutral'} hint="No filtro atual" />
+        <StatCard label="Total de saídas" value={formatBRL(totalOut)} tone={totalOut > 0 ? 'danger' : 'neutral'} hint="No filtro atual" />
+        <StatCard label="Saldo líquido movimentado" value={formatBRL(totalIn - totalOut)} tone={totalIn - totalOut < 0 ? 'danger' : 'neutral'} hint="Entradas menos saídas" />
+      </div>
+
+      <Card className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[repeat(2,minmax(0,16rem))_minmax(0,1fr)] gap-4 items-end">
         <div>
-          <div className="flex items-center space-x-2">
-            <ArrowLeftRight className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Movimentações de Caixa e Bancos
-            </h1>
-            <span className="text-[10px] bg-amber-500/10 text-amber-500 font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30">
-              Duplo Clique para Editar Lançamento
-            </span>
-          </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-            Extrato integrado com o Contas a Pagar/Receber. Dê duplo clique em qualquer linha para abrir a tela flutuante de edição.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handleExportExcel}
-            className="px-3 py-2 bg-white dark:bg-[#1b1b20] border border-slate-300 dark:border-[#26262b] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
+          <FieldLabel>Conta</FieldLabel>
+          <PremiumSelect
+            value={selectedAccountId}
+            onChange={e => setSelectedAccountId(e.target.value)}
+            sheetTitle="Conta"
+            className="w-full h-10 px-3 text-sm"
           >
-            <FileSpreadsheet className="w-4 h-4 mr-1.5 text-emerald-600" />
-            Excel
-          </button>
-          <button
-            onClick={handleExportCSV}
-            className="px-3 py-2 bg-white dark:bg-[#1b1b20] border border-slate-300 dark:border-[#26262b] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
+            <option value="ALL">Todas as contas ({accounts.length})</option>
+            {accounts.map(a => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </PremiumSelect>
+        </div>
+
+        <div>
+          <FieldLabel>Sentido</FieldLabel>
+          <PremiumSelect
+            value={directionFilter}
+            onChange={e => setDirectionFilter(e.target.value as any)}
+            sheetTitle="Sentido"
+            className="w-full h-10 px-3 text-sm"
           >
-            <Download className="w-4 h-4 mr-1.5 text-slate-500" />
-            CSV
-          </button>
-        </div>
-      </div>
-
-      {/* Summary KPI cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total de Entradas (Filtro)</span>
-          <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center">
-            <ArrowUpRight className="w-5 h-5 mr-1 text-emerald-500" />
-            {formatBRL(totalIn)}
-          </div>
+            <option value="ALL">Todos</option>
+            <option value="ENTRADA">Entradas (créditos)</option>
+            <option value="SAIDA">Saídas (débitos)</option>
+          </PremiumSelect>
         </div>
 
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total de Saídas (Filtro)</span>
-          <div className="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1 flex items-center">
-            <ArrowDownRight className="w-5 h-5 mr-1 text-rose-500" />
-            {formatBRL(totalOut)}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Saldo Líquido Movimentado</span>
-          <div className={`text-xl font-bold mt-1 ${totalIn - totalOut >= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
-            {formatBRL(totalIn - totalOut)}
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs flex flex-wrap gap-3 items-center justify-between">
-        <div className="flex flex-wrap gap-2 items-center text-xs">
-          <div>
-            <label className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Conta:</label>
-            <PremiumSelect
-              value={selectedAccountId}
-              onChange={(e) => setSelectedAccountId(e.target.value)}
-              className="rounded-lg border border-slate-300 dark:border-[#26262b] px-2.5 py-1.5 bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 text-xs font-medium"
-            >
-              <option value="ALL">Todas as Contas ({accounts.length})</option>
-              {accounts.map(a => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </PremiumSelect>
-          </div>
-
-          <div>
-            <label className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Sentido:</label>
-            <PremiumSelect
-              value={directionFilter}
-              onChange={(e) => setDirectionFilter(e.target.value as any)}
-              className="rounded-lg border border-slate-300 dark:border-[#26262b] px-2.5 py-1.5 bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 text-xs font-medium"
-            >
-              <option value="ALL">Todos os Sentidos</option>
-              <option value="ENTRADA">Entradas (Créditos)</option>
-              <option value="SAIDA">Saídas (Débitos)</option>
-            </PremiumSelect>
-          </div>
-        </div>
-
-        <div className="relative flex-1 max-w-xs">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+        <div className="relative sm:col-span-2 xl:col-span-1">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
           <input
             type="text"
-            placeholder="Buscar por descrição ou documento..."
+            placeholder="Buscar por descrição ou documento"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500/30"
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
           />
         </div>
-      </div>
+      </Card>
 
       {/* Mobile View: Cards Compactos de Movimentações (< 640px) */}
       <div className="block sm:hidden space-y-2.5">

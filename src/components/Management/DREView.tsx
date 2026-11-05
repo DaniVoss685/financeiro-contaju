@@ -51,6 +51,7 @@ import { GlobalPeriodBanner } from '../Common/GlobalPeriodBanner';
 import { DREWhatIfModal, WhatIfScenario } from './DREWhatIfModal';
 import { DREOnePageSummaryModal } from './DREOnePageSummaryModal';
 import { DRECashReconciliationEngine, DRECashReconciliationSummary } from '../../services/reconciliationEngine';
+import { Card, PageToolbar, Button, TabPills, MoreMenu } from '../Common/ui';
 
 export interface DREViewProps {
   isFocusMode?: boolean;
@@ -889,313 +890,131 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
         </div>
       )}
 
-      {/* Header com visual consistente */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="w-5 h-5 text-amber-400" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-              Demonstração do Resultado do Exercício (DRE Gerencial)
-            </h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+      <PageToolbar
+        description={
+          <>
             {regime === 'COMPETENCIA' && (
-              <>Estruturado por <strong>Regime de Competência</strong>. Faturamento, custos e despesas reconhecidos pelo período econômico gerador.</>
+              <>Estruturado por <strong>regime de competência</strong>: faturamento, custos e despesas reconhecidos pelo período econômico que os gerou.</>
             )}
             {regime === 'CAIXA' && (
-              <>Estruturado por <strong>Regime de Caixa</strong>. Entradas e saídas reconhecidas exclusivamente pelas quitações e liquidações efetivadas.</>
+              <>Estruturado por <strong>regime de caixa</strong>: entradas e saídas reconhecidas apenas quando foram quitadas.</>
             )}
             {regime === 'COMPARATIVO' && (
-              <>Visão <strong>Comparativa Lado a Lado</strong>: Competência vs Caixa Realizado. Auditoria de descasamento financeiro, inadimplência e taxa de realização.</>
+              <>Visão <strong>comparativa</strong>: competência e caixa lado a lado, com descasamento, inadimplência e taxa de realização.</>
             )}
-          </p>
-        </div>
+          </>
+        }
+      >
+        <TabPills
+          tabs={[currentYear - 1, currentYear, currentYear + 1].map(y => ({ id: String(y), label: String(y) }))}
+          value={String(effectiveYear)}
+          onChange={id => setSelectedYear(Number(id))}
+        />
+        <MoreMenu
+          items={[
+            { label: 'One-pager executivo', icon: <Presentation className="w-4 h-4" />, onClick: () => setShowOnePageModal(true), hint: 'Sumário em folha única para diretoria e conselho' },
+            { label: 'PDF (A4 paisagem)', icon: <FileText className="w-4 h-4" />, onClick: handleExportPDF },
+            { label: 'Imprimir', icon: <Printer className="w-4 h-4" />, onClick: handlePrint },
+            { label: 'Exportar para Excel', icon: <FileSpreadsheet className="w-4 h-4" />, onClick: handleExportExcel },
+            { label: 'Exportar para CSV', icon: <Download className="w-4 h-4" />, onClick: handleExportCSV },
+            ...(onNavigate
+              ? [{ label: 'Plano de contas', icon: <Network className="w-4 h-4" />, onClick: () => onNavigate('PLANO_CONTAS'), hint: 'Criar, clonar ou vincular contas às linhas da DRE' }]
+              : [])
+          ]}
+          label="Exportar e mais"
+        />
+        {onToggleFocusMode && (
+          <Button
+            variant="secondary"
+            onClick={onToggleFocusMode}
+            icon={isFocusMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            title={isFocusMode ? 'Sair do modo foco (Esc)' : 'Esconde o cabeçalho e o menu lateral para focar na análise'}
+          >
+            {isFocusMode ? 'Sair do modo foco' : 'Modo foco'}
+          </Button>
+        )}
+      </PageToolbar>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Seletor de Ano */}
-          <div className="flex items-center space-x-1.5 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
-            <span className="font-semibold text-[var(--text-secondary)] px-2">Ano:</span>
-            {[currentYear - 1, currentYear, currentYear + 1].map(y => (
-              <button
-                key={y}
-                onClick={() => setSelectedYear(y)}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                  effectiveYear === y 
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs' 
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                {y}
-              </button>
-            ))}
+      {/* Período, regime e nível de detalhe */}
+      <Card className="space-y-5">
+        <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
+          <div className="space-y-1.5 min-w-0 max-w-full">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">Período</p>
+            <TabPills
+              tabs={[
+                { id: 'ANO', label: 'Ano completo' },
+                { id: 'SEMESTRE', label: 'Semestre' },
+                { id: 'TRIMESTRE', label: 'Trimestre' },
+                { id: 'MES', label: 'Mês' }
+              ]}
+              value={timeHorizon}
+              onChange={id => setTimeHorizon(id as any)}
+            />
           </div>
 
-          {/* Sugestão 5: Sumário Executivo One-Pager */}
-          <button
-            onClick={() => setShowOnePageModal(true)}
-            className="px-3 py-2 bg-amber-500/10 border border-amber-500/50 text-amber-900 dark:text-amber-300 hover:bg-amber-500/20 rounded-xl text-xs font-bold transition-all flex items-center shadow-xs cursor-pointer"
-            title="Abrir e exportar Sumário Executivo do DRE em Folha Única (One-Pager para Diretoria & Conselho)"
-          >
-            <Presentation className="w-4 h-4 mr-1.5 text-amber-500" />
-            One-Pager (Executivo)
-          </button>
-
-          <button
-            onClick={handleExportPDF}
-            className="px-3 py-2 bg-[var(--surface-card)] border border-amber-500/40 text-amber-800 dark:text-amber-300 hover:bg-amber-500/15 rounded-xl text-xs font-bold transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Exportar DRE diagramado para PDF executivo (A4 Paisagem)"
-          >
-            <FileText className="w-4 h-4 mr-1.5 text-amber-500" />
-            PDF (A4 Paisagem)
-          </button>
-
-          <button
-            onClick={handlePrint}
-            className="px-3 py-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-xl text-xs font-semibold transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Imprimir ou Salvar em PDF pelo navegador (com variáveis de tema)"
-          >
-            <Printer className="w-4 h-4 mr-1.5 text-[var(--text-secondary)]" />
-            Imprimir
-          </button>
-          <button
-            onClick={handleExportExcel}
-            className="px-3 py-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-xl text-xs font-medium transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Exportar para Excel (.xlsx)"
-          >
-            <FileSpreadsheet className="w-4 h-4 mr-1.5 text-amber-400" />
-            Excel
-          </button>
-          <button
-            onClick={handleExportCSV}
-            className="px-3 py-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-xl text-xs font-medium transition-colors flex items-center shadow-xs cursor-pointer"
-            title="Exportar para CSV"
-          >
-            <Download className="w-4 h-4 mr-1.5 text-[var(--text-secondary)]" />
-            CSV
-          </button>
-
-          {/* Atalho direto para Configuração e Mapeamento do Plano de Contas */}
-          {onNavigate && (
-            <button
-              type="button"
-              onClick={() => onNavigate('PLANO_CONTAS')}
-              className="px-3 py-2 bg-amber-500/10 border border-amber-500/40 text-amber-900 dark:text-amber-300 hover:bg-amber-500/20 rounded-xl text-xs font-bold transition-all flex items-center shadow-xs cursor-pointer"
-              title="Acessar o Plano de Contas Gerencial para criar, clonar ou vincular novas contas às linhas da DRE"
-            >
-              <Network className="w-4 h-4 mr-1.5 text-amber-500" />
-              Plano de Contas
-            </button>
-          )}
-
-          {/* Modo Foco */}
-          {onToggleFocusMode && (
-            <button
-              onClick={onToggleFocusMode}
-              className={`px-3 py-2 border rounded-xl text-xs font-semibold transition-all flex items-center shadow-xs ${
-                isFocusMode 
-                  ? 'bg-amber-500 text-slate-950 border-amber-400 font-bold hover:bg-amber-400' 
-                  : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] hover:text-amber-400 hover:border-amber-400/40'
-              }`}
-              title={isFocusMode ? "Sair do Modo Foco (Esc)" : "Ocultar cabeçalho e menu lateral para focar na visualização analítica"}
-            >
-              {isFocusMode ? <Minimize2 className="w-4 h-4 mr-1.5" /> : <Maximize2 className="w-4 h-4 mr-1.5" />}
-              {isFocusMode ? 'Sair do Modo Foco' : 'Modo Foco'}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Seletor de Horizonte Temporal (Ano, Semestre, Trimestre), Modo de Estrutura e Banner */}
-      <div className="bg-[var(--surface-card)] p-3.5 sm:p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3.5 shadow-2xs">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
-          
-          {/* Horizonte Temporal */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-            <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-amber-400" />
-              Período:
-            </span>
-            <div className="flex items-center bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)]">
-              {(['ANO', 'SEMESTRE', 'TRIMESTRE', 'MES'] as const).map(h => (
-                <button
-                  key={h}
-                  onClick={() => setTimeHorizon(h)}
-                  className={`px-2.5 sm:px-3 py-1.5 min-h-[40px] sm:min-h-0 rounded-lg text-xs font-medium transition-colors ${
-                    timeHorizon === h 
-                      ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs' 
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  {h === 'ANO' ? 'Ano Completo (12M)' : h === 'SEMESTRE' ? 'Semestre' : h === 'TRIMESTRE' ? 'Trimestre' : 'Mês'}
-                </button>
-              ))}
-            </div>
-
-            {timeHorizon === 'MES' && (
-              <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs overflow-x-auto scrollbar-none max-w-full">
-                {dreData.months.map((mName, mIdx) => (
-                  <button
-                    key={mIdx}
-                    type="button"
-                    onClick={() => setSelectedMonth(mIdx)}
-                    className={`px-2.5 py-1.5 min-h-[40px] rounded-lg font-medium transition-colors shrink-0 ${
-                      selectedMonth === mIdx
-                        ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {mName}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {timeHorizon === 'SEMESTRE' && (
-              <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
-                {([1, 2] as const).map(sem => (
-                  <button
-                    key={sem}
-                    onClick={() => setSelectedSemester(sem)}
-                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                      selectedSemester === sem
-                        ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {sem}º Semestre {sem === 1 ? '(Jan-Jun)' : '(Jul-Dez)'}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {timeHorizon === 'TRIMESTRE' && (
-              <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
-                {([1, 2, 3, 4] as const).map(q => {
-                  const qLabels = ['1º Tri (Jan-Mar)', '2º Tri (Abr-Jun)', '3º Tri (Jul-Set)', '4º Tri (Out-Dez)'];
-                  return (
-                    <button
-                      key={q}
-                      onClick={() => setSelectedQuarter(q)}
-                      className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                        selectedQuarter === q
-                          ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
-                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                      }`}
-                    >
-                      {qLabels[q - 1]}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+          <div className="space-y-1.5 min-w-0 max-w-full">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">Regime</p>
+            <TabPills
+              tabs={[
+                { id: 'COMPETENCIA', label: 'Competência' },
+                { id: 'CAIXA', label: 'Caixa' },
+                { id: 'COMPARATIVO', label: 'Lado a lado' }
+              ]}
+              value={regime}
+              onChange={id => setRegime(id as any)}
+            />
           </div>
 
-          {/* Regime Contábil: Competência, Caixa ou Comparativo */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[var(--text-secondary)] flex items-center gap-1">
-              <Scale className="w-3.5 h-3.5 text-amber-400" />
-              Regime:
-            </span>
-            <div className="flex items-center bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
-              <button
-                type="button"
-                onClick={() => setRegime('COMPETENCIA')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  regime === 'COMPETENCIA'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="DRE por Regime de Competência (Faturamento e Provisões)"
-              >
-                Competência
-              </button>
-              <button
-                type="button"
-                onClick={() => setRegime('CAIXA')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  regime === 'CAIXA'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="DRE por Regime de Caixa (Liquidações efetivas em conta bancária)"
-              >
-                Caixa
-              </button>
-              <button
-                type="button"
-                onClick={() => setRegime('COMPARATIVO')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                  regime === 'COMPARATIVO'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="DRE Comparativo: Competência vs Caixa Lado a Lado com apuração de Gap e % Realização"
-              >
-                <span>Caixa x Competência</span>
-                <span className={`text-[9px] uppercase px-1 py-0.2 rounded font-black ${
-                  regime === 'COMPARATIVO' ? 'bg-black/20 text-slate-950' : 'bg-amber-500/20 text-amber-400'
-                }`}>
-                  Lado a Lado
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Modo de Visualização Estrutural: Recolhido vs Expandido */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[var(--text-secondary)] hidden sm:inline">Exibição:</span>
-            <div className="flex items-center bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
-              <button
-                type="button"
-                onClick={() => handleSetStructureMode('COLLAPSED')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  isCollapsed 
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs' 
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="Modo Recolhido: apenas categorias principais e análises de resultados (sem subcategorias)"
-              >
-                <Minimize2 className="w-3.5 h-3.5" />
-                <span>Recolhido (Principais)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSetStructureMode('EXPANDED')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  !isCollapsed 
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs' 
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-                title="Modo Expandido: exibe todas as categorias, subcategorias e contas analíticas detalhadas"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span>Expandido (Completo)</span>
-              </button>
-            </div>
+          <div className="space-y-1.5 min-w-0 max-w-full">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">Detalhe</p>
+            <TabPills
+              tabs={[
+                { id: 'COLLAPSED', label: 'Principais' },
+                { id: 'EXPANDED', label: 'Completo' }
+              ]}
+              value={isCollapsed ? 'COLLAPSED' : 'EXPANDED'}
+              onChange={id => handleSetStructureMode(id as any)}
+            />
           </div>
         </div>
 
-        {/* Banner informativo com modo ativo e atalho */}
-        <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-3 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-[var(--text-secondary)]">
-          <div className="flex items-center space-x-2">
-            <Scale className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>
-              Demonstrativo apurado por <strong>Competência</strong> ({horizonLabel}) • 
-              <strong className="text-[var(--text-primary)] ml-1">
-                {isCollapsed ? 'Modo Sintético (Apenas Categorias Principais e Análises de Resultados)' : 'Modo Analítico (Expandido com Todas as Subcategorias e Contas)'}
-              </strong>
-            </span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px]">
-            <span className="text-amber-400/90 font-medium">
-              {visibleLines.length} linhas em exibição
-            </span>
-            <span>•</span>
-            <span>Clique em qualquer valor para auditar</span>
-          </div>
-        </div>
-      </div>
+        {timeHorizon === 'MES' && (
+          <TabPills
+            tabs={dreData.months.map((mName, mIdx) => ({ id: String(mIdx), label: mName }))}
+            value={String(selectedMonth)}
+            onChange={id => setSelectedMonth(Number(id))}
+          />
+        )}
+
+        {timeHorizon === 'SEMESTRE' && (
+          <TabPills
+            tabs={[
+              { id: '1', label: '1º semestre (jan a jun)' },
+              { id: '2', label: '2º semestre (jul a dez)' }
+            ]}
+            value={String(selectedSemester)}
+            onChange={id => setSelectedSemester(Number(id) as any)}
+          />
+        )}
+
+        {timeHorizon === 'TRIMESTRE' && (
+          <TabPills
+            tabs={[
+              { id: '1', label: '1º tri (jan a mar)' },
+              { id: '2', label: '2º tri (abr a jun)' },
+              { id: '3', label: '3º tri (jul a set)' },
+              { id: '4', label: '4º tri (out a dez)' }
+            ]}
+            value={String(selectedQuarter)}
+            onChange={id => setSelectedQuarter(Number(id) as any)}
+          />
+        )}
+
+        <p className="text-sm text-[var(--text-muted)]">
+          Apurado por {regime === 'COMPETENCIA' ? 'competência' : regime === 'CAIXA' ? 'caixa' : 'competência e caixa'} ({horizonLabel}) •{' '}
+          {isCollapsed ? 'modo sintético' : 'modo analítico'} • {visibleLines.length} linhas • clique em qualquer valor para auditar
+        </p>
+      </Card>
 
       {/* Global Period Banner */}
       <GlobalPeriodBanner

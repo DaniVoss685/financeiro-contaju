@@ -205,73 +205,45 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
   const currentTabObj = tabs.find(t => t.id === activeTab) || tabs[0];
 
   return (
-    <div className="space-y-5">
-      {/* Header Unificado de Configurações */}
-      <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] p-5 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 flex items-center justify-center shadow-xs shrink-0 font-bold">
-              <SlidersHorizontal className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
-                  Configurações do Sistema
-                </h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 font-bold border border-slate-300 dark:border-slate-700">
-                  {currentTabObj.label}
-                </span>
-              </div>
-              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                {currentTabObj.description}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto text-xs text-[var(--text-secondary)] bg-[var(--surface-elevated)] px-3 py-1.5 rounded-xl border border-[var(--border-subtle)]">
-            <span>Seção Ativa:</span>
-            <strong className="text-[var(--text-primary)] font-semibold">{currentTabObj.label}</strong>
-          </div>
+    <div className="grid grid-cols-1 lg:grid-cols-[248px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+      {/* Menu das configurações: lista vertical no computador, abas rolando no celular */}
+      <nav
+        aria-label="Seções das configurações"
+        className="lg:sticky lg:top-0 -mx-4 px-4 sm:mx-0 sm:px-0 min-w-0"
+      >
+        <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible scrollbar-none pb-1 lg:pb-0">
+          {tabs.map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                title={tab.description}
+                aria-current={isActive ? 'page' : undefined}
+                className={`shrink-0 lg:w-full h-10 px-3.5 lg:px-3 flex items-center gap-3 rounded-lg text-sm whitespace-nowrap transition-colors cursor-pointer ${
+                  isActive
+                    ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)] font-medium'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-[var(--brand-gold)]' : 'text-[var(--text-muted)]'}`} strokeWidth={1.75} />
+                <span className="truncate">{tab.shortLabel}</span>
+                {tab.badge !== undefined && tab.badge > 0 && (
+                  <span className="lg:ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)] flex items-center justify-center tabular-nums">
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
+      </nav>
 
-        {/* Abas Internas / Barra de Navegação Horizontal */}
-        <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] overflow-x-auto pb-1 scrollbar-thin">
-          <div className="flex items-center gap-1.5 min-w-max">
-            {tabs.map(tab => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
-                    isActive
-                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 dark:border-white shadow-xs'
-                      : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)] border-[var(--border-subtle)]'
-                  }`}
-                  title={tab.description}
-                >
-                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white dark:text-slate-900' : 'text-[var(--text-secondary)]'}`} />
-                  <span>{tab.shortLabel}</span>
-                  {tab.badge !== undefined && tab.badge > 0 && (
-                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-                      isActive
-                        ? 'bg-amber-400 text-slate-950'
-                        : 'bg-amber-500 text-slate-950'
-                    }`}>
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
+      <div className="min-w-0 space-y-5">
       {/* Conteúdo Renderizado da Aba Interna Selecionada */}
-      <div className="animate-in fade-in duration-150">
+      <div className="settings-content">
         {activeTab === 'EMPRESA' && <CompanyConfigView />}
         {activeTab === 'FORNECEDORES' && <SuppliersView />}
         {activeTab === 'PLANO_CONTAS' && <ChartOfAccountsView />}
@@ -291,6 +263,7 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
         {activeTab === 'MELHORIAS' && <ImprovementsView />}
         {activeTab === 'AUDITORIA' && <AuditView />}
         {activeTab === 'BACKUP' && <BackupView />}
+      </div>
       </div>
     </div>
   );

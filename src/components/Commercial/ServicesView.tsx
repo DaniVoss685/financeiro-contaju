@@ -5,6 +5,7 @@ import { storage } from '../../services/storageService';
 import { formatBRL } from '../../services/financialEngine';
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { Card, PageToolbar, Button } from '../Common/ui';
 
 interface ServicesViewProps {
   initialSearch?: string;
@@ -101,76 +102,62 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ initialSearch = '' }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-xl border border-[var(--border-subtle)] shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Briefcase className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Catálogo de Serviços Contábeis</h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Classificação analítica no DRE e parametrização de honorários e avulsos.
-          </p>
-        </div>
+      <PageToolbar description="Classificação analítica no DRE e parametrização de honorários e serviços avulsos.">
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={handleOpenNew}>
+          Novo serviço
+        </Button>
+      </PageToolbar>
 
-        <button
-          onClick={handleOpenNew}
-          className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold transition-colors shadow-2xs flex items-center cursor-pointer"
-        >
-          <Plus className="w-4 h-4 mr-1.5" />
-          Novo Serviço
-        </button>
-      </div>
-
-      <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] shadow-2xs flex items-center justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+      <Card className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative w-full sm:max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
           <input
             type="text"
-            placeholder="Buscar serviços..."
+            placeholder="Buscar serviços"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] focus:outline-hidden focus:border-amber-500"
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
           />
         </div>
-        <div className="text-xs text-[var(--text-secondary)]">
-          Serviços cadastrados: <strong className="text-[var(--text-primary)]">{services.length}</strong>
-        </div>
-      </div>
+        <span className="text-sm text-[var(--text-muted)]">
+          {services.length} serviços cadastrados
+        </span>
+      </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {services.map(srv => {
           const acc = chartAccounts.find(a => a.id === srv.chartAccountId);
           return (
-            <div key={srv.id} className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] shadow-2xs flex flex-col justify-between hover:border-amber-500/40 transition-colors">
+            <div
+              key={srv.id}
+              className="bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between hover:border-[var(--border-highlight)] transition-colors"
+            >
               <div>
-                <div className="flex justify-between items-start">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
-                    srv.modality === 'RECORRENTE' 
-                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200' 
-                      : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30'
-                  }`}>
-                    {srv.modality === 'RECORRENTE' ? 'Recorrência Mensal' : 'Serviço Avulso'}
+                <div className="flex justify-between items-start gap-3">
+                  <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)]">
+                    {srv.modality === 'RECORRENTE' ? 'Recorrência mensal' : 'Serviço avulso'}
                   </span>
                   <button
                     onClick={() => handleEdit(srv)}
-                    className="text-[var(--text-secondary)] hover:text-amber-400 p-1 cursor-pointer"
+                    className="w-8 h-8 -mr-2 -mt-1 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                    aria-label={`Editar ${srv.name}`}
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <h3 className="font-bold text-[var(--text-primary)] text-sm mt-2">{srv.name}</h3>
-                <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{srv.description}</p>
+                <h3 className="mt-3">{srv.name}</h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1 line-clamp-2">{srv.description}</p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex justify-between items-end">
-                <div>
-                  <div className="text-[10px] text-[var(--text-secondary)]">Conta DRE:</div>
-                  <div className="text-xs font-medium text-[var(--text-secondary)] truncate max-w-[150px]">{acc?.code} - {acc?.name}</div>
+              <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] flex justify-between items-end gap-4">
+                <div className="min-w-0">
+                  <div className="text-xs text-[var(--text-muted)]">Conta do DRE</div>
+                  <div className="text-sm text-[var(--text-secondary)] truncate">{acc?.code} - {acc?.name}</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-[var(--text-secondary)]">Preço Sugerido</div>
-                  <div className="text-sm font-bold text-[var(--text-primary)] font-mono">{formatBRL(srv.defaultPrice)}</div>
+                <div className="text-right shrink-0">
+                  <div className="text-xs text-[var(--text-muted)]">Preço sugerido</div>
+                  <div className="text-[17px] font-semibold tabular-nums">{formatBRL(srv.defaultPrice)}</div>
                 </div>
               </div>
             </div>

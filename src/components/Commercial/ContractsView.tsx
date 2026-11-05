@@ -61,6 +61,7 @@ import { BalanceFeeBatchBillingModal } from '../Modals/BalanceFeeBatchBillingMod
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
+import { Card, PageToolbar, Button, StatCard, TabPills, MoreMenu } from '../Common/ui';
 
 interface ContractsViewProps {
   onOpenBillingModal: () => void;
@@ -793,243 +794,103 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131316] p-5 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <FileText className="w-5 h-5 text-amber-500" />
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Contratos Recorrentes (MRR)</h1>
-          </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-            Parametrização de mensalidades, histórico de reajustes, taxa de balanço anual e faturamento em lote.
-          </p>
-        </div>
-
-        {/* Botões Superiores Padronizados com Altura h-9 e Espaçamento Uniforme */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="h-9 px-3.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition-all shadow-2xs flex items-center shrink-0 whitespace-nowrap"
-            title="Importar múltiplos contratos a partir de planilha Excel com modelo oficial"
-          >
-            <Upload className="w-4 h-4 mr-1.5 text-amber-600 dark:text-amber-400 shrink-0" />
-            Importar em Lote (Excel)
-          </button>
-          <button
-            onClick={onOpenBillingModal}
-            className="h-9 px-3.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-2xs flex items-center shrink-0 whitespace-nowrap cursor-pointer"
-          >
-            <CalendarClock className="w-4 h-4 mr-1.5 shrink-0 text-amber-500" />
-            Processar Faturamento Mensal
-          </button>
-          <button
-            onClick={() => setIsBalanceFeeBatchModalOpen(true)}
-            className="h-9 px-3.5 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800 rounded-lg text-xs font-bold hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-colors shadow-2xs flex items-center shrink-0 whitespace-nowrap cursor-pointer"
-            title="Faturar Taxas de Balanço Anual (13º Honorário) em lote conforme parcelamento cadastrado nos contratos"
-          >
-            <Scale className="w-4 h-4 mr-1.5 shrink-0 text-purple-600 dark:text-purple-400" />
-            Faturar Taxa de Balanço (13º)
-          </button>
-          <button
-            onClick={handleOpenNew}
-            className="h-9 px-3.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs hover:bg-amber-400 transition-colors shadow-2xs flex items-center shrink-0 whitespace-nowrap cursor-pointer"
-          >
-            <Plus className="w-4 h-4 mr-1.5 shrink-0" />
-            Novo Contrato
-          </button>
-        </div>
-      </div>
+      <PageToolbar description="Mensalidades, histórico de reajustes, taxa de balanço anual e faturamento em lote.">
+        <MoreMenu
+          items={[
+            {
+              label: 'Importar contratos (Excel)',
+              icon: <Upload className="w-4 h-4" />,
+              onClick: () => setIsImportModalOpen(true),
+              hint: 'Vários contratos de uma vez, pelo modelo oficial'
+            },
+            {
+              label: 'Faturar taxa de balanço (13º)',
+              icon: <Scale className="w-4 h-4" />,
+              onClick: () => setIsBalanceFeeBatchModalOpen(true),
+              hint: 'Em lote, conforme o parcelamento de cada contrato'
+            }
+          ]}
+        />
+        <Button variant="secondary" icon={<CalendarClock className="w-4 h-4" />} onClick={onOpenBillingModal}>
+          Processar faturamento mensal
+        </Button>
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={handleOpenNew}>
+          Novo contrato
+        </Button>
+      </PageToolbar>
 
       {successToast && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center text-xs text-emerald-800 dark:text-emerald-300 font-semibold animate-in fade-in">
-          <CheckCircle className="w-4 h-4 mr-2 text-emerald-600 shrink-0" />
+        <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center gap-3 text-sm text-[var(--text-primary)]">
+          <CheckCircle className="w-4 h-4 text-[var(--status-success)] shrink-0" />
           <span className="flex-1">{successToast}</span>
-          <button onClick={() => setSuccessToast('')} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">✕</button>
+          <button onClick={() => setSuccessToast('')} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer" aria-label="Fechar aviso">
+            ✕
+          </button>
         </div>
       )}
 
-      {/* KPI Cards com Separação Estrita de Renda Ativa e Cancelados (Adaptativo: 1 col celular, 2 col tablet/notebook, 4 col Mac/Desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Card 1: MRR Ativo */}
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">MRR da Carteira Ativa</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-              Renda Ativa
-            </span>
-          </div>
-          <div className="text-xl font-bold text-slate-900 dark:text-white mt-1.5 font-mono">
-            {formatBRL(mrr)}
-          </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-            Apenas contratos com faturamento ativo
-          </span>
-        </div>
-
-        {/* Card 2: Contratos Ativos */}
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Contratos Ativos</span>
-            <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div className="text-xl font-bold text-emerald-700 dark:text-emerald-400 mt-1.5 font-mono">
-            {activeContracts.length} contratos
-          </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-            {Math.round((activeContracts.length / (contracts.length || 1)) * 100)}% da base total ({contracts.length} cadastrados)
-          </span>
-        </div>
-
-        {/* Card 3: Cancelados e Inativos */}
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Cancelados & Inativos</span>
-            <Ban className="w-4 h-4 text-rose-500" />
-          </div>
-          <div className="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1.5 font-mono">
-            {outOfPortfolioContracts.length} fora da carteira
-          </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-            {formatBRL(outOfPortfolioTotal)}/mês que saiu do faturamento
-          </span>
-        </div>
-
-        {/* Card 4: Ticket Médio Ativo */}
-        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Ticket Médio Ativo</span>
-            <DollarSign className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-xl font-bold text-slate-900 dark:text-white mt-1.5 font-mono">
-            {formatBRL(activeAvgTicket)}
-          </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-            Valor médio mensal por contrato ativo
-          </span>
-        </div>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard label="MRR da carteira ativa" value={formatBRL(mrr)} hint="Só contratos com faturamento ativo" />
+        <StatCard
+          label="Contratos ativos"
+          value={activeContracts.length}
+          hint={`${Math.round((activeContracts.length / (contracts.length || 1)) * 100)}% da base (${contracts.length} cadastrados)`}
+        />
+        <StatCard
+          label="Cancelados e inativos"
+          value={outOfPortfolioContracts.length}
+          tone={outOfPortfolioContracts.length > 0 ? 'danger' : 'neutral'}
+          hint={`${formatBRL(outOfPortfolioTotal)}/mês saiu do faturamento`}
+        />
+        <StatCard label="Ticket médio ativo" value={formatBRL(activeAvgTicket)} hint="Valor médio mensal por contrato" />
       </div>
 
-      {/* Abas de Filtragem por Status da Carteira */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-[#26262b]">
-        <button
-          onClick={() => setStatusTab('ALL')}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-            statusTab === 'ALL'
-              ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1b1b20]'
-          }`}
-        >
-          <span>Todos</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-            statusTab === 'ALL' ? 'bg-white/20 dark:bg-black/20 text-white dark:text-black font-extrabold' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-          }`}>
-            {contracts.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setStatusTab('ATIVO')}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-            statusTab === 'ATIVO'
-              ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-          <span>Carteira Ativa</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-            statusTab === 'ATIVO' ? 'bg-white/25 text-white font-extrabold' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
-          }`}>
-            {activeContracts.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setStatusTab('CANCELADO')}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-            statusTab === 'CANCELADO'
-              ? 'bg-rose-600 text-white shadow-xs shadow-rose-600/20'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-rose-400 shrink-0" />
-          <span>Cancelados</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-            statusTab === 'CANCELADO' ? 'bg-white/25 text-white font-extrabold' : 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
-          }`}>
-            {cancelledContracts.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setStatusTab('INATIVO')}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-            statusTab === 'INATIVO'
-              ? 'bg-amber-600 text-white shadow-xs shadow-amber-600/20'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
-          <span>Inativos</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-            statusTab === 'INATIVO' ? 'bg-white/25 text-white font-extrabold' : 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
-          }`}>
-            {inactiveContracts.length}
-          </span>
-        </button>
-
-        {suspendedOrClosedContracts.length > 0 && (
-          <button
-            onClick={() => setStatusTab('SUSPENSO_ENCERRADO')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusTab === 'SUSPENSO_ENCERRADO'
-                ? 'bg-slate-800 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
-            <span>Suspensos / Encerrados</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-              statusTab === 'SUSPENSO_ENCERRADO' ? 'bg-white/25 text-white font-extrabold' : 'bg-slate-500/20 text-slate-700 dark:text-slate-300'
-            }`}>
-              {suspendedOrClosedContracts.length}
-            </span>
-          </button>
-        )}
-      </div>
-
-      {/* Filter and Search with Channel Selector */}
-      <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar por cliente, número, motivo de cancelamento..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-          />
+      <Card className="space-y-4">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
+          <div className="min-w-0 2xl:flex-1">
+            <TabPills
+              tabs={[
+                { id: 'ALL', label: 'Todos', count: contracts.length },
+                { id: 'ATIVO', label: 'Carteira ativa', count: activeContracts.length },
+                { id: 'CANCELADO', label: 'Cancelados', count: cancelledContracts.length },
+                { id: 'INATIVO', label: 'Inativos', count: inactiveContracts.length },
+                ...(suspendedOrClosedContracts.length > 0
+                  ? [{ id: 'SUSPENSO_ENCERRADO', label: 'Suspensos e encerrados', count: suspendedOrClosedContracts.length }]
+                  : [])
+              ]}
+              value={statusTab}
+              onChange={id => setStatusTab(id as any)}
+            />
+          </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <span className="text-[11px] font-semibold text-slate-500 shrink-0 flex items-center gap-1">
-            <Compass className="w-3.5 h-3.5 text-amber-500" />
-            Canal de Aquisição:
-          </span>
+        <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_16rem] gap-4">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar por cliente, número ou motivo de cancelamento"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
+            />
+          </div>
           <PremiumSelect
             value={channelFilter}
-            onChange={(e) => setChannelFilter(e.target.value)}
-            className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 font-medium focus:ring-2 focus:ring-amber-500/40"
+            onChange={e => setChannelFilter(e.target.value)}
+            sheetTitle="Canal de aquisição"
+            className="w-full h-10 px-3 text-sm"
           >
-            <option value="ALL">Todos os Canais</option>
-            <option value="INDICACAO">🤝 Indicação</option>
-            <option value="REDE_SOCIAL">📱 Rede Social</option>
-            <option value="MECANISMO_PESQUISA">🔍 Mecanismo de Pesquisa</option>
-            <option value="PROSPECCAO_ATIVA">🎯 Prospecção Ativa</option>
-            <option value="EVENTO">🎤 Evento</option>
+            <option value="ALL">Todos os canais de aquisição</option>
+            <option value="INDICACAO">Indicação</option>
+            <option value="REDE_SOCIAL">Rede social</option>
+            <option value="MECANISMO_PESQUISA">Mecanismo de pesquisa</option>
+            <option value="PROSPECCAO_ATIVA">Prospecção ativa</option>
+            <option value="EVENTO">Evento</option>
             <option value="OUTRO">Outros</option>
           </PremiumSelect>
         </div>
-      </div>
+      </Card>
 
       {/* Contracts Table */}
       <div className="bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs overflow-hidden">

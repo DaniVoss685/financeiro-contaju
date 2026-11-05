@@ -30,6 +30,7 @@ import { CreditCardFormModal } from './CreditCardFormModal';
 import { CreditCardPurchaseModal } from './CreditCardPurchaseModal';
 import { CreditCardInvoicePaymentModal } from './CreditCardInvoicePaymentModal';
 import { CreditCardInvoiceImportModal } from './CreditCardInvoiceImportModal';
+import { Card, PageToolbar, Button, MoreMenu } from '../Common/ui';
 
 interface CreditCardsViewProps {
   onNavigateToPayables?: () => void;
@@ -201,104 +202,56 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
-      {/* Top Header com identidade Leão Dourado */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#131316] p-5 rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-black border border-amber-500/50 flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.25)]">
-              <CardIcon className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  Cartões de Crédito Corporativos
-                </h1>
-                <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  {cards.length} {cards.length === 1 ? 'cartão' : 'cartões'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Gestão de compras à vista ou parceladas, faturas mensais e integração direta com o Contas a Pagar.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {onNavigateToPayables && (
-            <button
-              id="btn-nav-payables"
-              onClick={onNavigateToPayables}
-              className="px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-[#1b1b20] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-[#26262b] transition-colors flex items-center gap-1.5 shadow-2xs"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              Ver no Contas a Pagar
-            </button>
-          )}
-
-          <button
-            id="btn-new-card"
-            onClick={handleOpenNewCard}
-            className="px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1b1b20] hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-[#26262b] transition-colors flex items-center gap-1.5 shadow-2xs"
-          >
-            <Plus className="w-3.5 h-3.5 text-amber-500" />
-            Novo Cartão
-          </button>
-
-          <button
-            id="btn-import-invoice"
-            disabled={!activeCard}
-            onClick={() => setIsImportInvoiceModalOpen(true)}
-            className="px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1b1b20] hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-[#26262b] transition-colors flex items-center gap-1.5 shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            title="Importar e conciliar fatura em OFX, CSV ou PDF (Nubank, Itaú, C6, Inter, Bradesco)"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-amber-500" />
-            Importar Fatura (OFX/CSV/PDF)
-          </button>
-
-          <button
-            id="btn-new-refund"
-            disabled={cards.length === 0}
-            onClick={() => handleOpenNewPurchase('ESTORNO')}
-            className="px-3.5 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5 shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            title="Lançar estorno, devolução ou cashback no cartão"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-emerald-500" />
-            + Estorno / Crédito
-          </button>
-
-          <button
-            id="btn-new-purchase"
-            disabled={cards.length === 0}
-            onClick={() => handleOpenNewPurchase('DESPESA')}
-            className="px-4 py-2 text-xs font-bold text-black bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 rounded-xl shadow-md transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <ShoppingBag className="w-4 h-4 text-black stroke-[2.2]" />
-            Lançar Compra no Cartão
-          </button>
-        </div>
-      </div>
+      <PageToolbar description="Compras à vista ou parceladas, faturas mensais e integração direta com o Contas a Pagar.">
+        <MoreMenu
+          items={[
+            ...(onNavigateToPayables
+              ? [{ label: 'Ver no Contas a Pagar', icon: <ExternalLink className="w-4 h-4" />, onClick: onNavigateToPayables }]
+              : []),
+            { label: 'Novo cartão', icon: <Plus className="w-4 h-4" />, onClick: handleOpenNewCard },
+            ...(activeCard
+              ? [{
+                  label: 'Importar fatura (OFX, CSV ou PDF)',
+                  icon: <FileSpreadsheet className="w-4 h-4" />,
+                  onClick: () => setIsImportInvoiceModalOpen(true),
+                  hint: 'Nubank, Itaú, C6, Inter, Bradesco'
+                }]
+              : []),
+            ...(cards.length > 0
+              ? [{
+                  label: 'Lançar estorno ou crédito',
+                  icon: <RotateCcw className="w-4 h-4" />,
+                  onClick: () => handleOpenNewPurchase('ESTORNO'),
+                  hint: 'Devolução ou cashback no cartão'
+                }]
+              : [])
+          ]}
+        />
+        <Button
+          id="btn-new-purchase"
+          variant="primary"
+          disabled={cards.length === 0}
+          icon={<ShoppingBag className="w-4 h-4" />}
+          onClick={() => handleOpenNewPurchase('DESPESA')}
+        >
+          Lançar compra no cartão
+        </Button>
+      </PageToolbar>
 
       {/* Cards Selector Bar (Visual Cards Carousel) ou Empty State */}
       {cards.length === 0 ? (
-        <div className="bg-white dark:bg-[#131316] border border-dashed border-slate-300 dark:border-[#26262b] rounded-2xl p-10 text-center max-w-xl mx-auto my-6 shadow-xs">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-3.5 text-amber-500 shadow-xs">
-            <CardIcon className="w-7 h-7" />
+        <Card className="text-center max-w-xl mx-auto my-6 py-10">
+          <div className="w-12 h-12 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-center mx-auto mb-4 text-[var(--text-secondary)]">
+            <CardIcon className="w-6 h-6" strokeWidth={1.75} />
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1.5">
-            Nenhum Cartão de Crédito Cadastrado
-          </h3>
-          <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-5 leading-relaxed">
-            Cadastre os cartões de crédito corporativos da sua empresa para acompanhar limites, faturas mensais, compras à vista ou parceladas e integrar lançamentos automaticamente com o Contas a Pagar.
+          <h3 className="mb-2">Nenhum cartão cadastrado</h3>
+          <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto mb-6 leading-relaxed">
+            Cadastre os cartões corporativos da empresa para acompanhar limites, faturas mensais, compras à vista ou parceladas e lançar tudo automaticamente no Contas a Pagar.
           </p>
-          <button
-            onClick={handleOpenNewCard}
-            className="px-4 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 rounded-xl shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.2]" />
-            Cadastrar Primeiro Cartão
-          </button>
-        </div>
+          <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={handleOpenNewCard} className="mx-auto">
+            Cadastrar primeiro cartão
+          </Button>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {cards.map(card => {
