@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { X, CheckCircle2, AlertCircle, Calculator, Info, Landmark, Clock, History } from 'lucide-react';
 import { FinancialTitle, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
@@ -250,17 +251,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 <label className="block text-slate-700 font-medium mb-1">
                   Principal Baixar (R$) *
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  max={title.balancePrincipal}
-                  inputMode="decimal"
-                  value={principalSettled}
-                  onChange={(e) => setPrincipalSettled(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-amber-500"
-                  required
-                />
+                <MoneyField value={principalSettled} onChange={setPrincipalSettled} className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-amber-500" required max={title.balancePrincipal} />
               </div>
 
               <div className="col-span-2 sm:col-span-4">
@@ -283,46 +274,21 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 <label className="block text-slate-700 font-medium mb-1">
                   Desconto (R$)
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max={principalSettled}
-                  inputMode="decimal"
-                  value={discount}
-                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-amber-700 focus:ring-2 focus:ring-amber-500"
-                />
+                <MoneyField value={discount} onChange={setDiscount} className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-amber-700 focus:ring-2 focus:ring-amber-500" max={principalSettled} />
               </div>
 
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Juros (R$)
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  inputMode="decimal"
-                  value={interest}
-                  onChange={(e) => setInterest(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-slate-800 focus:ring-2 focus:ring-amber-500"
-                />
+                <MoneyField value={interest} onChange={setInterest} className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-slate-800 focus:ring-2 focus:ring-amber-500" />
               </div>
 
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Multa (R$)
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  inputMode="decimal"
-                  value={fine}
-                  onChange={(e) => setFine(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-slate-800 focus:ring-2 focus:ring-amber-500"
-                />
+                <MoneyField value={fine} onChange={setFine} className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-slate-800 focus:ring-2 focus:ring-amber-500" />
               </div>
 
               {isReceivable && (
@@ -334,15 +300,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                       </label>
                       <span className="text-[10px] text-slate-500">Taxa de boleto ou cartão descontada pelo banco</span>
                     </div>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      inputMode="decimal"
-                      value={bankFee}
-                      onChange={(e) => setBankFee(parseFloat(e.target.value) || 0)}
-                      className="w-28 rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-rose-700 text-right font-medium focus:ring-2 focus:ring-amber-500"
-                    />
+                    <MoneyField value={bankFee} onChange={setBankFee} className="w-28 rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs text-rose-700 text-right font-medium focus:ring-2 focus:ring-amber-500" />
                   </div>
                 </div>
               )}

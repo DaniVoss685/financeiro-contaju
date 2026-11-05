@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { X, Edit3, AlertCircle, CheckCircle2, FolderPlus, Wallet, Edit2, Plus, Repeat, CalendarClock, Layers, Tag } from 'lucide-react';
 import { FinancialTitle, Counterparty, ChartAccount, Contract, ContractAdjustment } from '../../types';
 import { storage } from '../../services/storageService';
@@ -757,18 +758,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">R$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    inputMode="decimal"
-                    style={{ colorScheme: 'light dark' }}
-                    value={originalAmount || ''}
-                    onWheel={(e) => (e.target as HTMLElement).blur()}
-                    onChange={(e) => setOriginalAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl sm:rounded-2xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-10 pr-3 py-2.5 font-bold text-slate-900 dark:text-amber-400 text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none min-h-[42px] sm:min-h-[46px]"
-                    required
-                  />
+                  <MoneyField value={originalAmount} onChange={setOriginalAmount} className="w-full rounded-xl sm:rounded-2xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-10 pr-3 py-2.5 font-bold text-slate-900 dark:text-amber-400 text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none min-h-[42px] sm:min-h-[46px]" required />
                 </div>
               </div>
 
@@ -1130,30 +1120,14 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                         <label className="block text-slate-600 text-[10px] font-medium mb-1">
                           Desconto (R$)
                         </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={settlementDiscount || ''}
-                          onChange={(e) => setSettlementDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
-                          placeholder="0,00"
-                          className="w-full rounded border border-slate-300 px-2 py-1 text-xs bg-white"
-                        />
+                        <MoneyField value={settlementDiscount} onChange={setSettlementDiscount} className="w-full rounded border border-slate-300 px-2 py-1 text-xs bg-white" />
                       </div>
 
                       <div>
                         <label className="block text-slate-600 text-[10px] font-medium mb-1">
                           Juros / Multa (R$)
                         </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={settlementInterest || ''}
-                          onChange={(e) => setSettlementInterest(Math.max(0, parseFloat(e.target.value) || 0))}
-                          placeholder="0,00"
-                          className="w-full rounded border border-slate-300 px-2 py-1 text-xs bg-white"
-                        />
+                        <MoneyField value={settlementInterest} onChange={setSettlementInterest} className="w-full rounded border border-slate-300 px-2 py-1 text-xs bg-white" />
                       </div>
 
                       {isReceber && (
@@ -1161,15 +1135,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           <label className="block text-slate-600 text-[10px] font-medium mb-1">
                             Tarifa Retida (R$)
                           </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={settlementBankFee || ''}
-                            onChange={(e) => setSettlementBankFee(Math.max(0, parseFloat(e.target.value) || 0))}
-                            placeholder="0,00"
-                            className="w-full rounded border border-slate-300 px-2 py-1 text-xs bg-white"
-                          />
+                          <MoneyField value={settlementBankFee} onChange={setSettlementBankFee} className="w-full rounded border border-slate-300 px-2 py-1 text-xs bg-white" />
                         </div>
                       )}
 

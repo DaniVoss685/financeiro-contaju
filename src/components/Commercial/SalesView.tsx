@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import {
   Receipt,
   Plus,
@@ -1251,8 +1252,8 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
       {/* Modal to create installment sale */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[var(--surface-card)] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-[var(--border-subtle)] animate-in fade-in zoom-in-95">
-            <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)]">
+          <div className="bg-[var(--surface-card)] rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-[var(--border-subtle)] animate-in fade-in zoom-in-95 flex flex-col max-h-[92dvh]">
+            <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] shrink-0">
               <h2 className="text-base font-bold text-[var(--text-primary)]">
                 {simple ? 'Nova venda' : 'Faturamento de Venda Avulsa / Parcelada'}
               </h2>
@@ -1264,7 +1265,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </button>
             </div>
 
-            <form onSubmit={handleGenerateSale} className="p-6 space-y-4 text-xs">
+            <form onSubmit={handleGenerateSale} className="p-6 space-y-4 text-xs overflow-y-auto min-h-0">
               <div>
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <label className="block font-semibold text-[var(--text-primary)]">Cliente *</label>
@@ -1313,14 +1314,17 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   <div className="mt-2.5 p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl text-xs space-y-1.5 animate-in fade-in">
                     <div className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                       <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                      <span>Atenção: Este cliente já possui Contrato Recorrente Ativo!</span>
+                      <span>{simple ? 'Este cliente tem contrato ativo' : 'Atenção: Este cliente já possui Contrato Recorrente Ativo!'}</span>
                     </div>
-                    <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
+                    <p className="simple-only text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
+                      Este cliente já tem contrato mensal. Aqui lance só serviços avulsos.
+                    </p>
+                    <p className="adv-only text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
                       O cliente possui o(s) contrato(s):{' '}
                       <strong>{clientActiveContracts.map(c => `${c.contractNumber} (${formatBRL(c.monthlyTotal)}/mês)`).join(', ')}</strong>{' '}
                       com títulos e faturamento programados automaticamente.
                     </p>
-                    <p className="text-[10px] text-amber-800 dark:text-amber-400 font-semibold bg-amber-500/10 p-1.5 rounded-lg border border-amber-500/20">
+                    <p className="adv-only text-[10px] text-amber-800 dark:text-amber-400 font-semibold bg-amber-500/10 p-1.5 rounded-lg border border-amber-500/20">
                       ⚠️ <strong>Apenas lance aqui se for um serviço extraordinário/avulso.</strong> Se você estiver tentando faturar a mensalidade do contrato, não é necessário gerar venda avulsa, pois o contrato já gera os títulos e faturas para evitar duplicidade.
                     </p>
                   </div>
@@ -1342,15 +1346,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Valor total (R$) *' : 'Valor Total da Venda (R$) *'}</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    value={totalAmount || ''}
-                    onChange={e => setTotalAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-mono font-bold text-[var(--text-primary)]"
-                  />
+                  <MoneyField value={totalAmount} onChange={setTotalAmount} className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-mono font-bold text-[var(--text-primary)]" required />
                 </div>
 
                 <div>
@@ -1391,7 +1387,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
                     required
                   />
-                  <span className="text-[10px] text-[var(--text-secondary)]">Demais parcelas em +30d</span>
+                  <span className="adv-only text-[10px] text-[var(--text-secondary)]">Demais parcelas em +30d</span>
                 </div>
               </div>
 
@@ -1409,7 +1405,11 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               {/* Installment simulation box */}
-              <div className="p-3 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs space-y-1">
+              <div className="simple-only text-sm text-[var(--text-secondary)]">
+                {installmentsCount > 1 ? <>{installmentsCount} parcelas de <strong className="text-[var(--text-primary)]">{formatBRL(installmentValue)}</strong>, uma por mês.</> : <>Cobrança única de <strong className="text-[var(--text-primary)]">{formatBRL(totalAmount)}</strong>.</>}
+              </div>
+
+              <div className="adv-only p-3 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs space-y-1">
                 <div className="font-semibold text-[var(--text-primary)] flex items-center">
                   <Layers className="w-3.5 h-3.5 mr-1 text-amber-500" />
                   Simulação Contábil (DRE) vs Financeiro (Caixa):
@@ -1422,7 +1422,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4 border-t border-[var(--border-subtle)]">
+              <div className="flex justify-end space-x-3 pt-4 border-t border-[var(--border-subtle)] sticky bottom-0 bg-[var(--surface-card)] pb-1">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -1441,7 +1441,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   ) : (
                     <>
                       <CheckCircle className="w-4 h-4 text-slate-950" />
-                      <span>Confirmar Faturamento</span>
+                      <span>{simple ? 'Salvar venda' : 'Confirmar Faturamento'}</span>
                     </>
                   )}
                 </button>
@@ -1597,15 +1597,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Valor total (R$) *' : 'Valor Total da Venda (R$) *'}</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    value={editAmount || ''}
-                    onChange={e => setEditAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-mono font-bold text-[var(--text-primary)]"
-                  />
+                  <MoneyField value={editAmount} onChange={setEditAmount} className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-mono font-bold text-[var(--text-primary)]" required />
                 </div>
 
                 <div>

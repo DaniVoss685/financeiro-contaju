@@ -61,6 +61,7 @@ import { BalanceFeeBatchBillingModal } from '../Modals/BalanceFeeBatchBillingMod
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
+import { MoneyField } from '../Common/MoneyField';
 import { formatCompetenceShort } from '../../utils/dateUtils';
 import { DateField, MonthField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, TabPills, MoreMenu } from '../Common/ui';
@@ -282,7 +283,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
     setFormData({
       contractNumber: `CTR-${new Date().getFullYear()}-${Math.floor(Math.random() * 900 + 100)}`,
       customerId: counterparties[0]?.id || '',
-      description: 'Honorários Contábeis e Fiscais',
+      description: simple ? '' : 'Honorários Contábeis e Fiscais',
       startDate: new Date().toISOString().split('T')[0],
       entryDate: new Date().toISOString().split('T')[0],
       contractType: 'RECORRENTE',
@@ -293,7 +294,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       dueDay: 10,
       dueRule: 'NEXT_MONTH',
       billingMethod: 'BOLETO',
-      monthlyTotal: 2500,
+      monthlyTotal: simple ? 0 : 2500,
       status: 'ATIVO',
       notes: '',
       acquisitionChannel: 'INDICACAO',
@@ -367,7 +368,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       .filter(t => 
         t.type === 'RECEBER' && 
         (t.originType === 'CONTRATO' || t.originType === 'VENDA') && 
-        (t.originId === targetId || t.contractId === targetId || t.contractNumber === targetNumber || t.originId === targetNumber) && 
+        ((targetId && (t.originId === targetId || t.contractId === targetId)) || (targetNumber && (t.contractNumber === targetNumber || t.originId === targetNumber))) && 
         t.documentState !== 'CANCELADO'
       )
       .sort((a, b) => (a.competence || a.dueDate).localeCompare(b.competence || b.dueDate));
@@ -633,17 +634,28 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
       const isContractRecurring = formData.contractType !== 'AVULSO' && formData.isRecurring !== false;
       const shouldAutoGenerate = isContractRecurring && formData.autoGenerateFutureMonths !== false;
-      const monthsCount = Number(formData.futureMonthsCount) || 12;
+      let monthsCount = Number(formData.futureMonthsCount) || 12;
 
       // Calcular competência inicial efetiva conforme modo selecionado
       const todayYmd = new Date().toISOString().split('T')[0];
       const currentMonthComp = todayYmd.substring(0, 7);
       const entryMonthComp = (formData.entryDate || formData.startDate || todayYmd).substring(0, 7);
-      const effectiveStartComp = generationStartMode === 'ENTRY_MONTH'
+      let effectiveStartComp = generationStartMode === 'ENTRY_MONTH'
         ? entryMonthComp
         : generationStartMode === 'CUSTOM' && customStartCompetence
         ? customStartCompetence
         : currentMonthComp;
+      if (simple) {
+        // Versão simples: as parcelas nascem sozinhas a partir do início do contrato (ou de hoje, se começou antes)
+        effectiveStartComp = entryMonthComp > currentMonthComp ? entryMonthComp : currentMonthComp;
+        if (formData.endDate) {
+          const [sy, sm] = effectiveStartComp.split('-').map(Number);
+          const [ey, em] = formData.endDate.substring(0, 7).split('-').map(Number);
+          monthsCount = Math.max(1, (ey - sy) * 12 + (em - sm) + 1);
+        } else {
+          monthsCount = 12;
+        }
+      }
 
       if (editingContract) {
         let updatedStatusHistory = editingContract.statusHistory || [];
@@ -798,7 +810,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
   return (
     <div className="space-y-6">
-      <PageToolbar description="Mensalidades, histórico de reajustes, taxa de balanço anual e faturamento em lote.">
+      <PageToolbar description={simple ? 'Contratos mensais e por prazo, com a cobrança de cada cliente.' : 'Mensalidades, histórico de reajustes, taxa de balanço anual e faturamento em lote.'}>
         <MoreMenu
           items={[
             {
@@ -807,12 +819,12 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               onClick: () => setIsImportModalOpen(true),
               hint: 'Vários contratos de uma vez, pelo modelo oficial'
             },
-            {
+            ...(simple ? [] : [{
               label: 'Faturar taxa de balanço (13º)',
               icon: <Scale className="w-4 h-4" />,
               onClick: () => setIsBalanceFeeBatchModalOpen(true),
               hint: 'Em lote, conforme o parcelamento de cada contrato'
-            }
+            }])
           ]}
         />
         <Button variant="secondary" icon={<CalendarClock className="w-4 h-4" />} onClick={onOpenBillingModal}>
@@ -1259,9 +1271,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    {editingContract ? 'Editar Contrato Recorrente' : 'Novo Contrato de Prestação de Serviços'}
+                    {simple ? (editingContract ? 'Editar contrato' : 'Novo contrato') : (editingContract ? 'Editar Contrato Recorrente' : 'Novo Contrato de Prestação de Serviços')}
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="adv-only text-xs text-slate-500 dark:text-slate-400">
                     Honorários, taxa de balanço anual, reajustes históricos e parâmetros de faturamento
                   </p>
                 </div>
@@ -1572,7 +1584,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               ) : contractModalTab === 'SCHEDULE' ? (
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-xs">
                   {/* Cards com Estatísticas do Contrato */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="adv-only grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b]">
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">Total de Meses</span>
                       <div className="text-lg font-bold text-slate-900 dark:text-white mt-1 font-mono">
@@ -1611,7 +1623,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                   </div>
 
                   {/* Barra de Controles de Geração */}
-                  <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-3">
+                  <div className="adv-only p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wide">
@@ -1721,9 +1733,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                   <div className="border border-slate-200 dark:border-[#26262b] rounded-xl overflow-hidden bg-white dark:bg-[#131316]">
                     <div className="p-3 bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between">
                       <span className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wide">
-                        Faturas Vinculadas ({editingContractTitles.length})
+                        {simple ? 'Parcelas' : 'Faturas Vinculadas'} ({editingContractTitles.length})
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="adv-only text-[11px] text-slate-500">
                         Mensalidade: <strong className="text-slate-900 dark:text-white font-mono">{formatBRL(formData.monthlyTotal || 0)}</strong> • Venc. Todo dia {formData.dueDay || 10} ({formData.dueRule === 'NEXT_MONTH' ? 'mês seguinte' : 'mesmo mês'})
                       </span>
                     </div>
@@ -1732,13 +1744,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <div className="p-8 text-center space-y-3">
                         <Calendar className="w-10 h-10 text-slate-400 mx-auto opacity-40" />
                         <p className="text-xs text-slate-500">
-                          Nenhuma fatura foi gerada para este contrato ainda.
+                          {simple ? 'As parcelas são criadas sozinhas quando você salva o contrato.' : 'Nenhuma fatura foi gerada para este contrato ainda.'}
                         </p>
                         <button
                           type="button"
                           onClick={() => handleGenerateInsideContract()}
                           disabled={isGeneratingInsideContract}
-                          className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="adv-only px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           <Sparkles className="w-4 h-4" />
                           <span>Gerar Faturas Agora</span>
@@ -1750,8 +1762,8 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <thead className="bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] text-slate-500 font-semibold text-[11px] sticky top-0 z-10">
                             <tr>
                               <th className="py-2.5 px-3">Competência</th>
-                              <th className="py-2.5 px-3">Nº Fatura</th>
-                              <th className="py-2.5 px-3">Descrição</th>
+                              <th className="py-2.5 px-3 adv-only">Nº Fatura</th>
+                              <th className="py-2.5 px-3 adv-only">Descrição</th>
                               <th className="py-2.5 px-3 text-center">Vencimento</th>
                               <th className="py-2.5 px-3 text-right">Valor</th>
                               <th className="py-2.5 px-3 text-center">Situação</th>
@@ -1768,10 +1780,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                       {formatCompetence(t.competence)}
                                     </span>
                                   </td>
-                                  <td className="py-2.5 px-3 font-mono text-[11px] text-slate-700 dark:text-slate-300">
+                                  <td className="py-2.5 px-3 font-mono text-[11px] text-slate-700 dark:text-slate-300 adv-only">
                                     {t.titleNumber}
                                   </td>
-                                  <td className="py-2.5 px-3 text-slate-800 dark:text-slate-200">
+                                  <td className="py-2.5 px-3 text-slate-800 dark:text-slate-200 adv-only">
                                     {t.description}
                                   </td>
                                   <td className="py-2.5 px-3 text-center font-mono text-slate-700 dark:text-slate-300">
@@ -1788,7 +1800,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                         ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30'
                                         : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
                                     }`}>
-                                      {isSettled ? 'Quitado' : isOverdue ? 'Vencido' : 'Em Aberto'}
+                                      {isSettled ? (simple ? 'Recebido' : 'Quitado') : isOverdue ? (simple ? 'Em atraso' : 'Vencido') : (simple ? 'A vencer' : 'Em Aberto')}
                                     </span>
                                   </td>
                                 </tr>
@@ -1964,14 +1976,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-500">R$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
+                        <MoneyField
                           required
-                          onWheel={(e) => (e.target as HTMLElement).blur()}
-                          value={formData.monthlyTotal || ''}
-                          onChange={e => setFormData({ ...formData, monthlyTotal: parseFloat(e.target.value) || 0 })}
+                          value={Number(formData.monthlyTotal) || 0}
+                          onChange={v => setFormData({ ...formData, monthlyTotal: v })}
                           className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                         />
                       </div>
@@ -2145,7 +2153,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                   {/* Configuração de Geração de Meses Futuros (Apenas quando Recorrente) */}
                   {formData.contractType !== 'AVULSO' && formData.isRecurring !== false && (
-                    <div className="p-3.5 bg-white dark:bg-[#131316] rounded-xl border border-amber-500/30 space-y-3">
+                    <div className="adv-only p-3.5 bg-white dark:bg-[#131316] rounded-xl border border-amber-500/30 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -3067,7 +3075,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         type="button"
                         onClick={() => handleGenerateInsideContract()}
                         disabled={isGeneratingInsideContract}
-                        className="px-4 py-2 text-xs font-bold text-black bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 disabled:opacity-50 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                        className="adv-only px-4 py-2 text-xs font-bold text-black bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 disabled:opacity-50 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5 fill-current" />
                         <span>{isGeneratingInsideContract ? 'Gerando...' : 'Gerar Faturas Agora'}</span>
@@ -3095,7 +3103,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <button
                         type="button"
                         onClick={() => setContractModalTab('AUDIT_LOG')}
-                        className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer hidden sm:flex"
+                        className="adv-only text-[11px] text-slate-500 dark:text-slate-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer hidden sm:flex"
                       >
                         <History className="w-3.5 h-3.5" />
                         <span>Auditoria ({editingContract?.statusHistory?.length || 0})</span>

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   X, 
   PlusCircle, 
@@ -805,17 +806,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-2 font-bold text-slate-400">R$</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        inputMode="decimal"
-                        value={originalAmount || ''}
-                        onChange={(e) => setOriginalAmount(parseFloat(e.target.value) || 0)}
-                        className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                        placeholder="0,00"
-                        required
-                      />
+                      <MoneyField value={originalAmount} onChange={setOriginalAmount} className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" required />
                     </div>
                   </div>
 
@@ -869,17 +860,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2 font-bold text-slate-400">R$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          inputMode="decimal"
-                          value={originalAmount || ''}
-                          onChange={(e) => setOriginalAmount(parseFloat(e.target.value) || 0)}
-                          className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                          placeholder="0,00"
-                          required
-                        />
+                        <MoneyField value={originalAmount} onChange={setOriginalAmount} className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" required />
                       </div>
                     </div>
 
@@ -970,17 +951,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2 font-bold text-slate-400">R$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          inputMode="decimal"
-                          value={originalAmount || ''}
-                          onChange={(e) => setOriginalAmount(parseFloat(e.target.value) || 0)}
-                          className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                          placeholder="0,00"
-                          required
-                        />
+                        <MoneyField value={originalAmount} onChange={setOriginalAmount} className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" required />
                       </div>
                     </div>
 
@@ -1266,32 +1237,14 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       <label className="block text-slate-600 text-[10px] font-semibold mb-1">
                         Desconto Obtido/Concedido (R$)
                       </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        inputMode="decimal"
-                        value={settlementDiscount || ''}
-                        onChange={(e) => setSettlementDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
-                        placeholder="0,00"
-                        className="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm sm:text-xs bg-white focus:ring-1 focus:ring-amber-500"
-                      />
+                      <MoneyField value={settlementDiscount} onChange={setSettlementDiscount} className="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm sm:text-xs bg-white focus:ring-1 focus:ring-amber-500" />
                     </div>
 
                     <div>
                       <label className="block text-slate-600 text-[10px] font-semibold mb-1">
                         Juros / Multa Pagos (R$)
                       </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        inputMode="decimal"
-                        value={settlementInterest || ''}
-                        onChange={(e) => setSettlementInterest(Math.max(0, parseFloat(e.target.value) || 0))}
-                        placeholder="0,00"
-                        className="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm sm:text-xs bg-white focus:ring-1 focus:ring-amber-500"
-                      />
+                      <MoneyField value={settlementInterest} onChange={setSettlementInterest} className="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm sm:text-xs bg-white focus:ring-1 focus:ring-amber-500" />
                     </div>
 
                     {type === 'RECEBER' && (
@@ -1299,16 +1252,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                         <label className="block text-slate-600 text-[10px] font-semibold mb-1">
                           Tarifa Bancária Retida (R$)
                         </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          inputMode="decimal"
-                          value={settlementBankFee || ''}
-                          onChange={(e) => setSettlementBankFee(Math.max(0, parseFloat(e.target.value) || 0))}
-                          placeholder="0,00"
-                          className="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm sm:text-xs bg-white focus:ring-1 focus:ring-amber-500"
-                        />
+                        <MoneyField value={settlementBankFee} onChange={setSettlementBankFee} className="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm sm:text-xs bg-white focus:ring-1 focus:ring-amber-500" />
                       </div>
                     )}
 
