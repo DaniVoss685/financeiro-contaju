@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useTransition, Suspense, lazy } from 'react';
 import { Header } from './components/Header';
 import { Sidebar, NavigationScreen } from './components/Sidebar';
+import { isConsultant, getOrgs, getActiveOrgId, switchOrg } from './services/authService';
 import { BottomNavBar } from './components/Common/BottomNavBar';
 import { storage } from './services/storageService';
 import { User } from './types';
@@ -29,6 +30,7 @@ function lazyWithRetry<T extends React.ComponentType<any>>(
 }
 
 // Demais Views carregadas sob demanda via Code-Splitting
+const ConsultoriaView = lazyWithRetry(() => import('./components/Consultoria/ConsultoriaView').then(m => ({ default: m.ConsultoriaView })));
 const ClientsView = lazyWithRetry(() => import('./components/Commercial/ClientsView').then(m => ({ default: m.ClientsView })));
 const ServicesView = lazyWithRetry(() => import('./components/Commercial/ServicesView').then(m => ({ default: m.ServicesView })));
 const ContractsView = lazyWithRetry(() => import('./components/Commercial/ContractsView').then(m => ({ default: m.ContractsView })));
@@ -301,6 +303,8 @@ function AppContent() {
         return <ReportsView />;
 
       // Consolidated Configuration Hub & AI Center
+      case 'CONSULTORIA':
+        return <ConsultoriaView />;
       case 'IA':
         return (
           <SettingsHubView
@@ -429,6 +433,12 @@ function AppContent() {
           isFocusMode ? 'p-3 sm:p-6' : 'px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 pb-24 lg:pb-10'
         }`}>
           <div className="w-full max-w-[1600px] mx-auto min-w-0 space-y-6">
+            {isConsultant() && (getOrgs().find(o => o.id === getActiveOrgId())?.role === 'CONSULTOR') && (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--gold-edge)] bg-[var(--brand-gold-soft)] px-4 py-3 text-sm">
+                <span>Você está vendo a empresa <strong>{getOrgs().find(o => o.id === getActiveOrgId())?.name}</strong> como consultor.</span>
+                <button type="button" onClick={() => { const own = getOrgs().find(o => o.role !== 'CONSULTOR'); if (own) switchOrg(own.id); else handleNavigate('CONSULTORIA'); }} className="font-semibold text-[var(--brand-gold)] underline underline-offset-2">Voltar para a minha empresa</button>
+              </div>
+            )}
             <AppErrorBoundary fallbackTitle="Falha na exibição desta tela">
               <Suspense fallback={<ScreenLoadingFallback />}>
                 {renderActiveScreen()}

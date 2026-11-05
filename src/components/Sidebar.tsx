@@ -21,11 +21,13 @@ import {
   CreditCard,
   X,
   Bot,
+  Briefcase as BriefcaseIcon,
   Sun,
   Moon,
   LogOut
 } from 'lucide-react';
 import { storage } from '../services/storageService';
+import { isConsultant } from '../services/authService';
 import { GoldenLionLogo } from './Common/GoldenLionLogo';
 
 export type NavigationScreen =
@@ -46,6 +48,7 @@ export type NavigationScreen =
   | 'COMPARE_DRE_CAIXA'
   | 'RELATORIOS'
   | 'IA'
+  | 'CONSULTORIA'
   | 'CONFIGURACOES'
   | 'EMPRESA'
   | 'FORNECEDORES'
@@ -84,7 +87,8 @@ export const SCREEN_TITLES: Partial<Record<NavigationScreen, { title: string; gr
   PLANEJAMENTO_ORCAMENTARIO: { title: 'Planejamento orçamentário', group: 'Gestão' },
   COMPARE_DRE_CAIXA: { title: 'Comparar DRE x caixa', group: 'Gestão' },
   RELATORIOS: { title: 'Relatórios gerenciais', group: 'Gestão' },
-  IA: { title: 'Central de IA', group: 'Inteligência artificial' }
+  IA: { title: 'Central de IA', group: 'Inteligência artificial' },
+  CONSULTORIA: { title: 'Modo consultoria', group: 'Consultoria' }
 };
 
 export function getScreenTitle(screen: NavigationScreen): { title: string; group: string } {
@@ -110,6 +114,7 @@ const SHORT_LABELS: Partial<Record<NavigationScreen, string>> = {
   COMPARE_DRE_CAIXA: 'DRE x Caixa',
   RELATORIOS: 'Relatórios',
   IA: 'IA',
+  CONSULTORIA: 'Consultoria',
   CONFIGURACOES: 'Ajustes'
 };
 
@@ -279,6 +284,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       title: 'Sistema',
       items: [
+        ...(isConsultant() ? [{ id: 'CONSULTORIA' as NavigationScreen, label: 'Modo consultoria', icon: BriefcaseIcon }] : []),
         { id: 'IA', label: 'Central de IA', icon: Bot },
         { id: 'CONFIGURACOES', label: 'Configurações', icon: Sliders, badge: totalNotificationAlerts || undefined, badgeTone: 'neutral' }
       ]
