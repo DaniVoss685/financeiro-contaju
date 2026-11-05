@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   Edit3, 
   X, 
@@ -309,29 +310,14 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
               <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1 text-amber-400">
                 Valor Original (R$):
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={valorOriginal}
-                onChange={(e) => setValorOriginal(parseFloat(e.target.value) || 0)}
-                required
-                className="w-full px-3 py-1.5 bg-[var(--surface-card)] border border-amber-400/40 rounded-lg text-xs font-mono font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
-              />
+              <MoneyField value={Number(valorOriginal) || 0} onChange={(v: number) => setValorOriginal(v)} className="w-full px-3 py-1.5 bg-[var(--surface-card)] border border-amber-400/40 rounded-lg text-xs font-mono font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden" required />
             </div>
 
             <div>
               <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1">
                 Principal Baixado (R$):
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={principalBaixado}
-                onChange={(e) => setPrincipalBaixado(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-1.5 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-lg text-xs font-mono text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
-              />
+              <MoneyField value={Number(principalBaixado) || 0} onChange={(v: number) => setPrincipalBaixado(v)} className="w-full px-3 py-1.5 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-lg text-xs font-mono text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden" />
             </div>
 
             <div>

@@ -1,3 +1,4 @@
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import React, { useMemo } from 'react';
 import { 
   BellRing, 
@@ -257,7 +258,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
                         <span className="truncate font-medium">{t.description || 'Sem descrição'}</span>
                         {t.competence && (
                           <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 shrink-0 bg-amber-500/10 px-1.5 py-0.2 rounded">
-                            • Ref: {t.competence}
+                            • Ref: {formatCompetenceShort(t.competence)}
                           </span>
                         )}
                       </div>

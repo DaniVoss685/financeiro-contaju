@@ -1,9 +1,15 @@
-import React, { useState, useId } from 'react';
+import React, { useState, useId, useEffect } from 'react';
 import { X, CreditCard as CardIcon, Building2, Calendar, DollarSign, Palette, Trash2, AlertTriangle, Check, Landmark, Search } from 'lucide-react';
 import { CreditCard, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
 import { BRAZILIAN_BANKS, POPULAR_BANKS_FOR_CARDS, BrazilianBank, findBankByTerm } from '../../data/brazilianBanks';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { MoneyField } from '../Common/MoneyField';
+
+/** Bancos principais, com o nome que a pessoa fala no dia a dia. Os demais ficam em "Outros bancos". */
+const MAIN_BANK_CODES = ['260', '341', '237', '033', '001', '104', '336', '077', '208'];
+const SHORT_NAMES: Record<string, string> = { '341': 'Itaú', '104': 'Caixa', '208': 'BTG', '077': 'Inter' };
+const shortBankName = (b: BrazilianBank) => SHORT_NAMES[b.code] || b.name;
 
 interface CreditCardFormModalProps {
   isOpen: boolean;
@@ -50,7 +56,12 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
   const [institution, setInstitution] = useState(editingCard?.institution || 'Nubank');
   const [brand, setBrand] = useState<CreditCard['brand']>(editingCard?.brand || 'MASTERCARD');
   const [lastFourDigits, setLastFourDigits] = useState(editingCard?.lastFourDigits || '');
-  const [creditLimit, setCreditLimit] = useState(editingCard?.creditLimit ? String(editingCard.creditLimit) : '10000');
+  const [creditLimit, setCreditLimit] = useState<number>(editingCard?.creditLimit || 0);
+  const [showOtherBanks, setShowOtherBanks] = useState<boolean>(() => {
+    if (!editingCard?.institution) return false;
+    const found = findBankByTerm(editingCard.institution);
+    return !found || !MAIN_BANK_CODES.includes(found.code);
+  });
   const [closingDay, setClosingDay] = useState(editingCard?.closingDay ? String(editingCard.closingDay) : '25');
   const [dueDay, setDueDay] = useState(editingCard?.dueDay ? String(editingCard.dueDay) : '5');
   const [color, setColor] = useState(editingCard?.color || '#820ad1');
@@ -60,6 +71,27 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
   const [notes, setNotes] = useState(editingCard?.notes || '');
   const [error, setError] = useState<string | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  // Sempre que o formulário abre (ou troca de cartão), carrega os dados certos
+  useEffect(() => {
+    if (!isOpen) return;
+    const found = editingCard?.institution ? findBankByTerm(editingCard.institution) : undefined;
+    setName(editingCard?.name || '');
+    setSelectedBankCode(editingCard?.institution ? (found ? found.code : '000') : '260');
+    setInstitution(editingCard?.institution || 'Nubank');
+    setBrand(editingCard?.brand || 'MASTERCARD');
+    setLastFourDigits(editingCard?.lastFourDigits || '');
+    setCreditLimit(editingCard?.creditLimit || 0);
+    setClosingDay(editingCard?.closingDay ? String(editingCard.closingDay) : '25');
+    setDueDay(editingCard?.dueDay ? String(editingCard.dueDay) : '5');
+    setColor(editingCard?.color || '#820ad1');
+    setDefaultPaymentBankAccountId(editingCard?.defaultPaymentBankAccountId || bankAccounts[0]?.id || '');
+    setNotes(editingCard?.notes || '');
+    setError(null);
+    setIsConfirmingDelete(false);
+    setShowOtherBanks(Boolean(editingCard?.institution) && (!found || !MAIN_BANK_CODES.includes(found.code)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, editingCard?.id]);
 
   if (!isOpen) return null;
 
@@ -71,8 +103,8 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
       setBrand(bank.suggestedBrand);
     }
     // Se o nome estiver em branco ou for nome padrão de outro banco, atualiza automaticamente
-    if (!name || BRAZILIAN_BANKS.some(b => name === `${b.name} Corporativo` || name === `${b.name} PJ`)) {
-      setName(`${bank.name} Corporativo`);
+    if (!name || BRAZILIAN_BANKS.some(b => name === `${b.name} Corporativo` || name === `${b.name} PJ` || name === shortBankName(b) || name === b.name)) {
+      setName(shortBankName(bank));
     }
   };
 
@@ -88,8 +120,8 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
         if (bank.suggestedBrand && bank.suggestedBrand !== 'OUTRO') {
           setBrand(bank.suggestedBrand);
         }
-        if (!name || BRAZILIAN_BANKS.some(b => name === `${b.name} Corporativo` || name === `${b.name} PJ`)) {
-          setName(`${bank.name} Corporativo`);
+        if (!name || BRAZILIAN_BANKS.some(b => name === `${b.name} Corporativo` || name === `${b.name} PJ` || name === shortBankName(b) || name === b.name)) {
+          setName(shortBankName(bank));
         }
       }
     }
@@ -115,8 +147,8 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
       return;
     }
 
-    const limitNum = parseFloat(creditLimit);
-    if (isNaN(limitNum) || limitNum <= 0) {
+    const limitNum = creditLimit;
+    if (!limitNum || limitNum <= 0) {
       setError('Informe um limite de crédito válido maior que zero.');
       return;
     }
@@ -186,10 +218,10 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                {editingCard ? 'Editar Cartão de Crédito' : 'Novo Cartão de Crédito Corporativo'}
+                {editingCard ? 'Editar cartão' : 'Novo cartão de crédito'}
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                Cadastre o cartão com limites e datas de fechamento para faturamento mensal.
+                Escolha o banco e informe o limite e os dias da fatura.
               </p>
             </div>
           </div>
@@ -216,23 +248,20 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                 <Landmark className="w-4 h-4 text-amber-500" />
-                Instituição Bancária Emissora
+                Qual é o banco do cartão?
               </label>
-              <span className="text-[11px] text-slate-500">
-                Pré-seleção rápida:
-              </span>
             </div>
 
             {/* Pills de Bancos Populares */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
-              {POPULAR_BANKS_FOR_CARDS.map(b => {
+            <div className="flex flex-wrap gap-2">
+              {MAIN_BANK_CODES.map(c => BRAZILIAN_BANKS.find(b => b.code === c)).filter((b): b is BrazilianBank => Boolean(b)).map(b => {
                 const isSelected = selectedBankCode === b.code || institution.toLowerCase() === b.name.toLowerCase();
                 return (
                   <button
                     key={b.code}
                     type="button"
                     onClick={() => handleBankSelect(b)}
-                    className={`py-1.5 px-2 rounded-xl border text-[11px] font-semibold text-center transition-all cursor-pointer truncate flex items-center justify-center gap-1.5 ${
+                    className={`h-10 px-4 rounded-xl border text-sm font-medium text-center transition-all cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 ${
                       isSelected
                         ? 'border-amber-500 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold shadow-xs ring-1 ring-amber-500/40'
                         : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -243,16 +272,23 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                       className="w-2 h-2 rounded-full shrink-0" 
                       style={{ backgroundColor: b.color }} 
                     />
-                    <span className="truncate">{b.name}</span>
+                    <span>{shortBankName(b)}</span>
                   </button>
                 );
               })}
+              <button
+                type="button"
+                onClick={() => setShowOtherBanks(v => !v)}
+                className={`h-10 px-4 rounded-xl border text-sm font-medium cursor-pointer transition-all ${showOtherBanks ? 'border-amber-500 text-amber-700 dark:text-amber-300' : 'border-slate-200 dark:border-[#26262b] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+              >
+                Outros bancos
+              </button>
             </div>
 
             {/* Dropdown Pesquisável com TODOS os bancos brasileiros */}
-            <div className="pt-1.5">
+            <div className={`pt-1.5 ${showOtherBanks ? '' : 'hidden'}`}>
               <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                Ou selecione na lista de todos os bancos e fintechs do Brasil:
+                Escolha na lista de bancos e fintechs:
               </label>
               <PremiumSelect
                 value={selectedBankCode}
@@ -301,7 +337,6 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                   required
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
-                  placeholder="Digite o nome do banco ou instituição..."
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
                 />
               </div>
@@ -312,14 +347,13 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
             {/* Nome de Identificação */}
             <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Nome de Identificação do Cartão *
+                Nome do cartão *
               </label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Nubank PJ Mastercard, Itaú Corporate"
                 className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
@@ -357,7 +391,6 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 maxLength={4}
                 value={lastFourDigits}
                 onChange={(e) => setLastFourDigits(e.target.value.replace(/\D/g, ''))}
-                placeholder="Ex: 4821"
                 className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
@@ -365,19 +398,9 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
             {/* Limite de Crédito Total */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Limite de Crédito Total (R$) *
+                Limite do cartão (R$) *
               </label>
-              <input
-                type="number"
-                step="0.01"
-                required
-                onWheel={(e) => (e.target as HTMLElement).blur()}
-                style={{ colorScheme: 'light dark' }}
-                value={creditLimit}
-                onChange={(e) => setCreditLimit(e.target.value)}
-                placeholder="10000.00"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
-              />
+              <MoneyField required value={creditLimit} onChange={setCreditLimit} className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs" />
             </div>
 
             {/* Conta Bancária Padrão */}
@@ -392,7 +415,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
                 <option value="" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
-                  Selecione uma conta bancária PJ...
+                  Selecione a conta
                 </option>
                 {bankAccounts.map(b => (
                   <option 
@@ -409,7 +432,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
             {/* Dia de Fechamento */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Dia de Fechamento da Fatura *
+                Dia em que a fatura fecha *
               </label>
               <input
                 type="number"
@@ -431,7 +454,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
             {/* Dia de Vencimento */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Dia de Vencimento da Fatura *
+                Dia em que a fatura vence *
               </label>
               <input
                 type="number"

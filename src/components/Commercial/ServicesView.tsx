@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { Briefcase, Plus, Search, CheckCircle2, Edit2, Tag } from 'lucide-react';
 import { ServiceItem } from '../../types';
 import { storage } from '../../services/storageService';
@@ -204,14 +205,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ initialSearch = '' }
                 </div>
                 <div>
                   <label className="block font-medium text-[var(--text-secondary)] mb-1">Preço Sugerido (R$)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.defaultPrice || ''}
-                    onChange={e => setFormData({ ...formData, defaultPrice: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-1.5 font-bold font-mono focus:outline-hidden focus:border-amber-500"
-                  />
+                  <MoneyField value={Number(formData.defaultPrice) || 0} onChange={(v: number) => setFormData({ ...formData, defaultPrice: v })} className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-1.5 font-bold font-mono focus:outline-hidden focus:border-amber-500" />
                 </div>
               </div>
 

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { formatDateBR } from '../../services/financialEngine';
+import { formatCompetenceShort } from '../../utils/dateUtils';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   X, 
   CreditCard as CardIcon, 
@@ -117,7 +120,7 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
                 Pagamento de Fatura do Cartão
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                {card.name} — Fatura {invoiceMonth}
+                {card.name} — Fatura {formatCompetenceShort(invoiceMonth)}
               </p>
             </div>
           </div>
@@ -210,16 +213,7 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Valor do Pagamento (R$) *
               </label>
-              <input
-                type="number"
-                step="0.01"
-                required
-                onWheel={(e) => (e.target as HTMLElement).blur()}
-                style={{ colorScheme: 'light dark' }}
-                value={amountToPay}
-                onChange={(e) => setAmountToPay(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
-              />
+              <MoneyField value={parseFloat(String(amountToPay)) || 0} onChange={(v: number) => setAmountToPay(v ? String(v) : '')} className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs" required />
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { Landmark, Plus, ArrowLeftRight, Edit2, Wallet, CheckCircle2, Building, Calculator, Coins, FileText, Scale } from 'lucide-react';
 import { BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
@@ -344,13 +345,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
               {!editingAccount && (
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">Saldo Inicial (R$)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.initialBalance || ''}
-                    onChange={e => setFormData({ ...formData, initialBalance: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded border border-slate-300 px-3 py-1.5 font-bold"
-                  />
+                  <MoneyField value={Number(formData.initialBalance) || 0} onChange={(v: number) => setFormData({ ...formData, initialBalance: v })} className="w-full rounded border border-slate-300 px-3 py-1.5 font-bold" />
                 </div>
               )}
 

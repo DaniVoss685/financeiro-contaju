@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import {
   RefreshCw,
   Play,
@@ -1007,15 +1008,7 @@ export const RecurrencesView: React.FC<RecurrencesViewProps> = ({ onOpenBillingM
                   <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">
                     Informe o novo valor mensal (R$) *
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={adjustValue || ''}
-                    onChange={e => setAdjustValue(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm font-bold bg-white dark:bg-slate-900"
-                    placeholder="Ex: 450.00"
-                  />
+                  <MoneyField value={Number(adjustValue) || 0} onChange={(v: number) => setAdjustValue(v)} className="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm font-bold bg-white dark:bg-slate-900" />
                 </div>
               ) : (
                 <div>

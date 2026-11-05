@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   X, 
   Landmark, 
@@ -430,14 +431,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                           </label>
                           <div className="relative">
                             <span className="absolute left-3 top-2 text-xs font-bold text-slate-400">R$</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={item.realBalance}
-                              onChange={e => handleBalanceChange(item.account.id, e.target.value)}
-                              className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-amber-500/40 bg-white dark:bg-[#131316] font-mono font-bold text-sm text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                              placeholder="0,00"
-                            />
+                            <MoneyField value={parseFloat(String(item.realBalance)) || 0} onChange={(v: number) => handleBalanceChange(item.account.id, String(v))} className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-amber-500/40 bg-white dark:bg-[#131316] font-mono font-bold text-sm text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500 focus:outline-none" allowNegative />
                           </div>
                         </div>
 

@@ -35,6 +35,8 @@ import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { formatCompetenceShort } from '../../utils/dateUtils';
+import { describeCardInvoice, buildCardInstallments } from '../../utils/cardInvoice';
+import type { CreditCardPurchase } from '../../types';
 
 interface NewTitleModalProps {
   isOpen: boolean;
@@ -80,6 +82,11 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
   // Datas (Removida a data de emissão conforme solicitação do usuário!)
   const [launchDate, setLaunchDate] = useState(today);
   const [competence, setCompetence] = useState(currentMonth);
+
+  // Despesa no cartão de crédito: a fatura é definida pelo dia de fechamento
+  const cards = useMemo(() => storage.getCreditCards().filter(c => c.status !== 'INATIVO' as any), [isOpen]);
+  const [onCard, setOnCard] = useState(false);
+  const [cardId, setCardId] = useState('');
   const [dueDate, setDueDate] = useState(today);
   const [expectedCashDate, setExpectedCashDate] = useState(today);
 
@@ -137,6 +144,8 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
       setDueDate(today);
       setExpectedCashDate(today);
       setAccountId('');
+      setOnCard(false);
+      setCardId('');
       setCounterpartyId('');
       setDescription('');
       setOriginalAmount(0);
@@ -360,6 +369,11 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
     recurringDay
   ]);
 
+  const selectedCard = cards.find(c => c.id === cardId) || null;
+  const cardInvoiceInfo = onCard && selectedCard && dueDate ? describeCardInvoice(selectedCard, dueDate) : null;
+  const canUseCard = type === 'PAGAR' && launchMode !== 'RECORRENTE' && cards.length > 0;
+  const cardActive = canUseCard && onCard && Boolean(selectedCard);
+
   const totalCalculatedAmount = useMemo(() => {
     return calculatedItems.reduce((acc, item) => acc + item.amount, 0);
   }, [calculatedItems]);
@@ -419,6 +433,44 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
     const currentUser = storage.getCurrentUser();
     if (currentUser.role === 'CONSULTA') {
       notifyError('Perfil de consulta não possui permissão para cadastrar títulos.', 'Permissão Negada');
+      return;
+    }
+
+    // Despesa no cartão: vira compra do cartão (entra na fatura certa) e a fatura aparece no Contas a Pagar
+    if (cardActive && selectedCard) {
+      const count = launchMode === 'PARCELADO' ? Math.max(2, calculatedItems.length) : 1;
+      const total = totalCalculatedAmount;
+      const installments = buildCardInstallments(selectedCard, dueDate, total, count);
+      const purchase: CreditCardPurchase = {
+        id: `cp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        cardId: selectedCard.id,
+        transactionType: 'DESPESA',
+        purchaseDate: dueDate,
+        description: description.trim(),
+        counterpartyId: counterpartyId || undefined,
+        counterpartyName: counterparties.find(c => c.id === counterpartyId)?.name || 'Despesa no cartão',
+        chartAccountId: accountId,
+        totalAmount: total,
+        installmentsCount: count,
+        calculationMode: 'TOTAL_DIVIDED',
+        installmentValue: Math.round((total / count) * 100) / 100,
+        invoiceMonth: installments[0]?.invoiceMonth || dueDate.substring(0, 7),
+        installments,
+        notes: notes.trim(),
+        createdAt: new Date().toISOString()
+      };
+      storage.addCardPurchaseAndSyncTitles(purchase);
+      storage.addAuditLog({
+        userName: currentUser.name,
+        userRole: currentUser.role,
+        action: 'LANCAMENTO_COMPRA_CARTAO',
+        module: 'Cartões de Crédito',
+        recordId: purchase.id,
+        details: `Despesa no cartão ${selectedCard.name}: ${purchase.description} no valor de R$ ${total.toFixed(2)}.`
+      });
+      if (onSaved) onSaved({ count, type, description: description.trim(), totalAmount: total });
+      if (onCreated) onCreated();
+      onClose();
       return;
     }
 
@@ -794,6 +846,45 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
               />
             </div>
 
+            {/* NO CARTÃO DE CRÉDITO? */}
+            {canUseCard && (
+              <div className={`p-4 rounded-xl border space-y-3 transition-all ${onCard ? 'border-amber-500/50 bg-amber-500/5' : 'border-slate-200 bg-slate-50/80'}`}>
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={onCard}
+                    onChange={e => {
+                      setOnCard(e.target.checked);
+                      if (e.target.checked && !cardId && cards[0]) setCardId(cards[0].id);
+                    }}
+                    className="w-4 h-4 rounded"
+                  />
+                  <span className="font-semibold text-slate-800">Foi no cartão de crédito?</span>
+                </label>
+                {onCard && (
+                  <div className="space-y-3">
+                    <PremiumSelect
+                      value={cardId}
+                      onChange={e => setCardId(e.target.value)}
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-medium"
+                    >
+                      {cards.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — fecha dia {c.closingDay}, vence dia {c.dueDay}
+                        </option>
+                      ))}
+                    </PremiumSelect>
+                    {cardInvoiceInfo && (
+                      <p className={`text-sm rounded-lg px-3 py-2.5 ${cardInvoiceInfo.pastClosing ? 'bg-[var(--brand-gold-soft)] text-[var(--brand-gold)]' : 'bg-[var(--status-success-bg)] text-[var(--status-success)]'}`}>
+                        {cardInvoiceInfo.message}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500">A data abaixo é a data da compra. A fatura e o vencimento são calculados sozinhos.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* SEÇÃO 3: VALORES E PARÂMETROS DO MODO ESCOLHIDO */}
             <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs space-y-3">
               
@@ -1104,7 +1195,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 {/* Vencimento (1ª Parcela ou Único) - A Previsão de Caixa fica oculta e leva em conta esta data */}
                 <div>
                   <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
-                    {launchMode === 'PARCELADO' ? '1º Vencimento *' : 'Vencimento *'}
+                    {cardActive ? 'Data da compra *' : (launchMode === 'PARCELADO' ? '1º Vencimento *' : 'Vencimento *')}
                   </label>
                   <DateField
                     value={dueDate}
@@ -1121,7 +1212,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
             </div>
 
             {/* SEÇÃO 5: MARCAR SE JÁ FOI PAGO OU RECEBIDO (CONFIGURAÇÕES DE PAGAMENTO) */}
-            <div className={`p-4 rounded-xl border transition-all ${
+            <div className={`${cardActive ? 'hidden' : ''} p-4 rounded-xl border transition-all ${
               isAlreadySettled 
                 ? (type === 'PAGAR' ? 'bg-[var(--status-danger-bg)] border-[var(--status-danger)]/40' : 'bg-[var(--status-success-bg)] border-[var(--status-success)]/40')
                 : 'bg-slate-50/80 border-slate-200 hover:border-slate-300'

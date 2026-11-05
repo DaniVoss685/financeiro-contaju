@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { X, ArrowLeftRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL } from '../../services/financialEngine';
@@ -133,16 +134,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               <label className="block font-medium text-slate-700 mb-1">
                 Valor Transferido (R$) *
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={amount || ''}
-                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                placeholder="0,00"
-                className="w-full rounded border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900"
-                required
-              />
+              <MoneyField value={Number(amount) || 0} onChange={(v: number) => setAmount(v)} className="w-full rounded border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900" required />
             </div>
 
             <div>
@@ -163,15 +155,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <label className="block font-medium text-slate-700 mb-1">
               Tarifa da Transferência (TED/DOC se houver)
             </label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              value={feeAmount || ''}
-              onChange={(e) => setFeeAmount(parseFloat(e.target.value) || 0)}
-              placeholder="0,00"
-              className="w-full rounded border border-slate-300 px-3 py-1.5 text-xs text-rose-700"
-            />
+            <MoneyField value={Number(feeAmount) || 0} onChange={(v: number) => setFeeAmount(v)} className="w-full rounded border border-slate-300 px-3 py-1.5 text-xs text-rose-700" />
             <span className="text-[10px] text-slate-700">Classificada atomicamente em Despesas Financeiras</span>
           </div>
 

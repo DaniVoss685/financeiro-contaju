@@ -74,6 +74,8 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
+import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import { formatPeriodLabelBR, formatCompetenceShort, periodContainsDate } from '../../utils/dateUtils';
 import { TWallet, TClock, TCalendar, TAlert, TCheck, TShield } from '../Common/tileIcons';
 
@@ -85,12 +87,11 @@ interface ReceivablesViewProps {
 export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitleModal, initialSearch = '' }) => {
   const today = new Date().toISOString().split('T')[0];
   const { period } = useModulePeriod('RECEIVABLES');
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [minAmount, setMinAmount] = useState(0);
-  const [maxAmount, setMaxAmount] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>(
-    initialSearch ? 'TODOS' : 'ABERTO'
-  );
+  const [searchTerm, setSearchTerm] = usePersistentState<string>('receber_busca', initialSearch);
+  const [minAmount, setMinAmount] = usePersistentState<number>('receber_min', 0);
+  const [maxAmount, setMaxAmount] = usePersistentState<number>('receber_max', 0);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [statusFilter, setStatusFilter] = usePersistentState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>('receber_status', initialSearch ? 'TODOS' : 'ABERTO');
 
   React.useEffect(() => {
     if (initialSearch) {
@@ -98,12 +99,12 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       setStatusFilter('TODOS');
     }
   }, [initialSearch]);
-  const [quickDateFilter, setQuickDateFilter] = useState<'ALL' | 'HOJE' | 'ESTA_SEMANA' | 'VENCIDO' | 'LIQUIDADO' | 'ESTE_MES'>('ALL');
+  const [quickDateFilter, setQuickDateFilter] = usePersistentState<'ALL' | 'HOJE' | 'ESTA_SEMANA' | 'VENCIDO' | 'LIQUIDADO' | 'ESTE_MES'>('receber_venc', 'ALL');
   const [isPredictiveExpandedMobile, setIsPredictiveExpandedMobile] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
-  const [originFilter, setOriginFilter] = useState<'ALL' | 'CONTRATO' | 'TAXA_BALANCO' | 'VENDA' | 'MANUAL'>('ALL');
-  const [counterpartyFilter, setCounterpartyFilter] = useState<string>('ALL');
-  const [bankFilter, setBankFilter] = useState<string>('ALL');
+  const [categoryFilter, setCategoryFilter] = usePersistentState<string>('receber_cat', 'ALL');
+  const [originFilter, setOriginFilter] = usePersistentState<'ALL' | 'CONTRATO' | 'TAXA_BALANCO' | 'VENDA' | 'MANUAL'>('receber_origem', 'ALL');
+  const [counterpartyFilter, setCounterpartyFilter] = usePersistentState<string>('receber_quem', 'ALL');
+  const [bankFilter, setBankFilter] = usePersistentState<string>('receber_banco', 'ALL');
   const [riskFilter, setRiskFilter] = useState<'ALL' | 'BAIXO' | 'MODERADO' | 'ALTO'>('ALL');
 
   // Sorting state
@@ -995,13 +996,9 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
         </div>
       </div>
 
-      {/* Filtros */}
-      <Card className="space-y-6">
-        <div>
-          <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">Filtros</h3>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">Siga os passos abaixo para achar o que procura.</p>
-        </div>
-        <FilterGroup step={1} title="Situação" hint="Em que pé está cada conta">
+      {/* Filtros: ficam suspensos e guardam a escolha ao trocar de aba */}
+      <Card className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2.5">
           <TabPills
             tabs={[
               { id: 'ABERTO', label: 'Em aberto', count: stats.openCount },
@@ -1017,51 +1014,43 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
               setQuickDateFilter('ALL');
             }}
           />
-        </FilterGroup>
-
-        <FilterGroup step={2} title="Vencimento" hint="Quando a conta vence. O mês fica no topo da tela.">
-          <div className="flex flex-wrap gap-2">
-            {([['ALL', 'Todos'], ['HOJE', 'Vence hoje'], ['ESTA_SEMANA', 'Esta semana'], ['ESTE_MES', 'Este mês'], ['VENCIDO', 'Atrasados']] as const).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setQuickDateFilter(id as any)}
-                className={`h-9 px-3.5 rounded-lg text-sm border transition-colors cursor-pointer ${
-                  quickDateFilter === id ? 'btn-gold font-semibold border-transparent' : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </FilterGroup>
-
-        <FilterGroup step={3} title="Valor" hint="Só contas dentro de uma faixa de valor">
-          <div className="grid grid-cols-2 gap-3 max-w-md">
-            <div>
-              <label className="block text-xs text-[var(--text-muted)] mb-1">A partir de (R$)</label>
-              <MoneyField value={minAmount} onChange={setMinAmount} className="w-full h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]" />
-            </div>
-            <div>
-              <label className="block text-xs text-[var(--text-muted)] mb-1">Até (R$)</label>
-              <MoneyField value={maxAmount} onChange={setMaxAmount} className="w-full h-10 px-3 text-sm rounded-xl border border-[var(--border-highlight)]" />
-            </div>
-          </div>
-        </FilterGroup>
-
-        <FilterGroup step={4} title="Cliente e descrição" hint="Procure pelo nome, pelo texto ou escolha na lista">
-          <div className="space-y-3">
-            <div className="relative w-full max-w-xl">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
-              <input
+          <FilterChipSelect
+            label="Vencimento"
+            value={quickDateFilter}
+            allLabel="Todos"
+            options={[{ value: 'HOJE', label: 'Vence hoje' }, { value: 'ESTA_SEMANA', label: 'Esta semana' }, { value: 'ESTE_MES', label: 'Este mês' }, { value: 'VENCIDO', label: 'Atrasados' }]}
+            onChange={v => setQuickDateFilter(v as any)}
+          />
+          <FilterChipSelect
+            label="Cliente"
+            value={counterpartyFilter}
+            allLabel="Todos"
+            options={counterparties.filter(Boolean).map(c => ({ value: c.id, label: c.name }))}
+            onChange={setCounterpartyFilter}
+          />
+          <FilterChipAmount min={minAmount} max={maxAmount} onChange={(lo, hi) => { setMinAmount(lo); setMaxAmount(hi); }} />
+          <button
+            type="button"
+            onClick={() => setShowMoreFilters(v => !v)}
+            className="adv-only h-10 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer"
+          >
+            {showMoreFilters ? 'Menos filtros' : 'Mais filtros'}
+          </button>
+          <div className="relative w-full sm:w-72 sm:ml-auto">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+            <input
               type="text"
               placeholder="Buscar por cliente, documento ou descrição"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
             />
-            </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl">
+          </div>
+        </div>
+
+        {showMoreFilters && (
+          <div className="adv-only">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl">
           <div className="adv-only">
             <FieldLabel>Plano de contas</FieldLabel>
             <PremiumSelect
@@ -1115,22 +1104,6 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
             </PremiumSelect>
           </div>
 
-          <div>
-            <FieldLabel>Cliente</FieldLabel>
-            <PremiumSelect
-              value={counterpartyFilter}
-              onChange={e => setCounterpartyFilter(e.target.value)}
-              sheetTitle="Cliente"
-              className="w-full h-10 px-3 text-sm"
-            >
-              <option value="ALL">Todos os clientes</option>
-              {counterparties.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </PremiumSelect>
-          </div>
 
           <div className="adv-only">
             <FieldLabel>Origem do título</FieldLabel>
@@ -1164,7 +1137,9 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
               ))}
             </PremiumSelect>
           </div>
-        </div>
+          </div>
+          </div>
+        )}
 
         {(hasActiveFilters || categoryFilter !== 'ALL') && (
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
@@ -1211,8 +1186,6 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
             </div>
           </div>
         )}
-          </div>
-        </FilterGroup>
       </Card>
 
       {/* Receivables Period Navigator (Vencimento) */}

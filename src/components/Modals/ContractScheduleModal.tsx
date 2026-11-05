@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   CalendarClock, 
   X, 
@@ -715,19 +716,11 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
                           <td className="py-2.5 px-3 text-right font-mono">
                             {isEditingThis ? (
                               <div className="flex items-center justify-end gap-1">
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  min="0.01"
-                                  autoFocus
-                                  value={editAmount}
-                                  onChange={e => setEditAmount(parseFloat(e.target.value) || 0)}
+                                <MoneyField value={Number(editAmount) || 0} onChange={(v: number) => setEditAmount(v)}
                                   onKeyDown={e => {
                                     if (e.key === 'Enter') handleSaveEdit(t);
                                     if (e.key === 'Escape') handleCancelEdit();
-                                  }}
-                                  className="w-24 px-2 py-1 text-xs font-bold text-right rounded-lg border border-amber-500 bg-[var(--surface-card)] text-[var(--text-primary)] focus:ring-1 focus:ring-amber-500 focus:outline-none"
-                                />
+                                  }} className="w-24 px-2 py-1 text-xs font-bold text-right rounded-lg border border-amber-500 bg-[var(--surface-card)] text-[var(--text-primary)] focus:ring-1 focus:ring-amber-500 focus:outline-none" />
                                 <button
                                   type="button"
                                   onClick={() => handleSaveEdit(t)}

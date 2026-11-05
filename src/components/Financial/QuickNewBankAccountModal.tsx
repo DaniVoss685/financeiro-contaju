@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { Landmark, X, Check, Building2, Wallet, DollarSign, Calendar } from 'lucide-react';
 import { BankAccount, BankAccountType } from '../../types';
 import { storage } from '../../services/storageService';
@@ -262,14 +263,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
                 Saldo Inicial (R$)
               </label>
-              <input
-                type="number"
-                step="0.01"
-                value={initialBalance}
-                onChange={e => setInitialBalance(parseFloat(e.target.value) || 0)}
-                placeholder="0,00"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono font-bold"
-              />
+              <MoneyField value={Number(initialBalance) || 0} onChange={(v: number) => setInitialBalance(v)} className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono font-bold" />
               <span className="text-[10px] text-slate-500 mt-0.5 block">
                 Saldo na data de início do controle
               </span>

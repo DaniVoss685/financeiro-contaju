@@ -53,42 +53,6 @@ export const ModulePeriodNavigator: React.FC<ModulePeriodNavigatorProps> = ({
           </span>
         </button>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-0.5">
-            <button type="button" onClick={goToPreviousMonth} className={stepBtn} title="Mês anterior" aria-label="Mês anterior">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button type="button" onClick={goToNextMonth} className={stepBtn} title="Próximo mês" aria-label="Próximo mês">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={goToCurrentMonth}
-            className={`h-10 px-3.5 rounded-xl text-sm transition-colors cursor-pointer border ${
-              isCurrentMonthActive
-                ? 'border-[var(--brand-gold-fill)] text-[var(--text-primary)] font-medium'
-                : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
-            }`}
-            title="Voltar para o mês atual"
-          >
-            Mês atual
-          </button>
-
-          <button
-            type="button"
-            onClick={showAllPeriods}
-            className={`h-10 px-3.5 rounded-xl text-sm transition-colors cursor-pointer border ${
-              !period.active
-                ? 'border-[var(--brand-gold-fill)] text-[var(--text-primary)] font-medium'
-                : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
-            }`}
-            title="Remover o filtro de data e ver tudo"
-          >
-            Ver todos
-          </button>
-        </div>
       </div>
 
       {isModalOpen && (

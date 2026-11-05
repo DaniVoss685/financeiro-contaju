@@ -1,3 +1,4 @@
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import React, { useState, useMemo } from 'react';
 import { 
   X, 
@@ -676,7 +677,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                                 </span>
                               </div>
                               <div className="text-[11px] text-[var(--text-secondary)]">
-                                Venceu em {formatDateBR(t.dueDate)}<span className="adv-only"> • Comp: {t.competence}</span>
+                                Venceu em {formatDateBR(t.dueDate)}<span className="adv-only"> • Comp: {formatCompetenceShort(t.competence)}</span>
                               </div>
                             </div>
                             <div className="text-right">

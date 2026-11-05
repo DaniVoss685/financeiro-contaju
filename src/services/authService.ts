@@ -50,6 +50,11 @@ export function purgeLocalData(): void {
     if (k && k.startsWith('contaju_') && !KEEP_KEYS.has(k) && !k.startsWith('sb-')) toRemove.push(k);
   }
   toRemove.forEach(k => localStorage.removeItem(k));
+  try {
+    Object.keys(sessionStorage).filter(k => k.startsWith('contaju_filter_')).forEach(k => sessionStorage.removeItem(k));
+  } catch {
+    // ignora
+  }
 }
 
 /** Troca a empresa ativa (consultor) e recarrega com os dados dela. */

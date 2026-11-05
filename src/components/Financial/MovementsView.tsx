@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   ArrowLeftRight, 
   Search, 
@@ -492,16 +493,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-2 text-xs font-bold text-slate-500">R$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      required
-                      onWheel={(e) => (e.target as HTMLElement).blur()}
-                      value={movAmount || ''}
-                      onChange={e => setMovAmount(parseFloat(e.target.value) || 0)}
-                      className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] pl-9 pr-3 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
-                    />
+                    <MoneyField value={Number(movAmount) || 0} onChange={(v: number) => setMovAmount(v)} className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] pl-9 pr-3 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" required />
                   </div>
                 </div>
               </div>

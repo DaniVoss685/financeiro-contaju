@@ -1,3 +1,4 @@
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import React, { useState, useMemo } from 'react';
 import { 
   X, 
@@ -339,7 +340,7 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
                       <span className="font-medium truncate max-w-md">{t.description}</span>
                       {t.competence && (
                         <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
-                          Comp: {t.competence}
+                          Comp: {formatCompetenceShort(t.competence)}
                         </span>
                       )}
                     </div>

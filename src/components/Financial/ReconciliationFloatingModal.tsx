@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   Check, 
   AlertTriangle, 
@@ -1008,14 +1009,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">
                     Valor Principal (R$) *
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={adjPrincipal || ''}
-                    onChange={e => setAdjPrincipal(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white font-mono focus:border-amber-400 focus:outline-hidden"
-                  />
+                  <MoneyField value={Number(adjPrincipal) || 0} onChange={(v: number) => setAdjPrincipal(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white font-mono focus:border-amber-400 focus:outline-hidden" />
                   <span className="text-[9px] text-slate-500 mt-1 block">Saldo ERP: {formatBRL(currentTitleBalance)}</span>
                 </div>
 
@@ -1024,14 +1018,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <label className="text-[10px] text-sky-400 font-bold uppercase block mb-1">
                     + Juros (R$)
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={adjInterest || ''}
-                    onChange={e => setAdjInterest(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-sky-300 font-mono focus:border-sky-400 focus:outline-hidden"
-                  />
+                  <MoneyField value={Number(adjInterest) || 0} onChange={(v: number) => setAdjInterest(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-sky-300 font-mono focus:border-sky-400 focus:outline-hidden" />
                   <span className="text-[9px] text-slate-500 mt-1 block">Acréscimo por atraso</span>
                 </div>
 
@@ -1040,14 +1027,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <label className="text-[10px] text-amber-400 font-bold uppercase block mb-1">
                     + Multa (R$)
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={adjFine || ''}
-                    onChange={e => setAdjFine(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:border-amber-400 focus:outline-hidden"
-                  />
+                  <MoneyField value={Number(adjFine) || 0} onChange={(v: number) => setAdjFine(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:border-amber-400 focus:outline-hidden" />
                   <span className="text-[9px] text-slate-500 mt-1 block">Penalidade contratual</span>
                 </div>
 
@@ -1056,14 +1036,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <label className="text-[10px] text-emerald-400 font-bold uppercase block mb-1">
                     - Desconto Comercial (R$)
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={adjDiscount || ''}
-                    onChange={e => setAdjDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-emerald-300 font-mono focus:border-emerald-400 focus:outline-hidden"
-                  />
+                  <MoneyField value={Number(adjDiscount) || 0} onChange={(v: number) => setAdjDiscount(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-emerald-300 font-mono focus:border-emerald-400 focus:outline-hidden" />
                   <span className="text-[9px] text-slate-500 mt-1 block">Abatimento negociado</span>
                 </div>
 
@@ -1072,14 +1045,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <label className="text-[10px] text-orange-400 font-bold uppercase block mb-1">
                     {isReceipt ? '- Tarifa Bancária (R$)' : '+ Tarifa Bancária (R$)'}
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={adjBankFee || ''}
-                    onChange={e => setAdjBankFee(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-orange-300 font-mono focus:border-orange-400 focus:outline-hidden"
-                  />
+                  <MoneyField value={Number(adjBankFee) || 0} onChange={(v: number) => setAdjBankFee(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-orange-300 font-mono focus:border-orange-400 focus:outline-hidden" />
                   <span className="text-[9px] text-slate-500 mt-1 block">
                     {isReceipt ? 'Taxa boleto/cartão retida' : 'Taxa TED/DOC/emissão'}
                   </span>

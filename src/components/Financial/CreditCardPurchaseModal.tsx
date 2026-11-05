@@ -1,4 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { formatDateBR } from '../../services/financialEngine';
+import { formatCompetenceShort } from '../../utils/dateUtils';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   X, 
   ShoppingBag, 
@@ -578,34 +581,14 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                     <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Valor Total da Compra (R$) *
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      onWheel={(e) => (e.target as HTMLElement).blur()}
-                      style={{ colorScheme: 'light dark' }}
-                      value={totalAmountInput}
-                      onChange={(e) => setTotalAmountInput(e.target.value)}
-                      placeholder="0.00"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
-                    />
+                    <MoneyField value={parseFloat(String(totalAmountInput)) || 0} onChange={(v: number) => setTotalAmountInput(v ? String(v) : '')} className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs" required />
                   </div>
                 ) : (
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Valor de Cada Parcela (R$) *
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      onWheel={(e) => (e.target as HTMLElement).blur()}
-                      style={{ colorScheme: 'light dark' }}
-                      value={installmentValueInput}
-                      onChange={(e) => setInstallmentValueInput(e.target.value)}
-                      placeholder="0.00"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
-                    />
+                    <MoneyField value={parseFloat(String(installmentValueInput)) || 0} onChange={(v: number) => setInstallmentValueInput(v ? String(v) : '')} className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs" required />
                   </div>
                 )}
 
@@ -643,7 +626,7 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                           {inst.installmentNumber}/{inst.totalInstallments}
                         </span>
                         <span className="text-slate-700 dark:text-slate-300 font-medium">
-                          Fatura: <strong className="text-slate-900 dark:text-white">{inst.invoiceMonth}</strong>
+                          Fatura: <strong className="text-slate-900 dark:text-white">{formatCompetenceShort(inst.invoiceMonth)}</strong>
                         </span>
                       </div>
 

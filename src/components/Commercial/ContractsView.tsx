@@ -2516,14 +2516,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           </label>
                           <div className="relative">
                             <span className="absolute left-2.5 top-2 text-xs font-bold text-slate-400">R$</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={newAdjustmentData.newAmount || ''}
-                              onChange={(e) => setNewAdjustmentData({ ...newAdjustmentData, newAmount: parseFloat(e.target.value) || 0 })}
-                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] pl-8 pr-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white"
-                            />
+                            <MoneyField value={Number(newAdjustmentData.newAmount) || 0} onChange={(v: number) => setNewAdjustmentData({ ...newAdjustmentData, newAmount: v })} className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] pl-8 pr-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white" />
                           </div>
 
                           {/* Atalhos rápidos de percentual */}
@@ -2749,22 +2742,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           </label>
                           <div className="relative">
                             <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-500">R$</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              required={formData.annualBalanceFee?.enabled}
-                              onWheel={(e) => (e.target as HTMLElement).blur()}
-                              value={formData.annualBalanceFee.amount || ''}
-                              onChange={(e) => setFormData({
+                            <MoneyField value={Number(formData.annualBalanceFee.amount) || 0} onChange={(v: number) => setFormData({
                                 ...formData,
                                 annualBalanceFee: {
                                   ...formData.annualBalanceFee!,
-                                  amount: parseFloat(e.target.value) || 0
+                                  amount: v
                                 }
-                              })}
-                              className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
-                            />
+                              })} className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" required />
                           </div>
                           <button
                             type="button"

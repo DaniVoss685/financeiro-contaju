@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   Lock, 
   Unlock, 
@@ -1633,15 +1634,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                 <label className="block font-semibold text-[var(--text-secondary)] mb-1">
                   Valor do Ajuste (R$) *
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  required
-                  value={adjAmount}
-                  onChange={e => setAdjAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-3 py-2 font-mono font-bold text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                />
+                <MoneyField value={Number(adjAmount) || 0} onChange={(v: number) => setAdjAmount(v)} className="w-full rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-3 py-2 font-mono font-bold text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none" required />
               </div>
 
               <div>

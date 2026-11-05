@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { formatDateBR } from '../../services/financialEngine';
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import { 
   X, 
   Upload, 
@@ -352,7 +354,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                   Conciliação e Cruzamento de Fatura ({card.name})
                 </h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  Fatura: {invoiceMonth}
+                  Fatura: {formatCompetenceShort(invoiceMonth)}
                 </span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -800,7 +802,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
               {resultFilterTab === 'ONLY_SYSTEM' && (
                 <div className="space-y-3">
                   <p className="text-xs text-slate-400">
-                    Lançamentos registrados manualmente nesta fatura ({invoiceMonth}), mas que <strong>não foram localizados no arquivo importado</strong>:
+                    Lançamentos registrados manualmente nesta fatura ({formatCompetenceShort(invoiceMonth)}), mas que <strong>não foram localizados no arquivo importado</strong>:
                   </p>
 
                   {comparison.onlyInSystem.length === 0 ? (

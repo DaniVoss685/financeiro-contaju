@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { formatDateBR } from '../../services/financialEngine';
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import { 
   CreditCard as CardIcon, 
   Plus, 
@@ -379,7 +381,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                         }`}
                       >
-                        <span>{inv.invoiceMonth}</span>
+                        <span>{formatCompetenceShort(inv.invoiceMonth)}</span>
                         {inv.status === 'PAGA' && (
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         )}
@@ -416,7 +418,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
                   <div className="p-4 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200 dark:border-[#26262b]">
                     <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                      Total da Fatura ({activeInvoice.invoiceMonth})
+                      Total da fatura ({formatCompetenceShort(activeInvoice.invoiceMonth)})
                     </span>
                     <div className="text-xl font-bold text-slate-900 dark:text-white font-mono">
                       {formatBRL(activeInvoice.totalAmount)}
@@ -443,10 +445,10 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                       Fechamento & Vencimento
                     </span>
                     <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                      Fecha: <span className="font-mono text-slate-600 dark:text-slate-300">{activeInvoice.closingDate}</span>
+                      Fecha: <span className="font-mono text-slate-600 dark:text-slate-300">{formatDateBR(activeInvoice.closingDate)}</span>
                     </div>
                     <div className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1">
-                      Vence: <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">{activeInvoice.dueDate}</span>
+                      Vence: <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">{formatDateBR(activeInvoice.dueDate)}</span>
                     </div>
                   </div>
 
@@ -481,7 +483,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                 <div className="flex items-center gap-2">
                   <Receipt className="w-4 h-4 text-amber-500" />
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Lançamentos da Fatura ({selectedInvoiceMonth})
+                    Lançamentos da fatura ({formatCompetenceShort(selectedInvoiceMonth)})
                   </h3>
                   <span className="text-xs text-slate-500 dark:text-slate-400">
                     ({currentInvoiceItems.length})
@@ -513,7 +515,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
 
               {currentInvoiceItems.length === 0 ? (
                 <div className="p-8 text-center bg-slate-50 dark:bg-[#1b1b20]/40 rounded-xl border border-slate-200 dark:border-[#26262b] text-slate-500 text-xs">
-                  Nenhum lançamento encontrado nesta fatura ({selectedInvoiceMonth}).
+                  Nenhum lançamento encontrado nesta fatura ({formatCompetenceShort(selectedInvoiceMonth)}).
                 </div>
               ) : (
                 <div className="border border-slate-200 dark:border-[#26262b] rounded-xl overflow-x-auto">
@@ -642,8 +644,8 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                         const bank = bankAccounts.find(b => b.id === pay.bankAccountId);
                         return (
                           <tr key={pay.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                            <td className="p-2.5 font-mono text-slate-500 dark:text-slate-400">{pay.paymentDate}</td>
-                            <td className="p-2.5 font-bold text-slate-900 dark:text-white">{pay.invoiceMonth}</td>
+                            <td className="p-2.5 font-mono text-slate-500 dark:text-slate-400">{formatDateBR(pay.paymentDate)}</td>
+                            <td className="p-2.5 font-bold text-slate-900 dark:text-white">{formatCompetenceShort(pay.invoiceMonth)}</td>
                             <td className="p-2.5 text-slate-700 dark:text-slate-300">{bank?.name || 'Conta PJ'}</td>
                             <td className="p-2.5 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
                               {formatBRL(pay.amountPaid)}

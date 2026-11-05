@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect, Component } from 'react';
+import { MoneyField } from '../Common/MoneyField';
 import { 
   Upload, 
   FileSpreadsheet, 
@@ -3419,14 +3420,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                     )}
 
                     {bulkField === 'valorOriginal' && (
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="Valor em R$ (Ex: 1250.50)"
-                        value={bulkValor}
-                        onChange={(e) => setBulkValor(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-mono font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
-                      />
+                      <MoneyField value={parseFloat(String(bulkValor)) || 0} onChange={(v: number) => setBulkValor(v ? String(v) : '')} className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-mono font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden" />
                     )}
 
                     {bulkField === 'tipo' && (
@@ -4120,16 +4114,9 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
 
                             {/* Valor Original (Editável Inline) */}
                             <td className="py-2 px-3 text-right w-28">
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={typeof row.normalized.valorOriginal === 'number' && !isNaN(row.normalized.valorOriginal) ? row.normalized.valorOriginal : 0}
-                                onChange={(e) => handleInlineUpdate(row.rowNumber, 'valorOriginal', parseFloat(e.target.value) || 0)}
-                                title="Editar valor original"
-                                className={`w-24 px-1.5 py-1 text-right font-mono font-bold text-xs bg-transparent hover:bg-[var(--surface-elevated)] focus:bg-[var(--surface-elevated)] border border-transparent hover:border-[var(--border-subtle)] focus:border-amber-400 rounded-lg transition-colors focus:outline-hidden ${
+                              <MoneyField value={Number(typeof row.normalized.valorOriginal === 'number' && !isNaN(row.normalized.valorOriginal) ? row.normalized.valorOriginal : 0) || 0} onChange={(v: number) => handleInlineUpdate(row.rowNumber, 'valorOriginal', v)} className={`w-24 px-1.5 py-1 text-right font-mono font-bold text-xs bg-transparent hover:bg-[var(--surface-elevated)] focus:bg-[var(--surface-elevated)] border border-transparent hover:border-[var(--border-subtle)] focus:border-amber-400 rounded-lg transition-colors focus:outline-hidden ${
                                   isRevenue ? 'text-emerald-400' : 'text-[var(--text-primary)]'
-                                }`}
-                              />
+                                }`} />
                             </td>
 
                             {/* Principal Baixado */}
