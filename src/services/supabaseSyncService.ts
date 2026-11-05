@@ -1440,11 +1440,7 @@ class SupabaseSyncService {
         storage.saveCreditCards(sanitizedCards);
         stats.creditCards = sanitizedCards.length;
 
-        // Limpa permanentemente mock cards do Supabase
-        const mockCards = cardsData.filter(c => c.id === 'card-1' || c.id === 'card-2');
-        if (mockCards.length > 0) {
-          Promise.resolve(client.from(CONTAJU_TABLES.CREDIT_CARDS).delete().in('id', ['card-1', 'card-2'])).catch(() => {});
-        }
+        // Limpeza remota de cartões "mock" desativada: apagava dados do Supabase ao abrir o app.
       }
 
       // 14. Compras de Cartão (Higienizando dados mockados legados)
@@ -1458,12 +1454,7 @@ class SupabaseSyncService {
         storage.saveCardPurchases(sanitizedPurchases);
         stats.cardPurchases = sanitizedPurchases.length;
 
-        // Limpa permanentemente mock purchases do Supabase
-        const mockPurchases = purchasesData.filter(p => isMockPur(p.id) || p.card_id === 'card-1' || p.card_id === 'card-2');
-        if (mockPurchases.length > 0) {
-          const idsToDelete = mockPurchases.map(p => p.id);
-          Promise.resolve(client.from(CONTAJU_TABLES.CARD_PURCHASES).delete().in('id', idsToDelete)).catch(() => {});
-        }
+        // Limpeza remota de compras "mock" desativada: apagava dados do Supabase ao abrir o app.
       }
 
       // 15. Fechamentos de Período
