@@ -13,10 +13,12 @@ import {
   Database,
   SlidersHorizontal,
   ChevronRight,
+  ChevronDown,
   Bot
 } from 'lucide-react';
 import { storage } from '../../services/storageService';
 import { NavigationScreen } from '../Sidebar';
+import { isConsultant } from '../../services/authService';
 
 import { CompanyConfigView } from './CompanyConfigView';
 import { SuppliersView } from './SuppliersView';
@@ -115,7 +117,7 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
     {
       id: 'PLANO_CONTAS',
       label: 'Plano de Contas',
-      shortLabel: 'Plano de Contas',
+      shortLabel: 'Plano de contas',
       description: 'Estrutura analítica e sintética de receitas e despesas',
       icon: Network
     },
@@ -129,35 +131,35 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
     {
       id: 'USUARIOS_PERMISSOES',
       label: 'Usuários e Permissões',
-      shortLabel: 'Usuários',
+      shortLabel: 'Usuários e acessos',
       description: 'Perfis de acesso, segurança RBAC e usuários ativos',
       icon: ShieldCheck
     },
     {
       id: 'FECHAMENTO_PERIODO',
       label: 'Fechamento de Período',
-      shortLabel: 'Fechamento',
+      shortLabel: 'Fechamento do mês',
       description: 'Trava contábil mensal e checklist de 5 travas',
       icon: LockKeyhole
     },
     {
       id: 'MODULOS_INTEGRACOES',
       label: 'Módulos e Integrações',
-      shortLabel: 'Módulos',
+      shortLabel: 'Módulos e integrações',
       description: 'Ativação de funcionalidades e conexão bancária/APIs',
       icon: Sliders
     },
     {
       id: 'SUPABASE',
       label: 'Banco Supabase (Cloud)',
-      shortLabel: 'Supabase DB',
+      shortLabel: 'Banco de dados',
       description: 'Conexão PostgreSQL na nuvem, migrações SQL e sincronização',
       icon: Database
     },
     {
       id: 'IA',
       label: 'Inteligência Artificial (OpenCode Go)',
-      shortLabel: 'IA & Modelos',
+      shortLabel: 'Inteligência artificial',
       description: 'Configurar chave OpenCode Go, sincronizar 37 modelos, conciliação e pareceres',
       icon: Bot,
       badge: storage.getAgentApprovals().filter(a => a.status === 'PENDENTE').length || undefined
@@ -202,6 +204,18 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
     }
   };
 
+  const consultant = isConsultant();
+  // Empresas clientes não veem a conexão técnica com o banco.
+  const visibleTabs = tabs.filter(t => t.id !== 'SUPABASE' || consultant);
+  const byId = (ids: ConfigSubTab[]) => ids.map(id => visibleTabs.find(t => t.id === id)).filter(Boolean) as TabDefinition[];
+  const sections: { title: string; tabs: TabDefinition[]; collapsible?: boolean }[] = [
+    { title: 'Minha empresa', tabs: byId(['EMPRESA', 'FORNECEDORES', 'PLANO_CONTAS', 'RECORRENCIAS']) },
+    { title: 'Controle', tabs: byId(['USUARIOS_PERMISSOES', 'FECHAMENTO_PERIODO', 'NOTIFICACOES']) },
+    { title: 'Avançado', collapsible: true, tabs: byId(['IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'BACKUP', 'MELHORIAS']) }
+  ];
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const advancedHasActive = sections[2].tabs.some(t => t.id === activeTab);
+
   const currentTabObj = tabs.find(t => t.id === activeTab) || tabs[0];
 
   return (
@@ -211,31 +225,62 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
         aria-label="Seções das configurações"
         className="lg:sticky lg:top-0 -mx-4 px-4 sm:mx-0 sm:px-0 min-w-0"
       >
-        <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible scrollbar-none pb-1 lg:pb-0">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+        <div className="flex lg:flex-col gap-1 lg:gap-5 overflow-x-auto lg:overflow-visible scrollbar-none pb-1 lg:pb-0">
+          {sections.map(section => {
+            const renderTab = (tab: TabDefinition) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    title={tab.description}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`shrink-0 lg:w-full h-10 px-3.5 lg:px-3 flex items-center gap-3 rounded-lg text-sm whitespace-nowrap transition-colors cursor-pointer ${
+                      isActive
+                        ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)] font-medium'
+                        : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-[var(--brand-gold)]' : 'text-[var(--text-muted)]'}`} strokeWidth={1.75} />
+                    <span className="truncate">{tab.shortLabel}</span>
+                    {tab.badge !== undefined && tab.badge > 0 && (
+                      <span className="lg:ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)] flex items-center justify-center tabular-nums">
+                        {tab.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              };
+            const open = !section.collapsible || advancedOpen || advancedHasActive;
             return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                title={tab.description}
-                aria-current={isActive ? 'page' : undefined}
-                className={`shrink-0 lg:w-full h-10 px-3.5 lg:px-3 flex items-center gap-3 rounded-lg text-sm whitespace-nowrap transition-colors cursor-pointer ${
-                  isActive
-                    ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)] font-medium'
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-[var(--brand-gold)]' : 'text-[var(--text-muted)]'}`} strokeWidth={1.75} />
-                <span className="truncate">{tab.shortLabel}</span>
-                {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className="lg:ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)] flex items-center justify-center tabular-nums">
-                    {tab.badge}
-                  </span>
+              <div key={section.title} className="flex lg:flex-col gap-1 shrink-0 lg:shrink">
+                {section.collapsible ? (
+                  <button
+                    type="button"
+                    onClick={() => setAdvancedOpen(o => !o)}
+                    aria-expanded={open}
+                    className="hidden lg:flex px-3 mb-0.5 items-center justify-between text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-secondary)] cursor-pointer"
+                  >
+                    {section.title}
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </button>
+                ) : (
+                  <h3 className="hidden lg:block px-3 mb-0.5 text-xs font-medium text-[var(--text-muted)]">{section.title}</h3>
                 )}
-              </button>
+                {section.collapsible && !open ? (
+                  <button
+                    type="button"
+                    onClick={() => setAdvancedOpen(true)}
+                    className="lg:hidden shrink-0 h-10 px-3.5 flex items-center gap-3 rounded-lg text-sm text-[var(--text-secondary)] cursor-pointer"
+                  >
+                    Avançado
+                  </button>
+                ) : (
+                  section.tabs.map(renderTab)
+                )}
+              </div>
             );
           })}
         </div>

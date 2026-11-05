@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { storage } from '../services/storageService';
 import { isConsultant } from '../services/authService';
+import { ChevronDown } from 'lucide-react';
 import { GoldenLionLogo } from './Common/GoldenLionLogo';
 
 export type NavigationScreen =
@@ -133,6 +134,8 @@ interface NavItem {
   badge?: number;
   /** "alert" = atraso (vermelho). Qualquer outro valor fica neutro. */
   badgeTone?: 'alert' | 'neutral';
+  /** Item pouco usado: fica atrás de "Mais opções" no grupo. */
+  secondary?: boolean;
 }
 
 interface NavGroup {
@@ -246,6 +249,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const { overdueReceivables, overduePayables, pendingReconciliation, totalNotificationAlerts } = alertBadges;
 
+  const [openMore, setOpenMore] = useState<Record<string, boolean>>({});
+
   const groups: NavGroup[] = [
     {
       title: 'Visão geral',
@@ -255,7 +260,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       title: 'Comercial',
       items: [
         { id: 'CLIENTES', label: 'Clientes', icon: Users },
-        { id: 'SERVICOS', label: 'Serviços', icon: Briefcase },
+        { id: 'SERVICOS', label: 'Serviços', icon: Briefcase, secondary: true },
         { id: 'CONTRATOS', label: 'Contratos recorrentes', icon: FileText },
         { id: 'VENDAS_FATURAMENTO', label: 'Vendas e faturamento', icon: Receipt }
       ]
@@ -276,8 +281,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'DRE', label: 'DRE gerencial', icon: BarChart3 },
         { id: 'FLUXO_CAIXA', label: 'Fluxo de caixa', icon: LineChart },
-        { id: 'PLANEJAMENTO_ORCAMENTARIO', label: 'Planejamento orçamentário', icon: Target },
-        { id: 'COMPARE_DRE_CAIXA', label: 'Comparar DRE x caixa', icon: Scale },
+        { id: 'PLANEJAMENTO_ORCAMENTARIO', label: 'Planejamento orçamentário', icon: Target, secondary: true },
+        { id: 'COMPARE_DRE_CAIXA', label: 'Comparar DRE x caixa', icon: Scale, secondary: true },
         { id: 'RELATORIOS', label: 'Relatórios gerenciais', icon: FileSpreadsheet }
       ]
     },
@@ -285,7 +290,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       title: 'Sistema',
       items: [
         ...(isConsultant() ? [{ id: 'CONSULTORIA' as NavigationScreen, label: 'Modo consultoria', icon: BriefcaseIcon }] : []),
-        { id: 'IA', label: 'Central de IA', icon: Bot },
+        { id: 'IA', label: 'Central de IA', icon: Bot, secondary: true },
         { id: 'CONFIGURACOES', label: 'Configurações', icon: Sliders, badge: totalNotificationAlerts || undefined, badgeTone: 'neutral' }
       ]
     }
@@ -353,7 +358,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
 
                 <div className="space-y-0.5">
-                  {group.items.map(item => {
+                  {(() => {
+                    const secondaryItems = group.items.filter(i => i.secondary);
+                    const hasActiveSecondary = secondaryItems.some(i => i.id === currentScreen);
+                    const moreOpen = !!openMore[group.title] || hasActiveSecondary;
+                    const visibleItems = group.items.filter(i => !i.secondary || (collapsed ? i.id === currentScreen : moreOpen));
+                    return { visibleItems, secondaryItems, moreOpen };
+                  })().visibleItems.map(item => {
                     const Icon = item.icon;
                     const isActive = item.id === 'CONFIGURACOES' ? CONFIG_SCREENS.includes(currentScreen) : currentScreen === item.id;
                     const badgeClass =
@@ -401,6 +412,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </button>
                     );
                   })}
+                  {!collapsed && group.items.some(i => i.secondary) && !group.items.some(i => i.secondary && i.id === currentScreen) && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenMore(p => ({ ...p, [group.title]: !p[group.title] }))}
+                      aria-expanded={!!openMore[group.title]}
+                      className="w-full h-9 px-3 flex items-center gap-3 rounded-lg text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                    >
+                      <ChevronDown className={`w-[18px] h-[18px] transition-transform ${openMore[group.title] ? 'rotate-180' : ''}`} strokeWidth={1.75} />
+                      <span>{openMore[group.title] ? 'Menos opções' : 'Mais opções'}</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
