@@ -1284,8 +1284,27 @@ class StorageService {
     return { success: true };
   }
 
+  /** Inicia a sessão local depois de um login validado pelo Supabase Auth. */
+  public startSession(user: User): void {
+    const others = this.getUsers().filter(
+      u => u.id !== user.id && u.email.trim().toLowerCase() !== user.email.trim().toLowerCase()
+    );
+    this.saveUsers([user, ...others]);
+    localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      loggedAt: new Date().toISOString()
+    }));
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
+    this.notify();
+    this.ensureCloudSync();
+  }
+
   public logout(): void {
     if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+    import('./authService').then(m => m.signOut()).catch(() => {});
     const user = this.getCurrentUser();
     try {
       this.addAuditLog({

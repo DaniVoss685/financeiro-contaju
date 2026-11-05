@@ -25,6 +25,7 @@ import {
   UserX
 } from 'lucide-react';
 import { storage } from '../../services/storageService';
+import { signInWithPassword, signUp, requestPasswordReset, updatePassword, onPasswordRecovery } from '../../services/authService';
 import { User, UserRole } from '../../types';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { GoldenLionLogo } from '../Common/GoldenLionLogo';
@@ -83,7 +84,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     if (typeof window === 'undefined') return;
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const approveUserId = urlParams.get('approve_user');
+      const approveUserId: string | null = null;
       if (approveUserId) {
         const result = storage.approveUser(approveUserId, 'Administrador (via E-mail)');
         if (result.success && result.user) {
@@ -111,6 +112,33 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     return unsubscribe;
   }, []);
 
+  // Ao abrir o link de recuperação enviado por e-mail, mostra a tela de nova senha
+  const [recovering, setRecovering] = useState(false);
+  useEffect(() => onPasswordRecovery(() => setRecovering(true)), []);
+  const handleNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    if (newPassword.length < 8) {
+      setErrorMessage('A nova senha precisa de pelo menos 8 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setErrorMessage('As senhas não conferem.');
+      return;
+    }
+    setIsLoading(true);
+    const res = await updatePassword(newPassword);
+    setIsLoading(false);
+    if (res.success) {
+      setRecovering(false);
+      setSuccessNotice('Senha alterada. Entre com a nova senha.');
+      setNewPassword('');
+      setConfirmNewPassword('');
+    } else {
+      setErrorMessage(res.error || 'Não foi possível alterar a senha.');
+    }
+  };
+
   const handleToggleTheme = () => {
     const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
     storage.setTheme(nextTheme);
@@ -125,26 +153,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setSuccessNotice(null);
 
     if (!email.trim()) {
-      setErrorMessage('Por favor, informe seu e-mail de acesso corporativo.');
+      setErrorMessage('Informe seu e-mail.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const result = await storage.login(email, password);
+      const result = await signInWithPassword(email, password);
       setIsLoading(false);
-
-      if (result.requiresTwoFactor && result.twoFactorUserId) {
-        // Redireciona para tela de 2FA
-        setTwoFactorUserId(result.twoFactorUserId);
-        setMaskedEmail(result.maskedEmail || email);
-        setTwoFactorCode('');
-        setResendCooldown(60);
-        setAuthMode('TWO_FACTOR');
-        setSuccessNotice('Um código de verificação de 6 dígitos foi enviado para o seu e-mail cadastrado.');
-        return;
-      }
 
       if (result.success && result.user) {
         onLoginSuccess(result.user);
@@ -209,15 +226,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const res = await storage.requestPasswordReset(resetEmail.trim());
+      const res = await requestPasswordReset(resetEmail.trim());
       setIsLoading(false);
 
       if (res.success) {
-        setAuthMode('FORGOT_PASSWORD_VERIFY');
-        setResetCode('');
-        setNewPassword('');
-        setConfirmNewPassword('');
-        setSuccessNotice('Enviamos um código de verificação de 6 dígitos para o seu e-mail.');
+        setAuthMode('LOGIN');
+        setSuccessNotice('Enviamos um link para o seu e-mail. Abra o link para criar a nova senha.');
       } else {
         setErrorMessage(res.error || 'Não foi possível solicitar redefinição para este e-mail.');
       }
@@ -288,23 +302,24 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const result = await storage.registerUser(regName, regEmail, regPassword, regRole);
+      const result: any = await signUp(regName, regEmail, regPassword);
       setIsLoading(false);
 
       if (result.success && result.user) {
-        setUsers(storage.getUsers());
-        setSuccessNotice(
-          `Sua solicitação de cadastro foi enviada com sucesso! Um e-mail com os seus dados foi encaminhado para aprovação do administrador em leonardoricardoarantes@gmail.com via Resend. Assim que ele aprovar, você poderá entrar no sistema.`
-        );
+        onLoginSuccess(result.user);
+        return;
+      }
+      if (result.success && result.needsConfirmation) {
+        setSuccessNotice('Conta criada! Confirme seu e-mail pelo link que enviamos e depois entre. O acesso só é liberado se a consultoria autorizou este e-mail.');
         // Limpar formulário de cadastro e voltar para aba de login
         setRegName('');
         setRegEmail('');
         setRegPassword('');
         setRegConfirmPassword('');
-        setEmail(result.user.email);
+        setEmail(regEmail);
         setAuthMode('LOGIN');
       } else {
-        setErrorMessage(result.error || 'Não foi possível solicitar o cadastro.');
+        setErrorMessage(result.error || 'Não foi possível criar a conta.');
       }
     } catch {
       setIsLoading(false);
@@ -487,7 +502,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
-                  Solicitar Cadastro
+                  Criar conta
                 </button>
               </div>
             ) : (
@@ -557,8 +572,17 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </div>
             )}
 
+            {recovering && (
+              <form onSubmit={handleNewPassword} className="space-y-4 mb-2">
+                <h3 className="text-[15px] font-semibold">Crie sua nova senha</h3>
+                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Nova senha" className="w-full h-11 px-4 rounded-xl border border-[var(--border-subtle)] text-sm" />
+                <input type="password" value={confirmNewPassword} onChange={e => setConfirmNewPassword(e.target.value)} placeholder="Repita a nova senha" className="w-full h-11 px-4 rounded-xl border border-[var(--border-subtle)] text-sm" />
+                <button type="submit" disabled={isLoading} className="w-full h-12 rounded-xl bg-amber-500 text-slate-950 font-semibold text-sm disabled:opacity-50">Salvar nova senha</button>
+              </form>
+            )}
+
             {/* Formulário: LOGIN */}
-            {authMode === 'LOGIN' && (
+            {!recovering && authMode === 'LOGIN' && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1.5">
@@ -860,30 +884,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">
-                    Função Desejada
-                  </label>
-                  <PremiumSelect
-                    value={regRole}
-                    onChange={(e) => setRegRole(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-bold focus:outline-none focus:border-amber-500 cursor-pointer"
-                  >
-                    <option value="OPERADOR">Operador Financeiro (Títulos e Baixas)</option>
-                    <option value="GESTOR_FINANCEIRO">Gestor Financeiro (Aprovações e Caixa)</option>
-                    <option value="CONSULTA">Apenas Consulta (Relatórios Leitura)</option>
-                  </PremiumSelect>
-                </div>
-
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-[var(--text-secondary)]">
-                  <div className="flex items-center gap-1.5 font-bold text-amber-500 mb-0.5">
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Aprovação Obrigatória por E-mail</span>
-                  </div>
-                  <p className="text-[10px] leading-relaxed">
-                    A confirmação com os dados do seu cadastro será enviada via API Resend para <strong>leonardoricardoarantes@gmail.com</strong> para liberação do seu acesso.
-                  </p>
-                </div>
+                <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                  O acesso só é liberado se a consultoria autorizou o seu e-mail.
+                </p>
 
                 <button
                   type="submit"
