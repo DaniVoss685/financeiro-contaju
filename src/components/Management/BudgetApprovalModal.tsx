@@ -299,7 +299,7 @@ export const BudgetApprovalModal: React.FC<BudgetApprovalModalProps> = ({
             <button
               type="button"
               onClick={handleSubmit}
-              className="px-5 py-2 text-xs font-bold text-[#0f172a] bg-amber-500 hover:bg-amber-400 rounded-xl shadow-md transition-all flex items-center"
+              className="px-5 py-2 text-xs font-bold text-[#18181b] bg-amber-500 hover:bg-amber-400 rounded-xl shadow-md transition-all flex items-center"
             >
               <Save className="w-4 h-4 mr-1.5" />
               Confirmar e Gravar Novas Metas

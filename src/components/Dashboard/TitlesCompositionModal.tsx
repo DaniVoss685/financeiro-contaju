@@ -121,11 +121,11 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
       }}
     >
       <div 
-        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-[#242D3D] rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Premium do Modal */}
-        <div className="p-5 sm:p-6 border-b border-slate-200 dark:border-[#242D3D] bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 text-white flex items-center justify-between gap-4">
+        <div className="p-5 sm:p-6 border-b border-slate-200 dark:border-[#26262b] bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 text-white flex items-center justify-between gap-4">
           <div className="flex items-center space-x-3.5">
             <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
               isReceber 
@@ -160,7 +160,7 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
         </div>
 
         {/* Card Explicativo com Alternador de Critério (Regime de Caixa vs Competência) */}
-        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#161C28] border-b border-slate-200 dark:border-[#242D3D] space-y-3">
+        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#17171b] border-b border-slate-200 dark:border-[#26262b] space-y-3">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
@@ -187,7 +187,7 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
             </div>
 
             {/* Alternador de Modo */}
-            <div className="flex items-center p-1 bg-white dark:bg-[#121620] border border-slate-300 dark:border-[#242D3D] rounded-xl text-xs font-semibold shrink-0 shadow-2xs">
+            <div className="flex items-center p-1 bg-white dark:bg-[#131316] border border-slate-300 dark:border-[#26262b] rounded-xl text-xs font-semibold shrink-0 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setFilterMode('DUE_DATE')}
@@ -236,12 +236,12 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
                 placeholder="Buscar por cliente, fornecedor ou descrição..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-[#121620] border border-slate-300 dark:border-[#242D3D] rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-[#131316] border border-slate-300 dark:border-[#26262b] rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              <div className="flex items-center bg-white dark:bg-[#121620] border border-slate-300 dark:border-[#242D3D] rounded-xl p-0.5 text-[11px] font-semibold">
+              <div className="flex items-center bg-white dark:bg-[#131316] border border-slate-300 dark:border-[#26262b] rounded-xl p-0.5 text-[11px] font-semibold">
                 <button
                   type="button"
                   onClick={() => setStatusFilter('OPEN')}
@@ -291,7 +291,7 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
         </div>
 
         {/* Tabela de Títulos com Design Premium */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-[#242D3D]">
+        <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-[#26262b]">
           {finalFilteredTitles.length === 0 ? (
             <div className="p-12 text-center space-y-2">
               <AlertCircle className="w-10 h-10 text-slate-400 mx-auto opacity-50" />
@@ -374,7 +374,7 @@ export const TitlesCompositionModal: React.FC<TitlesCompositionModalProps> = ({
         </div>
 
         {/* Rodapé com Resumo Contábil */}
-        <div className="p-4 border-t border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
             <Layers className="w-4 h-4 text-amber-500" />
             <span>

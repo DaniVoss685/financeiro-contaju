@@ -68,7 +68,7 @@ export class AppErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-[300px] w-full p-4 sm:p-8 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs rounded-2xl border border-rose-500/30 my-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#121620] border border-rose-200 dark:border-rose-900/50 shadow-2xl rounded-2xl p-6 sm:p-8 max-w-xl w-full text-center space-y-5">
+          <div className="bg-white dark:bg-[#131316] border border-rose-200 dark:border-rose-900/50 shadow-2xl rounded-2xl p-6 sm:p-8 max-w-xl w-full text-center space-y-5">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shadow-xs">
               <AlertOctagon className="w-7 h-7" />
             </div>

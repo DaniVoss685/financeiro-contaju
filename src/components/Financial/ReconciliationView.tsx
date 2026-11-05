@@ -58,6 +58,9 @@ import { QuickNewBankAccountModal } from './QuickNewBankAccountModal';
 import { TitleSettlementHistoryModal } from './TitleSettlementHistoryModal';
 import { applyReconciliationRules, learnAndCreateRuleFromTransaction } from '../../services/reconciliationRulesService';
 import { BANCO_INTER_ACCOUNT, BANCO_INTER_OFX_TRANSACTIONS } from '../../data/interOfxTrainingData';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
+import { Card, PageToolbar, Button, StatCard, FieldLabel, MoreMenu } from '../Common/ui';
 
 export const ReconciliationView: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -356,31 +359,31 @@ export const ReconciliationView: React.FC = () => {
     if (score >= 90) {
       return {
         borderClass: 'border border-emerald-500/40 border-l-[5px] border-l-emerald-500 rounded-xl shadow-2xs',
-        bgClass: 'bg-white dark:bg-[#151D2A] bg-gradient-to-r from-emerald-500/15 via-emerald-500/3 via-15% to-transparent hover:border-emerald-500/60 transition-all'
+        bgClass: 'bg-white dark:bg-[#17171b] bg-gradient-to-r from-emerald-500/15 via-emerald-500/3 via-15% to-transparent hover:border-emerald-500/60 transition-all'
       };
     }
     if (score >= 75) {
       return {
-        borderClass: 'border border-slate-200 dark:border-[#273040] border-l-4 border-l-emerald-500 rounded-xl shadow-2xs',
-        bgClass: 'bg-white dark:bg-[#151D2A] bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent hover:border-emerald-400/60 transition-all'
+        borderClass: 'border border-slate-200 dark:border-[#26262b] border-l-4 border-l-emerald-500 rounded-xl shadow-2xs',
+        bgClass: 'bg-white dark:bg-[#17171b] bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent hover:border-emerald-400/60 transition-all'
       };
     }
     if (score >= 60) {
       return {
-        borderClass: 'border border-slate-200 dark:border-[#273040] border-l-4 border-l-emerald-400 dark:border-l-emerald-500/70 rounded-xl shadow-2xs',
-        bgClass: 'bg-white dark:bg-[#151D2A] bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent hover:border-slate-300 dark:hover:border-slate-600 transition-all'
+        borderClass: 'border border-slate-200 dark:border-[#26262b] border-l-4 border-l-emerald-400 dark:border-l-emerald-500/70 rounded-xl shadow-2xs',
+        bgClass: 'bg-white dark:bg-[#17171b] bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent hover:border-slate-300 dark:hover:border-slate-600 transition-all'
       };
     }
     if (score >= 40) {
       return {
-        borderClass: 'border border-slate-200 dark:border-[#273040] border-l-4 border-l-emerald-300 dark:border-l-emerald-700/60 rounded-xl shadow-2xs',
-        bgClass: 'bg-white dark:bg-[#151D2A] hover:border-slate-300 dark:hover:border-slate-600 transition-all'
+        borderClass: 'border border-slate-200 dark:border-[#26262b] border-l-4 border-l-emerald-300 dark:border-l-emerald-700/60 rounded-xl shadow-2xs',
+        bgClass: 'bg-white dark:bg-[#17171b] hover:border-slate-300 dark:hover:border-slate-600 transition-all'
       };
     }
 
     return {
-      borderClass: 'border border-slate-200/90 dark:border-[#273040] rounded-xl shadow-2xs',
-      bgClass: 'bg-white dark:bg-[#151D2A] hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xs transition-all'
+      borderClass: 'border border-slate-200/90 dark:border-[#26262b] rounded-xl shadow-2xs',
+      bgClass: 'bg-white dark:bg-[#17171b] hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xs transition-all'
     };
   };
 
@@ -2120,7 +2123,7 @@ export const ReconciliationView: React.FC = () => {
             baseDate: parsedResult.ledgerDate || new Date().toISOString().split('T')[0],
             includeInCashFlow: true,
             status: 'ATIVO',
-            color: '#f59e0b'
+            color: '#cdaa58'
           };
 
           storage.saveBankAccounts([...currentBankAccounts, newAcc]);
@@ -2594,342 +2597,132 @@ export const ReconciliationView: React.FC = () => {
         className="hidden" 
       />
 
-      {/* Header com identidade visual Leão Dourado */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-[#131720] p-5 rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-black border border-amber-500/50 flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.25)]">
-              <CheckCheck className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                Conciliação Bancária em 2 Colunas
-                <span className="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-bold">
-                  Motor de Aproximação com Confirmação Manual
-                </span>
-                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded-full font-medium hidden md:inline-flex items-center gap-1.5 shadow-2xs">
-                  Atalhos: <kbd className="text-amber-700 dark:text-amber-400 font-mono font-bold bg-amber-500/10 dark:bg-black/40 px-1 rounded border border-amber-500/30">Enter ↵</kbd> Conciliar • <kbd className="text-slate-700 dark:text-slate-300 font-mono font-bold bg-slate-200 dark:bg-black/40 px-1 rounded border border-slate-300 dark:border-slate-600">Esc</kbd> Limpar
-                </span>
-              </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Confronte o extrato bancário oficial (esquerda) com os lançamentos do ERP ou crie novos títulos na hora (direita).
-              </p>
-            </div>
-          </div>
+      <PageToolbar description="Confronte o extrato bancário oficial (à esquerda) com os lançamentos do sistema ou crie novos títulos na hora (à direita).">
+        <MoreMenu
+          items={[
+            { label: 'Conferir saldos e fechamento', icon: <Scale className="w-4 h-4" />, onClick: () => setIsClosingModalOpen(true), hint: 'Compara o saldo do sistema com o saldo real do banco' },
+            { label: 'Regras De-Para', icon: <Sliders className="w-4 h-4" />, onClick: () => setIsRulesModalOpen(true), hint: 'Regras automáticas baseadas na descrição do extrato' },
+            { label: 'Aplicar regras agora', icon: <Settings2 className="w-4 h-4" />, onClick: handleRunRules },
+            { label: 'Assistente de IA', icon: <Bot className="w-4 h-4" />, onClick: () => setIsAiModalOpen(true) },
+            { label: 'Diagnóstico e logs', icon: <FileText className="w-4 h-4" />, onClick: () => setIsDiagnosticsModalOpen(true), hint: 'Motivos de não conciliação' },
+            { label: 'Nova conta bancária', icon: <Plus className="w-4 h-4" />, onClick: () => setIsNewAccountModalOpen(true) },
+            { label: 'Gerar extrato de exemplo', icon: <RefreshCw className="w-4 h-4" />, onClick: handleSimulateOFX, hint: 'Dados de demonstração' }
+          ]}
+        />
+        <Button
+          variant="secondary"
+          icon={isImportingOfx ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          onClick={() => !isImportingOfx && fileInputRef.current?.click()}
+          disabled={isImportingOfx}
+          title="Importar extrato OFX ou CSV do banco"
+        >
+          {isImportingOfx ? 'Processando OFX...' : 'Importar OFX'}
+        </Button>
+        <Button
+          variant={suggestionCount > 0 ? 'secondary' : 'primary'}
+          icon={<Sparkles className="w-4 h-4" />}
+          onClick={handleRunAutoMatch}
+        >
+          Localizar sugestões
+        </Button>
+        {suggestionCount > 0 && (
+          <Button
+            variant="primary"
+            icon={<CheckCheck className="w-4 h-4" />}
+            onClick={handleTriggerBatchReconcileAllSuggestions}
+            title="Aprovar e conciliar todas as sugestões encontradas"
+          >
+            Conciliar sugestões ({suggestionCount})
+          </Button>
+        )}
+        {settledExactMatches.length > 0 && (
+          <Button
+            variant="secondary"
+            icon={<HandCoins className="w-4 h-4" />}
+            onClick={handleTriggerBatchReconcileSettled}
+            title="Conciliar em lote os lançamentos que batem 100% com títulos já baixados no sistema"
+          >
+            Conciliar já baixados ({settledExactMatches.length})
+          </Button>
+        )}
+      </PageToolbar>
+
+      <Card className="flex flex-wrap items-end gap-x-8 gap-y-4">
+        <div className="w-full sm:w-72">
+          <FieldLabel>Conta bancária</FieldLabel>
+          <PremiumSelect
+            value={selectedAccountId}
+            onChange={e => {
+              setSelectedAccountId(e.target.value);
+              setSelectedStmtIds([]);
+              setSelectedTitleIds([]);
+            }}
+            sheetTitle="Conta bancária"
+            className="w-full h-10 px-3 text-sm"
+          >
+            {accounts.map(a => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </PremiumSelect>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Bank Account Selector & Nova Conta */}
-          <div className="flex items-center gap-1.5">
-            <div className="flex items-center bg-slate-50 dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] rounded-xl px-3 py-1.5 text-xs shadow-2xs">
-              <span className="font-semibold text-slate-600 dark:text-slate-400 mr-2 flex items-center gap-1">
-                <Landmark className="w-3.5 h-3.5 text-amber-500" />
-                Conta:
-              </span>
-              <select
-                value={selectedAccountId}
-                onChange={(e) => {
-                  setSelectedAccountId(e.target.value);
-                  setSelectedStmtIds([]);
-                  setSelectedTitleIds([]);
-                }}
-                className="bg-transparent font-bold text-slate-900 dark:text-amber-400 focus:outline-none cursor-pointer"
-              >
-                {accounts.map(a => (
-                  <option key={a.id} value={a.id} className="bg-white dark:bg-[#131720] text-slate-900 dark:text-white">
-                    {a.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsNewAccountModalOpen(true)}
-              className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:border-amber-500/50 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
-              title="Cadastrar Nova Conta Bancária para Importação e Conciliação"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span className="hidden sm:inline">+ Nova Conta</span>
-              <span className="sm:hidden">+ Conta</span>
-            </button>
+        {currentAccount && (
+          <div>
+            <p className="text-sm font-medium text-[var(--text-secondary)] mb-1.5">Saldo contábil</p>
+            <p className="h-10 flex items-center text-[17px] font-semibold tabular-nums">
+              {formatBRL(FinancialEngine.calculateAccountBalance(currentAccount.id))}
+            </p>
           </div>
+        )}
 
-          <button
-            onClick={() => !isImportingOfx && fileInputRef.current?.click()}
-            disabled={isImportingOfx}
-            className="px-3.5 py-2 bg-white dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-xs font-semibold transition-colors flex items-center shadow-2xs cursor-pointer disabled:opacity-50"
-            title="Importar extrato OFX ou CSV do banco"
+        <div className="w-full sm:w-56">
+          <FieldLabel>Tolerância da sugestão</FieldLabel>
+          <PremiumSelect
+            value={toleranceThreshold}
+            onChange={e => setToleranceThreshold(Number(e.target.value))}
+            sheetTitle="Tolerância da sugestão"
+            className="w-full h-10 px-3 text-sm"
           >
-            {isImportingOfx ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-1.5 text-amber-500 animate-spin" />
-                <span>Processando OFX...</span>
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 mr-1.5 text-amber-500" />
-                <span>Importar OFX</span>
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={handleSimulateOFX}
-            className="px-3 py-2 bg-white dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-xs font-medium transition-colors flex items-center shadow-2xs cursor-pointer"
-            title="Gerar dados de demonstração de extrato"
-          >
-            <RefreshCw className="w-3.5 h-3.5 mr-1 text-slate-500" />
-            Exemplo OFX
-          </button>
-
-          {/* Botão de Regras De-Para */}
-          <button
-            type="button"
-            onClick={() => setIsRulesModalOpen(true)}
-            className="px-3.5 py-2 bg-white dark:bg-[#1B212D] border border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 rounded-xl text-xs font-bold transition-colors flex items-center shadow-2xs cursor-pointer"
-            title="Configurar regras automáticas de De-Para baseadas em descritores bancários"
-          >
-            <Sliders className="w-4 h-4 mr-1.5 text-amber-500" />
-            Regras De-Para
-          </button>
-
-          {/* Botão de Conferência de Saldos & Fechamento Perfeito */}
-          <button
-            type="button"
-            onClick={() => setIsClosingModalOpen(true)}
-            className="px-3.5 py-2 bg-gradient-to-r from-amber-500/20 to-amber-500/10 border border-amber-500/40 text-amber-900 dark:text-amber-300 hover:bg-amber-500/25 rounded-xl text-xs font-bold transition-all flex items-center shadow-2xs cursor-pointer"
-            title="Conferir saldos atuais do sistema com o saldo real que você tem no banco para o fechamento perfeito"
-          >
-            <Scale className="w-4 h-4 mr-1.5 text-amber-500" />
-            Conferir Saldos & Fechamento
-          </button>
-
-          {/* Botão de Diagnóstico de Logs */}
-          <button
-            type="button"
-            onClick={() => setIsDiagnosticsModalOpen(true)}
-            className="px-3.5 py-2 bg-white dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-xs font-semibold transition-colors flex items-center shadow-2xs cursor-pointer"
-            title="Auditar logs detalhados do motor e motivos de não conciliação"
-          >
-            <FileText className="w-4 h-4 mr-1.5 text-amber-500" />
-            Diagnóstico / Logs
-          </button>
-
-          {/* Botão Executar Regras Automáticas De-Para */}
-          <button
-            type="button"
-            onClick={handleRunRules}
-            className="px-3.5 py-2 bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 rounded-xl text-xs font-bold transition-colors flex items-center shadow-2xs cursor-pointer"
-            title="Executar imediatamente todas as regras De-Para ativas"
-          >
-            <Settings2 className="w-4 h-4 mr-1.5 text-amber-600 dark:text-amber-400" />
-            Aplicar Regras
-          </button>
-
-          <div className="flex items-center bg-slate-50 dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] rounded-xl px-2.5 py-1 text-xs">
-            <span className="text-slate-500 mr-1.5 font-medium">Tolerância:</span>
-            <select
-              value={toleranceThreshold}
-              onChange={(e) => setToleranceThreshold(Number(e.target.value))}
-              className="bg-transparent font-bold text-amber-500 focus:outline-none"
-            >
-              <option value={90} className="bg-white dark:bg-[#131720]">≥ 90% (Muito Forte)</option>
-              <option value={75} className="bg-white dark:bg-[#131720]">≥ 75% (Forte - Padrão)</option>
-              <option value={60} className="bg-white dark:bg-[#131720]">≥ 60% (Recomendada)</option>
-              <option value={100} className="bg-white dark:bg-[#131720]">100% (Exato)</option>
-            </select>
-          </div>
-
-          {/* Botão Assistente IA OpenCode (Multi-Model Failover) */}
-          <button
-            type="button"
-            onClick={() => setIsAiModalOpen(true)}
-            className="px-3.5 py-2 bg-gradient-to-r from-purple-600/15 via-indigo-600/15 to-purple-500/10 border border-purple-500/40 text-purple-700 dark:text-purple-300 hover:bg-purple-500/25 rounded-xl text-xs font-bold transition-all flex items-center shadow-2xs cursor-pointer gap-1.5"
-            title="Abrir Assistente de Conciliação com IA OpenCode (Redundância Multi-Modelo)"
-          >
-            <Bot className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            <span>Assistente IA</span>
-          </button>
-
-          <button
-            onClick={handleRunAutoMatch}
-            className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 text-black rounded-xl text-xs font-bold hover:brightness-105 transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-black stroke-[2.5]" />
-            Localizar Sugestões (%)
-          </button>
-
-          {suggestionCount > 0 && (
-            <button
-              onClick={handleTriggerBatchReconcileAllSuggestions}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer shadow-emerald-600/20"
-              title="Aprovar e conciliar todas as sugestões identificadas em lote"
-            >
-              <CheckCheck className="w-4 h-4 stroke-[2.5]" />
-              Conciliar Sugestões em Lote ({suggestionCount})
-            </button>
-          )}
-
-          {settledExactMatches.length > 0 && (
-            <button
-              type="button"
-              onClick={handleTriggerBatchReconcileSettled}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer shadow-amber-500/20"
-              title="Conciliar em lote todos os lançamentos que batem 100% no centavo com títulos já baixados manualmente no ERP (sem duplicar lançamentos de caixa)"
-            >
-              <HandCoins className="w-4 h-4 stroke-[2.5]" />
-              Conciliar Já Baixados em Lote ({settledExactMatches.length})
-            </button>
-          )}
+            <option value={90}>90% ou mais (muito forte)</option>
+            <option value={75}>75% ou mais (forte, padrão)</option>
+            <option value={60}>60% ou mais (recomendada)</option>
+            <option value={100}>100% (exato)</option>
+          </PremiumSelect>
         </div>
-      </div>
 
-      {/* Barra de Visualização da Conta Ativa & Conferência de Saldo Bancário */}
-      {currentAccount && (
-        <div className="bg-gradient-to-r from-amber-500/12 via-amber-500/6 to-transparent border border-amber-500/30 rounded-2xl p-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-amber-500/15 border border-amber-500/30 rounded-xl text-amber-500 shrink-0">
-              <Landmark className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold text-slate-900 dark:text-white">
-                  Conta Ativa: <strong className="text-amber-500">{currentAccount.name}</strong>
-                  {currentAccount.agency && currentAccount.accountNumber && (
-                    <span className="text-[10px] text-slate-500 font-normal ml-1.5 font-mono">
-                      (Ag: {currentAccount.agency} / C/C: {currentAccount.accountNumber})
-                    </span>
-                  )}
-                </span>
-                <span className="text-slate-400 hidden sm:inline">•</span>
-                <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Saldo Contábil:</span>
-                <span className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  {formatBRL(FinancialEngine.calculateAccountBalance(currentAccount.id))}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
-                Confronte com o extrato real para garantir que todas as entradas e saídas estejam 100% conciliadas.
-              </p>
-            </div>
-          </div>
+        <p className="text-xs text-[var(--text-muted)] sm:ml-auto hidden md:block">
+          Atalhos: <kbd className="px-1.5 py-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-base)]">Enter</kbd> concilia •{' '}
+          <kbd className="px-1.5 py-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-base)]">Esc</kbd> limpa a seleção
+        </p>
+      </Card>
 
-          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
-            <button
-              type="button"
-              onClick={() => setIsNewAccountModalOpen(true)}
-              className="px-3 py-1.5 bg-white dark:bg-[#1B212D] border border-amber-500/30 hover:border-amber-500/60 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-              title="Cadastrar Nova Conta Bancária para Conciliação"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>+ Nova Conta</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsClosingModalOpen(true)}
-              className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-              title="Conferir saldo contábil com o extrato real do banco"
-            >
-              <Scale className="w-3.5 h-3.5 fill-current" />
-              <span>Conferir Saldos</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Feedback banners */}
       {successMsg && (
-        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 font-medium">
-          <div className="flex items-center">
-            <Check className="w-4 h-4 mr-2 text-amber-500 flex-shrink-0" />
+        <div className="px-4 py-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2.5">
+            <Check className="w-4 h-4 text-[var(--status-success)] shrink-0" />
             <span>{successMsg}</span>
           </div>
-          <button onClick={() => setSuccessMsg('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+          <button onClick={() => setSuccessMsg('')} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer" aria-label="Fechar aviso">✕</button>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center justify-between text-xs text-rose-800 dark:text-rose-200 font-medium">
-          <div className="flex items-center">
-            <AlertTriangle className="w-4 h-4 mr-2 text-rose-500 flex-shrink-0" />
+        <div className="px-4 py-3 rounded-xl border border-rose-500/30 bg-rose-500/10 flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-[var(--status-danger)] shrink-0" />
             <span>{errorMsg}</span>
           </div>
-          <button onClick={() => setErrorMsg('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+          <button onClick={() => setErrorMsg('')} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer" aria-label="Fechar aviso">✕</button>
         </div>
       )}
 
-      {/* KPI Cards (Adaptativo: 1 col celular, 2 col tablet/notebook, 4 col Mac/Desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Sugestões de Correspondência</span>
-            <Sparkles className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="flex items-baseline justify-between mt-1">
-            <div className="text-2xl font-bold text-amber-500">
-              {suggestionCount} aguardando
-            </div>
-            {suggestionCount > 0 && (
-              <button
-                type="button"
-                onClick={handleTriggerBatchReconcileAllSuggestions}
-                className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
-                title="Aprovar e conciliar todas as sugestões em lote"
-              >
-                <CheckCheck className="w-3.5 h-3.5" />
-                Conciliar em Lote
-              </button>
-            )}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">Identificados com base na regra de aproximação</p>
-        </div>
-
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Baixados Manuais no ERP</span>
-            <HandCoins className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="flex items-baseline justify-between mt-1">
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {settledExactMatches.length} prontos
-            </div>
-            {settledExactMatches.length > 0 && (
-              <button
-                type="button"
-                onClick={handleTriggerBatchReconcileSettled}
-                className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
-                title="Conciliar títulos já baixados manualmente em lote"
-              >
-                <CheckCheck className="w-3.5 h-3.5 stroke-[2.5]" />
-                Conciliar Lote
-              </button>
-            )}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">Valores 100% exatos no extrato sem duplicar caixa</p>
-        </div>
-
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Extrato Pendente de Vínculo</span>
-            <Clock className="w-4 h-4 text-slate-500" />
-          </div>
-          <div className="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-1">
-            {pendingCount} itens
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">Selecione para vincular a título ou criar novo</p>
-        </div>
-
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Auditados e Conciliados</span>
-            <Check className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-bold text-amber-500 mt-1">
-            {reconciledCount} itens
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">Saldo bancário e contábil 100% conferidos</p>
-        </div>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard label="Sugestões encontradas" value={suggestionCount} hint="Pela regra de aproximação" />
+        <StatCard label="Já baixados no sistema" value={settledExactMatches.length} hint="Valor exato no extrato, sem duplicar caixa" />
+        <StatCard label="Extrato pendente" value={pendingCount} hint="Vincule a um título ou crie um novo" />
+        <StatCard label="Conciliados" value={reconciledCount} hint="Saldo bancário e contábil conferidos" />
       </div>
 
       {/* GRID PRINCIPAL: 2 COLUNAS DE CONCILIAÇÃO BANCÁRIA (Adaptativo) */}
@@ -2954,8 +2747,8 @@ export const ReconciliationView: React.FC = () => {
               processFile(e.dataTransfer.files[0]);
             }
           }}
-          className={`bg-white dark:bg-[#131720] rounded-2xl border transition-all duration-200 shadow-2xs overflow-hidden flex flex-col relative ${
-            isDraggingFile ? 'border-amber-500 ring-2 ring-amber-500/30' : 'border-slate-200 dark:border-[#273040]'
+          className={`bg-white dark:bg-[#131316] rounded-2xl border transition-all duration-200 shadow-2xs overflow-hidden flex flex-col relative ${
+            isDraggingFile ? 'border-amber-500 ring-2 ring-amber-500/30' : 'border-slate-200 dark:border-[#26262b]'
           }`}
         >
           {/* Overlay de Drag and Drop para arquivo OFX */}
@@ -2968,7 +2761,7 @@ export const ReconciliationView: React.FC = () => {
           )}
 
           {/* Header da Coluna 1 */}
-          <div className="p-4 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div className="p-4 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
@@ -2994,7 +2787,7 @@ export const ReconciliationView: React.FC = () => {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                   isStmtMultiMode
                     ? 'bg-amber-500 text-slate-950 border border-amber-400'
-                    : 'bg-white dark:bg-[#131720] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#273040] hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'bg-white dark:bg-[#131316] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#26262b] hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
                 title="Ativar/desativar modo de multi-seleção por clique no extrato"
               >
@@ -3002,7 +2795,7 @@ export const ReconciliationView: React.FC = () => {
                 <span>{isStmtMultiMode ? 'Multi-Seleção Ativa' : '+ Selecionar Vários'}</span>
               </button>
 
-              <div className="flex items-center space-x-1 bg-white dark:bg-[#131720] p-1 rounded-xl border border-slate-200 dark:border-[#273040] text-[11px]">
+              <div className="flex items-center space-x-1 bg-white dark:bg-[#131316] p-1 rounded-xl border border-slate-200 dark:border-[#26262b] text-[11px]">
                 <button
                   onClick={() => setStatementFilter('PENDENTE')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition-colors ${
@@ -3048,7 +2841,7 @@ export const ReconciliationView: React.FC = () => {
           </div>
 
           {/* Search bar */}
-          <div className="p-3 border-b border-slate-100 dark:border-[#273040]">
+          <div className="p-3 border-b border-slate-100 dark:border-[#26262b]">
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
               <input
@@ -3056,13 +2849,13 @@ export const ReconciliationView: React.FC = () => {
                 placeholder="Buscar no extrato por texto ou FITID..."
                 value={searchStmt}
                 onChange={e => setSearchStmt(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
               />
             </div>
           </div>
 
           {/* Barra de Ações em Lote do Extrato */}
-          <div className="px-4 py-2 bg-slate-50 dark:bg-[#1B212D]/90 border-b border-slate-200 dark:border-[#273040] flex items-center justify-between text-xs">
+          <div className="px-4 py-2 bg-slate-50 dark:bg-[#1b1b20]/90 border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between text-xs">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -3121,7 +2914,7 @@ export const ReconciliationView: React.FC = () => {
           {/* Statement List com cards independentes e espaçamento visual claro */}
           <div className="p-3 space-y-2.5 max-h-[600px] overflow-y-auto scrollbar-thin">
             {rankedStatements.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500 bg-white dark:bg-[#151D2A] rounded-xl border border-dashed border-slate-200 dark:border-[#273040]">
+              <div className="p-8 text-center text-xs text-slate-500 bg-white dark:bg-[#17171b] rounded-xl border border-dashed border-slate-200 dark:border-[#26262b]">
                 Nenhum lançamento no extrato para o filtro selecionado.
               </div>
             ) : (
@@ -3241,7 +3034,7 @@ export const ReconciliationView: React.FC = () => {
                     </div>
 
                     {/* Linha Inferior: Código FITID Discreto e Ações */}
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-[#273040]/70 flex items-center justify-between gap-2 flex-wrap">
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-[#26262b]/70 flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2 font-mono text-[10px] text-slate-500 dark:text-slate-400">
                         <span className="bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/60 font-medium">
                           FITID: {stmt.fitId}
@@ -3379,7 +3172,7 @@ export const ReconciliationView: React.FC = () => {
             )}
 
             {rankedStatements.length > stmtsDisplayLimit && (
-              <div className="p-3 text-center bg-slate-50 dark:bg-[#1B212D]/60 border-t border-slate-100 dark:border-[#273040]">
+              <div className="p-3 text-center bg-slate-50 dark:bg-[#1b1b20]/60 border-t border-slate-100 dark:border-[#26262b]">
                 <button
                   type="button"
                   onClick={() => setStmtsDisplayLimit(prev => prev + 50)}
@@ -3395,10 +3188,10 @@ export const ReconciliationView: React.FC = () => {
         {/* ======================================================== */}
         {/* COLUNA DIREITA: TÍTULOS DO ERP OU CRIAR NOVO LANÇAMENTO  */}
         {/* ======================================================== */}
-        <div className="bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xs overflow-hidden flex flex-col">
+        <div className="bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xs overflow-hidden flex flex-col">
           
           {/* Header com Abas da Coluna 2 */}
-          <div className="p-4 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div className="p-4 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
@@ -3419,7 +3212,7 @@ export const ReconciliationView: React.FC = () => {
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
                   isTitleMultiMode
                     ? 'bg-amber-500 text-slate-950 border border-amber-400'
-                    : 'bg-white dark:bg-[#131720] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#273040] hover:bg-slate-100 dark:hover:bg-slate-800'
+                    : 'bg-white dark:bg-[#131316] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#26262b] hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
                 title="Ativar/desativar modo de multi-seleção por clique nas despesas/receitas"
               >
@@ -3427,7 +3220,7 @@ export const ReconciliationView: React.FC = () => {
                 <span>{isTitleMultiMode ? 'Multi-Seleção Ativa' : '+ Selecionar Vários'}</span>
               </button>
 
-              <div className="flex items-center bg-white dark:bg-[#131720] p-1 rounded-xl border border-slate-200 dark:border-[#273040] text-xs">
+              <div className="flex items-center bg-white dark:bg-[#131316] p-1 rounded-xl border border-slate-200 dark:border-[#26262b] text-xs">
                 <button
                   type="button"
                   onClick={() => setRightColumnTab('SELECT_EXISTING')}
@@ -3472,7 +3265,7 @@ export const ReconciliationView: React.FC = () => {
           {rightColumnTab === 'SELECT_EXISTING' && (
             <div>
               {/* Search Bar e Filtros de Período e Liquidação */}
-              <div className="p-3 border-b border-slate-100 dark:border-[#273040] space-y-2.5">
+              <div className="p-3 border-b border-slate-100 dark:border-[#26262b] space-y-2.5">
                 {/* Input de Busca Estrita com Botão de Limpeza */}
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
@@ -3481,7 +3274,7 @@ export const ReconciliationView: React.FC = () => {
                     placeholder="Filtrar por nº título, favorecido, descrição..."
                     value={searchTitle}
                     onChange={e => setSearchTitle(e.target.value)}
-                    className="w-full pl-8 pr-8 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                    className="w-full pl-8 pr-8 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                   />
                   {searchTitle && (
                     <button
@@ -3496,7 +3289,7 @@ export const ReconciliationView: React.FC = () => {
                 </div>
 
                 {/* Navegador de Período / Mês no Topo do ERP */}
-                <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 dark:bg-[#131720]/80 border border-slate-200/80 dark:border-[#273040] text-xs">
+                <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 dark:bg-[#131316]/80 border border-slate-200/80 dark:border-[#26262b] text-xs">
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
@@ -3587,7 +3380,7 @@ export const ReconciliationView: React.FC = () => {
               </div>
 
               {/* Barra de Ações em Lote dos Títulos */}
-              <div className="px-4 py-2 bg-slate-50 dark:bg-[#1B212D]/90 border-b border-slate-200 dark:border-[#273040] flex items-center justify-between text-xs">
+              <div className="px-4 py-2 bg-slate-50 dark:bg-[#1b1b20]/90 border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between text-xs">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -3635,7 +3428,7 @@ export const ReconciliationView: React.FC = () => {
               {/* Lista de Títulos do ERP com cards independentes e espaçamento visual claro */}
               <div className="p-3 space-y-2.5 max-h-[600px] overflow-y-auto scrollbar-thin">
                 {rankedTitles.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-slate-500 space-y-3 bg-white dark:bg-[#151D2A] rounded-xl border border-dashed border-slate-200 dark:border-[#273040]">
+                  <div className="p-8 text-center text-xs text-slate-500 space-y-3 bg-white dark:bg-[#17171b] rounded-xl border border-dashed border-slate-200 dark:border-[#26262b]">
                     <p>
                       Nenhum título localizado com os filtros atuais.
                     </p>
@@ -3847,7 +3640,7 @@ export const ReconciliationView: React.FC = () => {
 
                           {/* Painel expansível de auditoria de fatores (se aberto) */}
                           {match && isExpanded && (
-                            <div className="mt-2.5 p-2.5 rounded-xl bg-white/90 dark:bg-black/50 border border-slate-200 dark:border-[#273040] text-[11px] space-y-1.5">
+                            <div className="mt-2.5 p-2.5 rounded-xl bg-white/90 dark:bg-black/50 border border-slate-200 dark:border-[#26262b] text-[11px] space-y-1.5">
                               <div className="flex items-center justify-between text-slate-700 dark:text-slate-200">
                                 <span>• Valor ({match.breakdown.amountScore}/50 pts):</span>
                                 <span className="font-semibold">{match.breakdown.amountSummary}</span>
@@ -3865,7 +3658,7 @@ export const ReconciliationView: React.FC = () => {
                         </div>
 
                         {/* Linha Inferior: Código Doc e Dados Secundários com DESTAQUE MENOR + Ações */}
-                        <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-[#273040]/70 flex items-center justify-between gap-2 flex-wrap">
+                        <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-[#26262b]/70 flex items-center justify-between gap-2 flex-wrap">
                           <div className="flex items-center gap-2 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex-wrap">
                             <span className="bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/60 font-medium">
                               Doc #{t.titleNumber}
@@ -4000,7 +3793,7 @@ export const ReconciliationView: React.FC = () => {
                 )}
 
                 {rankedTitles.length > titlesDisplayLimit && (
-                  <div className="p-3 text-center bg-slate-50 dark:bg-[#1B212D]/60 border-t border-slate-100 dark:border-[#273040]">
+                  <div className="p-3 text-center bg-slate-50 dark:bg-[#1b1b20]/60 border-t border-slate-100 dark:border-[#26262b]">
                     <button
                       type="button"
                       onClick={() => setTitlesDisplayLimit(prev => prev + 50)}
@@ -4036,7 +3829,7 @@ export const ReconciliationView: React.FC = () => {
                     className={`py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                       newTitleType === 'PAGAR'
                         ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
-                        : 'bg-white dark:bg-[#1B212D] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800'
+                        : 'bg-white dark:bg-[#1b1b20] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#26262b] hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     Contas a Pagar (Despesa)
@@ -4047,7 +3840,7 @@ export const ReconciliationView: React.FC = () => {
                     className={`py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                       newTitleType === 'RECEBER'
                         ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                        : 'bg-white dark:bg-[#1B212D] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800'
+                        : 'bg-white dark:bg-[#1b1b20] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#26262b] hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     Contas a Receber (Receita)
@@ -4065,7 +3858,7 @@ export const ReconciliationView: React.FC = () => {
                   value={newTitleDesc}
                   onChange={e => setNewTitleDesc(e.target.value)}
                   placeholder="Ex: Tarifa de Manutenção de Conta, Abastecimento..."
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3.5 py-2 font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3.5 py-2 font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                 />
               </div>
 
@@ -4084,7 +3877,7 @@ export const ReconciliationView: React.FC = () => {
                       onWheel={(e) => (e.target as HTMLElement).blur()}
                       value={newTitleAmount || ''}
                       onChange={e => setNewTitleAmount(parseFloat(e.target.value) || 0)}
-                      className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] pl-9 pr-3 py-2 font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                      className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] pl-9 pr-3 py-2 font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                     />
                   </div>
                 </div>
@@ -4093,12 +3886,11 @@ export const ReconciliationView: React.FC = () => {
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1">
                     Data de Competência *
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     required
                     value={newTitleDate}
                     onChange={e => setNewTitleDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3 py-2 font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3 py-2 font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                   />
                 </div>
               </div>
@@ -4149,7 +3941,7 @@ export const ReconciliationView: React.FC = () => {
                 </label>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 dark:border-[#273040]">
+              <div className="pt-3 border-t border-slate-200 dark:border-[#26262b]">
                 <button
                   type="submit"
                   disabled={!selectedStmt}
@@ -4197,11 +3989,11 @@ export const ReconciliationView: React.FC = () => {
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1">
                     Conta de Origem (Saída) *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={transferOriginAccountId}
                     onChange={e => setTransferOriginAccountId(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
                   >
                     <option value="">Selecione a conta de saída...</option>
                     {accounts.filter(a => a.status === 'ATIVO').map(acc => (
@@ -4209,18 +4001,18 @@ export const ReconciliationView: React.FC = () => {
                         {acc.bankName} - {acc.name} ({formatBRL(acc.currentBalance)})
                       </option>
                     ))}
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1">
                     Conta de Destino (Entrada) *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={transferDestinationAccountId}
                     onChange={e => setTransferDestinationAccountId(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
                   >
                     <option value="">Selecione a conta de entrada...</option>
                     {accounts.filter(a => a.status === 'ATIVO').map(acc => (
@@ -4228,7 +4020,7 @@ export const ReconciliationView: React.FC = () => {
                         {acc.bankName} - {acc.name} ({formatBRL(acc.currentBalance)})
                       </option>
                     ))}
-                  </select>
+                  </PremiumSelect>
                 </div>
               </div>
 
@@ -4245,7 +4037,7 @@ export const ReconciliationView: React.FC = () => {
                     onChange={e => setTransferAmount(parseFloat(e.target.value) || 0)}
                     required
                     placeholder="0,00"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 font-mono font-bold focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 font-mono font-bold focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
@@ -4253,12 +4045,11 @@ export const ReconciliationView: React.FC = () => {
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1">
                     Data da Transferência *
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     value={transferDate}
                     onChange={e => setTransferDate(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
@@ -4273,7 +4064,7 @@ export const ReconciliationView: React.FC = () => {
                     value={transferFeeAmount || ''}
                     onChange={e => setTransferFeeAmount(parseFloat(e.target.value) || 0)}
                     placeholder="0,00"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 font-mono focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 font-mono focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
@@ -4287,11 +4078,11 @@ export const ReconciliationView: React.FC = () => {
                   value={transferNotes}
                   onChange={e => setTransferNotes(e.target.value)}
                   placeholder="Ex: Transferência de saldo Inter para Bradesco"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-200 dark:border-[#273040]">
+              <div className="pt-3 border-t border-slate-200 dark:border-[#26262b]">
                 <button
                   type="submit"
                   className="w-full py-3 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 text-black hover:brightness-105 cursor-pointer"
@@ -4310,9 +4101,9 @@ export const ReconciliationView: React.FC = () => {
       {/* MODAL DE CONFIRMAÇÃO DA CONCILIAÇÃO EM LOTE */}
       {batchConfirmModal && batchConfirmModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xl max-w-lg w-full overflow-hidden">
+          <div className="bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xl max-w-lg w-full overflow-hidden">
             {/* Header */}
-            <div className="p-5 border-b border-slate-100 dark:border-[#273040] flex items-center justify-between">
+            <div className="p-5 border-b border-slate-100 dark:border-[#26262b] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-amber-500/15 text-amber-500">
                   <CheckCheck className="w-5 h-5 stroke-[2.5]" />
@@ -4344,7 +4135,7 @@ export const ReconciliationView: React.FC = () => {
               </p>
 
               {/* Quadro de Valores */}
-              <div className="bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040] rounded-xl p-4 space-y-2.5">
+              <div className="bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] rounded-xl p-4 space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 dark:text-slate-400">Extratos Bancários ({batchConfirmModal.stmtsCount}):</span>
                   <span className="font-bold text-slate-900 dark:text-white font-mono">
@@ -4359,7 +4150,7 @@ export const ReconciliationView: React.FC = () => {
                 </div>
                 
                 {batchConfirmModal.difference > 0.005 ? (
-                  <div className="pt-2 border-t border-slate-200 dark:border-[#273040] flex justify-between items-center text-amber-600 dark:text-amber-400">
+                  <div className="pt-2 border-t border-slate-200 dark:border-[#26262b] flex justify-between items-center text-amber-600 dark:text-amber-400">
                     <span className="font-bold flex items-center gap-1">
                       <AlertTriangle className="w-3.5 h-3.5" />
                       Divergência Total:
@@ -4369,7 +4160,7 @@ export const ReconciliationView: React.FC = () => {
                     </span>
                   </div>
                 ) : (
-                  <div className="pt-2 border-t border-slate-200 dark:border-[#273040] flex justify-between items-center text-emerald-600 dark:text-emerald-400">
+                  <div className="pt-2 border-t border-slate-200 dark:border-[#26262b] flex justify-between items-center text-emerald-600 dark:text-emerald-400">
                     <span className="font-bold flex items-center gap-1">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                       Valores 100% Conferidos (Diferença: R$ 0,00)
@@ -4400,7 +4191,7 @@ export const ReconciliationView: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="p-4 bg-slate-50 dark:bg-[#1B212D] border-t border-slate-100 dark:border-[#273040] flex items-center justify-end gap-2.5">
+            <div className="p-4 bg-slate-50 dark:bg-[#1b1b20] border-t border-slate-100 dark:border-[#26262b] flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setBatchConfirmModal(null)}
@@ -4562,7 +4353,7 @@ export const ReconciliationView: React.FC = () => {
       {/* Modal de Confirmação para Desconciliação / Estorno Seguro (Opção 2) */}
       {unreconcileModal && unreconcileModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#131720] rounded-2xl border border-rose-500/40 shadow-2xl max-w-md w-full p-6 space-y-4">
+          <div className="bg-white dark:bg-[#131316] rounded-2xl border border-rose-500/40 shadow-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center space-x-3 text-rose-500">
               <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
                 <RotateCcw className="w-5 h-5" />
@@ -4580,7 +4371,7 @@ export const ReconciliationView: React.FC = () => {
             </p>
 
             {unreconcileModal.matchedTitle ? (
-              <div className="p-3 bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200 dark:border-[#273040] space-y-1">
+              <div className="p-3 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200 dark:border-[#26262b] space-y-1">
                 <span className="text-[10px] text-slate-500 uppercase font-bold block">Título Vinculado a Estornar/Reabrir:</span>
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-bold text-slate-900 dark:text-white truncate max-w-[240px]">
@@ -4600,7 +4391,7 @@ export const ReconciliationView: React.FC = () => {
               </p>
             )}
 
-            <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-[#273040]">
+            <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-[#26262b]">
               <button
                 type="button"
                 onClick={() => setUnreconcileModal(null)}

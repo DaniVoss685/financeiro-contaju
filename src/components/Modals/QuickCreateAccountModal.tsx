@@ -4,6 +4,7 @@ import { ChartAccount, OperationNature, CashFlowCategory } from '../../types';
 import { storage } from '../../services/storageService';
 import { calculateNextChildCode } from '../../services/chartOfAccountsEngine';
 import { formatAccountDescription } from '../Config/ChartOfAccountsView';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface QuickCreateAccountModalProps {
   isOpen: boolean;
@@ -202,7 +203,7 @@ export const QuickCreateAccountModal: React.FC<QuickCreateAccountModalProps> = (
               <label className="block font-semibold text-slate-700 mb-1">
                 Categoria Principal (Mãe) *
               </label>
-              <select
+              <PremiumSelect
                 value={parentAccountId}
                 onChange={(e) => handleSelectParent(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
@@ -214,7 +215,7 @@ export const QuickCreateAccountModal: React.FC<QuickCreateAccountModalProps> = (
                     {parent.code} - {parent.name}
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
               <p className="text-[11px] text-slate-500 mt-1">
                 A nova subcategoria herdará a classificação DRE e o fluxo de caixa do grupo.
               </p>
@@ -261,7 +262,7 @@ export const QuickCreateAccountModal: React.FC<QuickCreateAccountModalProps> = (
               <label className="block font-semibold text-slate-700 mb-1">
                 Natureza Operacional
               </label>
-              <select
+              <PremiumSelect
                 value={nature}
                 onChange={(e) => setNature(e.target.value as OperationNature)}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white"
@@ -285,14 +286,14 @@ export const QuickCreateAccountModal: React.FC<QuickCreateAccountModalProps> = (
                     <option value="INVESTIMENTO_ATIVO">Investimento / Imobilizado</option>
                   </>
                 )}
-              </select>
+              </PremiumSelect>
             </div>
 
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
                 Fluxo de Caixa
               </label>
-              <select
+              <PremiumSelect
                 value={cashFlowCategory}
                 onChange={(e) => setCashFlowCategory(e.target.value as CashFlowCategory)}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white"
@@ -300,7 +301,7 @@ export const QuickCreateAccountModal: React.FC<QuickCreateAccountModalProps> = (
                 <option value="OPERACIONAL">Operacional</option>
                 <option value="INVESTIMENTO">Investimento</option>
                 <option value="FINANCIAMENTO">Financiamento</option>
-              </select>
+              </PremiumSelect>
             </div>
           </div>
 

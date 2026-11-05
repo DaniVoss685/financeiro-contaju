@@ -30,6 +30,8 @@ import { addMonthsSafe } from '../../utils/dateUtils';
 import { BatchEditSalesModal } from '../Modals/BatchEditSalesModal';
 import { CompleteCounterpartyModal } from '../Modals/CompleteCounterpartyModal';
 import { useGlobalPeriod } from '../../hooks/useGlobalPeriod';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface SalesViewProps {
   onOpenBillingModal?: () => void;
@@ -860,7 +862,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
             </div>
 
             {/* Dropdown Geral de Seleção de Mês e Intervalos */}
-            <select
+            <PremiumSelect
               value={periodPreset}
               onChange={e => setPeriodPreset(e.target.value)}
               className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
@@ -885,21 +887,19 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               <optgroup label="Intervalo Personalizado">
                 <option value="CUSTOM_RANGE">Personalizado (De / Até)...</option>
               </optgroup>
-            </select>
+            </PremiumSelect>
 
             {/* Inputs quando for Intervalo Personalizado */}
             {periodPreset === 'CUSTOM_RANGE' && (
               <div className="flex items-center gap-1.5 bg-[var(--surface-elevated)] p-1 rounded-xl border border-amber-500/30">
-                <input
-                  type="date"
+                <DateField
                   value={customStartDate}
                   onChange={e => setCustomStartDate(e.target.value)}
                   className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] px-2.5 py-1 text-xs text-[var(--text-primary)]"
                   placeholder="Data Início"
                 />
                 <span className="text-xs text-[var(--text-secondary)]">até</span>
-                <input
-                  type="date"
+                <DateField
                   value={customEndDate}
                   onChange={e => setCustomEndDate(e.target.value)}
                   className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] px-2.5 py-1 text-xs text-[var(--text-primary)]"
@@ -1417,7 +1417,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                     </button>
                   </div>
                 </div>
-                <select
+                <PremiumSelect
                   value={customerId}
                   onChange={e => setCustomerId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)]"
@@ -1426,7 +1426,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   {counterparties.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </PremiumSelect>
 
                 {/* ALERTA CRÍTICO ANTI-DUPLICAÇÃO COM CONTRATOS ATIVOS */}
                 {clientActiveContracts.length > 0 && (
@@ -1475,7 +1475,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Número de Parcelas *</label>
-                  <select
+                  <PremiumSelect
                     value={installmentsCount}
                     onChange={e => setInstallmentsCount(parseInt(e.target.value) || 1)}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1487,15 +1487,14 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                     <option value="6">6 parcelas</option>
                     <option value="10">10 parcelas</option>
                     <option value="12">12 parcelas</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Competência DRE *</label>
-                  <input
-                    type="month"
+                  <MonthField
                     value={competence}
                     onChange={e => setCompetence(e.target.value)}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1506,8 +1505,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">1º Vencimento *</label>
-                  <input
-                    type="date"
+                  <DateField
                     value={firstDueDate}
                     onChange={e => setFirstDueDate(e.target.value)}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1519,7 +1517,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
               <div>
                 <label className="block font-semibold text-[var(--text-primary)] mb-1">Classificação Contábil DRE *</label>
-                <select
+                <PremiumSelect
                   value={accountId}
                   onChange={e => setAccountId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1527,7 +1525,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   {chartAccounts.map(a => (
                     <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               {/* Installment simulation box */}
@@ -1692,7 +1690,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
             <form onSubmit={handleSaveEdit} className="p-6 space-y-4 text-xs">
               <div>
                 <label className="block font-semibold text-[var(--text-primary)] mb-1">Cliente *</label>
-                <select
+                <PremiumSelect
                   value={editCustomerId}
                   onChange={e => setEditCustomerId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)]"
@@ -1701,7 +1699,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   {counterparties.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>
@@ -1732,22 +1730,21 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Situação da Venda *</label>
-                  <select
+                  <PremiumSelect
                     value={editStatus}
                     onChange={e => setEditStatus(e.target.value as 'CONFIRMADA' | 'CANCELADA')}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
                   >
                     <option value="CONFIRMADA">Confirmada / Ativa</option>
                     <option value="CANCELADA">Cancelada</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Competência DRE *</label>
-                  <input
-                    type="month"
+                  <MonthField
                     value={editCompetence}
                     onChange={e => setEditCompetence(e.target.value)}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1757,8 +1754,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
                 <div>
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Data de Emissão *</label>
-                  <input
-                    type="date"
+                  <DateField
                     value={editDate}
                     onChange={e => setEditDate(e.target.value)}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1769,7 +1765,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
               <div>
                 <label className="block font-semibold text-[var(--text-primary)] mb-1">Classificação Contábil DRE</label>
-                <select
+                <PremiumSelect
                   value={editAccountId}
                   onChange={e => setEditAccountId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
@@ -1777,7 +1773,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   {chartAccounts.map(a => (
                     <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>

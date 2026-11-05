@@ -17,6 +17,8 @@ import {
 import { AnalyzedImportRow, BaseSpreadsheetRow, ExtraColumnDefinition, generateTitleFingerprint } from '../../services/contaAzulMappingEngine';
 import { Counterparty, ChartAccount, BankAccount, TitleType } from '../../types';
 import { CategoryQuickSearchModal, getGroupedChartAccounts } from './ImportSpreadsheetModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface ImportEditRowModalProps {
   isOpen: boolean;
@@ -230,7 +232,7 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
             <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">
               Vincular a Cadastro Existente no App ({tipo === 'RECEBER' ? 'Clientes' : 'Fornecedores'}):
             </label>
-            <select
+            <PremiumSelect
               value={selectedPartyId}
               onChange={(e) => setSelectedPartyId(e.target.value)}
               className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -241,7 +243,7 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
                   {c.name} {c.document ? `(${c.document})` : ''} - [{c.type}]
                 </option>
               ))}
-            </select>
+            </PremiumSelect>
           </div>
 
           {/* Descrição */}
@@ -278,8 +280,7 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
               <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1">
                 Emissão:
               </label>
-              <input
-                type="date"
+              <DateField
                 value={emissao}
                 onChange={(e) => setEmissao(e.target.value)}
                 className="w-full px-2.5 py-1.5 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-lg text-xs font-mono text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -290,8 +291,7 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
               <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1 text-amber-400">
                 Vencimento:
               </label>
-              <input
-                type="date"
+              <DateField
                 value={vencimento}
                 onChange={(e) => {
                   setVencimento(e.target.value);
@@ -350,7 +350,7 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
               <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">
                 Situação / Status:
               </label>
-              <select
+              <PremiumSelect
                 value={situacao}
                 onChange={(e) => setSituacao(e.target.value as any)}
                 className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -360,7 +360,7 @@ export const ImportEditRowModal: React.FC<ImportEditRowModalProps> = ({
                 <option value="LIQUIDADO">LIQUIDADO</option>
                 <option value="ATRASADO">ATRASADO</option>
                 <option value="CANCELADO">CANCELADO</option>
-              </select>
+              </PremiumSelect>
             </div>
 
             <div>

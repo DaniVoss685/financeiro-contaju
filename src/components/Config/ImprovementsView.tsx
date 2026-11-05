@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lightbulb, Plus, ThumbsUp, CheckCircle2, Clock, MessageSquare, Filter } from 'lucide-react';
 import { ImprovementRequest } from '../../types';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const ImprovementsView: React.FC = () => {
   const [requests, setRequests] = useState<ImprovementRequest[]>(storage.getImprovementRequests());
@@ -165,7 +166,7 @@ export const ImprovementsView: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-[var(--text-secondary)] mb-1">Categoria *</label>
-                <select
+                <PremiumSelect
                   value={category}
                   onChange={e => setCategory(e.target.value as any)}
                   className="w-full rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none cursor-pointer"
@@ -175,7 +176,7 @@ export const ImprovementsView: React.FC = () => {
                   <option value="CONCILIACAO">Conciliação Bancária & OFX</option>
                   <option value="INTERFACE">Interface & Experiência (UX)</option>
                   <option value="OUTROS">Outros</option>
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, X, Columns, AlertCircle, Check } from 'lucide-react';
 import { ExtraColumnDefinition } from '../../services/contaAzulMappingEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface ImportExtraColumnModalProps {
   isOpen: boolean;
@@ -85,7 +86,7 @@ export const ImportExtraColumnModal: React.FC<ImportExtraColumnModalProps> = ({
               Coluna de Origem na Planilha:
             </label>
             {unmappedHeaders.length > 0 ? (
-              <select
+              <PremiumSelect
                 value={selectedHeader}
                 onChange={(e) => handleSelectHeader(e.target.value)}
                 className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -95,7 +96,7 @@ export const ImportExtraColumnModal: React.FC<ImportExtraColumnModalProps> = ({
                     {h}
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
             ) : (
               <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 flex items-center space-x-2">
                 <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
@@ -122,7 +123,7 @@ export const ImportExtraColumnModal: React.FC<ImportExtraColumnModalProps> = ({
             <label className="text-xs font-semibold text-[var(--text-secondary)] block mb-1">
               Tipo de Dado:
             </label>
-            <select
+            <PremiumSelect
               value={columnType}
               onChange={(e) => setColumnType(e.target.value as any)}
               className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -131,7 +132,7 @@ export const ImportExtraColumnModal: React.FC<ImportExtraColumnModalProps> = ({
               <option value="CURRENCY">Moeda / Valor Financeiro (R$)</option>
               <option value="NUMBER">Número Inteiro / Decimal</option>
               <option value="DATE">Data (AAAA-MM-DD)</option>
-            </select>
+            </PremiumSelect>
           </div>
 
           <div className="p-3 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-[11px] text-[var(--text-secondary)] space-y-1">

@@ -1,6 +1,203 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "./styles/neutralize.generated.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ========================================================================= */
+/* CONTAJU ELITE — SISTEMA DE DESIGN                                          */
+/* Princípios: uma fonte (Inter), neutros grafite, UM dourado discreto como    */
+/* acento, verde/vermelho só para dinheiro entrando/saindo. Respiro generoso.  */
+/* ========================================================================= */
+
+@theme {
+  /* Tipografia: uma única família. Números sempre tabulares. */
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Escala de texto legível (nada abaixo de 12px) */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.6rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+
+  /* Cantos e sombras suaves */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+  --radius-3xl: 1.5rem;
+
+  --shadow-2xs: 0 1px 0 rgb(0 0 0 / 0.03);
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 10px 24px -6px rgb(0 0 0 / 0.12);
+  --shadow-xl: 0 18px 40px -10px rgb(0 0 0 / 0.16);
+  --shadow-2xl: 0 28px 64px -16px rgb(0 0 0 / 0.30);
+
+  /* ---- Neutros (grafite) ---- */
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f4f4f5;
+  --color-slate-200: #e7e7ea;
+  --color-slate-300: #d4d4d8;
+  --color-slate-400: #a1a1aa;
+  --color-slate-500: #71717a;
+  --color-slate-600: #52525b;
+  --color-slate-700: #3f3f46;
+  --color-slate-800: #27272a;
+  --color-slate-900: #18181b;
+  --color-slate-950: #0c0c0e;
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f4f4f5;
+  --color-gray-200: #e7e7ea;
+  --color-gray-300: #d4d4d8;
+  --color-gray-400: #a1a1aa;
+  --color-gray-500: #71717a;
+  --color-gray-600: #52525b;
+  --color-gray-700: #3f3f46;
+  --color-gray-800: #27272a;
+  --color-gray-900: #18181b;
+  --color-gray-950: #0c0c0e;
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-200: #e7e7ea;
+  --color-zinc-300: #d4d4d8;
+  --color-zinc-400: #a1a1aa;
+  --color-zinc-500: #71717a;
+  --color-zinc-600: #52525b;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-800: #27272a;
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #0c0c0e;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e7e7ea;
+  --color-neutral-300: #d4d4d8;
+  --color-neutral-400: #a1a1aa;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #52525b;
+  --color-neutral-700: #3f3f46;
+  --color-neutral-800: #27272a;
+  --color-neutral-900: #18181b;
+  --color-neutral-950: #0c0c0e;
+  --color-stone-50: #fafafa;
+  --color-stone-100: #f4f4f5;
+  --color-stone-200: #e7e7ea;
+  --color-stone-300: #d4d4d8;
+  --color-stone-400: #a1a1aa;
+  --color-stone-500: #71717a;
+  --color-stone-600: #52525b;
+  --color-stone-700: #3f3f46;
+  --color-stone-800: #27272a;
+  --color-stone-900: #18181b;
+  --color-stone-950: #0c0c0e;
+
+  /* ---- Dourado ContaJu (único acento) — âmbar, amarelo e laranja viram dourado ---- */
+  --color-amber-50: #fbf8f1;
+  --color-amber-100: #f4eddb;
+  --color-amber-200: #e8d9ae;
+  --color-amber-300: #dac17e;
+  --color-amber-400: #cdaa58;
+  --color-amber-500: #b98f38;
+  --color-amber-600: #98732a;
+  --color-amber-700: #765921;
+  --color-amber-800: #594320;
+  --color-amber-900: #3d2f18;
+  --color-amber-950: #241b0e;
+  --color-yellow-50: #fbf8f1;
+  --color-yellow-100: #f4eddb;
+  --color-yellow-200: #e8d9ae;
+  --color-yellow-300: #dac17e;
+  --color-yellow-400: #cdaa58;
+  --color-yellow-500: #b98f38;
+  --color-yellow-600: #98732a;
+  --color-yellow-700: #765921;
+  --color-yellow-800: #594320;
+  --color-yellow-900: #3d2f18;
+  --color-yellow-950: #241b0e;
+  --color-orange-50: #fbf8f1;
+  --color-orange-100: #f4eddb;
+  --color-orange-200: #e8d9ae;
+  --color-orange-300: #dac17e;
+  --color-orange-400: #cdaa58;
+  --color-orange-500: #b98f38;
+  --color-orange-600: #98732a;
+  --color-orange-700: #765921;
+  --color-orange-800: #594320;
+  --color-orange-900: #3d2f18;
+  --color-orange-950: #241b0e;
+
+  /* ---- Dinheiro entrando (verde) — sóbrio ---- */
+  --color-emerald-50: #f0f8f4;
+  --color-emerald-100: #dcefe5;
+  --color-emerald-200: #b9dfca;
+  --color-emerald-300: #8cc8a8;
+  --color-emerald-400: #55ae81;
+  --color-emerald-500: #2f9467;
+  --color-emerald-600: #247852;
+  --color-emerald-700: #1d6144;
+  --color-emerald-800: #194e38;
+  --color-emerald-900: #153f2e;
+  --color-emerald-950: #0a2319;
+  --color-green-50: #f0f8f4;
+  --color-green-100: #dcefe5;
+  --color-green-200: #b9dfca;
+  --color-green-300: #8cc8a8;
+  --color-green-400: #55ae81;
+  --color-green-500: #2f9467;
+  --color-green-600: #247852;
+  --color-green-700: #1d6144;
+  --color-green-800: #194e38;
+  --color-green-900: #153f2e;
+  --color-green-950: #0a2319;
+
+  /* ---- Dinheiro saindo / atraso (vermelho) — sóbrio ---- */
+  --color-rose-50: #fcf2f3;
+  --color-rose-100: #f9e1e4;
+  --color-rose-200: #f2c2c8;
+  --color-rose-300: #e99aa4;
+  --color-rose-400: #db6d7b;
+  --color-rose-500: #c64b5c;
+  --color-rose-600: #a93949;
+  --color-rose-700: #8a2f3c;
+  --color-rose-800: #702a33;
+  --color-rose-900: #5b262e;
+  --color-rose-950: #34121a;
+  --color-red-50: #fcf2f3;
+  --color-red-100: #f9e1e4;
+  --color-red-200: #f2c2c8;
+  --color-red-300: #e99aa4;
+  --color-red-400: #db6d7b;
+  --color-red-500: #c64b5c;
+  --color-red-600: #a93949;
+  --color-red-700: #8a2f3c;
+  --color-red-800: #702a33;
+  --color-red-900: #5b262e;
+  --color-red-950: #34121a;
+
+  /* ---- Cores decorativas viram neutro; tons fortes (600/700) viram dourado ---- */
+  --color-blue-50: #fafafa;   --color-blue-100: #f4f4f5;   --color-blue-200: #e7e7ea;   --color-blue-300: #d4d4d8;   --color-blue-400: #a1a1aa;   --color-blue-500: #71717a;   --color-blue-600: #98732a;   --color-blue-700: #765921;   --color-blue-800: #27272a;   --color-blue-900: #18181b;   --color-blue-950: #0c0c0e;
+  --color-indigo-50: #fafafa; --color-indigo-100: #f4f4f5; --color-indigo-200: #e7e7ea; --color-indigo-300: #d4d4d8; --color-indigo-400: #a1a1aa; --color-indigo-500: #71717a; --color-indigo-600: #98732a; --color-indigo-700: #765921; --color-indigo-800: #27272a; --color-indigo-900: #18181b; --color-indigo-950: #0c0c0e;
+  --color-purple-50: #fafafa; --color-purple-100: #f4f4f5; --color-purple-200: #e7e7ea; --color-purple-300: #d4d4d8; --color-purple-400: #a1a1aa; --color-purple-500: #71717a; --color-purple-600: #98732a; --color-purple-700: #765921; --color-purple-800: #27272a; --color-purple-900: #18181b; --color-purple-950: #0c0c0e;
+  --color-violet-50: #fafafa; --color-violet-100: #f4f4f5; --color-violet-200: #e7e7ea; --color-violet-300: #d4d4d8; --color-violet-400: #a1a1aa; --color-violet-500: #71717a; --color-violet-600: #98732a; --color-violet-700: #765921; --color-violet-800: #27272a; --color-violet-900: #18181b; --color-violet-950: #0c0c0e;
+  --color-fuchsia-50: #fafafa; --color-fuchsia-100: #f4f4f5; --color-fuchsia-200: #e7e7ea; --color-fuchsia-300: #d4d4d8; --color-fuchsia-400: #a1a1aa; --color-fuchsia-500: #71717a; --color-fuchsia-600: #98732a; --color-fuchsia-700: #765921; --color-fuchsia-800: #27272a; --color-fuchsia-900: #18181b; --color-fuchsia-950: #0c0c0e;
+  --color-pink-50: #fafafa;   --color-pink-100: #f4f4f5;   --color-pink-200: #e7e7ea;   --color-pink-300: #d4d4d8;   --color-pink-400: #a1a1aa;   --color-pink-500: #71717a;   --color-pink-600: #98732a;   --color-pink-700: #765921;   --color-pink-800: #27272a;   --color-pink-900: #18181b;   --color-pink-950: #0c0c0e;
+  --color-sky-50: #fafafa;    --color-sky-100: #f4f4f5;    --color-sky-200: #e7e7ea;    --color-sky-300: #d4d4d8;    --color-sky-400: #a1a1aa;    --color-sky-500: #71717a;    --color-sky-600: #98732a;    --color-sky-700: #765921;    --color-sky-800: #27272a;    --color-sky-900: #18181b;    --color-sky-950: #0c0c0e;
+  --color-cyan-50: #fafafa;   --color-cyan-100: #f4f4f5;   --color-cyan-200: #e7e7ea;   --color-cyan-300: #d4d4d8;   --color-cyan-400: #a1a1aa;   --color-cyan-500: #71717a;   --color-cyan-600: #98732a;   --color-cyan-700: #765921;   --color-cyan-800: #27272a;   --color-cyan-900: #18181b;   --color-cyan-950: #0c0c0e;
+  --color-teal-50: #fafafa;   --color-teal-100: #f4f4f5;   --color-teal-200: #e7e7ea;   --color-teal-300: #d4d4d8;   --color-teal-400: #a1a1aa;   --color-teal-500: #71717a;   --color-teal-600: #98732a;   --color-teal-700: #765921;   --color-teal-800: #27272a;   --color-teal-900: #18181b;   --color-teal-950: #0c0c0e;
+}
 
 @utility scrollbar-none {
   scrollbar-width: none;
@@ -23,70 +220,98 @@
   min-width: 40px;
 }
 
+/* ========================================================================= */
+/* TOKENS DE TEMA                                                             */
+/* ========================================================================= */
 @layer base {
   :root {
-    /* ========================================================================= */
-    /* PALETA INSTITUCIONAL CONTAJU: PRETO, CINZA, DOURADO E BRANCO             */
-    /* ========================================================================= */
-    --bg-app: #0B0E14;
-    --surface-card: #121620;
-    --surface-elevated: #19202D;
-    --border-subtle: #242D3D;
-    --border-highlight: #3A475C;
-    --text-primary: #FFFFFF;
-    --text-secondary: #E2E8F0;
-    --text-muted: #94A3B8;
+    /* Escuro (padrão) */
+    --bg-app: #0b0b0d;
+    --surface-canvas: #0b0b0d;
+    --surface-base: #0f0f12;
+    --surface-card: #131316;
+    --surface-elevated: #1b1b20;
+    --surface-input: #17171b;
+    --surface-hover: #1f1f25;
+    --border-subtle: #26262b;
+    --border-highlight: #34343b;
+    --border-strong: #52525b;
+    --text-primary: #f4f4f5;
+    --text-secondary: #b4b4bc;
+    --text-muted: #85858f;
+    --text-tertiary: #5e5e68;
 
-    /* Dourado Nobre Institucional (Leão Dourado) */
-    --brand-gold: #D4AF37;
-    --brand-gold-glow: rgba(212, 175, 55, 0.20);
-    --brand-gold-light: #FDE68A;
-    --brand-gold-dark: #996515;
-    --brand-primary-text: #0B0E14;
+    --brand-gold: #d2b063;
+    --brand-gold-fill: #c9a24a;
+    --brand-gold-soft: rgba(201, 162, 74, 0.12);
+    --brand-gold-glow: rgba(201, 162, 74, 0.20);
+    --brand-gold-light: #e8d9ae;
+    --brand-gold-dark: #98732a;
+    --brand-primary-text: #0b0b0d;
 
-    /* Cores Exclusivas para Valores a Receber (Verde) e a Pagar (Vermelho) */
-    --status-success: #10B981;
-    --status-success-bg: rgba(16, 185, 129, 0.15);
-    --status-warning: #F59E0B;
-    --status-warning-bg: rgba(245, 158, 11, 0.15);
-    --status-danger: #EF4444;
-    --status-danger-bg: rgba(239, 68, 68, 0.15);
+    --status-success: #55ae81;
+    --status-success-bg: rgba(85, 174, 129, 0.14);
+    --status-warning: #cdaa58;
+    --status-warning-bg: rgba(205, 170, 88, 0.14);
+    --status-danger: #db6d7b;
+    --status-danger-bg: rgba(219, 109, 123, 0.14);
+
+    --ring-focus: rgba(201, 162, 74, 0.28);
+    --overlay: rgba(6, 6, 8, 0.66);
+    --tint-neutral: rgba(255, 255, 255, 0.04);
+    --tint-neutral-hover: rgba(255, 255, 255, 0.07);
 
     color-scheme: dark;
   }
 
   html.light {
-    /* ========================================================================= */
-    /* PALETA CLARA CONTAJU: BRANCO, CINZA GELO, GRAFITE E DOURADO              */
-    /* ========================================================================= */
-    --bg-app: #F8FAFC;
-    --surface-card: #FFFFFF;
-    --surface-elevated: #F1F5F9;
-    --border-subtle: #CBD5E1;
-    --border-highlight: #94A3B8;
-    --text-primary: #0F172A;
-    --text-secondary: #334155;
-    --text-muted: #475569;
+    --bg-app: #f6f6f7;
+    --surface-canvas: #f6f6f7;
+    --surface-base: #fafafa;
+    --surface-card: #ffffff;
+    --surface-elevated: #f4f4f5;
+    --surface-input: #ffffff;
+    --surface-hover: #f4f4f5;
+    --border-subtle: #e7e7ea;
+    --border-highlight: #d4d4d8;
+    --border-strong: #a1a1aa;
+    --text-primary: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #71717a;
+    --text-tertiary: #a1a1aa;
 
-    /* Dourado para Fundos Claros */
-    --brand-gold: #996515;
-    --brand-gold-glow: rgba(153, 101, 21, 0.15);
-    --brand-gold-light: #B8860B;
-    --brand-gold-dark: #78350F;
-    --brand-primary-text: #FFFFFF;
+    --brand-gold: #85651f;
+    --brand-gold-fill: #c9a24a;
+    --brand-gold-soft: rgba(185, 143, 56, 0.10);
+    --brand-gold-glow: rgba(185, 143, 56, 0.18);
+    --brand-gold-light: #b98f38;
+    --brand-gold-dark: #594320;
+    --brand-primary-text: #18181b;
 
-    /* Cores Exclusivas para Valores a Receber (Verde) e a Pagar (Vermelho) */
-    --status-success: #047857;
-    --status-success-bg: rgba(4, 120, 87, 0.10);
-    --status-warning: #B45309;
-    --status-warning-bg: rgba(180, 83, 9, 0.10);
-    --status-danger: #B91C1C;
-    --status-danger-bg: rgba(185, 28, 28, 0.10);
+    --status-success: #247852;
+    --status-success-bg: rgba(36, 120, 82, 0.09);
+    --status-warning: #98732a;
+    --status-warning-bg: rgba(152, 115, 42, 0.10);
+    --status-danger: #a93949;
+    --status-danger-bg: rgba(169, 57, 73, 0.09);
+
+    --ring-focus: rgba(185, 143, 56, 0.28);
+    --overlay: rgba(24, 24, 27, 0.42);
+    --tint-neutral: rgba(24, 24, 27, 0.035);
+    --tint-neutral-hover: rgba(24, 24, 27, 0.06);
 
     color-scheme: light;
   }
 
-  /* Bloqueio Absoluto de Scroll Horizontal na Janela Inteira */
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Bloqueio de scroll horizontal na janela inteira */
   html, body, #root {
     width: 100%;
     max-width: 100vw;
@@ -94,10 +319,14 @@
     position: relative;
     background-color: var(--bg-app);
     color: var(--text-primary);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.015em;
   }
 
   input[type="number"] {
@@ -106,14 +335,19 @@
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: inner-spin-button;
-    opacity: 0.8;
+    opacity: 0.5;
   }
 }
 
-/* Scrollbars modernos de alto contraste */
+::selection {
+  background: var(--brand-gold-glow);
+  color: var(--text-primary);
+}
+
+/* Scrollbars discretas */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -121,9 +355,18 @@
 ::-webkit-scrollbar-thumb {
   background: var(--border-highlight);
   border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-gold);
+  background: var(--border-strong);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-gold-fill);
+  outline-offset: 2px;
 }
 
 .font-tabular {
@@ -138,450 +381,265 @@
 }
 
 /* ========================================================================= */
-/* REGRA MESTRA 1: ELIMINAÇÃO DE CORES FORA DO PADRÃO (ROXO, ÍNDIGO, AZUL)   */
-/* Redirecionamento obrigatório para DOURADO, PRETO, CINZA e BRANCO          */
+/* TIPOGRAFIA: poucos pesos, nada minúsculo, sem CAIXA ALTA gritando          */
+/* (regras sem camada vencem as utilidades do Tailwind)                       */
 /* ========================================================================= */
-
-/* Botões e fundos primários que usavam índigo/roxo/azul viram Dourado Nobre */
-[class*="bg-indigo-6"],
-[class*="bg-indigo-7"],
-[class*="bg-purple-6"],
-[class*="bg-purple-7"],
-[class*="bg-blue-6"],
-[class*="bg-blue-7"] {
-  background-color: #D4AF37 !important;
-  color: #0B0E14 !important;
-  font-weight: 700 !important;
-  border-color: #FDE68A !important;
+.text-\[7px\],
+.text-\[9px\],
+.text-\[10px\],
+.text-\[10\.5px\],
+.text-\[11px\] {
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+}
+.text-\[13px\] {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
 }
 
-[class*="bg-indigo-6"]:hover,
-[class*="bg-indigo-7"]:hover,
-[class*="bg-purple-6"]:hover,
-[class*="bg-purple-7"]:hover,
-[class*="bg-blue-6"]:hover,
-[class*="bg-blue-7"]:hover {
-  background-color: #E5C158 !important;
-  color: #0B0E14 !important;
+.font-black,
+.font-extrabold {
+  font-weight: 650;
+}
+.font-bold {
+  font-weight: 600;
+}
+.font-semibold {
+  font-weight: 560;
+}
+.font-medium {
+  font-weight: 500;
 }
 
-/* Fundos escuros degradê que usavam índigo/roxo viram Preto/Grafite com borda Dourada */
-[class*="from-indigo-"],
-[class*="via-indigo-"],
-[class*="to-indigo-"],
-[class*="bg-indigo-9"],
-[class*="bg-indigo-8"],
-[class*="bg-purple-9"],
-[class*="bg-purple-8"] {
-  background: linear-gradient(135deg, #121620 0%, #19202D 50%, #0B0E14 100%) !important;
-  border-color: rgba(212, 175, 55, 0.35) !important;
-  color: #FFFFFF !important;
+.uppercase {
+  text-transform: none;
+}
+.tracking-wider,
+.tracking-widest,
+.tracking-wide {
+  letter-spacing: 0;
 }
 
-/* Textos e ícones que usavam índigo/roxo/azul viram Dourado Nobre ou Branco */
-[class*="text-indigo-"],
-[class*="text-purple-"],
-[class*="text-blue-"] {
-  color: #D4AF37 !important;
+/* Números e valores monetários nunca em fonte "de máquina de escrever" */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
 }
 
 /* ========================================================================= */
-/* REGRA MESTRA 2: CONTRASTE ABSOLUTO (FUNDO ESCURO => LETRA CLARA)         */
+/* COMPATIBILIDADE COM O TEMA ESCURO (classes claras sem variante dark:)      */
 /* ========================================================================= */
-
-html.dark [class*="text-slate-9"],
-html.dark [class*="text-slate-8"],
-html.dark [class*="text-gray-9"],
-html.dark [class*="text-gray-8"],
-html.dark [class*="text-zinc-9"],
-html.dark [class*="text-zinc-8"],
-html.dark [class*="text-neutral-9"],
-html.dark [class*="text-neutral-8"],
-html.dark [class*="text-black"],
-html.dark .text-slate-900,
-html.dark .text-slate-800,
-html.dark .text-gray-900,
-html.dark .text-gray-800,
-html.dark .text-black {
-  color: #FFFFFF !important;
+html.dark .bg-white:not([class*="dark:bg-"]) {
+  background-color: var(--surface-card);
+}
+html.dark .bg-slate-50:not([class*="dark:bg-"]),
+html.dark .bg-slate-100:not([class*="dark:bg-"]) {
+  background-color: var(--surface-elevated);
+}
+html.dark .bg-slate-200:not([class*="dark:bg-"]) {
+  background-color: var(--surface-hover);
+}
+html.dark .border-slate-100:not([class*="dark:border-"]),
+html.dark .border-slate-200:not([class*="dark:border-"]),
+html.dark .border-slate-300:not([class*="dark:border-"]),
+html.dark .border-gray-200:not([class*="dark:border-"]),
+html.dark .border-gray-300:not([class*="dark:border-"]) {
+  border-color: var(--border-subtle);
+}
+html.dark .text-slate-900:not([class*="dark:text-"]),
+html.dark .text-slate-800:not([class*="dark:text-"]),
+html.dark .text-gray-900:not([class*="dark:text-"]),
+html.dark .text-gray-800:not([class*="dark:text-"]),
+html.dark .text-black:not([class*="dark:text-"]) {
+  color: var(--text-primary);
+}
+html.dark .text-slate-700:not([class*="dark:text-"]),
+html.dark .text-slate-600:not([class*="dark:text-"]),
+html.dark .text-gray-700:not([class*="dark:text-"]),
+html.dark .text-gray-600:not([class*="dark:text-"]) {
+  color: var(--text-secondary);
+}
+html.dark .text-slate-500:not([class*="dark:text-"]),
+html.dark .text-slate-400:not([class*="dark:text-"]),
+html.dark .text-gray-500:not([class*="dark:text-"]),
+html.dark .text-gray-400:not([class*="dark:text-"]) {
+  color: var(--text-muted);
+}
+html.dark .divide-slate-100:not([class*="dark:divide-"]) > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200:not([class*="dark:divide-"]) > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-subtle);
 }
 
-html.dark [class*="text-slate-7"],
-html.dark [class*="text-slate-6"],
-html.dark [class*="text-gray-7"],
-html.dark [class*="text-gray-6"],
-html.dark [class*="text-zinc-7"],
-html.dark [class*="text-zinc-6"],
-html.dark .text-slate-700,
-html.dark .text-slate-600,
-html.dark .text-gray-700,
-html.dark .text-gray-600 {
-  color: #E2E8F0 !important;
+/* Textos coloridos escuros demais para o fundo escuro ganham tom legível */
+html.dark .text-amber-900:not([class*="dark:text-"]),
+html.dark .text-amber-800:not([class*="dark:text-"]),
+html.dark .text-amber-700:not([class*="dark:text-"]) {
+  color: #cdaa58;
 }
-
-html.dark [class*="text-slate-5"],
-html.dark [class*="text-slate-4"],
-html.dark [class*="text-gray-5"],
-html.dark [class*="text-gray-4"],
-html.dark .text-slate-500,
-html.dark .text-slate-400 {
-  color: #CBD5E1 !important;
+html.dark .text-rose-900:not([class*="dark:text-"]),
+html.dark .text-rose-800:not([class*="dark:text-"]),
+html.dark .text-rose-700:not([class*="dark:text-"]),
+html.dark .text-red-800:not([class*="dark:text-"]),
+html.dark .text-red-700:not([class*="dark:text-"]) {
+  color: #db6d7b;
 }
-
-/* Fundos claros do Tailwind viram superfícies escuras nobres no Dark Mode */
-html.dark [class*="bg-white"]:not([data-keep-color="true"]):not([class*="bg-amber-4"]):not([class*="bg-amber-5"]):not([class*="bg-yellow-"]) {
-  background-color: var(--surface-card) !important;
-  color: #FFFFFF !important;
-}
-
-html.dark [class*="bg-slate-50"]:not([data-keep-color="true"]),
-html.dark [class*="bg-slate-100"]:not([data-keep-color="true"]) {
-  background-color: var(--surface-elevated) !important;
-  color: #FFFFFF !important;
-}
-
-html.dark [class*="border-slate-"],
-html.dark [class*="border-gray-"] {
-  border-color: var(--border-subtle) !important;
-}
-
-html.dark [class*="divide-slate-"] > :not([hidden]) ~ :not([hidden]) {
-  border-color: var(--border-subtle) !important;
-}
-
-/* Formulários e Inputs no Tema Escuro */
-html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
-html.dark textarea {
-  background-color: var(--surface-elevated) !important;
-  color: #FFFFFF !important;
-  border-color: var(--border-highlight) !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #94A3B8 !important;
-}
-
-html.dark input:focus,
-html.dark textarea:focus {
-  border-color: var(--brand-gold) !important;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3) !important;
-  outline: none !important;
+html.dark .text-emerald-900:not([class*="dark:text-"]),
+html.dark .text-emerald-800:not([class*="dark:text-"]),
+html.dark .text-emerald-700:not([class*="dark:text-"]),
+html.dark .text-green-800:not([class*="dark:text-"]),
+html.dark .text-green-700:not([class*="dark:text-"]) {
+  color: #55ae81;
 }
 
 /* ========================================================================= */
-/* REGRA MESTRA: SISTEMA DE DROPDOWNS E SELECTS PREMIUM CONTAJU (DARK MODE)  */
-/* Transforma todos os 112+ selects em componentes executivos nobres         */
+/* CAMPOS DE FORMULÁRIO                                                       */
 /* ========================================================================= */
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="range"]):not([type="file"]):not([type="color"]),
+textarea,
 select {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  cursor: pointer !important;
-  border-radius: 0.625rem !important; /* 10px elegante */
-  padding-right: 2.5rem !important; /* Espaço para o chevron dourado */
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.01em !important;
-  background-repeat: no-repeat !important;
-  background-position: right 0.75rem center !important;
-  background-size: 1.15rem 1.15rem !important;
-  min-height: 36px !important;
+  border-radius: 0.625rem;
+  border-color: var(--border-highlight);
+  background-color: var(--surface-input);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-html.dark select {
-  background-color: #131822 !important;
-  color: #F8FAFC !important;
-  border: 1px solid rgba(212, 175, 55, 0.28) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
 }
 
-html.dark select:hover {
-  border-color: rgba(212, 175, 55, 0.65) !important;
-  background-color: #18202F !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.25) !important;
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="range"]):not([type="file"]):not([type="color"]):hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus),
+select:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-strong);
 }
 
-html.dark select:focus {
-  border-color: #D4AF37 !important;
-  background-color: #18202F !important;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.28), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
-  outline: none !important;
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+textarea:focus,
+select:focus {
+  border-color: var(--brand-gold-fill);
+  box-shadow: 0 0 0 3px var(--ring-focus);
+  outline: none;
 }
 
-html.dark select option {
-  background-color: #121620 !important;
-  color: #FFFFFF !important;
-  padding: 10px 14px !important;
-}
-
-html.dark select optgroup {
-  background-color: #0B0E14 !important;
-  color: #D4AF37 !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  font-size: 0.72rem !important;
-  letter-spacing: 0.05em !important;
-}
-
-/* Modais no Tema Escuro */
-html.dark .fixed [class*="bg-white"] {
-  background-color: var(--surface-card) !important;
-  color: #FFFFFF !important;
-  border-color: var(--border-subtle) !important;
-}
-
-/* ========================================================================= */
-/* REGRA MESTRA 3: CONTRASTE ABSOLUTO (FUNDO CLARO => LETRA ESCURA)         */
-/* ========================================================================= */
-
-html.light body,
-html.light #root,
-html.light main {
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
-}
-
-html.light .bg-white,
-html.light [class*="bg-white"] {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-}
-
-html.light .bg-slate-50,
-html.light [class*="bg-slate-50"] {
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
-}
-
-html.light .bg-slate-100,
-html.light [class*="bg-slate-100"] {
-  background-color: #F1F5F9 !important;
-  color: #0F172A !important;
-}
-
-/* Elementos escuros legítimos no modo claro (apenas quando o fundo é realmente escuro no modo claro, sem dark:bg-) */
-html.light .bg-slate-900:not([class*="dark:bg-"]),
-html.light .bg-slate-950:not([class*="dark:bg-"]),
-html.light .bg-black:not([class*="dark:bg-"]) {
-  color: #FFFFFF !important;
-}
-
-html.light .bg-slate-900:not([class*="dark:bg-"]) > *,
-html.light .bg-slate-950:not([class*="dark:bg-"]) > *,
-html.light .bg-black:not([class*="dark:bg-"]) > * {
-  color: #FFFFFF !important;
-}
-
-/* ========================================================================= */
-/* REGRA UNIVERSAL DE CONTRASTE: CABEÇALHOS DE TABELAS (THEAD / TH)           */
-/* Modo Claro: Fundo cinza visível (#E2E8F0) + Letra GRAFITE ESCURO (#0F172A)*/
-/* Modo Escuro: Fundo grafite nobre (#121620) + Letra BRANCA/CLARA (#F8FAFC) */
-/* ========================================================================= */
-html.light table thead,
-html.light table th {
-  background-color: #E2E8F0 !important;
-  color: #0F172A !important;
-  border-color: #CBD5E1 !important;
-}
-
-html.light table thead th,
-html.light table thead th span,
-html.light table thead th div,
-html.light table thead th button {
-  color: #0F172A !important;
-}
-
-html.dark table thead,
-html.dark table th {
-  background-color: #121620 !important;
-  color: #F8FAFC !important;
-  border-color: #273040 !important;
-}
-
-html.dark table thead th,
-html.dark table thead th span,
-html.dark table thead th div,
-html.dark table thead th button {
-  color: #F8FAFC !important;
-}
-
-/* Inputs no Tema Claro */
-html.light input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
-html.light textarea {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border-color: #CBD5E1 !important;
-}
-
-html.light input::placeholder,
-html.light textarea::placeholder {
-  color: #64748B !important;
-}
-
-html.light input:focus,
-html.light textarea:focus {
-  border-color: #996515 !important;
-  box-shadow: 0 0 0 2px rgba(153, 101, 21, 0.25) !important;
-  outline: none !important;
-}
-
-/* ========================================================================= */
-/* REGRA MESTRA: SISTEMA DE DROPDOWNS E SELECTS PREMIUM CONTAJU (LIGHT MODE) */
-/* ========================================================================= */
-html.light select {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border: 1px solid #CBD5E1 !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23996515' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
-}
-
-html.light select:hover {
-  border-color: #996515 !important;
-  background-color: #F8FAFC !important;
-  box-shadow: 0 3px 8px rgba(153, 101, 21, 0.12) !important;
-}
-
-html.light select:focus {
-  border-color: #996515 !important;
-  background-color: #FFFFFF !important;
-  box-shadow: 0 0 0 3px rgba(153, 101, 21, 0.22), 0 3px 10px rgba(0, 0, 0, 0.08) !important;
-  outline: none !important;
-}
-
-html.light select option {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  padding: 10px 14px !important;
-}
-
-html.light select optgroup {
-  background-color: #F1F5F9 !important;
-  color: #996515 !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  font-size: 0.72rem !important;
-  letter-spacing: 0.05em !important;
-}
-
-/* Estado Desabilitado Universal para Selects */
+input:disabled,
+textarea:disabled,
 select:disabled {
-  opacity: 0.55 !important;
-  cursor: not-allowed !important;
-  filter: grayscale(35%) !important;
-  box-shadow: none !important;
+  opacity: 0.55;
+  cursor: not-allowed;
+  background-color: var(--surface-elevated);
 }
 
-/* Classes Utilitárias Extras para Dropdowns Nobres */
-.select-premium,
-.dropdown-premium {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  cursor: pointer !important;
-  border-radius: 0.75rem !important;
-  padding-right: 2.75rem !important;
-  font-weight: 600 !important;
-  background-repeat: no-repeat !important;
-  background-position: right 0.85rem center !important;
-  background-size: 1.15rem 1.15rem !important;
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--brand-gold-fill);
 }
 
-/* ========================================================================= */
-/* REGRA MESTRA 4: BOTÕES SÓLIDOS DOURADOS (FUNDO AMBER => LETRA ESCURA NO BOTÃO) */
-/* ========================================================================= */
-button[class*="bg-amber-500"]:not([class*="/"]),
-button[class*="bg-amber-400"]:not([class*="/"]),
-button[class*="bg-yellow-500"]:not([class*="/"]),
-button[class*="bg-yellow-400"]:not([class*="/"]),
-.btn-gold {
-  color: #0B0E14 !important;
-  font-weight: 800 !important;
+/* Seletor nativo (usado só onde o seletor premium ainda não entrou) */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 2.25rem;
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem 1rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2385858f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
-
-button[class*="bg-amber-500"]:not([class*="/"]) *,
-button[class*="bg-amber-400"]:not([class*="/"]) * {
-  color: #0B0E14 !important;
+select option {
+  background-color: var(--surface-card);
+  color: var(--text-primary);
 }
 
 /* ========================================================================= */
-/* REGRA MESTRA 5: EXCLUSIVIDADE FINANCEIRA E BLINDAGEM CONTRA FUNDOS MARRONS */
+/* TABELAS                                                                    */
 /* ========================================================================= */
-
-/* Neutralização Absoluta de Fundos Marrons Escuros no Dark Mode */
-html.dark [class*="bg-amber-950"],
-html.dark [class*="bg-yellow-950"] {
-  background-color: #151D2A !important;
-  color: #F8FAFC !important;
-  border-color: rgba(212, 175, 55, 0.4) !important;
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+table thead,
+table thead tr,
+table th {
+  background-color: var(--surface-base);
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  border-color: var(--border-subtle);
+}
+table thead th span,
+table thead th div,
+table thead th button {
+  color: inherit;
+}
+table tbody tr {
+  transition: background-color 0.12s ease;
+}
+table tbody tr:hover > td {
+  background-color: var(--surface-hover);
 }
 
-html.dark [class*="bg-rose-950"],
-html.dark [class*="bg-red-950"] {
-  background-color: #151D2A !important;
-  color: #F8FAFC !important;
-  border-color: rgba(239, 68, 68, 0.4) !important;
+/* ========================================================================= */
+/* MODAIS PREMIUM                                                             */
+/* ========================================================================= */
+.fixed.inset-0[class*="backdrop-blur"] {
+  background-color: var(--overlay);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: overlayIn 0.18s ease-out backwards;
 }
 
-/* Blindagem: NUNCA permitir letras escuras (marrom, cinza ou vermelho escuro) no Dark Mode */
-html.dark [class*="text-amber-9"],
-html.dark [class*="text-amber-8"],
-html.dark [class*="text-amber-7"],
-html.dark [class*="text-yellow-9"],
-html.dark [class*="text-yellow-8"],
-html.dark [class*="text-yellow-7"] {
-  color: #FBBF24 !important; /* Dourado / Âmbar claríssimo reluzente */
+.fixed.inset-0[class*="backdrop-blur"] > div {
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  box-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  animation: modalIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
-html.dark [class*="text-rose-9"],
-html.dark [class*="text-rose-8"],
-html.dark [class*="text-rose-7"],
-html.dark [class*="text-red-9"],
-html.dark [class*="text-red-8"],
-html.dark [class*="text-red-7"] {
-  color: #F87171 !important; /* Vermelho claro nítido */
+/* Cabeçalho do modal: limpo, sem faixa colorida */
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] {
+  background-color: transparent;
+  border-color: var(--border-subtle);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+.fixed.inset-0[class*="backdrop-blur"] > div > div:last-child[class*="border-t"] {
+  background-color: var(--surface-base);
+  border-color: var(--border-subtle);
 }
 
-html.dark [class*="text-emerald-9"],
-html.dark [class*="text-emerald-8"],
-html.dark [class*="text-emerald-7"],
-html.dark [class*="text-green-9"],
-html.dark [class*="text-green-8"] {
-  color: #34D399 !important; /* Verde claro nítido */
+@media (max-width: 639px) {
+  .fixed.inset-0[class*="backdrop-blur"] > div {
+    border-radius: 1.25rem 1.25rem 0 0;
+    animation-name: sheetIn;
+  }
 }
 
-/* Contas a Receber, Receitas, Entradas (Verde de Alto Contraste) */
-html.dark [class*="text-emerald-4"],
-html.dark [class*="text-emerald-5"],
-html.dark [class*="text-green-4"],
-html.dark [class*="text-green-5"] {
-  color: #34D399 !important;
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes sheetIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-html.light [class*="text-emerald-"],
-html.light [class*="text-green-"] {
-  color: #047857 !important;
-}
-
-/* Contas a Pagar, Despesas, Saídas, Vencidos (Vermelho de Alto Contraste) */
-html.dark [class*="text-rose-4"],
-html.dark [class*="text-rose-5"],
-html.dark [class*="text-red-4"],
-html.dark [class*="text-red-5"] {
-  color: #F87171 !important;
-}
-
-html.light [class*="text-rose-"],
-html.light [class*="text-red-"] {
-  color: #B91C1C !important;
-}
-
-/* Ajustes de Responsividade Mobile */
+/* ========================================================================= */
+/* AJUSTES MOBILE                                                             */
+/* ========================================================================= */
 @media (max-width: 768px) {
-  button, 
-  [role="button"], 
-  input[type="button"], 
+  button,
+  [role="button"],
+  input[type="button"],
   input[type="submit"] {
     min-height: 40px;
   }
@@ -590,12 +648,18 @@ html.light [class*="text-red-"] {
   input[type="number"],
   input[type="date"],
   input[type="email"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="password"],
   select,
   textarea {
-    font-size: 16px !important;
+    font-size: 16px;
   }
 }
 
+/* ========================================================================= */
+/* IMPRESSÃO                                                                  */
+/* ========================================================================= */
 @media print {
   @page {
     size: landscape;
@@ -654,4 +718,125 @@ html.light [class*="text-red-"] {
   to {
     width: 0%;
   }
+}
+
+/* ========================================================================= */
+/* SELETOR PREMIUM (botão que substitui o <select> nativo)                    */
+/* ========================================================================= */
+.premium-select-trigger {
+  display: block;
+  min-height: 2.25rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-highlight);
+  border-radius: 0.625rem;
+  background-color: var(--surface-input);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.premium-select-trigger:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+.premium-select-trigger:focus-visible,
+.premium-select-trigger[aria-expanded="true"] {
+  border-color: var(--brand-gold-fill);
+  box-shadow: 0 0 0 3px var(--ring-focus);
+  outline: none;
+}
+.premium-select-trigger:disabled {
+  opacity: 0.55;
+  background-color: var(--surface-elevated);
+}
+
+/* ========================================================================= */
+/* ACABAMENTO GLOBAL DAS TELAS: cartões planos, respiro e títulos legíveis    */
+/* ========================================================================= */
+.shadow-2xs,
+.shadow-xs,
+.shadow-sm {
+  box-shadow: none;
+}
+
+/* Títulos de seção dentro das telas: nada de caixa-alta miúda */
+main h3 {
+  font-size: 0.9375rem;
+  line-height: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+main h2 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Cartões: mais ar por dentro */
+main [class*="rounded-xl"][class*="border"].p-3,
+main [class*="rounded-xl"][class*="border"].p-4,
+main [class*="rounded-2xl"][class*="border"].p-4 {
+  padding: 1.25rem;
+}
+main [class*="rounded-xl"][class*="border"].p-5,
+main [class*="rounded-2xl"][class*="border"].p-5 {
+  padding: 1.5rem;
+}
+
+/* Mais ar entre blocos empilhados */
+main .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.25rem;
+}
+main .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.75rem;
+}
+main .gap-4 {
+  gap: 1.25rem;
+}
+
+/* Ícones dentro de "selos" coloridos decorativos ficam neutros */
+:is(
+  [class*="bg-amber-500/"],
+  [class*="bg-amber-100"],
+  [class*="bg-amber-50"],
+  [class*="bg-emerald-500/"],
+  [class*="bg-emerald-100"],
+  [class*="bg-emerald-50"],
+  [class*="bg-blue-500/"],
+  [class*="bg-purple-500/"],
+  [class*="bg-indigo-500/"],
+  [class*="bg-sky-500/"],
+  [class*="bg-teal-500/"]
+) > svg:only-child {
+  color: var(--text-secondary);
+}
+
+/* Cabeçalhos de tabela e linhas com respiro */
+table th,
+table td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Texto dourado decorativo vira neutro; o dourado fica nos botões e no item ativo */
+main [class*="text-amber-"]:not([class*="bg-"]) {
+  color: var(--text-secondary);
+}
+
+/* ========================================================================= */
+/* CARTÃO-TÍTULO REPETIDO: o nome da tela já aparece no topo, então o cartão    */
+/* vira só "descrição + ações", sem moldura e sem título duplicado.             */
+/* ========================================================================= */
+main > div > div > :first-child:has(h1) {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+main > div > div > :first-child:has(h1) div:has(> h1),
+main > div > div > :first-child:has(h1) :is(div, span):has(+ div h1) {
+  display: none;
+}
+main > div > div > :first-child:has(h1) p {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+  color: var(--text-secondary);
 }

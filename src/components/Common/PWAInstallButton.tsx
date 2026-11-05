@@ -78,12 +78,11 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
         <button
           type="button"
           onClick={handleInstallClick}
-          className={`h-9 inline-flex items-center gap-1.5 px-2.5 sm:px-3 text-xs font-bold rounded-lg text-amber-950 dark:text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 transition-all cursor-pointer shadow-xs shrink-0 ${className}`}
-          title="Instalar o Contaju como aplicativo nativo no Computador (Windows / Mac / Linux)"
+          className={`h-10 inline-flex items-center gap-2 px-3 text-sm rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer shrink-0 ${className}`}
+          title="Instalar o ContaJu como aplicativo (Windows, Mac ou Linux)"
         >
-          <MonitorDown className="w-4 h-4 text-amber-500 animate-bounce" />
-          <span className="hidden sm:inline">Instalar no Computador</span>
-          <span className="sm:hidden">Instalar</span>
+          <MonitorDown className="w-[18px] h-[18px]" strokeWidth={1.75} />
+          <span className="hidden 2xl:inline">Instalar app</span>
         </button>
 
         {/* Modal de Instrução do Safari no Mac */}

@@ -40,6 +40,7 @@ import { BudgetRowSimulationModal } from './BudgetRowSimulationModal';
 import { BudgetApprovalModal } from './BudgetApprovalModal';
 import { BudgetVersionDetailsModal } from './BudgetVersionDetailsModal';
 import { BudgetDreCashProjectionTab } from './BudgetDreCashProjectionTab';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -733,7 +734,7 @@ export const BudgetPlanningView: React.FC = () => {
     <div className="space-y-6 pb-12 w-full text-[var(--text-primary)]">
       {/* Toast Notification */}
       {saveSuccessMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-amber-500 text-[#0f172a] px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 border border-amber-400 font-semibold animate-in fade-in slide-in-from-top-2">
+        <div className="fixed top-4 right-4 z-50 bg-amber-500 text-[#18181b] px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 border border-amber-400 font-semibold animate-in fade-in slide-in-from-top-2">
           <CheckCircle2 className="w-5 h-5" />
           <span>{saveSuccessMessage}</span>
         </div>
@@ -755,7 +756,7 @@ export const BudgetPlanningView: React.FC = () => {
                   Exercício {selectedYear}
                 </span>
                 {changesList.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-[#0f172a] animate-pulse">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-[#18181b] animate-pulse">
                     {changesList.length} {changesList.length === 1 ? 'alteração pendente' : 'alterações pendentes'}
                   </span>
                 )}
@@ -776,7 +777,7 @@ export const BudgetPlanningView: React.FC = () => {
                 onClick={() => handleYearChange(yr)}
                 className={`px-3 py-1 rounded-lg transition-all ${
                   selectedYear === yr
-                    ? 'bg-amber-500 text-[#0f172a] font-bold shadow-xs'
+                    ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]'
                 }`}
               >
@@ -798,7 +799,7 @@ export const BudgetPlanningView: React.FC = () => {
           {changesList.length > 0 && (
             <button
               onClick={() => setIsApprovalModalOpen(true)}
-              className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-[#0f172a] rounded-xl text-xs font-bold flex items-center transition-all shadow-md shadow-amber-500/20"
+              className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-[#18181b] rounded-xl text-xs font-bold flex items-center transition-all shadow-md shadow-amber-500/20"
             >
               <Award className="w-4 h-4 mr-1.5" />
               Aprovar Novas Metas ({changesList.length})
@@ -820,7 +821,7 @@ export const BudgetPlanningView: React.FC = () => {
           <SlidersHorizontal className="w-4 h-4" />
           <span>Elaboração & Simulação de Metas</span>
           {changesList.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-[#0f172a]">
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-[#18181b]">
               {changesList.length}
             </span>
           )}
@@ -1083,7 +1084,7 @@ export const BudgetPlanningView: React.FC = () => {
                 </button>
 
                 {/* Seletor rápido de linha para simulação personalizada */}
-                <select
+                <PremiumSelect
                   onChange={e => {
                     const acc = accounts.find(a => a.id === e.target.value);
                     if (acc) {
@@ -1111,7 +1112,7 @@ export const BudgetPlanningView: React.FC = () => {
                       <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
                     ))}
                   </optgroup>
-                </select>
+                </PremiumSelect>
 
                 {changesList.length > 0 && (
                   <button
@@ -1170,7 +1171,7 @@ export const BudgetPlanningView: React.FC = () => {
 
                 <button
                   onClick={() => setIsApprovalModalOpen(true)}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-[#0f172a] rounded-xl text-xs font-bold transition-all shadow-md flex items-center"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-[#18181b] rounded-xl text-xs font-bold transition-all shadow-md flex items-center"
                 >
                   <Award className="w-4 h-4 mr-1.5" />
                   Aprovar e Tornar Meta Oficial
@@ -1960,7 +1961,7 @@ export const BudgetPlanningView: React.FC = () => {
                   onClick={() => setAnnualMetricMode(m.id as AnnualMetricMode)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                     annualMetricMode === m.id
-                      ? 'bg-amber-500 text-[#0f172a] shadow-xs'
+                      ? 'bg-amber-500 text-[#18181b] shadow-xs'
                       : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
                   }`}
                 >
@@ -2337,7 +2338,7 @@ export const BudgetPlanningView: React.FC = () => {
                 onClick={() => setSelectedMonth('ALL')}
                 className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
                   selectedMonth === 'ALL'
-                    ? 'bg-amber-500 text-[#0f172a] shadow-xs'
+                    ? 'bg-amber-500 text-[#18181b] shadow-xs'
                     : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
                 }`}
               >
@@ -2349,7 +2350,7 @@ export const BudgetPlanningView: React.FC = () => {
                   onClick={() => setSelectedMonth(idx)}
                   className={`px-2.5 py-1 rounded-xl text-xs font-medium transition-all ${
                     selectedMonth === idx
-                      ? 'bg-amber-500 text-[#0f172a] font-bold shadow-xs'
+                      ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
                       : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
                   }`}
                 >
@@ -2371,7 +2372,7 @@ export const BudgetPlanningView: React.FC = () => {
                 />
               </div>
 
-              <select
+              <PremiumSelect
                 value={natureFilter}
                 onChange={e => setNatureFilter(e.target.value as any)}
                 aria-label="Filtrar contas por natureza"
@@ -2380,7 +2381,7 @@ export const BudgetPlanningView: React.FC = () => {
                 <option value="ALL">Todas as Contas</option>
                 <option value="RECEITAS">Apenas Receitas</option>
                 <option value="DESPESAS">Custos e Despesas</option>
-              </select>
+              </PremiumSelect>
 
               <button
                 onClick={expandAll}
@@ -2543,7 +2544,7 @@ export const BudgetPlanningView: React.FC = () => {
               </p>
               <button
                 onClick={() => setActiveTab('PLANNING')}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-[#0f172a] rounded-xl text-xs font-bold transition-all"
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-[#18181b] rounded-xl text-xs font-bold transition-all"
               >
                 Ir para Simulação de Metas
               </button>

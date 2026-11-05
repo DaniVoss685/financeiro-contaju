@@ -23,6 +23,7 @@ import {
   calculateBalanceFeeDueDate 
 } from '../../services/financialEngine';
 import { Contract, Counterparty, FinancialTitle } from '../../types';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface BalanceFeeBatchBillingModalProps {
   isOpen: boolean;
@@ -203,10 +204,10 @@ export const BalanceFeeBatchBillingModal: React.FC<BalanceFeeBatchBillingModalPr
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white dark:bg-[#1B212D] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95">
+      <div className="bg-white dark:bg-[#1b1b20] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95">
         
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#151923] shrink-0">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#131316] shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-600 dark:text-purple-400">
               <Scale className="w-5 h-5" />
@@ -281,7 +282,7 @@ export const BalanceFeeBatchBillingModal: React.FC<BalanceFeeBatchBillingModalPr
                   <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                   <span>Ano de Referência do Exercício:</span>
                 </label>
-                <select
+                <PremiumSelect
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                   disabled={isGenerating}
@@ -290,7 +291,7 @@ export const BalanceFeeBatchBillingModal: React.FC<BalanceFeeBatchBillingModalPr
                   <option value={currentYear - 1}>{currentYear - 1}</option>
                   <option value={currentYear}>{currentYear} (Exercício Atual)</option>
                   <option value={currentYear + 1}>{currentYear + 1} (Próximo Exercício)</option>
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>
@@ -579,7 +580,7 @@ export const BalanceFeeBatchBillingModal: React.FC<BalanceFeeBatchBillingModalPr
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#151923] flex items-center justify-between shrink-0">
+        <div className="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#131316] flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={onClose}

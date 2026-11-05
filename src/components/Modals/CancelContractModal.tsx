@@ -16,6 +16,8 @@ import {
 import { Contract, Counterparty } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface CancelContractModalProps {
   contract: Contract | null;
@@ -117,11 +119,11 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
       }}
     >
       <div 
-        className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[92vh] border border-slate-200 dark:border-[#273040] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-[#131316] rounded-2xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[92vh] border border-slate-200 dark:border-[#26262b] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-rose-50/50 dark:bg-rose-950/20 shrink-0">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-rose-50/50 dark:bg-rose-950/20 shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
               <Ban className="w-5 h-5" />
@@ -146,7 +148,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
         </div>
 
         {/* Resumo do Contrato */}
-        <div className="p-4 bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="p-4 bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               <span className="font-mono font-bold text-slate-900 dark:text-white">{contract.contractNumber}</span>
@@ -180,7 +182,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                   className={`p-3 rounded-xl border flex flex-col gap-1 cursor-pointer transition-all ${
                     actionType === 'CANCELADO'
                       ? 'border-rose-500 bg-rose-500/10 shadow-xs'
-                      : 'border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D]/50 hover:border-rose-300'
+                      : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20]/50 hover:border-rose-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -205,7 +207,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                   className={`p-3 rounded-xl border flex flex-col gap-1 cursor-pointer transition-all ${
                     actionType === 'INATIVO'
                       ? 'border-amber-500 bg-amber-500/10 shadow-xs'
-                      : 'border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D]/50 hover:border-amber-300'
+                      : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20]/50 hover:border-amber-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -230,7 +232,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                   className={`p-3 rounded-xl border flex flex-col gap-1 cursor-pointer transition-all ${
                     actionType === 'SUSPENSO'
                       ? 'border-amber-500 bg-amber-500/10 shadow-xs'
-                      : 'border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D]/50 hover:border-amber-400'
+                      : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20]/50 hover:border-amber-400'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -254,7 +256,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
             </div>
 
             {/* Data em que parou de trabalhar */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1B212D]/60 border border-slate-200 dark:border-[#273040] space-y-3">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
               <div>
                 <label className="block font-bold text-slate-800 dark:text-slate-200 mb-1">
                   📅 A partir de qual data o cliente parou de trabalhar com a gente? *
@@ -262,12 +264,11 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2">
                   Esta data marca oficialmente o fim da prestação de serviços para este contrato.
                 </p>
-                <input
-                  type="date"
+                <DateField
                   required
                   value={cancellationDate}
                   onChange={(e) => setCancellationDate(e.target.value)}
-                  className="w-full sm:w-64 rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
+                  className="w-full sm:w-64 rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                 />
               </div>
 
@@ -276,10 +277,10 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                 <label className="block font-bold text-slate-800 dark:text-slate-200 mb-1">
                   Motivo do Cancelamento / Inativação *
                 </label>
-                <select
+                <PremiumSelect
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
+                  className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                 >
                   <option value="Rescisão solicitada pelo cliente">Rescisão solicitada pelo cliente</option>
                   <option value="Encerramento de atividades / Baixa do CNPJ">Encerramento de atividades / Baixa do CNPJ</option>
@@ -289,7 +290,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                   <option value="Insatisfação com o serviço / atendimento">Insatisfação com o serviço / atendimento</option>
                   <option value="Término do período contratado">Término do período contratado</option>
                   <option value="Outro motivo">Outro motivo (especificar abaixo)</option>
-                </select>
+                </PremiumSelect>
 
                 {reason === 'Outro motivo' && (
                   <input
@@ -298,7 +299,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                     placeholder="Especifique o motivo do cancelamento..."
                     value={customReason}
                     onChange={(e) => setCustomReason(e.target.value)}
-                    className="mt-2 w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
+                    className="mt-2 w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                   />
                 )}
               </div>
@@ -313,7 +314,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
                   placeholder="Ex: Acordo amigável de transição, entrega de documentação contábil para o novo contador, etc."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
+                  className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500"
                 />
               </div>
             </div>
@@ -325,7 +326,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
               </span>
 
               {/* Opção 1: Marcar Cliente como Inativo */}
-              <label className="p-3.5 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D]/40 flex items-start gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1B212D]">
+              <label className="p-3.5 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20]/40 flex items-start gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1b1b20]">
                 <input
                   type="checkbox"
                   checked={inactivateClient}
@@ -349,7 +350,7 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
               </label>
 
               {/* Opção 2: Cancelar Títulos Futuros em Aberto */}
-              <label className="p-3.5 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D]/40 flex items-start gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1B212D]">
+              <label className="p-3.5 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20]/40 flex items-start gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1b1b20]">
                 <input
                   type="checkbox"
                   checked={cancelPendingTitles}
@@ -386,12 +387,12 @@ export const CancelContractModal: React.FC<CancelContractModalProps> = ({
           </div>
 
           {/* Footer de Ação */}
-          <div className="px-6 py-4 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+          <div className="px-6 py-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 shrink-0">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl border border-slate-300 dark:border-[#273040] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-semibold transition-colors text-xs"
+              className="px-4 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-semibold transition-colors text-xs"
             >
               Voltar / Manter Ativo
             </button>

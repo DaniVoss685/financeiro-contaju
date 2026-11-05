@@ -56,9 +56,9 @@ import { FloatingCalculator } from './components/Common/FloatingCalculator';
 import { LoginView } from './components/Auth/LoginView';
 
 const ScreenLoadingFallback: React.FC = () => (
-  <div className="flex-1 flex flex-col items-center justify-center p-12 min-h-[350px] animate-pulse">
-    <div className="w-9 h-9 border-3 border-amber-500/25 border-t-amber-500 rounded-full animate-spin mb-3" />
-    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Carregando painel...</span>
+  <div className="flex-1 flex flex-col items-center justify-center p-12 min-h-[350px]">
+    <div className="w-8 h-8 border-2 border-[var(--border-highlight)] border-t-[var(--brand-gold-fill)] rounded-full animate-spin mb-4" />
+    <span className="text-sm text-[var(--text-muted)]">Carregando...</span>
   </div>
 );
 
@@ -366,16 +366,15 @@ function AppContent() {
       
       {/* Floating Focus Mode Banner */}
       {isFocusMode && (
-        <div className="fixed top-3 right-4 z-50 flex items-center gap-2.5 bg-slate-950/90 backdrop-blur-md border border-amber-500/50 shadow-2xl px-3.5 py-1.5 rounded-full animate-in fade-in slide-in-from-top-2 duration-200">
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-xs font-semibold text-amber-300">Modo Foco Ativo</span>
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-[var(--surface-card)]/95 backdrop-blur-md border border-[var(--border-subtle)] shadow-lg pl-4 pr-1.5 py-1.5 rounded-full">
+          <span className="text-sm text-[var(--text-secondary)]">Modo foco</span>
           <button
             onClick={() => setIsFocusMode(false)}
-            className="ml-1 px-2.5 py-1 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            title="Pressione ESC para sair do Modo Foco"
+            className="px-3 h-8 rounded-full bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] text-sm flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Pressione Esc para sair do modo foco"
           >
             <Minimize2 className="w-3.5 h-3.5" />
-            Sair (Esc)
+            Sair
           </button>
         </div>
       )}
@@ -401,7 +400,7 @@ function AppContent() {
       <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0 max-w-full relative">
         {/* Indicador de Transição Suave entre Telas (não-intrusivo) */}
         {isPendingScreen && (
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 animate-pulse z-50 shadow-xs" />
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-[var(--brand-gold-fill)] animate-pulse z-50" />
         )}
         
         {/* Global Header Responsivo (hidden in Focus Mode) */}
@@ -427,9 +426,9 @@ function AppContent() {
 
         {/* Main Dynamic View Scroll Area - Full Screen Width Responsivo */}
         <main className={`flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg-app)] text-[var(--text-primary)] w-full max-w-full min-w-0 ${
-          isFocusMode ? 'p-2 sm:p-4' : 'p-2 sm:p-3 md:p-4 lg:p-5 pb-20 lg:pb-5'
+          isFocusMode ? 'p-3 sm:p-6' : 'px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 pb-24 lg:pb-10'
         }`}>
-          <div className="w-full max-w-full min-w-0 space-y-4">
+          <div className="w-full max-w-[1600px] mx-auto min-w-0 space-y-6">
             <AppErrorBoundary fallbackTitle="Falha na exibição desta tela">
               <Suspense fallback={<ScreenLoadingFallback />}>
                 {renderActiveScreen()}

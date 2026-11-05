@@ -59,6 +59,8 @@ import { CompleteCounterpartyModal } from '../Modals/CompleteCounterpartyModal';
 import { ContractAdjustmentNotificationModal } from '../Modals/ContractAdjustmentNotificationModal';
 import { BalanceFeeBatchBillingModal } from '../Modals/BalanceFeeBatchBillingModal';
 import { matchesSearch } from '../../utils/searchUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface ContractsViewProps {
   onOpenBillingModal: () => void;
@@ -791,7 +793,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131720] p-5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131316] p-5 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
         <div>
           <div className="flex items-center space-x-2">
             <FileText className="w-5 h-5 text-amber-500" />
@@ -848,7 +850,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       {/* KPI Cards com Separação Estrita de Renda Ativa e Cancelados (Adaptativo: 1 col celular, 2 col tablet/notebook, 4 col Mac/Desktop) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Card 1: MRR Ativo */}
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs relative overflow-hidden">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">MRR da Carteira Ativa</span>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
@@ -864,7 +866,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
         </div>
 
         {/* Card 2: Contratos Ativos */}
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Contratos Ativos</span>
             <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -878,7 +880,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
         </div>
 
         {/* Card 3: Cancelados e Inativos */}
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Cancelados & Inativos</span>
             <Ban className="w-4 h-4 text-rose-500" />
@@ -892,7 +894,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
         </div>
 
         {/* Card 4: Ticket Médio Ativo */}
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Ticket Médio Ativo</span>
             <DollarSign className="w-4 h-4 text-amber-500" />
@@ -907,13 +909,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       </div>
 
       {/* Abas de Filtragem por Status da Carteira */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-[#273040]">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-[#26262b]">
         <button
           onClick={() => setStatusTab('ALL')}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
             statusTab === 'ALL'
               ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1B212D]'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1b1b20]'
           }`}
         >
           <span>Todos</span>
@@ -996,7 +998,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       </div>
 
       {/* Filter and Search with Channel Selector */}
-      <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
@@ -1004,7 +1006,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             placeholder="Buscar por cliente, número, motivo de cancelamento..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            className="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
           />
         </div>
 
@@ -1013,10 +1015,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             <Compass className="w-3.5 h-3.5 text-amber-500" />
             Canal de Aquisição:
           </span>
-          <select
+          <PremiumSelect
             value={channelFilter}
             onChange={(e) => setChannelFilter(e.target.value)}
-            className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-800 dark:text-slate-200 font-medium focus:ring-2 focus:ring-amber-500/40"
+            className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 font-medium focus:ring-2 focus:ring-amber-500/40"
           >
             <option value="ALL">Todos os Canais</option>
             <option value="INDICACAO">🤝 Indicação</option>
@@ -1025,15 +1027,15 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             <option value="PROSPECCAO_ATIVA">🎯 Prospecção Ativa</option>
             <option value="EVENTO">🎤 Evento</option>
             <option value="OUTRO">Outros</option>
-          </select>
+          </PremiumSelect>
         </div>
       </div>
 
       {/* Contracts Table */}
-      <div className="bg-white dark:bg-[#131720] rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
+            <thead className="bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4">Contrato / Tipo</th>
                 <th className="py-3 px-4">Cliente / Contratante</th>
@@ -1045,7 +1047,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 <th className="py-3 px-4 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
               {filteredContracts.map(c => {
                 const client = counterparties.find(cp => cp.id === c.customerId);
                 const isRecurring = c.isRecurring !== false && c.contractType !== 'AVULSO';
@@ -1054,7 +1056,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 const openTitlesCount = scheduledTitles.filter(t => t.settlementState !== 'LIQUIDADO').length;
 
                 return (
-                  <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-[#1B212D]/50 transition-colors">
+                  <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-[#1b1b20]/50 transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900 dark:text-slate-100 font-mono">{c.contractNumber}</span>
@@ -1141,7 +1143,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           </span>
                         )}
                         {(!c.acquisitionChannel || c.acquisitionChannel === 'OUTRO') && (
-                          <span className="inline-flex items-center text-[10px] text-slate-500 bg-slate-100 dark:bg-[#1B212D] px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center text-[10px] text-slate-500 bg-slate-100 dark:bg-[#1b1b20] px-2 py-0.5 rounded">
                             Origem direta
                           </span>
                         )}
@@ -1301,7 +1303,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                   setSelectedContractForSchedule(c);
                                   setIsScheduleModalOpen(true);
                                 }}
-                                className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1B212D] rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1b1b20] rounded-lg transition-colors cursor-pointer"
                                 title="Ver Cronograma / Gerar Próximos Meses"
                               >
                                 <CalendarClock className="w-4 h-4" />
@@ -1323,7 +1325,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         <button
                           type="button"
                           onClick={() => handleOpenAuditLog(c)}
-                          className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1B212D] rounded-lg transition-colors cursor-pointer relative"
+                          className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1b1b20] rounded-lg transition-colors cursor-pointer relative"
                           title="Aba / Log de Auditoria de Mudança de Status (Ativo/Inativo/Cancelado)"
                         >
                           <History className="w-4 h-4 text-amber-500" />
@@ -1337,7 +1339,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         <button
                           type="button"
                           onClick={() => handleEdit(c)}
-                          className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1B212D] rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1b1b20] rounded-lg transition-colors cursor-pointer"
                           title="Editar Contrato"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -1373,12 +1375,12 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
           }}
         >
           <div 
-            className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl max-w-3xl w-full flex flex-col max-h-[92vh] border border-slate-200 dark:border-[#273040] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="bg-white dark:bg-[#131316] rounded-2xl shadow-2xl max-w-3xl w-full flex flex-col max-h-[92vh] border border-slate-200 dark:border-[#26262b] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             
             {/* Header Fixo e Sempre Visível com Botão X Acessível */}
-            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] shrink-0 sticky top-0 z-20">
+            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] shrink-0 sticky top-0 z-20">
               <div className="flex items-center space-x-3">
                 <div className="w-9 h-9 rounded-xl bg-black border border-amber-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.25)] shrink-0">
                   <FileText className="w-5 h-5 text-amber-400" />
@@ -1403,7 +1405,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             </div>
 
             {/* Abas do Cadastro de Contrato: 1. Dados do Contrato | 2. Cronograma & Faturas Geradas | 3. Log de Auditoria */}
-            <div className="px-6 pt-2 pb-0 bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] flex items-center gap-2 shrink-0 overflow-x-auto scrollbar-none">
+            <div className="px-6 pt-2 pb-0 bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] flex items-center gap-2 shrink-0 overflow-x-auto scrollbar-none">
               <button
                 type="button"
                 onClick={() => setContractModalTab('FORM')}
@@ -1462,8 +1464,8 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               {contractModalTab === 'AUDIT_LOG' ? (
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-xs">
                   {/* Card do Status Atual do Contrato */}
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1B212D]/60 border border-slate-200 dark:border-[#273040] space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-[#273040]">
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-[#26262b]">
                       <div>
                         <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">
                           Status Atual no Sistema
@@ -1574,10 +1576,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                     </div>
 
                     {(editingContract?.statusHistory && editingContract.statusHistory.length > 0) ? (
-                      <div className="rounded-xl border border-slate-200 dark:border-[#273040] overflow-hidden bg-white dark:bg-[#131720]">
+                      <div className="rounded-xl border border-slate-200 dark:border-[#26262b] overflow-hidden bg-white dark:bg-[#131316]">
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-xs">
-                            <thead className="bg-slate-50 dark:bg-[#1B212D] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#273040]">
+                            <thead className="bg-slate-50 dark:bg-[#1b1b20] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#26262b]">
                               <tr>
                                 <th className="py-2.5 px-3 whitespace-nowrap">Data / Hora</th>
                                 <th className="py-2.5 px-3 whitespace-nowrap">Usuário Responsável</th>
@@ -1586,9 +1588,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                 <th className="py-2.5 px-3">Motivo & Observações</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+                            <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
                               {editingContract.statusHistory.map((entry) => (
-                                <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-[#1B212D]/40 transition-colors">
+                                <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-[#1b1b20]/40 transition-colors">
                                   <td className="py-3 px-3 whitespace-nowrap font-medium text-slate-800 dark:text-slate-200">
                                     {formatDateBR(entry.changedAt)}
                                     <span className="text-[10px] text-slate-400 block font-normal">
@@ -1650,7 +1652,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         </div>
                       </div>
                     ) : (
-                      <div className="p-6 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#131720] text-center space-y-2">
+                      <div className="p-6 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] text-center space-y-2">
                         <Clock className="w-8 h-8 text-slate-400 mx-auto" />
                         <h5 className="font-bold text-slate-700 dark:text-slate-300">
                           Nenhuma alteração de status registrada
@@ -1664,7 +1666,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                   {/* Outros Logs de Auditoria do Sistema Vinculados a este Contrato */}
                   {editingContract && (
-                    <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-[#273040]">
+                    <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-[#26262b]">
                       <h4 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
                         <FileText className="w-4 h-4 text-slate-500" />
                         <span>Eventos do Contrato na Trilha Geral de Auditoria</span>
@@ -1673,7 +1675,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       {storage.getContractAuditLogs(editingContract.id, editingContract.contractNumber).length > 0 ? (
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                           {storage.getContractAuditLogs(editingContract.id, editingContract.contractNumber).map(log => (
-                            <div key={log.id} className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040] flex items-start justify-between gap-3 text-xs">
+                            <div key={log.id} className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] flex items-start justify-between gap-3 text-xs">
                               <div>
                                 <div className="flex items-center gap-2">
                                   <span className="font-bold text-slate-900 dark:text-white">{log.action}</span>
@@ -1699,7 +1701,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-xs">
                   {/* Cards com Estatísticas do Contrato */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040]">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b]">
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">Total de Meses</span>
                       <div className="text-lg font-bold text-slate-900 dark:text-white mt-1 font-mono">
                         {editingContractTitles.length} parcelas
@@ -1707,7 +1709,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <span className="text-[10px] text-slate-500">Títulos registrados no sistema</span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040]">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b]">
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">Em Aberto / A Vencer</span>
                       <div className="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1 font-mono">
                         {editingContractTitles.filter(t => t.settlementState !== 'LIQUIDADO').length} parcelas
@@ -1717,7 +1719,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040]">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b]">
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">Quitados / Recebidos</span>
                       <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
                         {editingContractTitles.filter(t => t.settlementState === 'LIQUIDADO').length} parcelas
@@ -1727,7 +1729,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040]">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b]">
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">Volume Total Faturado</span>
                       <div className="text-lg font-bold text-amber-500 mt-1 font-mono">
                         {formatBRL(editingContractTitles.reduce((acc, t) => acc + (t.originalAmount || 0), 0))}
@@ -1750,9 +1752,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-1 bg-white dark:bg-[#131720] px-2.5 py-1 rounded-xl border border-slate-200 dark:border-[#273040]">
+                        <div className="flex items-center gap-1 bg-white dark:bg-[#131316] px-2.5 py-1 rounded-xl border border-slate-200 dark:border-[#26262b]">
                           <span className="text-[10px] font-bold text-slate-500">Início:</span>
-                          <select
+                          <PremiumSelect
                             value={generationStartMode}
                             onChange={e => setGenerationStartMode(e.target.value as any)}
                             className="bg-transparent border-0 py-0.5 px-1 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-0 cursor-pointer"
@@ -1760,28 +1762,27 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <option value="CURRENT_MONTH">Mês Atual ({new Date().toISOString().substring(0, 7)})</option>
                             <option value="ENTRY_MONTH">Data de Entrada ({formData.startDate?.substring(0, 7) || new Date().toISOString().substring(0, 7)})</option>
                             <option value="CUSTOM">Personalizado...</option>
-                          </select>
+                          </PremiumSelect>
                         </div>
 
                         {generationStartMode === 'CUSTOM' && (
-                          <input
-                            type="month"
+                          <MonthField
                             value={customStartCompetence}
                             onChange={e => setCustomStartCompetence(e.target.value)}
-                            className="rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-2.5 py-1 text-xs font-bold text-slate-900 dark:text-slate-100"
+                            className="rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-2.5 py-1 text-xs font-bold text-slate-900 dark:text-slate-100"
                           />
                         )}
 
-                        <select
+                        <PremiumSelect
                           value={formData.futureMonthsCount || 12}
                           onChange={e => setFormData({ ...formData, futureMonthsCount: Number(e.target.value) })}
-                          className="rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-2.5 py-1 text-xs font-bold text-slate-900 dark:text-slate-100"
+                          className="rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-2.5 py-1 text-xs font-bold text-slate-900 dark:text-slate-100"
                         >
                           <option value={6}>6 meses</option>
                           <option value={12}>12 meses (1 ano)</option>
                           <option value={24}>24 meses (2 anos)</option>
                           <option value={36}>36 meses (3 anos)</option>
-                        </select>
+                        </PremiumSelect>
 
                         <button
                           type="button"
@@ -1797,7 +1798,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           type="button"
                           onClick={() => handleGenerateInsideContract({ updateExistingOpen: true })}
                           disabled={isGeneratingInsideContract}
-                          className="px-3 py-1.5 bg-white dark:bg-[#131720] hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="px-3 py-1.5 bg-white dark:bg-[#131316] hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                           title="Sincroniza valores das parcelas em aberto"
                         >
                           <RotateCcw className="w-3.5 h-3.5 text-amber-500" />
@@ -1845,8 +1846,8 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                   </div>
 
                   {/* Tabela de Parcelas do Contrato */}
-                  <div className="border border-slate-200 dark:border-[#273040] rounded-xl overflow-hidden bg-white dark:bg-[#131720]">
-                    <div className="p-3 bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] flex items-center justify-between">
+                  <div className="border border-slate-200 dark:border-[#26262b] rounded-xl overflow-hidden bg-white dark:bg-[#131316]">
+                    <div className="p-3 bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between">
                       <span className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wide">
                         Faturas Vinculadas ({editingContractTitles.length})
                       </span>
@@ -1874,7 +1875,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                     ) : (
                       <div className="overflow-x-auto max-h-[360px]">
                         <table className="w-full text-left text-xs min-w-[700px]">
-                          <thead className="bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] text-slate-500 font-semibold text-[11px] sticky top-0 z-10">
+                          <thead className="bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] text-slate-500 font-semibold text-[11px] sticky top-0 z-10">
                             <tr>
                               <th className="py-2.5 px-3">Competência</th>
                               <th className="py-2.5 px-3">Nº Fatura</th>
@@ -1884,7 +1885,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                               <th className="py-2.5 px-3 text-center">Situação</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+                          <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
                             {editingContractTitles.map(t => {
                               const isSettled = t.settlementState === 'LIQUIDADO';
                               const isOverdue = !isSettled && t.dueDate < new Date().toISOString().split('T')[0];
@@ -1931,7 +1932,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-xs">
                 
                 {/* Bloco 1: Identificação e Cliente */}
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1B212D]/60 border border-slate-200 dark:border-[#273040] space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
                   <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
                     1. Identificação & Contratante
                   </span>
@@ -1947,7 +1948,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         placeholder="Ex: CTR-2026-001"
                         value={formData.contractNumber || ''}
                         onChange={e => setFormData({ ...formData, contractNumber: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
                     </div>
                     
@@ -2009,13 +2010,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       placeholder="Ex: Assessoria Contábil, Fiscal e Gestão Financeira"
                       value={formData.description || ''}
                       onChange={e => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                      className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                     />
                   </div>
                 </div>
 
                 {/* Bloco 2: Vigência & Prazos */}
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1B212D]/60 border border-slate-200 dark:border-[#273040] space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
                   <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
                     2. Vigência & Prazos de Vencimento
                   </span>
@@ -2025,12 +2026,11 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Data de Início do Contrato *
                       </label>
-                      <input
-                        type="date"
+                      <DateField
                         required
                         value={formData.startDate || ''}
                         onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
                       <span className="text-[10px] text-slate-500 mt-1 block">Início da vigência contratual</span>
                     </div>
@@ -2047,7 +2047,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         onWheel={(e) => (e.target as HTMLElement).blur()}
                         value={formData.dueDay || 10}
                         onChange={e => setFormData({ ...formData, dueDay: parseInt(e.target.value) || 10 })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
                       <span className="text-[10px] text-slate-500 mt-1 block">Dia fixo (Ex: 10, 15, 20)</span>
                     </div>
@@ -2056,21 +2056,21 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Regra da Competência
                       </label>
-                      <select
+                      <PremiumSelect
                         value={formData.dueRule || 'NEXT_MONTH'}
                         onChange={e => setFormData({ ...formData, dueRule: e.target.value as any })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       >
                         <option value="NEXT_MONTH">Mês Seguinte (D+1)</option>
                         <option value="SAME_MONTH">Mesmo Mês (D+0)</option>
-                      </select>
+                      </PremiumSelect>
                       <span className="text-[10px] text-slate-500 mt-1 block">Ex: fatura Jan vence em Fev</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Bloco 3: Valores Financeiros & Faturamento */}
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1B212D]/60 border border-slate-200 dark:border-[#273040] space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
                   <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
                     3. Honorários Mensais & Cobrança
                   </span>
@@ -2090,7 +2090,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           onWheel={(e) => (e.target as HTMLElement).blur()}
                           value={formData.monthlyTotal || ''}
                           onChange={e => setFormData({ ...formData, monthlyTotal: parseFloat(e.target.value) || 0 })}
-                          className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                          className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                         />
                       </div>
                       <span className="text-[10px] text-slate-500 mt-1 block">Honorário mensal recorrente</span>
@@ -2100,23 +2100,23 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Forma de Cobrança
                       </label>
-                      <select
+                      <PremiumSelect
                         value={formData.billingMethod || 'BOLETO'}
                         onChange={e => setFormData({ ...formData, billingMethod: e.target.value as any })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       >
                         <option value="BOLETO">Boleto Bancário</option>
                         <option value="PIX">PIX Cobrança</option>
                         <option value="TRANSFERENCIA">Transferência / TED</option>
                         <option value="OUTRO">Outro Meio</option>
-                      </select>
+                      </PremiumSelect>
                     </div>
 
                     <div>
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Status do Contrato
                       </label>
-                      <select
+                      <PremiumSelect
                         value={formData.status || 'ATIVO'}
                         onChange={e => {
                           const newStatus = e.target.value as any;
@@ -2127,14 +2127,14 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             cancellationReason: (newStatus === 'CANCELADO' || newStatus === 'INATIVO') ? (formData.cancellationReason || 'Rescisão solicitada pelo cliente') : formData.cancellationReason
                           });
                         }}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       >
                         <option value="ATIVO">🟢 ATIVO (Gera Faturamento & compõe MRR)</option>
                         <option value="CANCELADO">🔴 CANCELADO (Rescindido / Fora do MRR)</option>
                         <option value="INATIVO">🟡 INATIVO (Pausado / Fora do MRR)</option>
                         <option value="SUSPENSO">🟣 SUSPENSO (Temporário)</option>
                         <option value="ENCERRADO">⚪ ENCERRADO (Vigência Concluída)</option>
-                      </select>
+                      </PremiumSelect>
                     </div>
                   </div>
 
@@ -2150,11 +2150,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             A partir de qual data o cliente parou? *
                           </label>
-                          <input
-                            type="date"
+                          <DateField
                             value={formData.cancellationDate || ''}
                             onChange={e => setFormData({ ...formData, cancellationDate: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
+                            className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
                           />
                         </div>
                         <div>
@@ -2166,7 +2165,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             placeholder="Ex: Rescisão a pedido do cliente, troca de contador..."
                             value={formData.cancellationReason || ''}
                             onChange={e => setFormData({ ...formData, cancellationReason: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
+                            className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
                           />
                         </div>
                       </div>
@@ -2179,7 +2178,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           placeholder="Ex: Acordo amigável, entrega de livros fiscais..."
                           value={formData.cancellationNotes || ''}
                           onChange={e => setFormData({ ...formData, cancellationNotes: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
+                          className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
                         />
                       </div>
                     </div>
@@ -2204,7 +2203,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       className={`p-3 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
                         formData.contractType !== 'AVULSO' && formData.isRecurring !== false
                           ? 'border-amber-500 bg-amber-500/10 shadow-xs'
-                          : 'border-slate-200 dark:border-[#273040] bg-white dark:bg-[#131720] hover:border-amber-500/40'
+                          : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] hover:border-amber-500/40'
                       }`}
                     >
                       <input
@@ -2236,7 +2235,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       className={`p-3 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
                         formData.contractType === 'AVULSO' || formData.isRecurring === false
                           ? 'border-amber-500 bg-amber-500/10 shadow-xs'
-                          : 'border-slate-200 dark:border-[#273040] bg-white dark:bg-[#131720] hover:border-amber-500/40'
+                          : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] hover:border-amber-500/40'
                       }`}
                     >
                       <input
@@ -2264,7 +2263,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                   {/* Configuração de Geração de Meses Futuros (Apenas quando Recorrente) */}
                   {formData.contractType !== 'AVULSO' && formData.isRecurring !== false && (
-                    <div className="p-3.5 bg-white dark:bg-[#131720] rounded-xl border border-amber-500/30 space-y-3">
+                    <div className="p-3.5 bg-white dark:bg-[#131316] rounded-xl border border-amber-500/30 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -2283,23 +2282,23 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
                               Projetar para:
                             </span>
-                            <select
+                            <PremiumSelect
                               value={formData.futureMonthsCount || 12}
                               onChange={e => setFormData({ ...formData, futureMonthsCount: Number(e.target.value) })}
-                              className="rounded-lg border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] px-2.5 py-1 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500"
+                              className="rounded-lg border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] px-2.5 py-1 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500"
                             >
                               <option value={6}>Próximos 6 meses</option>
                               <option value={12}>Próximos 12 meses (1 ano)</option>
                               <option value={24}>Próximos 24 meses (2 anos)</option>
                               <option value={36}>Próximos 36 meses (3 anos)</option>
-                            </select>
+                            </PremiumSelect>
                           </div>
                         )}
                       </div>
 
                       {/* Seletor explícito de mês inicial (atendendo à solicitação de faturar a partir de agora vs entrada) */}
                       {formData.autoGenerateFutureMonths !== false && (
-                        <div className="p-3 bg-slate-50 dark:bg-[#1B212D] rounded-lg border border-slate-200 dark:border-[#273040] space-y-2">
+                        <div className="p-3 bg-slate-50 dark:bg-[#1b1b20] rounded-lg border border-slate-200 dark:border-[#26262b] space-y-2">
                           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                             <CalendarClock className="w-3.5 h-3.5 text-amber-500" />
                             A partir de qual mês você deseja iniciar a geração das faturas?
@@ -2308,7 +2307,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <label className={`p-2 rounded-lg border flex items-center gap-2 cursor-pointer text-xs transition-colors ${
                               generationStartMode === 'CURRENT_MONTH'
                                 ? 'border-amber-500 bg-amber-500/10 font-bold text-amber-900 dark:text-amber-300'
-                                : 'border-slate-200 dark:border-[#273040] text-slate-700 dark:text-slate-400 hover:border-amber-500/40'
+                                : 'border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-400 hover:border-amber-500/40'
                             }`}>
                               <input
                                 type="radio"
@@ -2326,7 +2325,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <label className={`p-2 rounded-lg border flex items-center gap-2 cursor-pointer text-xs transition-colors ${
                               generationStartMode === 'ENTRY_MONTH'
                                 ? 'border-amber-500 bg-amber-500/10 font-bold text-amber-900 dark:text-amber-300'
-                                : 'border-slate-200 dark:border-[#273040] text-slate-700 dark:text-slate-400 hover:border-amber-500/40'
+                                : 'border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-400 hover:border-amber-500/40'
                             }`}>
                               <input
                                 type="radio"
@@ -2344,7 +2343,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <label className={`p-2 rounded-lg border flex items-center gap-2 cursor-pointer text-xs transition-colors ${
                               generationStartMode === 'CUSTOM'
                                 ? 'border-amber-500 bg-amber-500/10 font-bold text-amber-900 dark:text-amber-300'
-                                : 'border-slate-200 dark:border-[#273040] text-slate-700 dark:text-slate-400 hover:border-amber-500/40'
+                                : 'border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-400 hover:border-amber-500/40'
                             }`}>
                               <input
                                 type="radio"
@@ -2355,14 +2354,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                               />
                               <div className="flex-1">
                                 <div className="text-xs">Personalizado:</div>
-                                <input
-                                  type="month"
+                                <MonthField
                                   value={customStartCompetence}
                                   onChange={e => {
                                     setCustomStartCompetence(e.target.value);
                                     setGenerationStartMode('CUSTOM');
                                   }}
-                                  className="w-full mt-1 px-2 py-0.5 text-[11px] rounded border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720]"
+                                  className="w-full mt-1 px-2 py-0.5 text-[11px] rounded border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316]"
                                 />
                               </div>
                             </label>
@@ -2475,12 +2473,11 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Data de Entrada do Cliente *
                       </label>
-                      <input
-                        type="date"
+                      <DateField
                         required
                         value={formData.entryDate || formData.startDate || ''}
                         onChange={e => setFormData({ ...formData, entryDate: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
                       <span className="text-[10px] text-slate-500 mt-1 block">Início do relacionamento com o escritório</span>
                     </div>
@@ -2489,10 +2486,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Canal / Origem da Aquisição *
                       </label>
-                      <select
+                      <PremiumSelect
                         value={formData.acquisitionChannel || 'INDICACAO'}
                         onChange={e => setFormData({ ...formData, acquisitionChannel: e.target.value as AcquisitionChannel })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       >
                         <option value="INDICACAO">🤝 Indicação (Cliente, Parceiro ou Amigo)</option>
                         <option value="REDE_SOCIAL">📱 Rede Social (Instagram, LinkedIn, etc.)</option>
@@ -2500,7 +2497,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         <option value="PROSPECCAO_ATIVA">🎯 Prospecção Ativa (Outbound / Comercial)</option>
                         <option value="EVENTO">🎤 Evento / Palestra / Feira</option>
                         <option value="OUTRO">Outros Canais</option>
-                      </select>
+                      </PremiumSelect>
                       <span className="text-[10px] text-slate-500 mt-1 block">Rastreamento de onde veio o cliente</span>
                     </div>
                   </div>
@@ -2515,7 +2512,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         placeholder="Ex: Dr. Roberto Martins (Cliente há 3 anos), ou Parceiro Imobiliário"
                         value={formData.acquisitionReferrerName || ''}
                         onChange={e => setFormData({ ...formData, acquisitionReferrerName: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
                       <span className="text-[10px] text-slate-500 mt-1 block">Nome da pessoa ou empresa que realizou a indicação</span>
                     </div>
@@ -2527,10 +2524,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                           Qual Rede Social? *
                         </label>
-                        <select
+                        <PremiumSelect
                           value={formData.acquisitionSocialNetwork || 'Instagram'}
                           onChange={e => setFormData({ ...formData, acquisitionSocialNetwork: e.target.value as SocialNetworkType })}
-                          className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                          className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                         >
                           <option value="Instagram">Instagram</option>
                           <option value="LinkedIn">LinkedIn</option>
@@ -2538,7 +2535,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <option value="YouTube">YouTube</option>
                           <option value="TikTok">TikTok</option>
                           <option value="Outro">Outra Rede Social</option>
-                        </select>
+                        </PremiumSelect>
                       </div>
 
                       <div>
@@ -2550,7 +2547,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           placeholder="Ex: Anúncio de BPO Financeiro no Feed ou Contato via DM"
                           value={formData.acquisitionNotes || ''}
                           onChange={e => setFormData({ ...formData, acquisitionNotes: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                          className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                         />
                       </div>
                     </div>
@@ -2566,7 +2563,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         placeholder="Ex: Busca orgânica Google 'contabilidade em SP', Google Ads, Feira do Empreendedor, etc."
                         value={formData.acquisitionNotes || ''}
                         onChange={e => setFormData({ ...formData, acquisitionNotes: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
                     </div>
                   )}
@@ -2635,7 +2632,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                               min="0"
                               value={newAdjustmentData.newAmount || ''}
                               onChange={(e) => setNewAdjustmentData({ ...newAdjustmentData, newAmount: parseFloat(e.target.value) || 0 })}
-                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1B212D] pl-8 pr-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] pl-8 pr-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white"
                             />
                           </div>
 
@@ -2662,11 +2659,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             Data de Vigência *
                           </label>
-                          <input
-                            type="date"
+                          <DateField
                             value={newAdjustmentData.date}
                             onChange={(e) => setNewAdjustmentData({ ...newAdjustmentData, date: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1B212D] px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-white"
+                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-white"
                           />
                           <span className="text-[10px] text-slate-500 mt-1 block">Quando passa a valer o novo valor</span>
                         </div>
@@ -2675,10 +2671,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
                             Motivo do Reajuste *
                           </label>
-                          <select
+                          <PremiumSelect
                             value={newAdjustmentData.reason}
                             onChange={(e) => setNewAdjustmentData({ ...newAdjustmentData, reason: e.target.value as ContractAdjustmentReason })}
-                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1B212D] px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white"
+                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white"
                           >
                             <option value="REAJUSTE_ANUAL">📅 Reajuste Anual de Honorários</option>
                             <option value="IPCA">📈 IPCA (Índice de Preços ao Consumidor)</option>
@@ -2686,7 +2682,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <option value="ACORDO_MUTUO">🤝 Acordo Mútuo / Negociação</option>
                             <option value="AUMENTO_ESCOPO">🚀 Aumento de Escopo / Funcionários</option>
                             <option value="OUTRO">Outro Motivo</option>
-                          </select>
+                          </PremiumSelect>
                         </div>
                       </div>
 
@@ -2699,7 +2695,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           placeholder="Ex: Cláusula 5ª do contrato de prestação de serviços - reajuste anual pelo IPCA acumulado de 12 meses."
                           value={newAdjustmentData.notes}
                           onChange={(e) => setNewAdjustmentData({ ...newAdjustmentData, notes: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1B212D] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
+                          className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] px-3 py-1.5 text-xs text-slate-900 dark:text-white"
                         />
                       </div>
 
@@ -2746,9 +2742,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                   {/* Tabela do Histórico de Reajustes Já Realizados */}
                   <div className="space-y-2">
                     {formData.adjustments && formData.adjustments.length > 0 ? (
-                      <div className="max-h-44 overflow-y-auto rounded-lg border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#131720]">
+                      <div className="max-h-44 overflow-y-auto rounded-lg border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316]">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-slate-100 dark:bg-[#1B212D] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#273040]">
+                          <thead className="bg-slate-100 dark:bg-[#1b1b20] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#26262b]">
                             <tr>
                               <th className="py-2 px-3">Vigência</th>
                               <th className="py-2 px-3">De ➔ Para</th>
@@ -2758,9 +2754,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                               <th className="py-2 px-3 text-right">Notificação</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+                          <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
                             {formData.adjustments.map((adj) => (
-                              <tr key={adj.id} className="hover:bg-slate-50 dark:hover:bg-[#1B212D]/40">
+                              <tr key={adj.id} className="hover:bg-slate-50 dark:hover:bg-[#1b1b20]/40">
                                 <td className="py-2 px-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
                                   {formatDateBR(adj.date)}
                                 </td>
@@ -2804,7 +2800,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         </table>
                       </div>
                     ) : (
-                      <div className="p-3 bg-white dark:bg-[#131720] rounded-lg border border-slate-200 dark:border-[#273040] text-slate-500 text-center">
+                      <div className="p-3 bg-white dark:bg-[#131316] rounded-lg border border-slate-200 dark:border-[#26262b] text-slate-500 text-center">
                         Nenhum reajuste registrado até o momento. O contrato está com o valor inicial acordado.
                       </div>
                     )}
@@ -2877,7 +2873,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                   amount: parseFloat(e.target.value) || 0
                                 }
                               })}
-                              className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                              className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                             />
                           </div>
                           <button
@@ -2903,16 +2899,16 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
                             Forma de Cobrança / Parcelamento *
                           </label>
-                          <select
+                          <PremiumSelect
                             value={formData.annualBalanceFee.installmentType || 'UNICA_DEZEMBRO'}
                             onChange={(e) => handleBalanceFeeTypeChange(e.target.value as any)}
-                            className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                            className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                           >
                             <option value="UNICA_DEZEMBRO">1x Parcela Única</option>
                             <option value="DUAS_PARCELAS">2x Dividido em 2 Meses (Nov e Dez)</option>
                             <option value="TRES_PARCELAS">3x Dividido em 3 Meses (Out, Nov e Dez)</option>
                             <option value="PERSONALIZADO">Personalizado (Escolher Meses)</option>
-                          </select>
+                          </PremiumSelect>
                           <span className="text-[10px] text-slate-500 mt-1 block">
                             {formData.annualBalanceFee.installmentType === 'UNICA_DEZEMBRO' 
                               ? 'Cobrança em cota única anual' 
@@ -2926,17 +2922,17 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                               <span>Mês da Competência *</span>
                               <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">Mês de referência</span>
                             </label>
-                            <select
+                            <PremiumSelect
                               value={formData.annualBalanceFee.competenceMonth || (formData.annualBalanceFee.billingMonths?.[0] || 12)}
                               onChange={(e) => handleSingleCompetenceMonthChange(parseInt(e.target.value, 10))}
-                              className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                              className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                             >
                               {MONTH_NAMES.map((name, idx) => (
                                 <option key={idx + 1} value={idx + 1}>
                                   {String(idx + 1).padStart(2, '0')} - {name} {idx + 1 === 12 ? ' (Encerramento do Exercício)' : ''}
                                 </option>
                               ))}
-                            </select>
+                            </PremiumSelect>
                             <span className="text-[10px] text-slate-500 mt-1 block">
                               Define em qual mês contábil a taxa será alocada
                             </span>
@@ -2946,7 +2942,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
                               Competências Selecionadas
                             </label>
-                            <div className="px-3 py-2 bg-slate-50 dark:bg-[#131720] border border-slate-200 dark:border-[#273040] rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 truncate">
+                            <div className="px-3 py-2 bg-slate-50 dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 truncate">
                               {formData.annualBalanceFee.billingMonths && formData.annualBalanceFee.billingMonths.length > 0
                                 ? formData.annualBalanceFee.billingMonths.map(m => MONTH_NAMES[m - 1]).join(', ')
                                 : 'Nenhuma selecionada'}
@@ -2960,7 +2956,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                       {/* Seleção Personalizada de Meses (se PERSONALIZADO) */}
                       {formData.annualBalanceFee.installmentType === 'PERSONALIZADO' && (
-                        <div className="p-3 bg-white dark:bg-[#131720] rounded-xl border border-amber-500/30 space-y-2">
+                        <div className="p-3 bg-white dark:bg-[#131316] rounded-xl border border-amber-500/30 space-y-2">
                           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
                             Selecione os meses de competência em que a Taxa de Balanço será cobrada:
                           </span>
@@ -2976,7 +2972,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                   className={`py-1.5 px-2 rounded-lg text-xs font-semibold border transition-all ${
                                     isSelected 
                                       ? 'bg-amber-500 text-slate-950 border-amber-600 shadow-xs' 
-                                      : 'bg-slate-50 dark:bg-[#1B212D] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#273040] hover:border-amber-500/50'
+                                      : 'bg-slate-50 dark:bg-[#1b1b20] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#26262b] hover:border-amber-500/50'
                                   }`}
                                 >
                                   {name.slice(0, 3)}
@@ -2994,7 +2990,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <CalendarClock className="w-3.5 h-3.5 text-amber-500" />
                             <span>Regra de Vencimento da Taxa *</span>
                           </label>
-                          <select
+                          <PremiumSelect
                             value={formData.annualBalanceFee.dueRule || 'SAME_MONTH'}
                             onChange={(e) => setFormData({
                               ...formData,
@@ -3003,12 +2999,12 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                 dueRule: e.target.value as any
                               }
                             })}
-                            className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                            className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                           >
                             <option value="SAME_MONTH">✓ Vencimento na própria competência (mesmo mês) [Padrão]</option>
                             <option value="NEXT_MONTH">Vencimento no mês seguinte à competência</option>
                             <option value="SPECIFIC_DATE">Data de Vencimento Específica (Data Fixa)</option>
-                          </select>
+                          </PremiumSelect>
                           <span className="text-[10px] text-slate-500 mt-1 block">
                             {formData.annualBalanceFee.dueRule === 'NEXT_MONTH'
                               ? 'O título vencerá no mês subsequente à competência faturada'
@@ -3023,8 +3019,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">
                               Data Exata de Vencimento *
                             </label>
-                            <input
-                              type="date"
+                            <DateField
                               required={formData.annualBalanceFee?.dueRule === 'SPECIFIC_DATE'}
                               value={formData.annualBalanceFee.specificDueDate || ''}
                               onChange={(e) => setFormData({
@@ -3034,7 +3029,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                   specificDueDate: e.target.value
                                 }
                               })}
-                              className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                              className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                             />
                             <span className="text-[10px] text-slate-500 mt-1 block">
                               Data definitiva de vencimento nos lançamentos a receber
@@ -3057,7 +3052,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                   dueDay: parseInt(e.target.value) || 10
                                 }
                               })}
-                              className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                              className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                             />
                             <span className="text-[10px] text-slate-500 mt-1 block">
                               {formData.annualBalanceFee.dueRule === 'NEXT_MONTH'
@@ -3103,7 +3098,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                 return (
                                   <div 
                                     key={m}
-                                    className="p-2.5 rounded-lg bg-white dark:bg-[#131720] border border-amber-500/30 text-[11px] space-y-1"
+                                    className="p-2.5 rounded-lg bg-white dark:bg-[#131316] border border-amber-500/30 text-[11px] space-y-1"
                                   >
                                     <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
                                       <span>Parcela {idx + 1}/{totalInst}</span>
@@ -3151,7 +3146,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               )}
 
               {/* Rodapé Fixo de Ações com Botões Adequados à Aba Ativa */}
-              <div className="px-6 py-3.5 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex items-center justify-between gap-3 shrink-0 sticky bottom-0 z-20">
+              <div className="px-6 py-3.5 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex items-center justify-between gap-3 shrink-0 sticky bottom-0 z-20">
                 {contractModalTab === 'AUDIT_LOG' ? (
                   <>
                     <span className="text-[11px] text-slate-500 hidden sm:inline">

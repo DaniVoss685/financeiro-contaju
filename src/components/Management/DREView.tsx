@@ -96,7 +96,7 @@ const Sparkline: React.FC<SparklineProps> = ({ values, width = 46, height = 15, 
   const isTrendingUp = lastVal >= firstVal;
   const strokeColor = isNetResult 
     ? (lastVal >= 0 ? '#10B981' : '#F43F5E')
-    : (isTrendingUp ? '#F59E0B' : '#94A3B8');
+    : (isTrendingUp ? '#cdaa58' : '#94A3B8');
 
   const lastX = width - padding;
   const lastY = height - padding - ((lastVal - min) / range) * (height - padding * 2);
@@ -1022,7 +1022,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                   onClick={() => setTimeHorizon(h)}
                   className={`px-2.5 sm:px-3 py-1.5 min-h-[40px] sm:min-h-0 rounded-lg text-xs font-medium transition-colors ${
                     timeHorizon === h 
-                      ? 'bg-amber-500 text-[#0f172a] font-bold shadow-xs' 
+                      ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs' 
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -1040,7 +1040,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                     onClick={() => setSelectedMonth(mIdx)}
                     className={`px-2.5 py-1.5 min-h-[40px] rounded-lg font-medium transition-colors shrink-0 ${
                       selectedMonth === mIdx
-                        ? 'bg-amber-500 text-[#0f172a] font-bold shadow-xs'
+                        ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -1058,7 +1058,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                     onClick={() => setSelectedSemester(sem)}
                     className={`px-3 py-1 rounded-lg font-medium transition-colors ${
                       selectedSemester === sem
-                        ? 'bg-amber-500 text-[#0f172a] font-bold shadow-xs'
+                        ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -1078,7 +1078,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                       onClick={() => setSelectedQuarter(q)}
                       className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
                         selectedQuarter === q
-                          ? 'bg-amber-500 text-[#0f172a] font-bold shadow-xs'
+                          ? 'bg-amber-500 text-[#18181b] font-bold shadow-xs'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                       }`}
                     >
@@ -1696,9 +1696,9 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
           <table className={`w-full text-left border-collapse ${
             canFitToScreen ? 'table-fixed text-xs' : 'min-w-[1020px] text-xs'
           }`}>
-            <thead className="sticky top-0 z-20 bg-slate-200/90 dark:bg-[#1a2130] border-b-2 border-slate-300 dark:border-slate-600 shadow-xs">
+            <thead className="sticky top-0 z-20 bg-slate-200/90 dark:bg-[#1b1b20] border-b-2 border-slate-300 dark:border-slate-600 shadow-xs">
               <tr className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                <th className={`py-2.5 px-2.5 sm:px-3 border-r border-slate-300 dark:border-slate-700 font-black min-w-[140px] max-w-[165px] sm:min-w-[240px] sticky left-0 z-30 bg-slate-200 dark:bg-[#1a2130] shadow-sm ${
+                <th className={`py-2.5 px-2.5 sm:px-3 border-r border-slate-300 dark:border-slate-700 font-black min-w-[140px] max-w-[165px] sm:min-w-[240px] sticky left-0 z-30 bg-slate-200 dark:bg-[#1b1b20] shadow-sm ${
                   canFitToScreen ? 'w-[23%] sm:w-[24%]' : ''
                 }`}>
                   <div className="flex items-center justify-between">
@@ -1722,7 +1722,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                           ? 'w-[4.8%] sm:w-[5.1%]' 
                           : 'min-w-[70px]'
                       } ${
-                        isEven ? 'bg-slate-100 dark:bg-[#141924]' : 'bg-slate-200/80 dark:bg-[#1a2130]'
+                        isEven ? 'bg-slate-100 dark:bg-[#141924]' : 'bg-slate-200/80 dark:bg-[#1b1b20]'
                       }`}
                     >
                       <span className="block truncate text-slate-900 dark:text-slate-100 font-extrabold">{mName}</span>
@@ -1748,7 +1748,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                     }`} title="Total liquidado efetivamente pelo Regime de Caixa">
                       <span className="block truncate">Caixa</span>
                     </th>
-                    <th className={`py-2.5 px-1.5 text-right font-black text-slate-900 dark:text-slate-100 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1a2130] ${
+                    <th className={`py-2.5 px-1.5 text-right font-black text-slate-900 dark:text-slate-100 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1b1b20] ${
                       canFitToScreen ? 'w-[6.2%] text-xs' : 'min-w-[75px] text-xs'
                     }`} title="Gap / Descolamento (Competência - Caixa)">
                       <span className="block truncate">Gap (R$)</span>
@@ -1777,7 +1777,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                     }`}>
                       <span className="block truncate">Orçado</span>
                     </th>
-                    <th className={`py-2.5 px-1.5 text-right font-black text-slate-900 dark:text-slate-100 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1a2130] ${
+                    <th className={`py-2.5 px-1.5 text-right font-black text-slate-900 dark:text-slate-100 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1b1b20] ${
                       canFitToScreen ? 'w-[6.5%] text-xs' : 'min-w-[80px] text-xs'
                     }`}>
                       <span className="block truncate">Desvio %</span>
@@ -1795,7 +1795,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                 )}
 
                 {/* Análise Vertical % AV */}
-                <th className={`py-2.5 px-1.5 text-right font-black text-slate-900 dark:text-slate-200 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1a2130] ${
+                <th className={`py-2.5 px-1.5 text-right font-black text-slate-900 dark:text-slate-200 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1b1b20] ${
                   canFitToScreen 
                     ? 'w-[5.4%] text-xs' 
                     : 'min-w-[70px] text-xs'
@@ -1816,7 +1816,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
 
                 {/* Minigráfico de Tendência Sparkline (Sugestão 3) */}
                 {showSparklines && (
-                  <th className={`py-2.5 px-1 text-center font-black text-slate-900 dark:text-slate-200 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1a2130] ${
+                  <th className={`py-2.5 px-1 text-center font-black text-slate-900 dark:text-slate-200 border-l border-slate-300 dark:border-slate-700 bg-slate-200/90 dark:bg-[#1b1b20] ${
                     canFitToScreen 
                       ? 'w-[5.2%] text-[10px]' 
                       : 'min-w-[65px] text-[10px]'
@@ -1842,7 +1842,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
 
                 // Estilização com degradês e categorias de acordo com a natureza no padrão Leão Dourado
                 let rowBg = 'hover:bg-amber-50/50 dark:hover:bg-amber-950/20 text-slate-900 dark:text-slate-100';
-                let stickyBg = 'bg-white dark:bg-[#121620]';
+                let stickyBg = 'bg-white dark:bg-[#131316]';
                 let valueColor = 'text-slate-900 dark:text-slate-100 font-semibold';
 
                 if (isSummary) {
@@ -1854,11 +1854,11 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                   // Cabeçalho de Grupo Principal
                   if (isRevenue || isDeduction) {
                     rowBg = 'bg-amber-50/80 dark:bg-amber-950/40 font-black text-amber-950 dark:text-amber-300 uppercase tracking-wider border-t-2 border-slate-300 dark:border-slate-700';
-                    stickyBg = 'bg-amber-50 dark:bg-[#171b22] text-amber-950 dark:text-amber-300';
+                    stickyBg = 'bg-amber-50 dark:bg-[#131316] text-amber-950 dark:text-amber-300';
                     valueColor = 'text-amber-950 dark:text-amber-300 font-black';
                   } else {
                     rowBg = 'bg-slate-100 dark:bg-slate-800/80 font-black text-slate-950 dark:text-white uppercase tracking-wider border-t-2 border-slate-300 dark:border-slate-700';
-                    stickyBg = 'bg-slate-100 dark:bg-[#171b22] text-slate-950 dark:text-white';
+                    stickyBg = 'bg-slate-100 dark:bg-[#131316] text-slate-950 dark:text-white';
                     valueColor = 'text-slate-950 dark:text-white font-black';
                   }
                 } else {
@@ -2418,7 +2418,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                     onClick={() => setDrillDownItem(prev => prev ? ({ ...prev, regimeMode: 'COMPETENCIA' }) : null)}
                     className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
                       drillDownItem.regimeMode === 'COMPETENCIA'
-                        ? 'bg-amber-500 text-[#0f172a] shadow-xs font-bold'
+                        ? 'bg-amber-500 text-[#18181b] shadow-xs font-bold'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                     title="Filtrar por data de competência contábil"
@@ -2430,7 +2430,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
                     onClick={() => setDrillDownItem(prev => prev ? ({ ...prev, regimeMode: 'CAIXA' }) : null)}
                     className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
                       drillDownItem.regimeMode === 'CAIXA'
-                        ? 'bg-emerald-500 text-[#0f172a] shadow-xs font-bold'
+                        ? 'bg-emerald-500 text-[#18181b] shadow-xs font-bold'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                     title="Filtrar por data efetiva de pagamento/liquidação em caixa"
@@ -2939,7 +2939,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
               </div>
               <button
                 onClick={() => setDrillDownItem(null)}
-                className="px-4 py-2 bg-amber-500 text-[#0f172a] font-bold rounded-xl text-xs hover:bg-amber-400 transition-colors shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-amber-500 text-[#18181b] font-bold rounded-xl text-xs hover:bg-amber-400 transition-colors shadow-xs cursor-pointer"
               >
                 Fechar Drill-Down
               </button>

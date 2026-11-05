@@ -4,6 +4,8 @@ import { FinancialTitle, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL } from '../../services/financialEngine';
 import { TitleSettlementHistoryModal } from '../Financial/TitleSettlementHistoryModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface SettlementModalProps {
   title: FinancialTitle;
@@ -174,8 +176,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
               <label className="block font-medium text-slate-700 mb-1">
                 Data Efetiva da Baixa *
               </label>
-              <input
-                type="date"
+              <DateField
                 max={today}
                 value={settlementDate}
                 onChange={(e) => setSettlementDate(e.target.value)}
@@ -189,7 +190,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
               <label className="block font-medium text-slate-700 mb-1">
                 Conta Bancária / Caixa de Movimentação *
               </label>
-              <select
+              <PremiumSelect
                 value={bankAccountId}
                 onChange={(e) => setBankAccountId(e.target.value)}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium text-slate-900 bg-white"
@@ -201,7 +202,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                     {acc.name} — Ag: {acc.agency || '-'} CC: {acc.accountNumber || '-'} ({acc.type}) — Saldo: {formatBRL(FinancialEngine.getAccountBalance(acc.id))}
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
 
               {/* Visual Card showing selected bank details descending cleanly */}
               {selectedAccount && (

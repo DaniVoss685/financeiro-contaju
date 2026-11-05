@@ -437,7 +437,7 @@ export const ReportsView: React.FC = () => {
                     const indentClass = line.level === 1 ? 'pl-7' : line.level === 2 ? 'pl-11' : 'pl-4';
 
                     let rowStyle = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/50';
-                    let stickyBg = 'bg-white dark:bg-[#121620] text-slate-900 dark:text-slate-100';
+                    let stickyBg = 'bg-white dark:bg-[#131316] text-slate-900 dark:text-slate-100';
 
                     if (isHeader) {
                       rowStyle = 'bg-slate-50 dark:bg-slate-800/80 font-bold text-slate-900 dark:text-white';
@@ -607,7 +607,7 @@ export const ReportsView: React.FC = () => {
                     const indentClass = line.level === 1 ? 'pl-7' : line.level === 2 ? 'pl-11' : 'pl-4';
 
                     let rowStyle = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/50';
-                    let stickyBg = 'bg-white dark:bg-[#121620] text-slate-900 dark:text-slate-100';
+                    let stickyBg = 'bg-white dark:bg-[#131316] text-slate-900 dark:text-slate-100';
 
                     if (isHeader) {
                       rowStyle = 'bg-slate-50 dark:bg-slate-800/80 font-bold text-slate-900 dark:text-white';

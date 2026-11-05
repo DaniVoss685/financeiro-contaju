@@ -77,11 +77,11 @@ export const DeleteContractModal: React.FC<DeleteContractModalProps> = ({
       }}
     >
       <div 
-        className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl max-w-lg w-full flex flex-col border border-slate-200 dark:border-[#273040] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-[#131316] rounded-2xl shadow-2xl max-w-lg w-full flex flex-col border border-slate-200 dark:border-[#26262b] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-rose-50/50 dark:bg-rose-950/20">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-rose-50/50 dark:bg-rose-950/20">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
               <Trash2 className="w-5 h-5" />
@@ -106,7 +106,7 @@ export const DeleteContractModal: React.FC<DeleteContractModalProps> = ({
 
         {/* Conteúdo */}
         <div className="p-6 space-y-4 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040] space-y-1">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] space-y-1">
             <div className="flex items-center justify-between">
               <span className="font-mono font-bold text-slate-900 dark:text-white">{contract.contractNumber}</span>
               <span className="font-bold text-rose-600 dark:text-rose-400">{formatBRL(contract.monthlyTotal)}/mês</span>
@@ -147,12 +147,12 @@ export const DeleteContractModal: React.FC<DeleteContractModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex items-center justify-between gap-3">
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2 rounded-xl border border-slate-300 dark:border-[#273040] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-semibold transition-colors text-xs"
+            className="px-4 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-semibold transition-colors text-xs"
           >
             Cancelar
           </button>

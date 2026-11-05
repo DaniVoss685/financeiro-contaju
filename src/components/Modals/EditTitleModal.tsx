@@ -11,6 +11,8 @@ import { SeriesUpdateConfirmationModal } from './SeriesUpdateConfirmationModal';
 import { ContractAdjustmentNotificationModal } from './ContractAdjustmentNotificationModal';
 import { advanceCompetence, getDaysInMonth } from '../../utils/dateUtils';
 import { toast } from '../../hooks/useToast';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface EditTitleModalProps {
   isOpen: boolean;
@@ -597,12 +599,12 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
     <>
       <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div 
-          className="bg-white dark:bg-[#131720] rounded-none sm:rounded-3xl shadow-2xl max-w-4xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden border border-slate-200 dark:border-[#273040] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 my-0 sm:my-4 flex flex-col"
+          className="bg-white dark:bg-[#131316] rounded-none sm:rounded-3xl shadow-2xl max-w-4xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden border border-slate-200 dark:border-[#26262b] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 my-0 sm:my-4 flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           
           {/* Header Fixo com Ampla Proporção */}
-          <div className="shrink-0 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/80 z-10">
+          <div className="shrink-0 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/80 z-10">
             <div className="flex items-center space-x-3 min-w-0">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 isReceber ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400'
@@ -761,7 +763,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                     value={originalAmount || ''}
                     onWheel={(e) => (e.target as HTMLElement).blur()}
                     onChange={(e) => setOriginalAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl sm:rounded-2xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] pl-10 pr-3 py-2.5 font-bold text-slate-900 dark:text-amber-400 text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none min-h-[42px] sm:min-h-[46px]"
+                    className="w-full rounded-xl sm:rounded-2xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-10 pr-3 py-2.5 font-bold text-slate-900 dark:text-amber-400 text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none min-h-[42px] sm:min-h-[46px]"
                     required
                   />
                 </div>
@@ -777,13 +779,13 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Ex: Fornecimento de Licenças de TI, Honorários de Consultoria, Aluguel..."
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white px-3.5 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white px-3.5 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none"
                   required
                 />
               </div>
 
               {/* SEÇÃO AMPLA E DEDICADA: PLANO DE CONTAS */}
-              <div className="md:col-span-12 p-4 sm:p-5 bg-slate-50 dark:bg-[#1B212D]/70 border border-slate-200 dark:border-[#273040] rounded-2xl sm:rounded-3xl space-y-3 shadow-2xs">
+              <div className="md:col-span-12 p-4 sm:p-5 bg-slate-50 dark:bg-[#1b1b20]/70 border border-slate-200 dark:border-[#26262b] rounded-2xl sm:rounded-3xl space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
@@ -832,7 +834,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
                 {/* Card Informativo com a Conta Selecionada */}
                 {selectedAccount && (
-                  <div className="p-3.5 bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-[#273040] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                  <div className="p-3.5 bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-[#26262b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                     <div className="flex items-center gap-3">
                       <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         {selectedAccount.code}
@@ -858,12 +860,11 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
                   Competência Contábil *
                 </label>
-                <input
-                  type="month"
+                <MonthField
                   value={competence}
                   onChange={(e) => setCompetence(e.target.value)}
                   style={{ colorScheme: 'light dark' }}
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white px-3 py-2.5 text-xs sm:text-sm font-medium"
+                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white px-3 py-2.5 text-xs sm:text-sm font-medium"
                   required
                 />
               </div>
@@ -872,15 +873,14 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
                   Data de Vencimento *
                 </label>
-                <input
-                  type="date"
+                <DateField
                   value={dueDate}
                   onChange={(e) => {
                     setDueDate(e.target.value);
                     setExpectedCashDate(e.target.value);
                   }}
                   style={{ colorScheme: 'light dark' }}
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white px-3 py-2.5 text-xs sm:text-sm font-medium"
+                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white px-3 py-2.5 text-xs sm:text-sm font-medium"
                   required
                 />
               </div>
@@ -907,7 +907,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                   placeholder="Ex: 34191.79001 01043.510047 91020.150008 5 98450000185000"
-                  className="w-full font-mono text-xs rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none"
+                  className="w-full font-mono text-xs rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none"
                 />
               </div>
 
@@ -920,7 +920,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Informações adicionais, centro de custo, etc..."
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white px-3.5 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white px-3.5 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -959,8 +959,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                       <label className="block text-slate-700 dark:text-slate-300 text-[11px] font-semibold mb-1">
                         A partir de qual mês começar *
                       </label>
-                      <input
-                        type="month"
+                      <MonthField
                         value={recurringStartMonth}
                         onChange={(e) => setRecurringStartMonth(e.target.value)}
                         className="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium"
@@ -975,7 +974,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                       <label className="block text-slate-700 dark:text-slate-300 text-[11px] font-semibold mb-1">
                         Quantas vezes vai ser (Duração) *
                       </label>
-                      <select
+                      <PremiumSelect
                         value={recurringOption}
                         onChange={(e) => setRecurringOption(e.target.value as any)}
                         className="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium cursor-pointer"
@@ -988,7 +987,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                         <option value="24">24 meses (2 anos)</option>
                         <option value="36">36 meses (3 anos)</option>
                         <option value="CUSTOM">Período personalizado...</option>
-                      </select>
+                      </PremiumSelect>
                     </div>
                   </div>
 
@@ -1074,8 +1073,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                         <label className="block text-slate-700 text-[11px] font-semibold mb-1">
                           {isReceber ? 'Data do Recebimento *' : 'Data do Pagamento *'}
                         </label>
-                        <input
-                          type="date"
+                        <DateField
                           max={today}
                           value={settlementDate}
                           onChange={(e) => setSettlementDate(e.target.value)}
@@ -1088,7 +1086,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                         <label className="block text-slate-700 text-[11px] font-semibold mb-1">
                           {isReceber ? 'Conta de Crédito *' : 'Conta de Débito *'}
                         </label>
-                        <select
+                        <PremiumSelect
                           value={settlementBankAccountId}
                           onChange={(e) => setSettlementBankAccountId(e.target.value)}
                           className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-medium"
@@ -1100,14 +1098,14 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                               {b.name} ({b.institution})
                             </option>
                           ))}
-                        </select>
+                        </PremiumSelect>
                       </div>
 
                       <div>
                         <label className="block text-slate-700 text-[11px] font-semibold mb-1">
                           Forma de Pagamento
                         </label>
-                        <select
+                        <PremiumSelect
                           value={settlementPaymentMethod}
                           onChange={(e) => setSettlementPaymentMethod(e.target.value as any)}
                           className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-medium"
@@ -1119,7 +1117,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           <option value="DINHEIRO">Dinheiro em Espécie</option>
                           <option value="DEBITO_AUTOMATICO">Débito Automático</option>
                           <option value="OUTROS">Outros</option>
-                        </select>
+                        </PremiumSelect>
                       </div>
                     </div>
 
@@ -1222,11 +1220,11 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
             </div>
 
             {/* Footer Fixo */}
-            <div className="shrink-0 sticky bottom-0 bg-white/95 dark:bg-[#131720]/95 backdrop-blur border-t border-slate-200 dark:border-[#273040] p-3 sm:p-4 z-10 flex items-center justify-end gap-3 shadow-lg">
+            <div className="shrink-0 sticky bottom-0 bg-white/95 dark:bg-[#131316]/95 backdrop-blur border-t border-slate-200 dark:border-[#26262b] p-3 sm:p-4 z-10 flex items-center justify-end gap-3 shadow-lg">
               <button
                 type="button"
                 onClick={onClose}
-                className="min-h-[42px] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1B212D] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#273040] rounded-xl transition-colors cursor-pointer"
+                className="min-h-[42px] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

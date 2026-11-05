@@ -390,10 +390,10 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 dark:border-[#273040] animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-[#131316] rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 dark:border-[#26262b] animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         
         {/* Header Dourado Leão */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 rounded-xl bg-black border border-amber-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.25)]">
               <FileSpreadsheet className="w-5 h-5 text-amber-400" />
@@ -432,7 +432,7 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
 
             <button
               onClick={handleDownloadTemplate}
-              className="px-3.5 py-2 bg-slate-900 dark:bg-[#1B212D] hover:bg-slate-800 text-amber-400 border border-amber-500/30 rounded-xl font-bold transition-all shadow-xs flex items-center space-x-1.5 shrink-0 text-xs"
+              className="px-3.5 py-2 bg-slate-900 dark:bg-[#1b1b20] hover:bg-slate-800 text-amber-400 border border-amber-500/30 rounded-xl font-bold transition-all shadow-xs flex items-center space-x-1.5 shrink-0 text-xs"
             >
               <Download className="w-4 h-4" />
               <span>Baixar Planilha Modelo (.xlsx)</span>
@@ -440,7 +440,7 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
           </div>
 
           {/* Passo 2: Upload da Planilha Preenchida */}
-          <div className="border-2 border-dashed border-slate-300 dark:border-[#273040] hover:border-amber-500 dark:hover:border-amber-500/60 rounded-2xl p-6 text-center transition-colors">
+          <div className="border-2 border-dashed border-slate-300 dark:border-[#26262b] hover:border-amber-500 dark:hover:border-amber-500/60 rounded-2xl p-6 text-center transition-colors">
             <input
               type="file"
               id="contractsExcelInput"
@@ -485,9 +485,9 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
                 </div>
               </div>
 
-              <div className="border border-slate-200 dark:border-[#273040] rounded-xl overflow-hidden max-h-60 overflow-y-auto">
+              <div className="border border-slate-200 dark:border-[#26262b] rounded-xl overflow-hidden max-h-60 overflow-y-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-[#1B212D] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#273040] sticky top-0">
+                  <thead className="bg-slate-50 dark:bg-[#1b1b20] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-[#26262b] sticky top-0">
                     <tr>
                       <th className="py-2.5 px-3">Cliente / Contratante</th>
                       <th className="py-2.5 px-3">Cruzamento</th>
@@ -497,9 +497,9 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
                       <th className="py-2.5 px-3 text-center">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
                     {parsedRows.map((r, i) => (
-                      <tr key={i} className={r.isValid ? 'hover:bg-slate-50 dark:hover:bg-[#1B212D]/40' : 'bg-rose-50/50 dark:bg-rose-950/20'}>
+                      <tr key={i} className={r.isValid ? 'hover:bg-slate-50 dark:hover:bg-[#1b1b20]/40' : 'bg-rose-50/50 dark:bg-rose-950/20'}>
                         <td className="py-2.5 px-3">
                           <div className="font-bold text-slate-900 dark:text-slate-100">{r.clientName || '—'}</div>
                           {r.clientDoc && <div className="text-[10px] text-slate-500 font-mono">{r.clientDoc}</div>}
@@ -559,7 +559,7 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
         </div>
 
         {/* Rodapé com Resumo & Confirmação */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="text-xs text-slate-600 dark:text-slate-400">
             {parsedRows.length > 0 && (
               <span>
@@ -571,7 +571,7 @@ export const ImportContractsModal: React.FC<ImportContractsModalProps> = ({
           <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-slate-300 dark:border-[#273040] rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#131720] transition-colors"
+              className="px-4 py-2 border border-slate-300 dark:border-[#26262b] rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#131316] transition-colors"
             >
               Cancelar
             </button>

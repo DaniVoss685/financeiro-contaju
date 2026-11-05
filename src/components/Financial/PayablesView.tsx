@@ -55,6 +55,8 @@ import { SwipeableCard } from '../Common/SwipeableCard';
 import { useModulePeriod } from '../../hooks/useModulePeriod';
 import { toast } from '../../hooks/useToast';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { Card, PageToolbar, Button, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
 
 interface PayablesViewProps {
   onOpenNewTitleModal: (type: 'PAGAR') => void;
@@ -839,520 +841,190 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-white dark:bg-[#1B212D] p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-            <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">Contas a Pagar</h1>
-          </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-            Gestão de obrigações, fornecedores, impostos, salários, pró-labore e liquidações.
-          </p>
-        </div>
+      <PageToolbar description="Obrigações, fornecedores, impostos, salários, pró-labore e liquidações.">
+        <MoreMenu
+          attention={duplicateCandidates.length > 0}
+          items={[
+            {
+              label: 'Limpeza de duplicidades',
+              icon: <Sparkles className="w-4 h-4" />,
+              onClick: () => setIsDedupModalOpen(true),
+              badge: duplicateCandidates.length > 0 ? duplicateCandidates.length : undefined,
+              hint: 'Encontra contas repetidas (mesmo vencimento, valor e descrição)'
+            },
+            { label: 'Exportar para Excel', icon: <FileSpreadsheet className="w-4 h-4" />, onClick: handleExportExcel },
+            { label: 'Exportar para CSV', icon: <Download className="w-4 h-4" />, onClick: handleExportCSV }
+          ]}
+        />
+        <Button
+          variant="secondary"
+          icon={<Upload className="w-4 h-4" />}
+          onClick={() => setIsImportModalOpen(true)}
+          title="Importar contas a pagar de planilha externa"
+        >
+          Importar
+        </Button>
+        <Button
+          variant="secondary"
+          icon={<Barcode className="w-4 h-4" />}
+          onClick={() => setIsBoletoModalOpen(true)}
+          title="Reconhecimento e baixa automática em lote por linha digitável ou boleto"
+        >
+          Baixar boletos
+        </Button>
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={() => onOpenNewTitleModal('PAGAR')}>
+          Novo pagamento
+        </Button>
+      </PageToolbar>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <button
-            onClick={() => onOpenNewTitleModal('PAGAR')}
-            className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-2xs flex items-center shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            Novo Pagamento
-          </button>
-          <button
-            onClick={() => setIsBoletoModalOpen(true)}
-            className="px-3 py-2 bg-amber-500 hover:bg-amber-400 text-black rounded-lg text-xs font-bold transition-all shadow-2xs flex items-center shrink-0 cursor-pointer"
-            title="Reconhecimento e baixa automática em lote por linha digitável / boleto"
-          >
-            <Barcode className="w-4 h-4 mr-1.5" />
-            <span>Baixar Boletos</span>
-          </button>
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="px-3 py-2 bg-white dark:bg-[#19202D] border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-2xs shrink-0 cursor-pointer"
-            title="Importar lançamentos de contas a pagar de planilha externa"
-          >
-            <Upload className="w-4 h-4 mr-1.5 text-amber-500" />
-            Importar
-          </button>
-          <button
-            onClick={() => setIsDedupModalOpen(true)}
-            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center shadow-2xs shrink-0 cursor-pointer ${
-              duplicateCandidates.length > 0
-                ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 font-bold ring-2 ring-amber-400/50'
-                : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30'
-            }`}
-            title="Assistente de conciliação e limpeza de contas a pagar duplicadas (mesmo vencimento, valor e descrição)"
-          >
-            <Sparkles className="w-4 h-4 mr-1.5 text-amber-500" />
-            <span>Limpeza de Duplicidades</span>
-            {duplicateCandidates.length > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-slate-950 text-amber-400">
-                {duplicateCandidates.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={handleExportExcel}
-            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs shrink-0 cursor-pointer"
-            title="Exportar para Excel (.xlsx)"
-          >
-            <FileSpreadsheet className="w-4 h-4 mr-1.5 text-emerald-600 dark:text-emerald-400" />
-            Excel
-          </button>
-          <button
-            onClick={handleExportCSV}
-            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs shrink-0 cursor-pointer"
-            title="Exportar para CSV"
-          >
-            <Download className="w-4 h-4 mr-1.5 text-slate-500 dark:text-slate-400" />
-            CSV
-          </button>
-        </div>
-      </div>
-
-      {/* Menu Superior de Títulos (Mobile First: Abas de Status e Busca em Destaque) */}
-      <div className="block md:hidden bg-white dark:bg-[#1B212D] p-3.5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs space-y-3">
-        <div className="flex items-center justify-between text-[11px] font-bold">
-          <span className="text-slate-500 dark:text-slate-400 uppercase tracking-wider">Menu de Títulos</span>
-          <span className="text-rose-600 dark:text-rose-400 font-bold">{filteredTitles.length} obrigação(ões)</span>
-        </div>
-
-        {/* Abas Horizontais com Contadores em Destaque */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-pan-x">
-          {[
-            { id: 'ABERTO', label: 'Em Aberto', count: stats.openCount },
-            { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
-            { id: 'LIQUIDADO', label: 'Liquidados', count: stats.liquidadosCount },
-            { id: 'CONCILIADO', label: '✓✓ Conciliados', count: stats.conciliadosCount },
-            { id: 'TODOS', label: 'Todos', count: stats.todosCount },
-            { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setStatusFilter(tab.id as any);
-                setQuickDateFilter('ALL');
-              }}
-              className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
-                statusFilter === tab.id && quickDateFilter === 'ALL'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700'
-              }`}
-            >
-              <span>{tab.label}</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                statusFilter === tab.id && quickDateFilter === 'ALL'
-                  ? 'bg-rose-800 text-white'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-              }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Chips Rápidos de Data no Mobile */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-pan-x">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 mr-1">Prazo:</span>
-          {[
-            { id: 'ALL', label: 'Todos' },
-            { id: 'HOJE', label: 'Hoje' },
-            { id: 'ESTA_SEMANA', label: 'Esta Semana' },
-            { id: 'ESTE_MES', label: 'Este Mês' },
-          ].map(chip => (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => {
-                setQuickDateFilter(chip.id as any);
-                if (chip.id !== 'ALL') {
-                  setStatusFilter('ABERTO');
-                }
-              }}
-              className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center whitespace-nowrap shrink-0 cursor-pointer ${
-                quickDateFilter === chip.id
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Campo de Busca Mobile */}
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar por descrição, fornecedor ou documento..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-slate-50 dark:bg-[#131720] text-slate-900 dark:text-slate-100 placeholder-slate-400"
-          />
-        </div>
-
-        {/* Seletor Rápido de Categoria Mobile */}
-        <div className="flex items-center gap-2 pt-1">
-          <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 shrink-0">
-            Categoria:
-          </label>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#131720] text-slate-900 dark:text-slate-100"
-          >
-            <option value="ALL">Todas as Despesas ({categoryStats.totalTitlesInPeriod})</option>
-            {categoryStats.unclassifiedCount > 0 && (
-              <option value="SEM_CATEGORIA" className="font-bold text-amber-600 dark:text-amber-400">
-                ⚠️ Não Classificados ({categoryStats.unclassifiedCount})
-              </option>
-            )}
-            {categoryStats.inPeriodCosts.length > 0 && (
-              <optgroup label="⚡ Custos da Operação no Período (CSP/CPV)">
-                {categoryStats.inPeriodCosts.map(({ account, count, totalAmount }) => (
-                  <option key={account.id} value={account.id}>
-                    [CUSTO] {account.code} - {account.name} ({count} • {formatBRL(totalAmount)})
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {categoryStats.inPeriodExpenses.length > 0 && (
-              <optgroup label="⚡ Despesas Operacionais no Período">
-                {categoryStats.inPeriodExpenses.map(({ account, count, totalAmount }) => (
-                  <option key={account.id} value={account.id}>
-                    [DESPESA] {account.code} - {account.name} ({count} • {formatBRL(totalAmount)})
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {categoryStats.otherCosts.length > 0 && (
-              <optgroup label="📋 Custos da Operação (Outras do Plano)">
-                {categoryStats.otherCosts.map(acc => (
-                  <option key={acc.id} value={acc.id}>
-                    [CUSTO] {acc.code} - {acc.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {categoryStats.otherExpenses.length > 0 && (
-              <optgroup label="📋 Despesas Operacionais (Outras do Plano)">
-                {categoryStats.otherExpenses.map(acc => (
-                  <option key={acc.id} value={acc.id}>
-                    [DESPESA] {acc.code} - {acc.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </select>
-        </div>
-      </div>
-
-      {/* Quick Date Filter Blocks (Visão Rápida / Indicadores - Multidispositivo Adaptativo) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-2.5 sm:gap-3">
-        {/* Card: Em Aberto */}
-        <button
-          type="button"
+      {/* Indicadores (também funcionam como filtros rápidos) */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        <StatTile
+          label="Em aberto"
+          value={formatBRL(stats.openTotal)}
+          hint="Total a pagar"
+          count={stats.openCount}
+          active={quickDateFilter === 'ALL' && statusFilter === 'ABERTO'}
           onClick={() => {
             setQuickDateFilter('ALL');
             setStatusFilter('ABERTO');
           }}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'ALL' && statusFilter === 'ABERTO'
-              ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/30'
-              : 'bg-white dark:bg-[#131720] hover:bg-slate-50 dark:hover:bg-slate-800/60 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              quickDateFilter === 'ALL' && statusFilter === 'ABERTO' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'
-            }`}>
-              Em Aberto
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'ALL' && statusFilter === 'ABERTO' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'
-            }`}>
-              {stats.openCount}
-            </span>
-          </div>
-          <div className="text-base font-bold mt-1.5 truncate">
-            {formatBRL(stats.openTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'ALL' && statusFilter === 'ABERTO' ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'}`}>
-            Total a pagar em aberto
-          </div>
-        </button>
-
-        {/* Card: Vence Hoje */}
-        <button
-          type="button"
-          onClick={() => setQuickDateFilter(prev => prev === 'HOJE' ? 'ALL' : 'HOJE')}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'HOJE'
-              ? 'bg-amber-500 text-slate-950 font-bold border-amber-600 shadow-md ring-2 ring-amber-400/40'
-              : 'bg-white dark:bg-[#151D2A] hover:bg-slate-50 dark:hover:bg-[#1D2738] border-amber-300 dark:border-amber-500/40 text-slate-900 dark:text-white shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${
-              quickDateFilter === 'HOJE' ? 'text-slate-950' : 'text-amber-800 dark:text-amber-400'
-            }`}>
-              Vence Hoje
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'HOJE' ? 'bg-slate-950 text-white' : 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
-            }`}>
-              {stats.hojeCount}
-            </span>
-          </div>
-          <div className="text-base font-black mt-1.5 truncate text-slate-900 dark:text-white">
-            {formatBRL(stats.hojeTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'HOJE' ? 'text-slate-900 font-semibold' : 'text-slate-500 dark:text-slate-300'}`}>
-            Vencendo na data de hoje
-          </div>
-        </button>
-
-        {/* Card: Vence Esta Semana */}
-        <button
-          type="button"
-          onClick={() => setQuickDateFilter(prev => prev === 'ESTA_SEMANA' ? 'ALL' : 'ESTA_SEMANA')}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'ESTA_SEMANA'
-              ? 'bg-rose-600 text-white border-rose-700 shadow-md ring-2 ring-rose-400/40'
-              : 'bg-white dark:bg-[#151D2A] hover:bg-slate-50 dark:hover:bg-[#1D2738] border-rose-300 dark:border-rose-500/40 text-slate-900 dark:text-white shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${
-              quickDateFilter === 'ESTA_SEMANA' ? 'text-white' : 'text-rose-800 dark:text-rose-400'
-            }`}>
-              Vence Esta Semana
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'ESTA_SEMANA' ? 'bg-white text-rose-700' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-900 dark:text-rose-300 border border-rose-300 dark:border-rose-500/30'
-            }`}>
-              {stats.semanaCount}
-            </span>
-          </div>
-          <div className="text-base font-black mt-1.5 truncate text-rose-600 dark:text-rose-400">
-            {formatBRL(stats.semanaTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'ESTA_SEMANA' ? 'text-rose-100 font-semibold' : 'text-slate-500 dark:text-slate-300'}`}>
-            Agenda até domingo
-          </div>
-        </button>
-
-        {/* Card: Vencidos */}
-        <button
-          type="button"
-          onClick={() => setQuickDateFilter(prev => prev === 'VENCIDO' ? 'ALL' : 'VENCIDO')}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'VENCIDO'
-              ? 'bg-red-700 text-white border-red-800 shadow-md ring-2 ring-red-500/40'
-              : 'bg-red-50/60 hover:bg-red-50 dark:bg-red-950/30 dark:hover:bg-red-950/50 border-red-200 dark:border-red-800/60 text-red-950 dark:text-red-200 shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              quickDateFilter === 'VENCIDO' ? 'text-red-100' : 'text-red-800 dark:text-red-300'
-            }`}>
-              Vencidos
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'VENCIDO' ? 'bg-red-800 text-white' : 'bg-red-200 dark:bg-red-900/80 text-red-900 dark:text-red-200'
-            }`}>
-              {stats.vencidosCount}
-            </span>
-          </div>
-          <div className="text-base font-bold mt-1.5 truncate">
-            {formatBRL(stats.vencidosTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'VENCIDO' ? 'text-red-100' : 'text-red-700 dark:text-red-400'}`}>
-            Obrigações em atraso
-          </div>
-        </button>
-
-        {/* Card: Pagos / Liquidados */}
-        <button
-          type="button"
-          onClick={() => {
-            setQuickDateFilter(prev => prev === 'LIQUIDADO' ? 'ALL' : 'LIQUIDADO');
-            setStatusFilter('LIQUIDADO');
-          }}
-          className={`p-3.5 rounded-xl border text-left transition-all col-span-2 sm:col-span-1 ${
-            quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO'
-              ? 'bg-emerald-700 text-white border-emerald-800 shadow-md ring-2 ring-emerald-400/40'
-              : 'bg-emerald-50/50 hover:bg-emerald-50 dark:bg-emerald-950/25 dark:hover:bg-emerald-950/45 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-200 shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO' ? 'text-emerald-100' : 'text-emerald-800 dark:text-emerald-300'
-            }`}>
-              Pagos
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200'
-            }`}>
-              {stats.liquidadosCount}
-            </span>
-          </div>
-          <div className="text-base font-bold mt-1.5 truncate">
-            {formatBRL(stats.liquidadosTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO' ? 'text-emerald-100' : 'text-emerald-700 dark:text-emerald-400'}`}>
-            Total liquidado
-          </div>
-        </button>
+        />
+        <StatTile
+          label="Vence hoje"
+          value={formatBRL(stats.hojeTotal)}
+          hint="Vencendo hoje"
+          count={stats.hojeCount}
+          active={quickDateFilter === 'HOJE'}
+          onClick={() => setQuickDateFilter(prev => (prev === 'HOJE' ? 'ALL' : 'HOJE'))}
+        />
+        <StatTile
+          label="Esta semana"
+          value={formatBRL(stats.semanaTotal)}
+          hint="Até domingo"
+          count={stats.semanaCount}
+          active={quickDateFilter === 'ESTA_SEMANA'}
+          onClick={() => setQuickDateFilter(prev => (prev === 'ESTA_SEMANA' ? 'ALL' : 'ESTA_SEMANA'))}
+        />
+        <StatTile
+          label="Vencidos"
+          value={formatBRL(stats.vencidosTotal)}
+          hint="Em atraso"
+          count={stats.vencidosCount}
+          tone={stats.vencidosTotal > 0 ? 'danger' : 'neutral'}
+          active={quickDateFilter === 'VENCIDO'}
+          onClick={() => setQuickDateFilter(prev => (prev === 'VENCIDO' ? 'ALL' : 'VENCIDO'))}
+        />
+        <div className="col-span-2 lg:col-span-1">
+          <StatTile
+            label="Pagos"
+            value={formatBRL(stats.liquidadosTotal)}
+            hint="Já liquidados"
+            count={stats.liquidadosCount}
+            active={quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO'}
+            onClick={() => {
+              setQuickDateFilter(prev => (prev === 'LIQUIDADO' ? 'ALL' : 'LIQUIDADO'));
+              setStatusFilter('LIQUIDADO');
+            }}
+          />
+        </div>
       </div>
 
-      {/* Top Filter Bar (Superior Filters) */}
-      <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs space-y-3">
-        
-        {/* Row 1: Status Pill Tabs & Search */}
-        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
-          
-          {/* Status Pill Tabs (Menu Superior de Títulos) */}
-          <div className="flex items-center space-x-1.5 overflow-x-auto text-xs pb-1 md:pb-0 scrollbar-none">
-            {[
-              { id: 'ABERTO', label: 'Em Aberto', count: stats.openCount },
-              { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
-              { id: 'LIQUIDADO', label: 'Liquidados', count: stats.liquidadosCount },
-              { id: 'CONCILIADO', label: '✓✓ Conciliados', count: stats.conciliadosCount },
-              { id: 'TODOS', label: 'Todos', count: stats.todosCount },
-              { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setStatusFilter(tab.id as any);
-                  setQuickDateFilter('ALL');
-                }}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
-                  statusFilter === tab.id && quickDateFilter === 'ALL'
-                    ? 'bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-950 font-bold shadow-xs'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  statusFilter === tab.id && quickDateFilter === 'ALL'
-                    ? 'bg-slate-800 dark:bg-amber-600 text-slate-200 dark:text-slate-950'
-                    : 'bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
-                }`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+      {/* Filtros */}
+      <Card className="space-y-5">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
+          <div className="min-w-0 2xl:flex-1">
+            <TabPills
+              tabs={[
+                { id: 'ABERTO', label: 'Em aberto', count: stats.openCount },
+                { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
+                { id: 'LIQUIDADO', label: 'Liquidados', count: stats.liquidadosCount },
+                { id: 'CONCILIADO', label: 'Conciliados', count: stats.conciliadosCount },
+                { id: 'TODOS', label: 'Todos', count: stats.todosCount },
+                { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
+              ]}
+              value={quickDateFilter === 'ALL' ? statusFilter : ''}
+              onChange={id => {
+                setStatusFilter(id as any);
+                setQuickDateFilter('ALL');
+              }}
+            />
           </div>
-
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-sm">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <div className="relative w-full 2xl:w-72 shrink-0">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
             <input
               type="text"
-              placeholder="Buscar por fornecedor, documento ou descrição..."
+              placeholder="Buscar por fornecedor, documento ou descrição"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
             />
           </div>
         </div>
 
-        {/* Row 2: Advanced Dropdown Filters (Category, Supplier, Bank Account, Origin) */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs items-center">
-          
-          {/* Categoria / Plano de Contas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                Plano de Contas / Despesa:
-              </label>
-              {categoryFilter !== 'ALL' && (
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter('ALL')}
-                  className="text-[10px] text-rose-600 dark:text-rose-400 hover:underline font-semibold cursor-pointer"
-                  title="Remover filtro de categoria"
-                >
-                  Limpar
-                </button>
-              )}
-            </div>
-            <select
+            <FieldLabel>Plano de contas</FieldLabel>
+            <PremiumSelect
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className={`w-full px-2.5 py-1.5 rounded-lg border text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none transition-colors ${
-                categoryFilter !== 'ALL'
-                  ? 'border-rose-500 dark:border-rose-400 bg-rose-50/50 dark:bg-rose-950/30 text-rose-950 dark:text-rose-200 font-bold'
-                  : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100'
-              }`}
+              onChange={e => setCategoryFilter(e.target.value)}
+              sheetTitle="Plano de contas"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">
-                Todas as Despesas ({categoryStats.totalTitlesInPeriod} no período)
-              </option>
-
+              <option value="ALL">Todas as despesas ({categoryStats.totalTitlesInPeriod} no período)</option>
               {categoryStats.unclassifiedCount > 0 && (
-                <option value="SEM_CATEGORIA" className="font-bold text-amber-600 dark:text-amber-400">
-                  ⚠️ Não Classificados (Sem Categoria) ({categoryStats.unclassifiedCount} títulos • {formatBRL(categoryStats.unclassifiedTotal)})
+                <option value="SEM_CATEGORIA">
+                  Sem categoria ({categoryStats.unclassifiedCount} títulos • {formatBRL(categoryStats.unclassifiedTotal)})
                 </option>
               )}
-
               {categoryStats.inPeriodCosts.length > 0 && (
-                <optgroup label={`⚡ Custos da Operação no Período (CSP/CPV) (${categoryStats.inPeriodCosts.length})`}>
+                <optgroup label="Custos da operação no período (CSP/CPV)">
                   {categoryStats.inPeriodCosts.map(({ account, count, totalAmount }) => (
                     <option key={account.id} value={account.id}>
-                      [CUSTO] {account.code} - {account.name} ({count} títulos • {formatBRL(totalAmount)})
+                      {account.code} - {account.name} ({count} títulos • {formatBRL(totalAmount)})
                     </option>
                   ))}
                 </optgroup>
               )}
-
               {categoryStats.inPeriodExpenses.length > 0 && (
-                <optgroup label={`⚡ Despesas Operacionais no Período (${categoryStats.inPeriodExpenses.length})`}>
+                <optgroup label="Despesas operacionais no período">
                   {categoryStats.inPeriodExpenses.map(({ account, count, totalAmount }) => (
                     <option key={account.id} value={account.id}>
-                      [DESPESA] {account.code} - {account.name} ({count} títulos • {formatBRL(totalAmount)})
+                      {account.code} - {account.name} ({count} títulos • {formatBRL(totalAmount)})
                     </option>
                   ))}
                 </optgroup>
               )}
-
               {categoryStats.otherCosts.length > 0 && (
-                <optgroup label={`📋 Custos da Operação (Plano de Contas) (${categoryStats.otherCosts.length})`}>
+                <optgroup label="Custos da operação (plano de contas)">
                   {categoryStats.otherCosts.map(acc => (
                     <option key={acc.id} value={acc.id}>
-                      [CUSTO] {acc.code} - {acc.name}
+                      {acc.code} - {acc.name}
                     </option>
                   ))}
                 </optgroup>
               )}
-
               {categoryStats.otherExpenses.length > 0 && (
-                <optgroup label={`📋 Despesas Operacionais (Plano de Contas) (${categoryStats.otherExpenses.length})`}>
+                <optgroup label="Despesas operacionais (plano de contas)">
                   {categoryStats.otherExpenses.map(acc => (
                     <option key={acc.id} value={acc.id}>
-                      [DESPESA] {acc.code} - {acc.name}
+                      {acc.code} - {acc.name}
                     </option>
                   ))}
                 </optgroup>
               )}
-            </select>
+            </PremiumSelect>
           </div>
 
-          {/* Fornecedor / Favorecido */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
-              Fornecedor / Favorecido:
-            </label>
-            <select
+            <FieldLabel>Fornecedor ou favorecido</FieldLabel>
+            <PremiumSelect
               value={counterpartyFilter}
-              onChange={(e) => setCounterpartyFilter(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-rose-500 focus:outline-none"
+              onChange={e => setCounterpartyFilter(e.target.value)}
+              sheetTitle="Fornecedor ou favorecido"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">Todos os Fornecedores e Clientes</option>
+              <option value="ALL">Todos</option>
               <optgroup label="Fornecedores">
                 {counterparties.filter(c => c.type === 'FORNECEDOR' || c.type === 'AMBOS').map(cp => (
                   <option key={cp.id} value={cp.id}>
@@ -1360,118 +1032,95 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                   </option>
                 ))}
               </optgroup>
-              <optgroup label="Clientes (Compras e Pagamentos)">
+              <optgroup label="Clientes (compras e pagamentos)">
                 {counterparties.filter(c => c.type === 'CLIENTE').map(cp => (
                   <option key={cp.id} value={cp.id}>
-                    {cp.name} (Cliente)
+                    {cp.name} (cliente)
                   </option>
                 ))}
               </optgroup>
-            </select>
+            </PremiumSelect>
           </div>
 
-          {/* Conta Bancária / Caixa Previsto */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
-              Conta Bancária / Caixa:
-            </label>
-            <select
+            <FieldLabel>Conta bancária</FieldLabel>
+            <PremiumSelect
               value={bankFilter}
-              onChange={(e) => setBankFilter(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-rose-500 focus:outline-none"
+              onChange={e => setBankFilter(e.target.value)}
+              sheetTitle="Conta bancária"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">Todas as Contas</option>
+              <option value="ALL">Todas as contas</option>
               {bankAccounts.map(b => (
                 <option key={b.id} value={b.id}>
                   {b.name} ({b.institution || b.type})
                 </option>
               ))}
-            </select>
+            </PremiumSelect>
           </div>
 
-          {/* Origem / Modalidade */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
-              Origem do Título:
-            </label>
-            <select
+            <FieldLabel>Origem do título</FieldLabel>
+            <PremiumSelect
               value={originFilter}
-              onChange={(e) => setOriginFilter(e.target.value as any)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-rose-500 focus:outline-none"
+              onChange={e => setOriginFilter(e.target.value as any)}
+              sheetTitle="Origem do título"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">Todas as Origens</option>
-              <option value="CARTAO_CREDITO">💳 Cartão de Crédito</option>
-              <option value="CONTRATO">🏷️ Contratos / Recorrências</option>
-              <option value="OUTROS">📄 Boletos / Despesas Manuais</option>
-            </select>
-          </div>
-
-          {/* Reset Filters */}
-          <div className="flex items-end h-full pt-4 sm:pt-0">
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={handleClearFilters}
-                className="px-3 py-1.5 text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-800 rounded-lg font-medium transition-colors flex items-center justify-center w-full shadow-2xs cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                Limpar Filtros
-              </button>
-            )}
+              <option value="ALL">Todas as origens</option>
+              <option value="CARTAO_CREDITO">Cartão de crédito</option>
+              <option value="CONTRATO">Contratos e recorrências</option>
+              <option value="OUTROS">Boletos e despesas manuais</option>
+            </PremiumSelect>
           </div>
         </div>
 
-        {/* Chip / Banner de Filtro de Categoria Ativo com Ação de Selecionar Todos para Classificar */}
-        {categoryFilter !== 'ALL' && (
-          <div className="pt-2">
-            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs text-rose-900 dark:text-rose-200 animate-fade-in shadow-2xs">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-[10px] px-2 py-0.5 rounded bg-rose-600 text-white uppercase tracking-wider">
-                  Filtro de Categoria
-                </span>
-                <span className="font-bold">
-                  {categoryFilter === 'SEM_CATEGORIA' 
-                    ? '⚠️ Não Classificados (Sem Categoria)' 
+        {(hasActiveFilters || categoryFilter !== 'ALL') && (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <p className="text-sm text-[var(--text-secondary)]">
+              {filteredTitles.length} lançamento(s) •{' '}
+              <span className="tabular-nums">
+                {formatBRL(filteredTitles.reduce((acc, t) => acc + (t.balancePrincipal || t.originalAmount || 0), 0))}
+              </span>
+              {categoryFilter !== 'ALL' && (
+                <span className="text-[var(--text-muted)]">
+                  {' '}
+                  em{' '}
+                  {categoryFilter === 'SEM_CATEGORIA'
+                    ? 'sem categoria'
                     : (() => {
                         const acc = chartAccounts.find(a => a.id === categoryFilter);
                         return acc ? `${acc.code} - ${acc.name}` : categoryFilter;
-                      })()
-                  }
+                      })()}
                 </span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-400 font-mono">
-                  ({filteredTitles.length} lançamentos • {formatBRL(filteredTitles.reduce((acc, t) => acc + (t.balancePrincipal || t.originalAmount || 0), 0))})
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {filteredTitles.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedIds(filteredTitles.map(t => t.id));
-                      setToastMessage({
-                        type: 'info',
-                        text: `${filteredTitles.length} títulos desta categoria selecionados! Você pode classificá-los em lote usando a barra de ações.`
-                      });
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shadow-2xs"
-                    title="Selecionar todos os títulos filtrados para classificar ou editar em lote"
-                  >
-                    Selecionar Todos ({filteredTitles.length})
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter('ALL')}
-                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-bold transition-colors cursor-pointer shadow-2xs"
-                  title="Limpar filtro de categoria"
+              )}
+            </p>
+            <div className="flex items-center gap-2">
+              {categoryFilter !== 'ALL' && filteredTitles.length > 0 && (
+                <Button
+                  variant="secondary"
+                  className="h-9"
+                  title="Selecionar todos os títulos filtrados para classificar ou editar em lote"
+                  onClick={() => {
+                    setSelectedIds(filteredTitles.map(t => t.id));
+                    setToastMessage({
+                      type: 'info',
+                      text: `${filteredTitles.length} títulos desta categoria selecionados! Você pode classificá-los em lote usando a barra de ações.`
+                    });
+                  }}
                 >
-                  ✕ Limpar Filtro
-                </button>
-              </div>
+                  Selecionar todos ({filteredTitles.length})
+                </Button>
+              )}
+              {hasActiveFilters && (
+                <Button variant="ghost" className="h-9" icon={<RotateCcw className="w-4 h-4" />} onClick={handleClearFilters} title="Limpar todos os filtros">
+                  Limpar filtros
+                </Button>
+              )}
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Payables Period Navigator (Vencimento) */}
       <ModulePeriodNavigator
@@ -1667,7 +1316,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       {/* Mobile View: Cards Expansíveis (Descrição, Data de Vencimento e Valor; clique na linha expande o restante) */}
       <div className={`block md:hidden space-y-2.5 ${selectedIds.length > 0 ? 'pb-28 sm:pb-0' : ''}`}>
         {sortedTitles.length === 0 ? (
-          <div className="bg-white dark:bg-[#1B212D] p-8 rounded-xl border border-slate-200 dark:border-[#273040] text-center text-slate-600 dark:text-slate-300 text-xs shadow-2xs">
+          <div className="bg-white dark:bg-[#1b1b20] p-8 rounded-xl border border-slate-200 dark:border-[#26262b] text-center text-slate-600 dark:text-slate-300 text-xs shadow-2xs">
             Nenhuma obrigação a pagar localizada para os filtros informados.
           </div>
         ) : (
@@ -1695,8 +1344,8 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
             const isOverdue = balance > 0 && (diffDays < 0 || titleDueDate < today);
             const isNearDue = balance > 0 && !isOverdue && !isNaN(diffDays) && diffDays <= 3;
 
-            let cardBorder = 'border-slate-200 dark:border-[#273040]';
-            let cardBg = 'bg-white dark:bg-[#1B212D]';
+            let cardBorder = 'border-slate-200 dark:border-[#26262b]';
+            let cardBg = 'bg-white dark:bg-[#1b1b20]';
             if (t.documentState === 'CANCELADO') {
               cardBg = 'bg-slate-50 dark:bg-slate-900/40 opacity-60';
               cardBorder = 'border-slate-200 dark:border-slate-800';
@@ -1881,7 +1530,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
                 {/* Conteúdo Expandido ao Clicar na Linha */}
                 {isExpanded && (
-                  <div className="border-t border-slate-200 dark:border-[#273040] bg-slate-50/90 dark:bg-[#131720]/90 p-3.5 space-y-3 text-xs">
+                  <div className="border-t border-slate-200 dark:border-[#26262b] bg-slate-50/90 dark:bg-[#131316]/90 p-3.5 space-y-3 text-xs">
                     
                     {/* Status e Situação */}
                     <div className="flex items-center gap-2 flex-wrap pb-2 border-b border-slate-200 dark:border-slate-800">
@@ -1992,7 +1641,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                     </div>
 
                     {/* Resumo Financeiro */}
-                    <div className="bg-white dark:bg-[#1B212D] p-2.5 rounded-lg border border-slate-200 dark:border-[#273040] flex justify-between items-center text-xs">
+                    <div className="bg-white dark:bg-[#1b1b20] p-2.5 rounded-lg border border-slate-200 dark:border-[#26262b] flex justify-between items-center text-xs">
                       <div>
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 block">Valor Original</span>
                         <span className="font-medium text-slate-700 dark:text-slate-300">{formatBRL(t.originalAmount)}</span>
@@ -2008,7 +1657,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                     </div>
 
                     {/* Ações Rápidas Mobile */}
-                    <div className="pt-2 border-t border-slate-200 dark:border-[#273040] flex flex-wrap gap-2 items-center">
+                    <div className="pt-2 border-t border-slate-200 dark:border-[#26262b] flex flex-wrap gap-2 items-center">
                       {t.balancePrincipal > 0 && t.documentState !== 'CANCELADO' && (
                         <button
                           type="button"
@@ -2139,10 +1788,10 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       </div>
 
       {/* Payables Table (Desktop & Tablets) */}
-      <div className="hidden md:block bg-white dark:bg-[#131720] rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-200/90 dark:bg-[#121620] border-b-2 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold uppercase tracking-wider select-none">
+            <thead className="bg-slate-200/90 dark:bg-[#131316] border-b-2 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold uppercase tracking-wider select-none">
               <tr>
                 <th className="py-3 px-3 w-10 text-center">
                   <button

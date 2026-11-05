@@ -144,12 +144,12 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-[#151B26] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] overflow-hidden border border-slate-200 dark:border-[#273040] flex flex-col animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-[#17171b] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] overflow-hidden border border-slate-200 dark:border-[#26262b] flex flex-col animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
       >
         {/* Header Premium com Gradiente e Status */}
-        <div className="shrink-0 px-5 py-4 border-b border-slate-200 dark:border-[#273040] bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-[#1B212D] dark:via-[#151B26] dark:to-[#1B212D] flex items-center justify-between gap-4">
+        <div className="shrink-0 px-5 py-4 border-b border-slate-200 dark:border-[#26262b] bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-[#1b1b20] dark:via-[#17171b] dark:to-[#1b1b20] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
               isReceivable 
@@ -160,7 +160,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-[#273040] text-slate-700 dark:text-slate-300">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-[#26262b] text-slate-700 dark:text-slate-300">
                   Doc #{title.titleNumber}
                 </span>
                 <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
@@ -190,7 +190,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
             <button
               type="button"
               onClick={handlePrint}
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#273040] transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#26262b] transition-colors cursor-pointer"
               title="Imprimir Histórico"
             >
               <Printer className="w-4 h-4" />
@@ -198,7 +198,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#273040] transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#26262b] transition-colors cursor-pointer"
               aria-label="Fechar"
             >
               <X className="w-5 h-5" />
@@ -207,29 +207,29 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
         </div>
 
         {/* Resumo Financeiro em Cards de KPI */}
-        <div className="shrink-0 px-5 py-3.5 bg-slate-50/80 dark:bg-[#1B212D]/60 border-b border-slate-200 dark:border-[#273040] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-2.5 rounded-xl bg-white dark:bg-[#151B26] border border-slate-200 dark:border-[#273040]">
+        <div className="shrink-0 px-5 py-3.5 bg-slate-50/80 dark:bg-[#1b1b20]/60 border-b border-slate-200 dark:border-[#26262b] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold block">Valor Original</span>
             <span className="text-sm font-black font-mono text-slate-900 dark:text-white mt-0.5 block">
               {formatBRL(title.originalAmount)}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white dark:bg-[#151B26] border border-slate-200 dark:border-[#273040]">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
             <span className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-semibold block">Já Baixado ({percentSettled}%)</span>
             <span className="text-sm font-black font-mono text-emerald-600 dark:text-emerald-400 mt-0.5 block">
               {formatBRL(title.settledPrincipal || 0)}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white dark:bg-[#151B26] border border-slate-200 dark:border-[#273040]">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
             <span className="text-[10px] text-amber-600 dark:text-amber-400 uppercase font-semibold block">Saldo em Aberto</span>
             <span className="text-sm font-black font-mono text-amber-600 dark:text-amber-400 mt-0.5 block">
               {formatBRL(title.balancePrincipal)}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white dark:bg-[#151B26] border border-slate-200 dark:border-[#273040]">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold block">Favorecido</span>
             <span className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block truncate" title={counterparty?.tradeName || counterparty?.name}>
               {counterparty?.tradeName || counterparty?.name || 'Não informado'}
@@ -238,7 +238,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
         </div>
 
         {/* Barra de Progresso de Amortização */}
-        <div className="shrink-0 px-5 py-2.5 bg-white dark:bg-[#151B26] border-b border-slate-100 dark:border-[#273040]/70 flex items-center gap-3">
+        <div className="shrink-0 px-5 py-2.5 bg-white dark:bg-[#17171b] border-b border-slate-100 dark:border-[#26262b]/70 flex items-center gap-3">
           <div className="flex-1 bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
             <div 
               className={`h-full transition-all duration-500 rounded-full ${
@@ -273,7 +273,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
           </div>
 
           {historyTimeline.length === 0 ? (
-            <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-[#1B212D]/40 border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+            <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-[#1b1b20]/40 border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">
               <Clock className="w-10 h-10 mx-auto text-slate-400 mb-2 stroke-[1.5]" />
               <p className="font-bold text-sm text-slate-700 dark:text-slate-300">Nenhum pagamento ou conciliação efetuada</p>
               <p className="text-xs mt-1">Este título está integralmente em aberto no valor de {formatBRL(title.originalAmount)}.</p>
@@ -283,10 +283,10 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
               {historyTimeline.map((item) => (
                 <div 
                   key={item.id}
-                  className="relative p-4 rounded-xl bg-slate-50/70 dark:bg-[#1B212D]/50 border border-slate-200 dark:border-[#273040] hover:border-amber-500/40 transition-colors shadow-2xs"
+                  className="relative p-4 rounded-xl bg-slate-50/70 dark:bg-[#1b1b20]/50 border border-slate-200 dark:border-[#26262b] hover:border-amber-500/40 transition-colors shadow-2xs"
                 >
                   {/* Ponto na linha do tempo */}
-                  <div className={`absolute -left-[27px] top-4 w-4 h-4 rounded-full border-2 bg-white dark:bg-[#151B26] flex items-center justify-center ${
+                  <div className={`absolute -left-[27px] top-4 w-4 h-4 rounded-full border-2 bg-white dark:bg-[#17171b] flex items-center justify-center ${
                     item.isBankReconciled 
                       ? 'border-emerald-500 text-emerald-500' 
                       : 'border-amber-500 text-amber-500'
@@ -300,7 +300,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
                         <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         {formatDateBR(item.date)}
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-[#273040] text-slate-700 dark:text-slate-300">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-[#26262b] text-slate-700 dark:text-slate-300">
                         {item.settlementIndex}ª Amortização
                       </span>
                       {item.isBankReconciled ? (
@@ -402,7 +402,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 px-5 py-3.5 bg-slate-50 dark:bg-[#1B212D] border-t border-slate-200 dark:border-[#273040] flex items-center justify-between">
+        <div className="shrink-0 px-5 py-3.5 bg-slate-50 dark:bg-[#1b1b20] border-t border-slate-200 dark:border-[#26262b] flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             <span>Auditoria Contábil e Bancária Integrada</span>
@@ -411,7 +411,7 @@ export const TitleSettlementHistoryModal: React.FC<TitleSettlementHistoryModalPr
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-[#273040] hover:bg-slate-300 dark:hover:bg-[#323d52] text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-[#26262b] hover:bg-slate-300 dark:hover:bg-[#34343b] text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
           >
             Fechar
           </button>

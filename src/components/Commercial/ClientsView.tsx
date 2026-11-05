@@ -37,6 +37,8 @@ import { ImportClientsModal } from '../Modals/ImportClientsModal';
 import { CNPJInputField } from '../Common/CNPJInputField';
 import { validateFiscalDocument } from '../../utils/cnpjValidator';
 import { matchesSearch } from '../../utils/searchUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { Card, PageToolbar, Button, StatCard, TabPills } from '../Common/ui';
 
 interface ClientsViewProps {
   initialSearch?: string;
@@ -335,267 +337,98 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Users className="w-5 h-5 text-amber-400" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Banco de Clientes Contaju</h1>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Gestão unificada da carteira de clientes com histórico de pagamentos, contratos ativos e encerrados, atrasos e movimentações.
-          </p>
-        </div>
+      <PageToolbar description="Carteira de clientes com histórico de pagamentos, contratos ativos e encerrados, atrasos e movimentações.">
+        <Button
+          variant="secondary"
+          icon={<Download className="w-4 h-4" />}
+          onClick={handleExportClients}
+          title="Exportar os clientes exibidos para planilha Excel (.xlsx)"
+        >
+          Exportar
+        </Button>
+        <Button
+          variant="secondary"
+          icon={<FileSpreadsheet className="w-4 h-4" />}
+          onClick={() => setIsImportModalOpen(true)}
+          title="Importar vários clientes de uma planilha Excel (.xlsx) ou CSV"
+        >
+          Importar planilha
+        </Button>
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={handleOpenNew}>
+          Novo cliente
+        </Button>
+      </PageToolbar>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={handleExportClients}
-            className="px-3.5 py-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-amber-400/50 rounded-xl text-xs font-semibold transition-all flex items-center shadow-2xs cursor-pointer active:scale-95"
-            title="Exportar clientes exibidos para planilha Excel (.xlsx)"
-          >
-            <Download className="w-4 h-4 mr-1.5 text-blue-400" />
-            Exportar (.xlsx)
-          </button>
-
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="px-3.5 py-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-amber-400/50 rounded-xl text-xs font-semibold transition-all flex items-center shadow-2xs cursor-pointer active:scale-95"
-            title="Importar múltiplos clientes a partir de planilha Excel (.xlsx) ou CSV"
-          >
-            <FileSpreadsheet className="w-4 h-4 mr-1.5 text-emerald-400" />
-            Importar Planilha
-          </button>
-
-          <button
-            onClick={handleOpenNew}
-            className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-[#071321] rounded-xl text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.25)] flex items-center cursor-pointer active:scale-95"
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            Novo Cliente
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Cards de Clientes (Adaptativo: 1 col celular, 2 col tablet/notebook, 4 col Mac/Desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-          <div className="flex justify-between items-center text-xs text-[var(--text-secondary)] font-medium">
-            <span>Clientes Ativos</span>
-            <Users className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="text-2xl font-bold text-[var(--text-primary)] tracking-tight font-mono">
-            {clientMetrics.activeClients}
-          </div>
-          <div className="text-[11px] text-[var(--text-secondary)] flex justify-between pt-0.5">
-            <span>Base total:</span>
-            <span className="font-semibold text-[var(--text-primary)]">{clientMetrics.totalClients} ({clientMetrics.activePercentage}% ativos)</span>
-          </div>
-        </div>
-
-        <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-          <div className="flex justify-between items-center text-xs text-emerald-400 font-medium">
-            <span>Crescimento de Clientes</span>
-            <UserPlus className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-400 tracking-tight font-mono">
-            +{clientMetrics.newClientsPeriod} novos
-          </div>
-          <div className="text-[11px] text-[var(--text-secondary)] flex justify-between pt-0.5">
-            <span>Taxa de expansão:</span>
-            <span className="font-semibold text-emerald-400">{clientMetrics.growthRate > 0 ? '+' : ''}{clientMetrics.growthRate}% no mês</span>
-          </div>
-        </div>
-
-        <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-          <div className="flex justify-between items-center text-xs text-amber-500 font-medium">
-            <span>Cobertura de Contratos</span>
-            <FileText className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-bold text-[var(--text-primary)] tracking-tight font-mono">
-            {clientMetrics.clientsWithActiveContracts} <span className="text-sm font-normal text-[var(--text-secondary)]">/ {clientMetrics.activeClients}</span>
-          </div>
-          <div className="text-[11px] text-[var(--text-secondary)] flex justify-between pt-0.5">
-            <span>Contratos recorrentes:</span>
-            <span className="font-semibold text-amber-500">{clientMetrics.contractCoveragePercentage}% da carteira</span>
-          </div>
-        </div>
-
-        <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-1">
-          <div className="flex justify-between items-center text-xs text-[var(--text-secondary)] font-medium">
-            <span>Saldo em Aberto (Receber)</span>
-            <DollarSign className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="text-2xl font-bold text-[var(--text-primary)] tracking-tight font-mono">
-            {formatBRL(totalOpenReceivables)}
-          </div>
-          <div className="text-[11px] text-[var(--text-secondary)] flex justify-between pt-0.5">
-            <span>Ticket médio contratual:</span>
-            <span className="font-semibold text-amber-400">{formatBRL(clientMetrics.averageTicketPerClient)}/mês</span>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard
+          label="Clientes ativos"
+          value={clientMetrics.activeClients}
+          hint={`Base total de ${clientMetrics.totalClients} (${clientMetrics.activePercentage}% ativos)`}
+        />
+        <StatCard
+          label="Novos no período"
+          value={`+${clientMetrics.newClientsPeriod}`}
+          hint={`Expansão de ${clientMetrics.growthRate > 0 ? '+' : ''}${clientMetrics.growthRate}% no mês`}
+        />
+        <StatCard
+          label="Com contrato recorrente"
+          value={
+            <>
+              {clientMetrics.clientsWithActiveContracts}
+              <span className="text-sm font-normal text-[var(--text-muted)]"> de {clientMetrics.activeClients}</span>
+            </>
+          }
+          hint={`${clientMetrics.contractCoveragePercentage}% da carteira`}
+        />
+        <StatCard
+          label="Saldo em aberto"
+          value={formatBRL(totalOpenReceivables)}
+          hint={`Ticket médio ${formatBRL(clientMetrics.averageTicketPerClient)}/mês`}
+        />
       </div>
 
       {toastMessage && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center text-xs text-emerald-800 dark:text-emerald-300 font-semibold animate-in fade-in">
-          <CheckCircle className="w-4 h-4 mr-2 text-emerald-600 shrink-0" />
+        <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center gap-3 text-sm text-[var(--text-primary)]">
+          <CheckCircle className="w-4 h-4 text-[var(--status-success)] shrink-0" />
           <span className="flex-1">{toastMessage}</span>
-          <button onClick={() => setToastMessage('')} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">✕</button>
+          <button onClick={() => setToastMessage('')} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer" aria-label="Fechar aviso">
+            ✕
+          </button>
         </div>
       )}
 
-      {/* Banner de Auditoria e Transparência da Carteira */}
-      <div className="bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <FileText className="w-4 h-4" />
+      {/* Abas de situação e busca */}
+      <Card className="space-y-4">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
+          <div className="min-w-0 2xl:flex-1">
+            <TabPills
+              tabs={[
+                { id: 'ALL', label: 'Todos', count: allClientsList.length },
+                { id: 'ATIVO', label: 'Ativos', count: activeClientsCount },
+                { id: 'COM_CONTRATO', label: 'Com contrato', count: activeWithContractCount },
+                { id: 'SEM_CONTRATO', label: 'Avulsos', count: activeWithoutContractCount },
+                { id: 'RISCO_CHURN', label: 'Risco de churn', count: atRiskCount },
+                { id: 'INATIVO', label: 'Inativos', count: inactiveClientsCount }
+              ]}
+              value={statusFilter}
+              onChange={id => setStatusFilter(id as any)}
+            />
           </div>
-          <div>
-            <span className="font-bold text-[var(--text-primary)]">Diagnóstico da Carteira Comercial: </span>
-            <span className="text-[var(--text-secondary)]">
-              A base possui <strong>{activeClientsCount} clientes com cadastro ativo</strong>. Destes, <strong>{activeWithContractCount} clientes possuem contratos de mensalidades/honorários ativos (MRR)</strong> e <strong>{activeWithoutContractCount} clientes são avulsos ou não possuem contrato recorrente vinculado</strong>.
-            </span>
+          <div className="relative w-full 2xl:w-80 shrink-0">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar por razão social, fantasia ou CNPJ"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
+            />
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setStatusFilter('COM_CONTRATO')}
-            className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
-              statusFilter === 'COM_CONTRATO' 
-                ? 'bg-amber-400 text-[#071321] shadow-xs' 
-                : 'bg-[var(--surface-elevated)] text-[var(--text-primary)] hover:bg-amber-500/20 border border-[var(--border-subtle)]'
-            }`}
-          >
-            Ver com Contrato ({activeWithContractCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('SEM_CONTRATO')}
-            className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
-              statusFilter === 'SEM_CONTRATO' 
-                ? 'bg-amber-400 text-[#071321] shadow-xs' 
-                : 'bg-[var(--surface-elevated)] text-[var(--text-primary)] hover:bg-amber-500/20 border border-[var(--border-subtle)]'
-            }`}
-          >
-            Ver sem Contrato ({activeWithoutContractCount})
-          </button>
-        </div>
-      </div>
-
-      {/* Filter and Search com Abas de Status */}
-      <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          <button
-            onClick={() => setStatusFilter('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusFilter === 'ALL'
-                ? 'bg-amber-400 text-[#071321] shadow-xs'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]'
-            }`}
-          >
-            <span>Todos</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-              statusFilter === 'ALL' ? 'bg-[#071321]/20 text-[#071321]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
-            }`}>
-              {allClientsList.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setStatusFilter('ATIVO')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusFilter === 'ATIVO'
-                ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20'
-                : 'text-[var(--text-secondary)] hover:bg-emerald-500/10 hover:text-emerald-400'
-            }`}
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-            <span>Ativos</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-              statusFilter === 'ATIVO' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-400'
-            }`}>
-              {activeClientsCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setStatusFilter('COM_CONTRATO')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusFilter === 'COM_CONTRATO'
-                ? 'bg-amber-500 text-white shadow-xs shadow-amber-500/20'
-                : 'text-[var(--text-secondary)] hover:bg-amber-500/10 hover:text-amber-400'
-            }`}
-          >
-            <span>Com Contrato Ativo</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-              statusFilter === 'COM_CONTRATO' ? 'bg-white/20 text-white' : 'bg-amber-500/20 text-amber-400'
-            }`}>
-              {activeWithContractCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setStatusFilter('SEM_CONTRATO')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusFilter === 'SEM_CONTRATO'
-                ? 'bg-amber-600 text-white shadow-xs shadow-amber-600/20'
-                : 'text-[var(--text-secondary)] hover:bg-amber-600/10 hover:text-amber-400'
-            }`}
-          >
-            <span>Sem Contrato (Avulsos)</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-              statusFilter === 'SEM_CONTRATO' ? 'bg-white/20 text-white' : 'bg-amber-500/20 text-amber-400'
-            }`}>
-              {activeWithoutContractCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setStatusFilter('RISCO_CHURN')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusFilter === 'RISCO_CHURN'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'text-[var(--text-secondary)] hover:bg-rose-500/10 hover:text-rose-400'
-            }`}
-          >
-            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-            <span>Risco de Churn</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-              statusFilter === 'RISCO_CHURN' ? 'bg-white/20 text-white' : 'bg-rose-500/20 text-rose-400'
-            }`}>
-              {atRiskCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setStatusFilter('INATIVO')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              statusFilter === 'INATIVO'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-[var(--text-secondary)] hover:bg-slate-500/10 hover:text-slate-300'
-            }`}
-          >
-            <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
-            <span>Inativos</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
-              statusFilter === 'INATIVO' ? 'bg-white/20 text-white' : 'bg-slate-500/15 text-slate-400'
-            }`}>
-              {inactiveClientsCount}
-            </span>
-          </button>
-        </div>
-
-        <div className="relative flex-1 w-full max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-[var(--text-secondary)]" />
-          <input
-            type="text"
-            placeholder="Buscar por razão social, nome fantasia ou CNPJ..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)] focus:outline-none focus:border-amber-400 transition-colors"
-          />
-        </div>
-      </div>
+        <p className="text-sm text-[var(--text-muted)]">
+          {activeClientsCount} clientes com cadastro ativo: {activeWithContractCount} com contrato recorrente (MRR) e {activeWithoutContractCount} avulsos.
+        </p>
+      </Card>
 
       {/* Table */}
       <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden shadow-xs">
@@ -648,7 +481,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                     <td className="py-3 px-4">
                       {activeContracts.length > 0 ? (
                         <div className="relative">
-                          <select
+                          <PremiumSelect
                             onChange={(e) => {
                               if (e.target.value) {
                                 handleOpenClientHistory(client, e.target.value);
@@ -665,7 +498,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                                 {ct.contractNumber} • {formatBRL(ct.monthlyTotal)}/mês (Dia {ct.dueDay})
                               </option>
                             ))}
-                          </select>
+                          </PremiumSelect>
                           <ChevronDown className="w-3.5 h-3.5 text-amber-400 absolute right-2 top-2 pointer-events-none" />
                         </div>
                       ) : (
@@ -946,14 +779,14 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--text-secondary)] mb-1">Status</label>
-                  <select
+                  <PremiumSelect
                     value={formData.status || 'ATIVO'}
                     onChange={e => setFormData({ ...formData, status: e.target.value as 'ATIVO' | 'INATIVO' })}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 focus:outline-none focus:border-amber-400"
                   >
                     <option value="ATIVO">ATIVO</option>
                     <option value="INATIVO">INATIVO</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--text-secondary)] mb-1">Observações</label>
@@ -976,7 +809,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold text-[#071321] bg-amber-400 hover:bg-amber-300 rounded-xl shadow-[0_0_12px_rgba(245,158,11,0.25)] transition-all"
+                  className="px-5 py-2 text-xs font-bold text-[#0b0b0d] bg-amber-400 hover:bg-amber-300 rounded-xl shadow-[0_0_12px_rgba(245,158,11,0.25)] transition-all"
                 >
                   Salvar Cliente
                 </button>

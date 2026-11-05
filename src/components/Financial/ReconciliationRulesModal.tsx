@@ -32,6 +32,7 @@ import {
 import { storage } from '../../services/storageService';
 import { testRuleAgainstStatements, applyReconciliationRules } from '../../services/reconciliationRulesService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface ReconciliationRulesModalProps {
   isOpen: boolean;
@@ -269,11 +270,11 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-[#242D3D] rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100"
         onClick={e => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-amber-500/15 rounded-xl border border-amber-500/30 text-amber-600 dark:text-amber-400">
               <Settings2 className="w-5 h-5" />
@@ -332,13 +333,13 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
         )}
 
         {/* Main Body: 2 Columns (Left: Rules List, Right: Form or Preview) */}
-        <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-[#242D3D]">
+        <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-[#26262b]">
           
           {/* COLUNA ESQUERDA: LISTA DE REGRAS (5 colunas) */}
-          <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-[#0E121A]">
+          <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-[#0b0b0d]">
             
             {/* Toolbar da lista */}
-            <div className="p-3 border-b border-slate-200 dark:border-[#242D3D] flex items-center justify-between gap-2">
+            <div className="p-3 border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between gap-2">
               <div className="flex items-center space-x-1">
                 <button
                   type="button"
@@ -412,8 +413,8 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                         isSelected 
                           ? 'border-amber-500 bg-amber-500/10 dark:bg-amber-500/15 ring-2 ring-amber-500/30' 
                           : rule.active 
-                            ? 'bg-white dark:bg-[#161C28] border-slate-200 dark:border-[#242D3D] hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs' 
-                            : 'bg-slate-100/70 dark:bg-[#121620] border-slate-200 dark:border-[#242D3D] opacity-60'
+                            ? 'bg-white dark:bg-[#17171b] border-slate-200 dark:border-[#26262b] hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs' 
+                            : 'bg-slate-100/70 dark:bg-[#131316] border-slate-200 dark:border-[#26262b] opacity-60'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -482,10 +483,10 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
           </div>
 
           {/* COLUNA DIREITA: FORMULÁRIO DE EDIÇÃO OU ADIÇÃO (7 colunas) */}
-          <div className="lg:col-span-7 flex flex-col h-full overflow-hidden bg-white dark:bg-[#121620]">
+          <div className="lg:col-span-7 flex flex-col h-full overflow-hidden bg-white dark:bg-[#131316]">
             {isEditing ? (
               <form onSubmit={handleSaveRule} className="flex-1 flex flex-col h-full overflow-hidden">
-                <div className="p-4 border-b border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between">
+                <div className="p-4 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="font-bold text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400">
                       {selectedRuleId ? 'Editando Regra de Conciliação' : 'Nova Regra de Conciliação'}
@@ -516,7 +517,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                       onChange={e => setFormName(e.target.value)}
                       placeholder="Ex: Tarifas e Pacotes de Serviços Bancários"
                       required
-                      className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
+                      className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
                     />
                   </div>
 
@@ -526,31 +527,31 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                         Natureza da Transação *
                       </label>
-                      <select
+                      <PremiumSelect
                         value={formTransactionType}
                         onChange={e => setFormTransactionType(e.target.value as any)}
-                        className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
+                        className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
                       >
                         <option value="DEBIT">DÉBITO (-) Pagamentos / Tarifas</option>
                         <option value="CREDIT">CRÉDITO (+) Recebimentos / TEDs</option>
                         <option value="BOTH">AMBOS (Débito e Crédito)</option>
-                      </select>
+                      </PremiumSelect>
                     </div>
 
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                         Tipo de Correspondência *
                       </label>
-                      <select
+                      <PremiumSelect
                         value={formMatchType}
                         onChange={e => setFormMatchType(e.target.value as any)}
-                        className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
+                        className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
                       >
                         <option value="CONTAINS">Contém o texto (CONTAINS)</option>
                         <option value="STARTS_WITH">Começa com (STARTS_WITH)</option>
                         <option value="EQUALS">Exatamente igual (EQUALS)</option>
                         <option value="REGEX">Expressão Regular (REGEX)</option>
-                      </select>
+                      </PremiumSelect>
                     </div>
                   </div>
 
@@ -565,7 +566,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                       onChange={e => setFormPattern(e.target.value)}
                       placeholder="Ex: TARIFA, VIVO, ENEL, ALUGUEL, PIX TRANSF"
                       required
-                      className="w-full font-mono bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 outline-hidden focus:border-amber-500"
+                      className="w-full font-mono bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 outline-hidden focus:border-amber-500"
                     />
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                       A regra irá procurar esse termo nas descrições importadas no extrato OFX/CSV.
@@ -573,7 +574,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                   </div>
 
                   {/* Feedback em Tempo Real sobre o Extrato Atual */}
-                  <div className="p-3 rounded-xl bg-slate-100 dark:bg-[#161C28] border border-slate-200 dark:border-[#242D3D] text-xs">
+                  <div className="p-3 rounded-xl bg-slate-100 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] text-xs">
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
                         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -611,11 +612,11 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       Conta Contábil do Plano de Contas *
                     </label>
-                    <select
+                    <PremiumSelect
                       value={formChartAccountId}
                       onChange={e => setFormChartAccountId(e.target.value)}
                       required
-                      className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
+                      className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
                     >
                       <option value="">Selecione uma conta analítica...</option>
                       <optgroup label="Despesas Operacionais e Financeiras">
@@ -639,7 +640,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                           </option>
                         ))}
                       </optgroup>
-                    </select>
+                    </PremiumSelect>
                   </div>
 
                   {/* Favorecido Opcional */}
@@ -647,10 +648,10 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       Favorecido / Fornecedor / Cliente Associado (Opcional)
                     </label>
-                    <select
+                    <PremiumSelect
                       value={formCounterpartyId}
                       onChange={e => setFormCounterpartyId(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
+                      className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
                     >
                       <option value="">Nenhum favorecido fixo (adotar padrão contábil)</option>
                       {effectiveCounterparties.map(cp => (
@@ -658,7 +659,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                           {cp.name} ({cp.type})
                         </option>
                       ))}
-                    </select>
+                    </PremiumSelect>
                   </div>
 
                   {/* Ação da Regra */}
@@ -670,7 +671,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                       <label className={`p-3 rounded-xl border cursor-pointer text-left transition-all ${
                         formAction === 'AUTO_CREATE_AND_RECONCILE'
                           ? 'border-amber-500 bg-amber-500/10 dark:bg-amber-500/15 ring-1 ring-amber-500/30'
-                          : 'border-slate-200 dark:border-[#242D3D] hover:bg-slate-50 dark:hover:bg-[#161C28]'
+                          : 'border-slate-200 dark:border-[#26262b] hover:bg-slate-50 dark:hover:bg-[#17171b]'
                       }`}>
                         <div className="flex items-center space-x-2">
                           <input
@@ -690,7 +691,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                       <label className={`p-3 rounded-xl border cursor-pointer text-left transition-all ${
                         formAction === 'AUTO_SUGGEST'
                           ? 'border-amber-500 bg-amber-500/10 dark:bg-amber-500/15 ring-1 ring-amber-500/30'
-                          : 'border-slate-200 dark:border-[#242D3D] hover:bg-slate-50 dark:hover:bg-[#161C28]'
+                          : 'border-slate-200 dark:border-[#26262b] hover:bg-slate-50 dark:hover:bg-[#17171b]'
                       }`}>
                         <div className="flex items-center space-x-2">
                           <input
@@ -719,14 +720,14 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
                       value={formDescriptionTemplate}
                       onChange={e => setFormDescriptionTemplate(e.target.value)}
                       placeholder="Ex: Tarifa Mensal Conta PJ (use {desc} para incluir texto original)"
-                      className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
+                      className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg px-3 py-2 text-xs font-medium outline-hidden focus:border-amber-500"
                     />
                   </div>
 
                 </div>
 
                 {/* Footer do Form */}
-                <div className="p-4 border-t border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between">
+                <div className="p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => {
@@ -775,7 +776,7 @@ export const ReconciliationRulesModal: React.FC<ReconciliationRulesModalProps> =
         </div>
 
         {/* Bottom Bar */}
-        <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="text-slate-500 dark:text-slate-400 text-center sm:text-left">
             Dica: Regras com ação <strong>"Lançar e Conciliar"</strong> automatizam 100% de tarifas recorrentes, telecomunicações e impostos.
           </div>

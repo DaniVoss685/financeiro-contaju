@@ -17,6 +17,8 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { matchesSearch } from '../../utils/searchUtils';
 import { FinancialMovement, FinancialTitle } from '../../types';
 import { EditTitleModal } from '../Modals/EditTitleModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface MovementsViewProps {
   initialSearch?: string;
@@ -188,7 +190,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
     <div className="space-y-6" key={refreshKey}>
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131720] p-5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131316] p-5 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
         <div>
           <div className="flex items-center space-x-2">
             <ArrowLeftRight className="w-5 h-5 text-amber-500" />
@@ -207,14 +209,14 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
         <div className="flex items-center space-x-2">
           <button
             onClick={handleExportExcel}
-            className="px-3 py-2 bg-white dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
+            className="px-3 py-2 bg-white dark:bg-[#1b1b20] border border-slate-300 dark:border-[#26262b] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
           >
             <FileSpreadsheet className="w-4 h-4 mr-1.5 text-emerald-600" />
             Excel
           </button>
           <button
             onClick={handleExportCSV}
-            className="px-3 py-2 bg-white dark:bg-[#1B212D] border border-slate-300 dark:border-[#273040] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
+            className="px-3 py-2 bg-white dark:bg-[#1b1b20] border border-slate-300 dark:border-[#26262b] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs"
           >
             <Download className="w-4 h-4 mr-1.5 text-slate-500" />
             CSV
@@ -224,7 +226,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
 
       {/* Summary KPI cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
           <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total de Entradas (Filtro)</span>
           <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center">
             <ArrowUpRight className="w-5 h-5 mr-1 text-emerald-500" />
@@ -232,7 +234,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
           <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total de Saídas (Filtro)</span>
           <div className="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1 flex items-center">
             <ArrowDownRight className="w-5 h-5 mr-1 text-rose-500" />
@@ -240,7 +242,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+        <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
           <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Saldo Líquido Movimentado</span>
           <div className={`text-xl font-bold mt-1 ${totalIn - totalOut >= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
             {formatBRL(totalIn - totalOut)}
@@ -249,33 +251,33 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-[#131720] p-4 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs flex flex-wrap gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-[#131316] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs flex flex-wrap gap-3 items-center justify-between">
         <div className="flex flex-wrap gap-2 items-center text-xs">
           <div>
             <label className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Conta:</label>
-            <select
+            <PremiumSelect
               value={selectedAccountId}
               onChange={(e) => setSelectedAccountId(e.target.value)}
-              className="rounded-lg border border-slate-300 dark:border-[#273040] px-2.5 py-1.5 bg-white dark:bg-[#1B212D] text-slate-800 dark:text-slate-200 text-xs font-medium"
+              className="rounded-lg border border-slate-300 dark:border-[#26262b] px-2.5 py-1.5 bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 text-xs font-medium"
             >
               <option value="ALL">Todas as Contas ({accounts.length})</option>
               {accounts.map(a => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
-            </select>
+            </PremiumSelect>
           </div>
 
           <div>
             <label className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Sentido:</label>
-            <select
+            <PremiumSelect
               value={directionFilter}
               onChange={(e) => setDirectionFilter(e.target.value as any)}
-              className="rounded-lg border border-slate-300 dark:border-[#273040] px-2.5 py-1.5 bg-white dark:bg-[#1B212D] text-slate-800 dark:text-slate-200 text-xs font-medium"
+              className="rounded-lg border border-slate-300 dark:border-[#26262b] px-2.5 py-1.5 bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 text-xs font-medium"
             >
               <option value="ALL">Todos os Sentidos</option>
               <option value="ENTRADA">Entradas (Créditos)</option>
               <option value="SAIDA">Saídas (Débitos)</option>
-            </select>
+            </PremiumSelect>
           </div>
         </div>
 
@@ -286,7 +288,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
             placeholder="Buscar por descrição ou documento..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500/30"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500/30"
           />
         </div>
       </div>
@@ -294,7 +296,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
       {/* Mobile View: Cards Compactos de Movimentações (< 640px) */}
       <div className="block sm:hidden space-y-2.5">
         {filteredMovements.length === 0 ? (
-          <div className="bg-white dark:bg-[#131720] p-8 rounded-xl border border-slate-200 dark:border-[#273040] text-center text-slate-500 text-xs shadow-2xs">
+          <div className="bg-white dark:bg-[#131316] p-8 rounded-xl border border-slate-200 dark:border-[#26262b] text-center text-slate-500 text-xs shadow-2xs">
             Nenhuma movimentação bancária encontrada.
           </div>
         ) : (
@@ -306,7 +308,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
               <div
                 key={m.id}
                 onClick={() => handleOpenEdit(m)}
-                className="bg-white dark:bg-[#131720] p-3.5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs space-y-2.5 active:bg-slate-50 dark:active:bg-slate-800/60 transition-colors cursor-pointer"
+                className="bg-white dark:bg-[#131316] p-3.5 rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs space-y-2.5 active:bg-slate-50 dark:active:bg-slate-800/60 transition-colors cursor-pointer"
               >
                 {/* Top Row: Sentido + Data e Valor em Destaque */}
                 <div className="flex items-center justify-between gap-2">
@@ -341,7 +343,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                 </div>
 
                 {/* Bottom Row: Conta Bancária + Origem / Ref + Botão Editar */}
-                <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#273040] text-[11px]">
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#26262b] text-[11px]">
                   <div className="min-w-0 flex-1 space-y-0.5">
                     <div className="font-medium text-slate-700 dark:text-slate-300 truncate">
                       {acc?.name || 'Conta Bancária'}
@@ -373,10 +375,10 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
       </div>
 
       {/* Table with Double Click Support (Telas >= 640px) */}
-      <div className="hidden sm:block bg-white dark:bg-[#131720] rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs overflow-hidden">
+      <div className="hidden sm:block bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
+            <thead className="bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4">Data</th>
                 <th className="py-3 px-4">Conta Bancária</th>
@@ -388,7 +390,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                 <th className="py-3 px-4 text-center">Editar</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
               {filteredMovements.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-8 text-center text-slate-500">
@@ -474,10 +476,10 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
       {/* Modal 2: Floating Direct Movement Edit Modal (quando é movimentação direta/avulsa) */}
       {editingMovement && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 dark:border-[#273040] animate-in fade-in zoom-in-95">
+          <div className="bg-white dark:bg-[#131316] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 dark:border-[#26262b] animate-in fade-in zoom-in-95">
             
             {/* Header com estilo Leão Dourado */}
-            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]">
+            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]">
               <div className="flex items-center space-x-3">
                 <div className="w-9 h-9 rounded-xl bg-black border border-amber-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.25)]">
                   <Edit3 className="w-5 h-5 text-amber-400" />
@@ -511,7 +513,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                   required
                   value={movDescription}
                   onChange={e => setMovDescription(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                  className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                 />
               </div>
 
@@ -520,12 +522,11 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                     Data da Movimentação *
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     required
                     value={movDate}
                     onChange={e => setMovDate(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                    className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                   />
                 </div>
 
@@ -543,7 +544,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                       onWheel={(e) => (e.target as HTMLElement).blur()}
                       value={movAmount || ''}
                       onChange={e => setMovAmount(parseFloat(e.target.value) || 0)}
-                      className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] pl-9 pr-3 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                      className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] pl-9 pr-3 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                     />
                   </div>
                 </div>
@@ -554,29 +555,29 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                     Conta Bancária *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={movBankAccountId}
                     onChange={e => setMovBankAccountId(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                    className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                   >
                     {accounts.map(a => (
                       <option key={a.id} value={a.id}>{a.name}</option>
                     ))}
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                     Sentido Financeiro *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={movDirection}
                     onChange={e => setMovDirection(e.target.value as any)}
-                    className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                    className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                   >
                     <option value="ENTRADA">ENTRADA (Crédito)</option>
                     <option value="SAIDA">SAÍDA (Débito)</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
               </div>
 
@@ -584,24 +585,24 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                 <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                   Classificação Contábil (Plano de Contas)
                 </label>
-                <select
+                <PremiumSelect
                   value={movAccountId}
                   onChange={e => setMovAccountId(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                  className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] px-3 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                 >
                   <option value="">Sem conta analítica vinculada</option>
                   {chartAccounts.map(ca => (
                     <option key={ca.id} value={ca.id}>{ca.code} - {ca.name}</option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               {/* Ações */}
-              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-[#273040]">
+              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-[#26262b]">
                 <button
                   type="button"
                   onClick={() => setEditingMovement(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1B212D] rounded-xl transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1b1b20] rounded-xl transition-colors"
                 >
                   Cancelar
                 </button>

@@ -6,6 +6,7 @@ import { FinancialEngine, formatBRL } from '../../services/financialEngine';
 import { CashCalculatorModal } from './CashCalculatorModal';
 import { BankAccountStatementModal } from './BankAccountStatementModal';
 import { BankBalanceClosingModal } from './BankBalanceClosingModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface BankAccountsViewProps {
   onOpenTransferModal: () => void;
@@ -328,7 +329,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">Tipo de Conta</label>
-                  <select
+                  <PremiumSelect
                     value={formData.type || 'CORRENTE'}
                     onChange={e => setFormData({ ...formData, type: e.target.value as any })}
                     className="w-full rounded border border-slate-300 px-3 py-1.5"
@@ -337,7 +338,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
                     <option value="POUPANCA">Poupança / Aplicação</option>
                     <option value="CAIXA_FISICO">Caixa Físico</option>
                     <option value="PAGAMENTO">Conta de Pagamento</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 <div>

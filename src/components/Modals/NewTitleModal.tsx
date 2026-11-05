@@ -30,6 +30,8 @@ import { CompleteCounterpartyModal } from './CompleteCounterpartyModal';
 import { QuickCreateAccountModal } from './QuickCreateAccountModal';
 import { toast } from '../../hooks/useToast';
 import { addMonthsSafe, advanceCompetence, getDaysInMonth } from '../../utils/dateUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface NewTitleModalProps {
   isOpen: boolean;
@@ -894,7 +896,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       </div>
 
                       {!isCustomInstallments ? (
-                        <select
+                        <PremiumSelect
                           value={installmentsCount}
                           onChange={(e) => {
                             if (e.target.value === 'CUSTOM') {
@@ -909,7 +911,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                             <option key={num} value={num}>{num}x parcelas mensais</option>
                           ))}
                           <option value="CUSTOM">Outra quantidade (personalizada)...</option>
-                        </select>
+                        </PremiumSelect>
                       ) : (
                         <div className="flex items-center gap-1">
                           <button
@@ -983,7 +985,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       <label className="block font-semibold text-slate-700 mb-1">
                         Dia do Vencimento Todo Mês *
                       </label>
-                      <select
+                      <PremiumSelect
                         value={recurringDay}
                         onChange={(e) => setRecurringDay(parseInt(e.target.value, 10))}
                         className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-semibold"
@@ -991,7 +993,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                         {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
                           <option key={day} value={day}>Dia {day < 10 ? `0${day}` : day} de cada mês</option>
                         ))}
-                      </select>
+                      </PremiumSelect>
                     </div>
 
                     <div>
@@ -1010,7 +1012,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       </div>
 
                       {!isCustomRecurring ? (
-                        <select
+                        <PremiumSelect
                           value={recurringMonths}
                           onChange={(e) => {
                             if (e.target.value === 'CUSTOM') {
@@ -1037,7 +1039,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           <option value={48}>48 meses (4 anos)</option>
                           <option value={60}>60 meses (5 anos)</option>
                           <option value="CUSTOM">Outra quantidade (personalizada)...</option>
-                        </select>
+                        </PremiumSelect>
                       ) : (
                         <div className="flex items-center gap-1">
                           <button
@@ -1104,8 +1106,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                     Data de Lançamento *
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     value={launchDate}
                     onChange={(e) => setLaunchDate(e.target.value)}
                     className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
@@ -1118,8 +1119,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                     Competência DRE *
                   </label>
-                  <input
-                    type="month"
+                  <MonthField
                     value={competence}
                     onChange={(e) => setCompetence(e.target.value)}
                     className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-medium focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
@@ -1132,8 +1132,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                     {launchMode === 'PARCELADO' ? '1º Vencimento *' : 'Vencimento *'}
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     value={dueDate}
                     onChange={(e) => {
                       setDueDate(e.target.value);
@@ -1204,8 +1203,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                         {type === 'PAGAR' ? 'Data do Pagamento *' : 'Data do Recebimento *'}
                       </label>
-                      <input
-                        type="date"
+                      <DateField
                         max={today}
                         value={settlementDate}
                         onChange={(e) => setSettlementDate(e.target.value)}
@@ -1220,7 +1218,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                         {type === 'PAGAR' ? 'Conta Bancária (Débito) *' : 'Conta Bancária (Crédito) *'}
                       </label>
-                      <select
+                      <PremiumSelect
                         value={settlementBankAccountId}
                         onChange={(e) => setSettlementBankAccountId(e.target.value)}
                         className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-medium text-slate-900 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
@@ -1232,7 +1230,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                             {b.name} ({b.institution})
                           </option>
                         ))}
-                      </select>
+                      </PremiumSelect>
                     </div>
 
                     {/* Forma de Pagamento */}
@@ -1240,7 +1238,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                         Forma de Pagamento
                       </label>
-                      <select
+                      <PremiumSelect
                         value={settlementPaymentMethod}
                         onChange={(e) => setSettlementPaymentMethod(e.target.value as any)}
                         className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-medium text-slate-900 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
@@ -1252,7 +1250,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                         <option value="DINHEIRO">Dinheiro em Espécie</option>
                         <option value="DEBITO_AUTOMATICO">Débito Automático</option>
                         <option value="OUTROS">Outros</option>
-                      </select>
+                      </PremiumSelect>
                     </div>
 
                   </div>

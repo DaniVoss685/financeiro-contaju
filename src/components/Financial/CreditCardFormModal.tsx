@@ -3,6 +3,7 @@ import { X, CreditCard as CardIcon, Building2, Calendar, DollarSign, Palette, Tr
 import { CreditCard, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
 import { BRAZILIAN_BANKS, POPULAR_BANKS_FOR_CARDS, BrazilianBank, findBankByTerm } from '../../data/brazilianBanks';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface CreditCardFormModalProps {
   isOpen: boolean;
@@ -174,11 +175,11 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs overflow-y-auto animate-fadeIn">
       <div 
-        className="bg-white dark:bg-[#131720] border border-slate-200 dark:border-[#273040] rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/80 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
               <CardIcon className="w-5 h-5" />
@@ -211,7 +212,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
           )}
 
           {/* Pré-seleções Rápidas de Bancos Populares */}
-          <div className="p-3.5 bg-slate-50 dark:bg-[#1B212D]/60 rounded-2xl border border-slate-200 dark:border-[#273040] space-y-2.5">
+          <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20]/60 rounded-2xl border border-slate-200 dark:border-[#26262b] space-y-2.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                 <Landmark className="w-4 h-4 text-amber-500" />
@@ -234,7 +235,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                     className={`py-1.5 px-2 rounded-xl border text-[11px] font-semibold text-center transition-all cursor-pointer truncate flex items-center justify-center gap-1.5 ${
                       isSelected
                         ? 'border-amber-500 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold shadow-xs ring-1 ring-amber-500/40'
-                        : 'border-slate-200 dark:border-[#273040] bg-white dark:bg-[#131720] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        : 'border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                     title={`${b.name} (${b.code}) - ${b.fullName}`}
                   >
@@ -253,18 +254,18 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
               <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                 Ou selecione na lista de todos os bancos e fintechs do Brasil:
               </label>
-              <select
+              <PremiumSelect
                 value={selectedBankCode}
                 onChange={(e) => handleDropdownChange(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
                 <optgroup label="Bancos Populares & Digitais">
                   {BRAZILIAN_BANKS.filter(b => b.isPopular).map(b => (
                     <option 
                       key={b.code} 
                       value={b.code}
-                      className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white py-1"
+                      className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white py-1"
                     >
                       {b.code} - {b.name} ({b.fullName})
                     </option>
@@ -275,7 +276,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                     <option 
                       key={b.code} 
                       value={b.code}
-                      className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white py-1"
+                      className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white py-1"
                     >
                       {b.code} - {b.name}
                     </option>
@@ -284,12 +285,12 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 <optgroup label="Personalizado">
                   <option 
                     value="000"
-                    className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white py-1"
+                    className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white py-1"
                   >
                     000 - Outro Banco / Emissor Personalizado
                   </option>
                 </optgroup>
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* Se for 000 ou instituição livre, exibe campo de texto aberto */}
@@ -301,7 +302,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
                   placeholder="Digite o nome do banco ou instituição..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
                 />
               </div>
             )}
@@ -319,7 +320,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex: Nubank PJ Mastercard, Itaú Corporate"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
 
@@ -328,22 +329,22 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Bandeira do Cartão
               </label>
-              <select
+              <PremiumSelect
                 value={brand}
                 onChange={(e) => setBrand(e.target.value as CreditCard['brand'])}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
                 {BRAND_OPTIONS.map(b => (
                   <option 
                     key={b.value} 
                     value={b.value}
-                    className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                    className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                   >
                     {b.label}
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* Últimos 4 Dígitos */}
@@ -357,7 +358,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 value={lastFourDigits}
                 onChange={(e) => setLastFourDigits(e.target.value.replace(/\D/g, ''))}
                 placeholder="Ex: 4821"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
 
@@ -375,7 +376,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 value={creditLimit}
                 onChange={(e) => setCreditLimit(e.target.value)}
                 placeholder="10000.00"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
 
@@ -384,25 +385,25 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Conta Bancária Padrão para Débito
               </label>
-              <select
+              <PremiumSelect
                 value={defaultPaymentBankAccountId}
                 onChange={(e) => setDefaultPaymentBankAccountId(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
-                <option value="" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">
+                <option value="" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
                   Selecione uma conta bancária PJ...
                 </option>
                 {bankAccounts.map(b => (
                   <option 
                     key={b.id} 
                     value={b.id}
-                    className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                    className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                   >
                     {b.name} ({b.bankName || 'PJ'})
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* Dia de Fechamento */}
@@ -420,7 +421,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 value={closingDay}
                 onChange={(e) => setClosingDay(e.target.value)}
                 placeholder="25"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
               <span className="text-[10px] text-slate-500 block mt-0.5">
                 Dia do mês em que a fatura fecha para novas compras.
@@ -442,7 +443,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 value={dueDay}
                 onChange={(e) => setDueDay(e.target.value)}
                 placeholder="5"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
               <span className="text-[10px] text-slate-500 block mt-0.5">
                 Data de pagamento do boleto da fatura.
@@ -454,7 +455,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Cor Visual do Cartão
               </label>
-              <div className="flex items-center gap-2.5 flex-wrap p-2.5 rounded-xl border border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/40">
+              <div className="flex items-center gap-2.5 flex-wrap p-2.5 rounded-xl border border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/40">
                 {COLOR_PRESETS.map(preset => {
                   const isCur = color.toLowerCase() === preset.value.toLowerCase();
                   return (
@@ -478,7 +479,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                     type="text"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    className="w-20 px-2 py-1 rounded border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] text-slate-900 dark:text-white font-mono text-[11px]"
+                    className="w-20 px-2 py-1 rounded border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] text-slate-900 dark:text-white font-mono text-[11px]"
                   />
                 </div>
               </div>
@@ -494,13 +495,13 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ex: Cartão destinado para despesas de TI e marketing digital..."
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
           </div>
 
           {/* Footer de Ações */}
-          <div className="pt-4 border-t border-slate-200 dark:border-[#273040] flex items-center justify-between gap-3 shrink-0">
+          <div className="pt-4 border-t border-slate-200 dark:border-[#26262b] flex items-center justify-between gap-3 shrink-0">
             <div>
               {editingCard && !isConfirmingDelete && (
                 <button
@@ -538,7 +539,7 @@ export const CreditCardFormModal: React.FC<CreditCardFormModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1B212D] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#273040] rounded-xl transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

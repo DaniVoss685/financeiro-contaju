@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar, 
-  RotateCcw, 
-  Layers, 
-  Check, 
-  SlidersHorizontal,
-  Clock
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useModulePeriod, ModulePeriodType } from '../../hooks/useModulePeriod';
+import { formatPeriodRangeBR } from '../../utils/dateUtils';
 import { GlobalPeriodSelectorModal } from './GlobalPeriodSelectorModal';
 
 interface ModulePeriodNavigatorProps {
@@ -21,163 +13,92 @@ interface ModulePeriodNavigatorProps {
   totalCount?: number;
 }
 
-const MONTHS = [
-  { value: 1, label: 'Janeiro' },
-  { value: 2, label: 'Fevereiro' },
-  { value: 3, label: 'Março' },
-  { value: 4, label: 'Abril' },
-  { value: 5, label: 'Maio' },
-  { value: 6, label: 'Junho' },
-  { value: 7, label: 'Julho' },
-  { value: 8, label: 'Agosto' },
-  { value: 9, label: 'Setembro' },
-  { value: 10, label: 'Outubro' },
-  { value: 11, label: 'Novembro' },
-  { value: 12, label: 'Dezembro' }
-];
+const stepBtn =
+  'w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer';
 
 export const ModulePeriodNavigator: React.FC<ModulePeriodNavigatorProps> = ({
   moduleType,
   titlePrefix = 'Vencimentos em',
-  filterSubtitle = 'Filtro por Data de Vencimento',
+  filterSubtitle = 'Filtro por data de vencimento',
   className = '',
   matchedCount,
   totalCount
 }) => {
-  const {
-    period,
-    updatePeriod,
-    goToPreviousMonth,
-    goToNextMonth,
-    goToCurrentMonth,
-    showAllPeriods,
-    formattedLabel,
-    monthName
-  } = useModulePeriod(moduleType);
-
+  const { period, updatePeriod, goToPreviousMonth, goToNextMonth, goToCurrentMonth, showAllPeriods } = useModulePeriod(moduleType);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const now = new Date();
   const isCurrentMonthActive = period.active && period.year === now.getFullYear() && period.month === now.getMonth() + 1;
+  const rangeText = period.active ? formatPeriodRangeBR(period.month, period.year) : 'Todo o período';
 
   return (
     <>
-      <div className={`p-3 sm:p-3.5 rounded-xl bg-white dark:bg-[#131720] border border-slate-200 dark:border-[#273040] shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-3 ${className}`}>
-        
-        {/* Lado Esquerdo: Identificação do Filtro da Aba */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
-            period.active 
-              ? 'bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400' 
-              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
-          }`}>
-            <Calendar className="w-4 h-4" />
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {filterSubtitle}
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-3 px-1 ${className}`}>
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="min-w-0 flex items-center gap-3 text-left cursor-pointer group"
+          title="Escolher outro período"
+        >
+          <CalendarDays className="w-[18px] h-[18px] text-[var(--text-muted)] group-hover:text-[var(--text-primary)] shrink-0 transition-colors" strokeWidth={1.75} />
+          <span className="min-w-0">
+            <span className="block text-sm text-[var(--text-secondary)] truncate">
+              {titlePrefix} <span className="font-medium text-[var(--text-primary)] tabular-nums">{rangeText}</span>
+            </span>
+            {matchedCount !== undefined && totalCount !== undefined && (
+              <span className="block text-xs text-[var(--text-muted)]">
+                {filterSubtitle} • {matchedCount} de {totalCount} registros
               </span>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                period.active
-                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700'
-              }`}>
-                {period.active ? 'Filtro Ativo' : 'Visualizando Todos'}
-              </span>
-              {matchedCount !== undefined && totalCount !== undefined && (
-                <span className="text-[11px] text-slate-500 font-mono">
-                  ({matchedCount} de {totalCount} registros)
-                </span>
-              )}
-            </div>
+            )}
+          </span>
+        </button>
 
-            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5 truncate flex items-center gap-1.5">
-              <span>{period.active ? `${titlePrefix}:` : 'Exibição:'}</span>
-              <span className="text-amber-600 dark:text-amber-400">
-                {formattedLabel}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Lado Direito: Controles de Navegação Rápida de Período */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap self-stretch sm:self-auto justify-between sm:justify-end">
-          
-          {/* Navegação Anterior / Próximo */}
-          <div className="flex items-center bg-slate-100 dark:bg-[#1B212D] p-1 rounded-xl border border-slate-200 dark:border-[#273040]">
-            <button
-              type="button"
-              onClick={goToPreviousMonth}
-              className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-[#273040] rounded-lg transition-colors cursor-pointer"
-              title="Mês anterior"
-            >
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-0.5">
+            <button type="button" onClick={goToPreviousMonth} className={stepBtn} title="Mês anterior" aria-label="Mês anterior">
               <ChevronLeft className="w-4 h-4" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="px-2.5 py-1 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1 cursor-pointer"
-              title="Clique para escolher qualquer mês ou ano"
-            >
-              <span>{period.active ? (period.month === 0 ? `Ano ${period.year}` : `${monthName.substring(0, 3)}/${period.year}`) : 'Escolher Mês'}</span>
-              <SlidersHorizontal className="w-3 h-3 text-slate-400" />
-            </button>
-
-            <button
-              type="button"
-              onClick={goToNextMonth}
-              className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-[#273040] rounded-lg transition-colors cursor-pointer"
-              title="Próximo mês"
-            >
+            <button type="button" onClick={goToNextMonth} className={stepBtn} title="Próximo mês" aria-label="Próximo mês">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Atalho Rápido Mês Atual */}
           <button
             type="button"
             onClick={goToCurrentMonth}
-            className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all flex items-center gap-1 cursor-pointer ${
+            className={`h-10 px-3.5 rounded-xl text-sm transition-colors cursor-pointer border ${
               isCurrentMonthActive
-                ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 shadow-2xs font-bold'
-                : 'bg-white dark:bg-[#1B212D] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? 'border-[var(--brand-gold-fill)] text-[var(--text-primary)] font-medium'
+                : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
             }`}
-            title="Voltar para os vencimentos do mês atual"
+            title="Voltar para o mês atual"
           >
-            <Clock className="w-3.5 h-3.5 text-amber-500" />
-            <span>Mês Atual</span>
+            Mês atual
           </button>
 
-          {/* Atalho Ver Todos */}
           <button
             type="button"
             onClick={showAllPeriods}
-            className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition-all flex items-center gap-1 cursor-pointer ${
+            className={`h-10 px-3.5 rounded-xl text-sm transition-colors cursor-pointer border ${
               !period.active
-                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 border-slate-900 dark:border-white shadow-2xs font-bold'
-                : 'bg-white dark:bg-[#1B212D] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? 'border-[var(--brand-gold-fill)] text-[var(--text-primary)] font-medium'
+                : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'
             }`}
-            title="Remover filtro de data e ver todos os lançamentos"
+            title="Remover o filtro de data e ver tudo"
           >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Ver Todos</span>
+            Ver todos
           </button>
         </div>
-
       </div>
 
-      {/* Modal de Escolha de Período para esta Aba */}
       {isModalOpen && (
         <GlobalPeriodSelectorModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           customPeriod={period}
           onSaveCustomPeriod={updatePeriod}
-          titleOverride={`Filtrar ${filterSubtitle}`}
-          subtitleOverride="A escolha deste período é exclusiva desta aba e não altera os filtros das outras áreas."
+          titleOverride={`Filtrar: ${filterSubtitle}`}
+          subtitleOverride="A escolha deste período vale só para esta aba e não altera as outras áreas."
         />
       )}
     </>

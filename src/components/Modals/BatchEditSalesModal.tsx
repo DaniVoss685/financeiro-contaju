@@ -4,6 +4,8 @@ import { Sale, SaleItem } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR, formatCompetence, getFilteredChartAccounts, formatChartAccountSelectOptions } from '../../services/financialEngine';
 import { SearchableSelect, SelectOption } from '../Common/SearchableSelect';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface BatchEditSalesModalProps {
   isOpen: boolean;
@@ -367,8 +369,7 @@ export const BatchEditSalesModal: React.FC<BatchEditSalesModalProps> = ({
 
               {enableDate && (
                 <div className="mt-2.5">
-                  <input
-                    type="date"
+                  <DateField
                     value={date}
                     onChange={e => setDate(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 focus:outline-none"
@@ -401,8 +402,7 @@ export const BatchEditSalesModal: React.FC<BatchEditSalesModalProps> = ({
 
               {enableCompetence && (
                 <div className="mt-2.5">
-                  <input
-                    type="month"
+                  <MonthField
                     value={competence}
                     onChange={e => setCompetence(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 focus:outline-none"
@@ -436,14 +436,14 @@ export const BatchEditSalesModal: React.FC<BatchEditSalesModalProps> = ({
 
             {enableStatus && (
               <div className="mt-2.5">
-                <select
+                <PremiumSelect
                   value={status}
                   onChange={e => setStatus(e.target.value as 'CONFIRMADA' | 'CANCELADA')}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] font-bold focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
                 >
                   <option value="CONFIRMADA">CONFIRMADA (Ativa)</option>
                   <option value="CANCELADA">CANCELADA (Anulada)</option>
-                </select>
+                </PremiumSelect>
               </div>
             )}
           </div>

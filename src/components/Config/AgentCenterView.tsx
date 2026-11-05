@@ -60,6 +60,7 @@ import {
 } from '../../services/aiModelCatalogService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
 import { AgentEditModal } from '../Modals/AgentEditModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const AgentCenterView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'AGENTES' | 'APROVACOES' | 'RUNS' | 'GATEWAY'>(() => {
@@ -1209,7 +1210,7 @@ export const AgentCenterView: React.FC = () => {
                   /* Seletor de Modelo Individual */
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">Modelo:</span>
-                    <select
+                    <PremiumSelect
                       value={testPlaygroundModel || aiConfig.primaryModel}
                       onChange={(e) => setTestPlaygroundModel(e.target.value)}
                       className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -1219,7 +1220,7 @@ export const AgentCenterView: React.FC = () => {
                           {m.name} ({m.id}) {m.id === aiConfig.primaryModel ? '⭐ Primário' : ''}
                         </option>
                       ))}
-                    </select>
+                    </PremiumSelect>
                     {testPlaygroundModel && testPlaygroundModel !== aiConfig.primaryModel && (
                       <button
                         type="button"
@@ -1242,7 +1243,7 @@ export const AgentCenterView: React.FC = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-bold text-amber-400">Modelo A:</span>
-                      <select
+                      <PremiumSelect
                         value={testPlaygroundModel || aiConfig.primaryModel}
                         onChange={(e) => setTestPlaygroundModel(e.target.value)}
                         className="bg-[var(--surface-elevated)] border border-amber-500/40 rounded-xl px-2.5 py-1 text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-amber-500"
@@ -1252,14 +1253,14 @@ export const AgentCenterView: React.FC = () => {
                             {m.name} {m.id === aiConfig.primaryModel ? '⭐' : ''}
                           </option>
                         ))}
-                      </select>
+                      </PremiumSelect>
                     </div>
 
                     <span className="text-xs text-[var(--text-secondary)] font-bold">vs</span>
 
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-bold text-purple-400">Modelo B:</span>
-                      <select
+                      <PremiumSelect
                         value={testPlaygroundModelB}
                         onChange={(e) => setTestPlaygroundModelB(e.target.value)}
                         className="bg-[var(--surface-elevated)] border border-purple-500/40 rounded-xl px-2.5 py-1 text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-purple-500"
@@ -1269,7 +1270,7 @@ export const AgentCenterView: React.FC = () => {
                             {m.name}
                           </option>
                         ))}
-                      </select>
+                      </PremiumSelect>
                     </div>
                   </div>
                 )}

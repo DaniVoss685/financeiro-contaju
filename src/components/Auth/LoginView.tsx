@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { storage } from '../../services/storageService';
 import { User, UserRole } from '../../types';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface LoginViewProps {
   onLoginSuccess: (user: User) => void;
@@ -861,7 +862,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">
                     Função Desejada
                   </label>
-                  <select
+                  <PremiumSelect
                     value={regRole}
                     onChange={(e) => setRegRole(e.target.value as any)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-bold focus:outline-none focus:border-amber-500 cursor-pointer"
@@ -869,7 +870,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     <option value="OPERADOR">Operador Financeiro (Títulos e Baixas)</option>
                     <option value="GESTOR_FINANCEIRO">Gestor Financeiro (Aprovações e Caixa)</option>
                     <option value="CONSULTA">Apenas Consulta (Relatórios Leitura)</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-[var(--text-secondary)]">

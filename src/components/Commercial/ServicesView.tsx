@@ -4,6 +4,7 @@ import { ServiceItem } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL } from '../../services/financialEngine';
 import { matchesSearch } from '../../utils/searchUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface ServicesViewProps {
   initialSearch?: string;
@@ -205,14 +206,14 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ initialSearch = '' }
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-medium text-[var(--text-secondary)] mb-1">Modalidade *</label>
-                  <select
+                  <PremiumSelect
                     value={formData.modality || 'RECORRENTE'}
                     onChange={e => setFormData({ ...formData, modality: e.target.value as 'RECORRENTE' | 'AVULSO' })}
                     className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-1.5 focus:outline-hidden focus:border-amber-500"
                   >
                     <option value="RECORRENTE">Recorrente (Mensal)</option>
                     <option value="AVULSO">Avulso / Pontual</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
                 <div>
                   <label className="block font-medium text-[var(--text-secondary)] mb-1">Preço Sugerido (R$)</label>
@@ -229,7 +230,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ initialSearch = '' }
 
               <div>
                 <label className="block font-medium text-[var(--text-secondary)] mb-1">Conta DRE Vinculada *</label>
-                <select
+                <PremiumSelect
                   value={formData.chartAccountId}
                   onChange={e => setFormData({ ...formData, chartAccountId: e.target.value })}
                   className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-1.5 focus:outline-hidden focus:border-amber-500"
@@ -237,7 +238,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ initialSearch = '' }
                   {chartAccounts.map(a => (
                     <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>

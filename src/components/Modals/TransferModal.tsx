@@ -4,6 +4,7 @@ import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL } from '../../services/financialEngine';
 import { SearchableSelect } from '../Common/SearchableSelect';
 import { toast } from '../../hooks/useToast';
+import { DateField } from '../Common/DateField';
 
 interface TransferModalProps {
   isOpen: boolean;
@@ -148,8 +149,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               <label className="block font-medium text-slate-700 mb-1">
                 Data Efetiva *
               </label>
-              <input
-                type="date"
+              <DateField
                 max={today}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}

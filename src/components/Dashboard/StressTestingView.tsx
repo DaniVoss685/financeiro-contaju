@@ -657,7 +657,7 @@ export const StressTestingView: React.FC<StressTestingViewProps> = ({
               {/* Linha 2: Cenário Estressado (Âmbar / Rosa) */}
               <polyline
                 fill="none"
-                stroke="#f59e0b"
+                stroke="#cdaa58"
                 strokeWidth="3.5"
                 points={svgGraph.stressedPolyline}
               />
@@ -695,7 +695,7 @@ export const StressTestingView: React.FC<StressTestingViewProps> = ({
                     cx={pt.x}
                     cy={pt.y}
                     r={pt.val < 0 ? '6' : '5'}
-                    fill={pt.val < 0 ? '#f43f5e' : '#f59e0b'}
+                    fill={pt.val < 0 ? '#f43f5e' : '#cdaa58'}
                     stroke="#020617"
                     strokeWidth="2"
                   />

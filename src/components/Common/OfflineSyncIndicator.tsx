@@ -46,14 +46,14 @@ export const OfflineSyncIndicator: React.FC = () => {
     <>
       {/* Mini Badge de Estado de Conexão e Sincronização no Header */}
       {!isOnline && (
-        <div 
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-[11px] font-bold shadow-2xs animate-pulse select-none"
-          title="Você está trabalhando offline. Suas alterações estão salvas no dispositivo e serão enviadas quando a internet retornar."
+        <div
+          className="h-10 inline-flex items-center gap-2 px-3 rounded-lg text-sm text-[var(--status-warning)] select-none"
+          title="Você está trabalhando offline. Suas alterações estão salvas no dispositivo e serão enviadas quando a internet voltar."
         >
-          <WifiOff className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span className="hidden sm:inline">Modo Offline</span>
+          <WifiOff className="w-[18px] h-[18px] shrink-0" strokeWidth={1.75} />
+          <span className="hidden sm:inline">Sem conexão</span>
           {queueCount > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black">
+            <span className="min-w-[22px] h-[22px] px-1.5 rounded-full bg-[var(--status-warning-bg)] text-xs font-medium flex items-center justify-center">
               {queueCount}
             </span>
           )}
@@ -61,12 +61,12 @@ export const OfflineSyncIndicator: React.FC = () => {
       )}
 
       {isOnline && syncState === 'SYNCING' && (
-        <div 
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-900 dark:text-blue-300 text-[11px] font-bold shadow-2xs select-none"
-          title="Sincronizando operações com o servidor em segundo plano..."
+        <div
+          className="h-10 inline-flex items-center gap-2 px-3 rounded-lg text-sm text-[var(--text-muted)] select-none"
+          title="Sincronizando com o servidor em segundo plano..."
         >
-          <RefreshCw className="w-3.5 h-3.5 text-blue-500 shrink-0 animate-spin" />
-          <span className="hidden sm:inline">Sincronizando...</span>
+          <RefreshCw className="w-[18px] h-[18px] shrink-0 animate-spin" strokeWidth={1.75} />
+          <span className="hidden sm:inline">Sincronizando</span>
         </div>
       )}
 

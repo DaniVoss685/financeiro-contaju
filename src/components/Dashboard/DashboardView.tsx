@@ -48,6 +48,7 @@ import { CohortRetentionView } from './CohortRetentionView';
 import { StressTestingView } from './StressTestingView';
 import { BankAccountStatementModal } from '../Financial/BankAccountStatementModal';
 import { EditTitleModal } from '../Modals/EditTitleModal';
+import { PageToolbar, Button, TabPills, Card } from '../Common/ui';
 
 interface DashboardViewProps {
   onNavigate: (screen: NavigationScreen) => void;
@@ -418,119 +419,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6">
       
-      {/* Top Banner / Welcome & Tabs */}
-      <div className="bg-[var(--surface-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <div className="flex items-center space-x-2 flex-wrap">
-              <h1 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight">Painel Executivo Contaju</h1>
-              <span className="text-xs bg-[var(--surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full font-mono font-medium">
-                {dreData.months[effectiveMonthIdx]}/{effectiveYear}
-              </span>
-              {period.active && (
-                <span className="text-[10px] bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold px-2 py-0.5 rounded-full">
-                  Filtro do Dashboard Ativo
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
-              Gestão executiva por regime de competência (DRE), disponibilidades financeiras e acompanhamento de carteira.
-            </p>
-          </div>
+      <PageToolbar description="Gestão executiva por regime de competência (DRE), disponibilidades financeiras e acompanhamento da carteira.">
+        <Button variant="secondary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => onNavigate('CONCILIACAO')}>
+          Conciliação bancária
+        </Button>
+        <Button variant="primary" icon={<Calendar className="w-4 h-4" />} onClick={onOpenBillingModal}>
+          Faturamento mensal
+        </Button>
+      </PageToolbar>
 
-          <div className="flex items-center space-x-2 flex-wrap">
-            <button
-              onClick={onOpenBillingModal}
-              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold transition-colors shadow-2xs flex items-center cursor-pointer"
-            >
-              <Calendar className="w-3.5 h-3.5 mr-1.5" />
-              Faturamento Mensal
-            </button>
-            <button
-              onClick={() => onNavigate('CONCILIACAO')}
-              className="px-3 py-1.5 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-amber-500/50 rounded-lg text-xs font-medium transition-colors flex items-center cursor-pointer"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-              Conciliação Bancária
-            </button>
-          </div>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="min-w-0 max-w-full">
+          <TabPills
+            tabs={[
+              { id: 'DASHBOARD', label: 'Visão geral' },
+              { id: 'ANNUAL_KPIS', label: 'Evolução anual' },
+              { id: 'COHORT', label: 'Retenção' },
+              { id: 'CHURN_RISK', label: 'Risco de churn' },
+              { id: 'STRESS_TEST', label: 'Estresse de caixa' },
+              { id: 'KPIS_CONFIG', label: `Personalizar (${safeVisibleKpis.length})` }
+            ]}
+            value={activeTab}
+            onChange={id => setActiveTab(id as any)}
+          />
         </div>
-
-        {/* Tab Navigation: Visão Geral vs Configuração de KPIs */}
-        <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-3 flex-wrap gap-2">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setActiveTab('DASHBOARD')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center cursor-pointer ${
-                activeTab === 'DASHBOARD'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-              }`}
-            >
-              <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
-              Visão do Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab('ANNUAL_KPIS')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center cursor-pointer ${
-                activeTab === 'ANNUAL_KPIS'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
-              Evolução Anual dos KPIs (12M)
-            </button>
-            <button
-              onClick={() => setActiveTab('COHORT')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center cursor-pointer ${
-                activeTab === 'COHORT'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 mr-1.5" />
-              Retenção por Coortes
-            </button>
-            <button
-              onClick={() => setActiveTab('CHURN_RISK')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center cursor-pointer ${
-                activeTab === 'CHURN_RISK'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
-              Risco de Churn & Health Score
-            </button>
-            <button
-              onClick={() => setActiveTab('STRESS_TEST')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center cursor-pointer ${
-                activeTab === 'STRESS_TEST'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-              }`}
-            >
-              <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
-              Simulador de Estresse (180 Dias)
-            </button>
-            <button
-              onClick={() => setActiveTab('KPIS_CONFIG')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center cursor-pointer ${
-                activeTab === 'KPIS_CONFIG'
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
-              }`}
-            >
-              <Sliders className="w-3.5 h-3.5 mr-1.5 text-slate-950" />
-              Personalizar ({safeVisibleKpis.length} KPIs)
-            </button>
-          </div>
-
-          <div className="text-[11px] text-[var(--text-secondary)] hidden sm:block">
-            {safeVisibleKpis.length} KPIs e {safeVisibleWidgets.length} Widgets ativos no painel
-          </div>
-        </div>
+        <span className="text-sm text-[var(--text-muted)] hidden lg:block">
+          {safeVisibleKpis.length} indicadores e {safeVisibleWidgets.length} widgets ativos
+        </span>
       </div>
 
       {/* Dashboard Period Navigator */}
@@ -580,147 +495,99 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             
             {/* WIDGET 1: RESUMO RÁPIDO DE FATURAMENTO MENSAL */}
             {safeVisibleWidgets.includes('widget_faturamento_resumo') && (
-              <div className="bg-gradient-to-br from-[#121620] via-[#19202D] to-[#0B0E14] text-white p-5 rounded-2xl border border-amber-500/30 shadow-xs relative overflow-hidden">
-                <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-                
-                <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg">
-                      <Receipt className="w-4 h-4 text-amber-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                        Resumo Rápido de Faturamento
-                      </h3>
-                      <div className="text-[11px] text-[var(--text-secondary)]">
+              <Card className="flex flex-col justify-between gap-6">
+                <div className="space-y-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3>Faturamento do mês</h3>
+                      <p className="text-sm text-[var(--text-muted)] mt-1">
                         Competência {dreData.months[effectiveMonthIdx]}/{effectiveYear}
-                      </div>
+                      </p>
+                    </div>
+                    <Button variant="primary" className="h-9 shrink-0" onClick={onOpenBillingModal} icon={<ArrowRight className="w-4 h-4" />}>
+                      Faturar lote
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl border border-[var(--border-subtle)]">
+                      <p className="text-sm text-[var(--text-secondary)]">Total faturado</p>
+                      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums">{formatBRL(totalBilledThisMonth)}</p>
+                      <p className="mt-0.5 text-xs text-[var(--text-muted)]">Títulos do mês</p>
+                    </div>
+                    <div className="p-4 rounded-xl border border-[var(--border-subtle)]">
+                      <p className="text-sm text-[var(--text-secondary)]">Contratos faturados</p>
+                      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums">
+                        {contractsBilledCount} <span className="text-sm font-normal text-[var(--text-muted)]">de {activeContractsCount}</span>
+                      </p>
+                      <p className="mt-0.5 text-xs text-[var(--text-muted)]">Já gerados</p>
+                    </div>
+                    <div className="p-4 rounded-xl border border-[var(--border-subtle)]">
+                      <p className="text-sm text-[var(--text-secondary)]">Pendentes</p>
+                      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums">{contractsPendingCount}</p>
+                      <p className="mt-0.5 text-xs text-[var(--text-muted)]">A faturar no lote</p>
+                    </div>
+                    <div className="p-4 rounded-xl border border-[var(--border-subtle)]">
+                      <p className="text-sm text-[var(--text-secondary)]">Ticket médio</p>
+                      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums">{formatBRL(averageTicket)}</p>
+                      <p className="mt-0.5 text-xs text-[var(--text-muted)]">Por contrato ativo</p>
                     </div>
                   </div>
-                  <button
-                    onClick={onOpenBillingModal}
-                    className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-bold rounded-lg shadow-xs transition-colors flex items-center cursor-pointer"
-                  >
-                    Faturar Lote
-                    <ArrowRight className="w-3 h-3 ml-1" />
+                </div>
+
+                <div className="flex justify-between items-center gap-3 text-sm text-[var(--text-muted)]">
+                  <span>O faturamento não gera duplicidade.</span>
+                  <button onClick={() => onNavigate('CONTRATOS')} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2 cursor-pointer">
+                    Ver contratos
                   </button>
                 </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-300 font-semibold">Total Faturado</div>
-                    <div className="text-base sm:text-lg font-bold text-white mt-1">
-                      {formatBRL(totalBilledThisMonth)}
-                    </div>
-                    <div className="text-[10px] text-slate-300 mt-0.5">Títulos do mês</div>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-300 font-semibold">Faturados</div>
-                    <div className="text-base sm:text-lg font-bold text-emerald-400 mt-1">
-                      {contractsBilledCount} <span className="text-xs font-normal text-slate-300">/ {activeContractsCount}</span>
-                    </div>
-                    <div className="text-[10px] text-emerald-300 mt-0.5">Contratos gerados</div>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-300 font-semibold">Pendentes</div>
-                    <div className="text-base sm:text-lg font-bold text-amber-400 mt-1">
-                      {contractsPendingCount}
-                    </div>
-                    <div className="text-[10px] text-amber-300 mt-0.5">A faturar no lote</div>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-300 font-semibold">Ticket Médio</div>
-                    <div className="text-base sm:text-lg font-bold text-white mt-1">
-                      {formatBRL(averageTicket)}
-                    </div>
-                    <div className="text-[10px] text-slate-300 mt-0.5">Por contrato ativo</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center text-[11px] text-slate-300">
-                  <span className="flex items-center">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400 mr-1" />
-                    Processo idempotente com bloqueio de duplicidade automática.
-                  </span>
-                  <button 
-                    onClick={() => onNavigate('CONTRATOS')}
-                    className="hover:text-white underline"
-                  >
-                    Ver Contratos
-                  </button>
-                </div>
-              </div>
+              </Card>
             )}
 
             {/* WIDGET 2: SALDOS BANCÁRIOS CONSOLIDADOS */}
             {safeVisibleWidgets.includes('widget_saldos_consolidados') && (
-              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-1.5 bg-emerald-50 rounded-lg border border-emerald-100">
-                        <Wallet className="w-4 h-4 text-emerald-600" />
-                      </div>
-                      <div>
-                        <div className="flex items-center space-x-1.5">
-                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                            Saldos Bancários Consolidados
-                          </h3>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded border border-amber-200">
-                            2 cliques abre extrato
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-slate-700">
-                          Dê dois cliques na conta para abrir o extrato detalhado
-                        </div>
-                      </div>
+              <Card className="flex flex-col justify-between gap-6">
+                <div className="space-y-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3>Saldos bancários</h3>
+                      <p className="text-sm text-[var(--text-muted)] mt-1">Dê dois cliques numa conta para abrir o extrato</p>
                     </div>
-                    
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-700 font-semibold uppercase">Total Caixa</span>
-                      <div className="text-lg font-bold text-emerald-950 font-mono">
-                        {formatBRL(consolidatedCash)}
-                      </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs text-[var(--text-muted)]">Total em caixa</p>
+                      <p className="text-xl font-semibold tracking-tight tabular-nums">{formatBRL(consolidatedCash)}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3">
+                  <div className="divide-y divide-[var(--border-subtle)] border-t border-[var(--border-subtle)]">
                     {bankAccountsWithBalance.map(b => (
-                      <div 
-                        key={b.id} 
+                      <div
+                        key={b.id}
                         onDoubleClick={() => handleOpenAccountStatement(b)}
-                        className="p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 flex items-center justify-between hover:bg-amber-50/40 hover:border-amber-400 transition-all cursor-pointer group shadow-2xs"
-                        title="Dê dois cliques para abrir o extrato detalhado agrupado por dia, semana ou mês"
+                        className="py-3.5 flex items-center justify-between gap-4 cursor-pointer group"
+                        title="Dê dois cliques para abrir o extrato detalhado por dia, semana ou mês"
                       >
-                        <div className="flex items-center space-x-2">
-                          <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                          <div>
-                            <div className="text-xs font-semibold text-slate-800 group-hover:text-amber-900 flex items-center gap-1">
-                              <span>{b.name}</span>
-                            </div>
-                            <div className="text-[10px] text-slate-700 font-mono">Ag {b.agency || '-'} / CC {b.accountNumber || '-'}</div>
-                          </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate group-hover:text-[var(--brand-gold)] transition-colors">{b.name}</p>
+                          <p className="text-xs text-[var(--text-muted)] tabular-nums">
+                            Ag {b.agency || '-'} • CC {b.accountNumber || '-'}
+                          </p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="text-right">
-                            <div className={`text-xs font-bold font-mono ${b.calculatedBalance >= 0 ? 'text-slate-900' : 'text-rose-600'}`}>
-                              {formatBRL(b.calculatedBalance)}
-                            </div>
-                            <span className="text-[9px] text-slate-700">Conciliado</span>
-                          </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <p className={`text-sm font-semibold tabular-nums ${b.calculatedBalance < 0 ? 'text-[var(--status-danger)]' : ''}`}>
+                            {formatBRL(b.calculatedBalance)}
+                          </p>
                           <button
                             type="button"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               handleOpenAccountStatement(b);
                             }}
-                            className="p-1 text-slate-400 hover:text-amber-700 hover:bg-amber-100 rounded transition-colors"
-                            title="Ver Extrato e Movimentações"
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                            title="Ver extrato e movimentações"
+                            aria-label={`Ver extrato de ${b.name}`}
                           >
-                            <FileText className="w-3.5 h-3.5" />
+                            <FileText className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -728,20 +595,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-                  <span className="text-slate-700 text-[11px] flex items-center">
-                    <Sparkles className="w-3 h-3 text-amber-500 mr-1" />
-                    {bankAccounts.length} contas bancárias integradas ao fluxo
-                  </span>
-                  <button
-                    onClick={() => onNavigate('CONCILIACAO')}
-                    className="text-xs font-semibold text-amber-500 hover:text-amber-400 flex items-center"
-                  >
-                    Ver Extratos & Conciliação
-                    <ArrowRight className="w-3 h-3 ml-1" />
+                <div className="flex justify-between items-center gap-3 text-sm text-[var(--text-muted)]">
+                  <span>{bankAccounts.length} contas no fluxo de caixa</span>
+                  <button onClick={() => onNavigate('CONCILIACAO')} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2 cursor-pointer">
+                    Extratos e conciliação
                   </button>
                 </div>
-              </div>
+              </Card>
             )}
 
             {/* WIDGET 3: PANORAMA & MÉTRICAS DE CLIENTES (SOLICITADO) */}

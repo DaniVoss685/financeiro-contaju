@@ -92,7 +92,7 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
       <div 
         className={`rounded-2xl shadow-2xl w-full max-w-6xl overflow-hidden flex flex-col max-h-[94vh] print:max-h-none print:border-none print:shadow-none print:w-full print:rounded-none transition-colors ${
           isDark 
-            ? 'bg-[#121620] border border-[#242D3D] text-[#F8FAFC]' 
+            ? 'bg-[#131316] border border-[#26262b] text-[#F8FAFC]' 
             : 'bg-white border border-slate-200 text-slate-900'
         }`}
       >
@@ -185,13 +185,13 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
         <div 
           id="print-report-container"
           className={`flex-1 overflow-y-auto p-4 sm:p-8 space-y-5 print:p-0 print:overflow-visible print:space-y-4 print:text-black ${
-            isDark ? 'bg-[#0B0E14] text-[#F8FAFC]' : 'bg-white text-slate-900'
+            isDark ? 'bg-[#0b0b0d] text-[#F8FAFC]' : 'bg-white text-slate-900'
           }`}
         >
           {/* Cabeçalho do Documento Contábil */}
           <div className={`p-4 sm:p-5 rounded-2xl border print:border-slate-300 print:rounded-none print:p-3 ${
             isDark 
-              ? 'bg-[#121620] border-[#242D3D]' 
+              ? 'bg-[#131316] border-[#26262b]' 
               : 'bg-slate-50 border-slate-200'
           }`}>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -276,13 +276,13 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
 
           {/* Tabela Estruturada do Relatório */}
           <div className={`rounded-xl border overflow-hidden print:border-slate-300 print:rounded-none ${
-            isDark ? 'border-[#242D3D]' : 'border-slate-200'
+            isDark ? 'border-[#26262b]' : 'border-slate-200'
           }`}>
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className={`border-b font-bold uppercase text-[11px] tracking-wider ${
                   isDark 
-                    ? 'bg-[#19202D] border-[#242D3D] text-[#F8FAFC]' 
+                    ? 'bg-[#1b1b20] border-[#26262b] text-[#F8FAFC]' 
                     : 'bg-slate-100 border-slate-300 text-slate-900'
                 }`}>
                   <th className="py-2.5 px-3 border-r border-inherit">Estrutura</th>
@@ -299,7 +299,7 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
                 </tr>
               </thead>
 
-              <tbody className={`divide-y ${isDark ? 'divide-[#242D3D]' : 'divide-slate-200'}`}>
+              <tbody className={`divide-y ${isDark ? 'divide-[#26262b]' : 'divide-slate-200'}`}>
                 {rows.map((row, idx) => {
                   let rowBg = '';
                   let rowText = isDark ? 'text-slate-200' : 'text-slate-800';
@@ -308,26 +308,26 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
                     rowBg = isDark ? 'bg-amber-950/40 font-bold' : 'bg-amber-50 font-bold';
                     rowText = isDark ? 'text-amber-300' : 'text-slate-950';
                   } else if (row.isSummary) {
-                    rowBg = isDark ? 'bg-[#19202D] font-bold' : 'bg-slate-100 font-bold';
+                    rowBg = isDark ? 'bg-[#1b1b20] font-bold' : 'bg-slate-100 font-bold';
                     rowText = isDark ? 'text-white' : 'text-slate-900';
                   } else if (row.isHeader) {
-                    rowBg = isDark ? 'bg-[#161C28] font-bold' : 'bg-slate-50 font-bold';
+                    rowBg = isDark ? 'bg-[#17171b] font-bold' : 'bg-slate-50 font-bold';
                     rowText = isDark ? 'text-amber-400' : 'text-slate-900';
                   }
 
                   return (
                     <tr key={idx} className={`${rowBg} transition-colors print:bg-transparent`}>
-                      <td className={`py-2 px-3 font-mono text-[11px] font-semibold border-r ${isDark ? 'border-[#242D3D]' : 'border-slate-200'}`}>
+                      <td className={`py-2 px-3 font-mono text-[11px] font-semibold border-r ${isDark ? 'border-[#26262b]' : 'border-slate-200'}`}>
                         {row.code || '-'}
                       </td>
                       <td 
-                        className={`py-2 px-3 border-r font-medium ${isDark ? 'border-[#242D3D]' : 'border-slate-200'}`}
+                        className={`py-2 px-3 border-r font-medium ${isDark ? 'border-[#26262b]' : 'border-slate-200'}`}
                         style={{ paddingLeft: `${(row.level || 0) * 14 + 12}px` }}
                       >
                         <span className={rowText}>{row.name}</span>
                       </td>
                       {row.values.map((v, i) => (
-                        <td key={i} className={`py-2 px-2 text-right font-mono text-[11px] border-r ${isDark ? 'border-[#242D3D]' : 'border-slate-200'}`}>
+                        <td key={i} className={`py-2 px-2 text-right font-mono text-[11px] border-r ${isDark ? 'border-[#26262b]' : 'border-slate-200'}`}>
                           {v}
                         </td>
                       ))}

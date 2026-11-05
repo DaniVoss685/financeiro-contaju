@@ -21,6 +21,7 @@ import { BankStatementEntry, FinancialTitle, ChartOfAccount, AiReconciliationSug
 import { AiService } from '../../services/aiService';
 import { AiModelCatalogService } from '../../services/aiModelCatalogService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface AiReconciliationModalProps {
   isOpen: boolean;
@@ -179,7 +180,7 @@ export const AiReconciliationModal: React.FC<AiReconciliationModalProps> = ({
               Transação do Extrato Bancário Analisada
             </label>
             <div className="relative">
-              <select
+              <PremiumSelect
                 value={currentStmt?.id || ''}
                 onChange={(e) => {
                   const found = allStatements.find(s => s.id === e.target.value);
@@ -196,7 +197,7 @@ export const AiReconciliationModal: React.FC<AiReconciliationModalProps> = ({
                     {formatDateBR(s.date)} — {s.description} ({formatBRL(s.amount)}) [{s.reconciliationStatus}]
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
             </div>
           </div>
 

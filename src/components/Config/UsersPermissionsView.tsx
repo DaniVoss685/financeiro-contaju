@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { User, UserRole } from '../../types';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const UsersPermissionsView: React.FC = () => {
   const [users, setUsers] = useState<User[]>(storage.getUsers());
@@ -458,7 +459,7 @@ export const UsersPermissionsView: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-[var(--text-secondary)] mb-1">Perfil de Acesso (RBAC) *</label>
-                <select
+                <PremiumSelect
                   value={formData.role || 'OPERADOR'}
                   onChange={e => setFormData({ ...formData, role: e.target.value as any })}
                   className="w-full rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-3 py-2 font-bold text-xs text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none cursor-pointer"
@@ -468,7 +469,7 @@ export const UsersPermissionsView: React.FC = () => {
                   <option value="GESTOR_FINANCEIRO">GESTOR — Gestor Financeiro (Sem Config Global)</option>
                   <option value="OPERADOR">OPERADOR — Operador (Emissão de Títulos e Baixas)</option>
                   <option value="CONSULTA">CONSULTA — Somente Leitura / Auditor</option>
-                </select>
+                </PremiumSelect>
               </div>
 
               <div className="p-3 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex items-start gap-2.5">

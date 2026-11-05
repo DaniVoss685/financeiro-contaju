@@ -34,6 +34,7 @@ import { advanceCompetence, getDaysInMonth } from '../../utils/dateUtils';
 import { Contract, FinancialTitle, ChartAccount, Counterparty } from '../../types';
 import { ContractScheduleModal } from '../Modals/ContractScheduleModal';
 import { toast } from '../../hooks/useToast';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface RecurrencesViewProps {
   onOpenBillingModal: () => void;
@@ -1084,7 +1085,7 @@ export const RecurrencesView: React.FC<RecurrencesViewProps> = ({ onOpenBillingM
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">
                   Quantos meses deseja adicionar? *
                 </label>
-                <select
+                <PremiumSelect
                   value={extendMonthsCount}
                   onChange={e => setExtendMonthsCount(parseInt(e.target.value, 10))}
                   className="w-full rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs bg-white dark:bg-slate-900 font-bold"
@@ -1093,7 +1094,7 @@ export const RecurrencesView: React.FC<RecurrencesViewProps> = ({ onOpenBillingM
                   <option value="6">+ 6 meses (Semestral)</option>
                   <option value="12">+ 12 meses (1 ano adicional)</option>
                   <option value="24">+ 24 meses (2 anos adicionais)</option>
-                </select>
+                </PremiumSelect>
               </div>
 
               <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-[11px] text-purple-800 dark:text-purple-300">

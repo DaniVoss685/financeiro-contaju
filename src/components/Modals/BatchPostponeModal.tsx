@@ -11,6 +11,7 @@ import {
 import { FinancialTitle } from '../../types';
 import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL, formatDateBR } from '../../services/financialEngine';
+import { DateField } from '../Common/DateField';
 
 interface BatchPostponeModalProps {
   isOpen: boolean;
@@ -211,8 +212,7 @@ export const BatchPostponeModal: React.FC<BatchPostponeModalProps> = ({
               <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">
                 Nova Data de Vencimento e Previsão de Caixa *
               </label>
-              <input
-                type="date"
+              <DateField
                 required
                 value={specificDate}
                 onChange={e => setSpecificDate(e.target.value)}

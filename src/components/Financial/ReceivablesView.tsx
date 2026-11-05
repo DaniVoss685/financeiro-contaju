@@ -71,6 +71,9 @@ import { SwipeableCard } from '../Common/SwipeableCard';
 import { useModulePeriod } from '../../hooks/useModulePeriod';
 import { toast } from '../../hooks/useToast';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { Card, PageToolbar, Button, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
+import { formatPeriodRangeBR } from '../../utils/dateUtils';
 
 interface ReceivablesViewProps {
   onOpenNewTitleModal: (type: 'RECEBER') => void;
@@ -869,572 +872,182 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-white dark:bg-[#1B212D] p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">Contas a Receber</h1>
-          </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-            Gestão de direitos, honorários faturados, agenda de liquidação e baixas parciais ou integrais.
-          </p>
-        </div>
+      <PageToolbar description="Honorários faturados, agenda de liquidação e baixas parciais ou integrais.">
+        <MoreMenu
+          attention={duplicateCandidates.length > 0}
+          items={[
+            {
+              label: 'Limpeza de duplicidades',
+              icon: <Sparkles className="w-4 h-4" />,
+              onClick: () => setIsDedupModalOpen(true),
+              badge: duplicateCandidates.length > 0 ? duplicateCandidates.length : undefined,
+              hint: 'Encontra títulos repetidos (mesmo vencimento, valor e descrição)'
+            },
+            { label: 'Exportar para Excel', icon: <FileSpreadsheet className="w-4 h-4" />, onClick: handleExportExcel },
+            { label: 'Exportar para CSV', icon: <Download className="w-4 h-4" />, onClick: handleExportCSV }
+          ]}
+        />
+        <Button
+          variant="secondary"
+          icon={<Upload className="w-4 h-4" />}
+          onClick={() => setIsImportModalOpen(true)}
+          title="Importar lançamentos de planilha externa (Conta Azul, Asaas, Omie, etc.)"
+        >
+          Importar
+        </Button>
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={() => onOpenNewTitleModal('RECEBER')}>
+          Novo recebimento
+        </Button>
+      </PageToolbar>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <button
-            onClick={() => onOpenNewTitleModal('RECEBER')}
-            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-2xs flex items-center shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            Novo Recebimento
-          </button>
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="px-3 py-2 bg-white dark:bg-[#19202D] border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-2xs shrink-0 cursor-pointer"
-            title="Importar lançamentos de planilha externa (Conta Azul, Asaas, Omie, etc.)"
-          >
-            <Upload className="w-4 h-4 mr-1.5 text-amber-500" />
-            Importar
-          </button>
-          <button
-            onClick={() => setIsDedupModalOpen(true)}
-            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center shadow-2xs shrink-0 cursor-pointer ${
-              duplicateCandidates.length > 0
-                ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 font-bold ring-2 ring-amber-400/50'
-                : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30'
-            }`}
-            title="Assistente de conciliação e limpeza de títulos a receber duplicados (mesmo vencimento, valor e descrição)"
-          >
-            <Sparkles className="w-4 h-4 mr-1.5 text-amber-500" />
-            <span>Limpeza de Duplicidades</span>
-            {duplicateCandidates.length > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-slate-950 text-amber-400">
-                {duplicateCandidates.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={handleExportExcel}
-            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs shrink-0 cursor-pointer"
-            title="Exportar para Excel (.xlsx)"
-          >
-            <FileSpreadsheet className="w-4 h-4 mr-1.5 text-emerald-600 dark:text-emerald-400" />
-            Excel
-          </button>
-          <button
-            onClick={handleExportCSV}
-            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-medium transition-colors flex items-center shadow-2xs shrink-0 cursor-pointer"
-            title="Exportar para CSV"
-          >
-            <Download className="w-4 h-4 mr-1.5 text-slate-500 dark:text-slate-400" />
-            CSV
-          </button>
-        </div>
-      </div>
-
-      {/* Widget Preditivo de Inadimplência & Liquidez de Caixa */}
-      <div className="bg-white dark:bg-[#1B212D] p-3.5 sm:p-5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-[#273040] pb-3">
-          <div className="flex items-center justify-between sm:justify-start gap-2.5 w-full sm:w-auto">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
-                  <span className="truncate">Alerta Preditivo de Inadimplência</span>
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
-                    IA
-                  </span>
-                  {period && period.active && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                      Período: {period.month === 0 ? `Ano ${period.year}` : `${String(period.month).padStart(2, '0')}/${period.year}`}
-                    </span>
-                  )}
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
-                  {period && period.active 
-                    ? `Previsibilidade e valores em aberto escopados exclusivamente para ${period.month === 0 ? `o ano ${period.year}` : `${String(period.month).padStart(2, '0')}/${period.year}`}`
-                    : 'Score histórico de pontualidade por cliente e valores em aberto na carteira'}
-                </p>
-              </div>
-            </div>
-
-            {/* Botão de Alternância Retrátil no Mobile */}
-            <button
-              type="button"
-              onClick={() => setIsPredictiveExpandedMobile(!isPredictiveExpandedMobile)}
-              className="sm:hidden min-h-[40px] px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 cursor-pointer shrink-0"
-              aria-label={isPredictiveExpandedMobile ? 'Recolher Alerta de Risco' : 'Ver Alerta de Risco'}
-            >
-              <span>{isPredictiveExpandedMobile ? 'Recolher' : 'Ver Risco'}</span>
-              {isPredictiveExpandedMobile ? (
-                <ChevronUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <ChevronDown className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              )}
-            </button>
-          </div>
-
-          {/* Filtro Rápido por Grau de Risco */}
-          <div className={`${isPredictiveExpandedMobile ? 'flex' : 'hidden sm:flex'} items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none touch-pan-x`}>
-            <span className="text-[11px] font-bold text-slate-400 mr-1 hidden sm:inline">Filtrar:</span>
-            {[
+      {/* Previsão de inadimplência (recolhida por padrão) */}
+      <Disclosure
+        title="Previsão de inadimplência"
+        subtitle={
+          period && period.active
+            ? `Período ${formatPeriodRangeBR(period.month, period.year)}`
+            : 'Pontualidade histórica por cliente e valores em aberto na carteira'
+        }
+        open={isPredictiveExpandedMobile}
+        onToggle={() => setIsPredictiveExpandedMobile(v => !v)}
+      >
+        <div className="mb-5">
+          <TabPills
+            tabs={[
               { id: 'ALL', label: 'Todos' },
-              { id: 'BAIXO', label: '🟢 Baixo Risco' },
-              { id: 'MODERADO', label: '🟡 Risco Moderado' },
-              { id: 'ALTO', label: '🔴 Alto Risco' },
-            ].map(rf => (
-              <button
-                key={rf.id}
-                type="button"
-                onClick={() => setRiskFilter(rf.id as any)}
-                className={`min-h-[40px] sm:min-h-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                  riskFilter === rf.id
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                <span>{rf.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 3 Blocos de Visão de Risco do Caixa */}
-        <div className={`${isPredictiveExpandedMobile ? 'grid' : 'hidden sm:grid'} grid-cols-1 sm:grid-cols-3 gap-3`}>
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#151D2A] border border-emerald-200 dark:border-emerald-500/30 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
-              <span>Recebimento Seguro (Baixo Risco)</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 font-mono font-bold">Alta Previsibilidade</span>
-            </div>
-            <div className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-1.5">
-              {formatBRL(portfolioRisk.lowRiskOpenAmount)}
-            </div>
-            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
-              Clientes pontuais com índice de quitação em dia superior a 85%.
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#151D2A] border border-amber-200 dark:border-amber-500/30 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-bold text-amber-800 dark:text-amber-400">
-              <span>Atenção Preventiva (Moderado)</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 font-mono font-bold">Lembrete D-2</span>
-            </div>
-            <div className="text-base font-black text-amber-600 dark:text-amber-400 mt-1.5">
-              {formatBRL(portfolioRisk.moderateRiskOpenAmount)}
-            </div>
-            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
-              Atrasos pontuais no histórico. Recomenda-se envio prévio de lembrete com chave PIX.
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#151D2A] border border-rose-200 dark:border-rose-500/30 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-bold text-rose-800 dark:text-rose-400">
-              <span>Em Risco Crítico / Atraso</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-500/20 text-rose-900 dark:text-rose-300 border border-rose-300 dark:border-rose-500/30 font-mono font-bold">Cobrança Ativa</span>
-            </div>
-            <div className="text-base font-black text-rose-600 dark:text-rose-400 mt-1.5">
-              {formatBRL(portfolioRisk.highRiskOpenAmount)}
-            </div>
-            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
-              {portfolioRisk.highRiskCustomerCount} cliente(s) com títulos já vencidos ou alto índice de inadimplência.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Menu Superior de Títulos (Mobile First: Abas de Status e Busca em Destaque) */}
-      <div className="block md:hidden bg-white dark:bg-[#1B212D] p-3.5 rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs space-y-3">
-        <div className="flex items-center justify-between text-[11px] font-bold">
-          <span className="text-slate-500 dark:text-slate-400 uppercase tracking-wider">Menu de Títulos</span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{filteredTitles.length} título(s)</span>
-        </div>
-
-        {/* Abas Horizontais com Contadores em Destaque */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-pan-x">
-          {[
-            { id: 'ABERTO', label: 'Em Aberto', count: stats.openCount },
-            { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
-            { id: 'LIQUIDADO', label: 'Recebidos', count: stats.liquidadosCount },
-            { id: 'TODOS', label: 'Todos', count: stats.todosCount },
-            { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setStatusFilter(tab.id as any);
-                setQuickDateFilter('ALL');
-              }}
-              className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
-                statusFilter === tab.id && quickDateFilter === 'ALL'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700'
-              }`}
-            >
-              <span>{tab.label}</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                statusFilter === tab.id && quickDateFilter === 'ALL'
-                  ? 'bg-emerald-800 text-white'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-              }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Chips Rápidos de Data no Mobile */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-pan-x">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 mr-1">Prazo:</span>
-          {[
-            { id: 'ALL', label: 'Todos' },
-            { id: 'HOJE', label: 'Hoje' },
-            { id: 'ESTA_SEMANA', label: 'Esta Semana' },
-            { id: 'ESTE_MES', label: 'Este Mês' },
-          ].map(chip => (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => {
-                setQuickDateFilter(chip.id as any);
-                if (chip.id !== 'ALL') {
-                  setStatusFilter('ABERTO');
-                }
-              }}
-              className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center whitespace-nowrap shrink-0 cursor-pointer ${
-                quickDateFilter === chip.id
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Campo de Busca Mobile */}
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar por descrição, cliente ou documento..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-[#131720] text-slate-900 dark:text-slate-100 placeholder-slate-400"
+              { id: 'BAIXO', label: 'Baixo risco' },
+              { id: 'MODERADO', label: 'Risco moderado' },
+              { id: 'ALTO', label: 'Alto risco' }
+            ]}
+            value={riskFilter}
+            onChange={id => setRiskFilter(id as any)}
           />
         </div>
-
-        {/* Seletor Rápido de Categoria Mobile */}
-        <div className="flex items-center gap-2 pt-1">
-          <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 shrink-0">
-            Categoria:
-          </label>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#131720] text-slate-900 dark:text-slate-100"
-          >
-            <option value="ALL">Todas as Categorias ({categoryStats.totalTitlesInPeriod})</option>
-            {categoryStats.unclassifiedCount > 0 && (
-              <option value="SEM_CATEGORIA" className="font-bold text-amber-600 dark:text-amber-400">
-                ⚠️ Não Classificados ({categoryStats.unclassifiedCount})
-              </option>
-            )}
-            {categoryStats.inPeriodService.length > 0 && (
-              <optgroup label="⚡ Receitas de Serviços no Período">
-                {categoryStats.inPeriodService.map(({ account, count, totalAmount }) => (
-                  <option key={account.id} value={account.id}>
-                    {account.code} - {account.name} ({count} • {formatBRL(totalAmount)})
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {categoryStats.inPeriodFinancial.length > 0 && (
-              <optgroup label="⚡ Receitas Financeiras no Período">
-                {categoryStats.inPeriodFinancial.map(({ account, count, totalAmount }) => (
-                  <option key={account.id} value={account.id}>
-                    {account.code} - {account.name} ({count} • {formatBRL(totalAmount)})
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {categoryStats.othersService.length > 0 && (
-              <optgroup label="📋 Receitas de Serviços (Outras do Plano)">
-                {categoryStats.othersService.map(acc => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.code ? `${acc.code} - ` : ''}{acc.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {categoryStats.othersFinancial.length > 0 && (
-              <optgroup label="📋 Receitas Financeiras (Outras do Plano)">
-                {categoryStats.othersFinancial.map(acc => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.code ? `${acc.code} - ` : ''}{acc.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </select>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-[var(--border-subtle)] p-4">
+            <p className="text-sm text-[var(--text-secondary)]">Recebimento seguro</p>
+            <p className="mt-2 text-[22px] leading-7 font-semibold tabular-nums">{formatBRL(portfolioRisk.lowRiskOpenAmount)}</p>
+            <p className="mt-1.5 text-xs text-[var(--text-muted)]">Clientes pontuais, com mais de 85% das parcelas pagas em dia.</p>
+          </div>
+          <div className="rounded-xl border border-[var(--border-subtle)] p-4">
+            <p className="text-sm text-[var(--text-secondary)]">Atenção preventiva</p>
+            <p className="mt-2 text-[22px] leading-7 font-semibold tabular-nums">{formatBRL(portfolioRisk.moderateRiskOpenAmount)}</p>
+            <p className="mt-1.5 text-xs text-[var(--text-muted)]">Atrasos pontuais no histórico. Vale enviar lembrete antes do vencimento.</p>
+          </div>
+          <div className="rounded-xl border border-[var(--border-subtle)] p-4">
+            <p className="text-sm text-[var(--text-secondary)]">Em risco crítico</p>
+            <p className={`mt-2 text-[22px] leading-7 font-semibold tabular-nums ${portfolioRisk.highRiskOpenAmount > 0 ? 'text-[var(--status-danger)]' : ''}`}>
+              {formatBRL(portfolioRisk.highRiskOpenAmount)}
+            </p>
+            <p className="mt-1.5 text-xs text-[var(--text-muted)]">
+              {portfolioRisk.highRiskCustomerCount} cliente(s) com títulos vencidos ou alto índice de inadimplência.
+            </p>
+          </div>
         </div>
-      </div>
+      </Disclosure>
 
-      {/* Quick Date Filter Blocks (Visão Rápida / Indicadores - Multidispositivo Adaptativo) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-2.5 sm:gap-3">
-        {/* Card: Todos em Aberto */}
-        <button
-          type="button"
+      {/* Indicadores (também funcionam como filtros rápidos) */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        <StatTile
+          label="Em aberto"
+          value={formatBRL(stats.openTotal)}
+          hint="Total a receber"
+          count={stats.openCount}
+          active={quickDateFilter === 'ALL' && statusFilter === 'ABERTO'}
           onClick={() => {
             setQuickDateFilter('ALL');
             setStatusFilter('ABERTO');
           }}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'ALL' && statusFilter === 'ABERTO'
-              ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/30'
-              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              quickDateFilter === 'ALL' && statusFilter === 'ABERTO' ? 'text-slate-300' : 'text-slate-500'
-            }`}>
-              Em Aberto
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'ALL' && statusFilter === 'ABERTO' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-700'
-            }`}>
-              {stats.openCount}
-            </span>
-          </div>
-          <div className="text-base font-bold mt-1.5 truncate">
-            {formatBRL(stats.openTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'ALL' && statusFilter === 'ABERTO' ? 'text-slate-400' : 'text-slate-500'}`}>
-            Total a receber em carteira
-          </div>
-        </button>
-
-        {/* Card: Vence Hoje */}
-        <button
-          type="button"
-          onClick={() => setQuickDateFilter(prev => prev === 'HOJE' ? 'ALL' : 'HOJE')}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'HOJE'
-              ? 'bg-amber-500 text-slate-950 font-bold border-amber-600 shadow-md ring-2 ring-amber-400/40'
-              : 'bg-white dark:bg-[#151D2A] hover:bg-slate-50 dark:hover:bg-[#1D2738] border-amber-300 dark:border-amber-500/40 text-slate-900 dark:text-white shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${
-              quickDateFilter === 'HOJE' ? 'text-slate-950' : 'text-amber-800 dark:text-amber-400'
-            }`}>
-              Vence Hoje
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'HOJE' ? 'bg-slate-950 text-white' : 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
-            }`}>
-              {stats.hojeCount}
-            </span>
-          </div>
-          <div className="text-base font-black mt-1.5 truncate text-slate-900 dark:text-white">
-            {formatBRL(stats.hojeTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'HOJE' ? 'text-slate-900 font-semibold' : 'text-slate-500 dark:text-slate-300'}`}>
-            Vencendo na data de hoje
-          </div>
-        </button>
-
-        {/* Card: Vence Esta Semana */}
-        <button
-          type="button"
-          onClick={() => setQuickDateFilter(prev => prev === 'ESTA_SEMANA' ? 'ALL' : 'ESTA_SEMANA')}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'ESTA_SEMANA'
-              ? 'bg-slate-900 text-white border-amber-500 shadow-md ring-2 ring-amber-400/40'
-              : 'bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)] border-[var(--border-subtle)] text-[var(--text-primary)] shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              quickDateFilter === 'ESTA_SEMANA' ? 'text-amber-400' : 'text-slate-700 dark:text-slate-300'
-            }`}>
-              Vence Esta Semana
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'ESTA_SEMANA' ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200'
-            }`}>
-              {stats.semanaCount}
-            </span>
-          </div>
-          <div className="text-base font-bold mt-1.5 truncate">
-            {formatBRL(stats.semanaTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'ESTA_SEMANA' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
-            Agenda até domingo
-          </div>
-        </button>
-
-        {/* Card: Vencidos */}
-        <button
-          type="button"
-          onClick={() => setQuickDateFilter(prev => prev === 'VENCIDO' ? 'ALL' : 'VENCIDO')}
-          className={`p-3.5 rounded-xl border text-left transition-all ${
-            quickDateFilter === 'VENCIDO'
-              ? 'bg-rose-600 text-white border-rose-700 shadow-md ring-2 ring-rose-400/40'
-              : 'bg-white dark:bg-[#151D2A] hover:bg-slate-50 dark:hover:bg-[#1D2738] border-rose-300 dark:border-rose-500/40 text-slate-900 dark:text-white shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${
-              quickDateFilter === 'VENCIDO' ? 'text-white' : 'text-rose-800 dark:text-rose-400'
-            }`}>
-              Vencidos
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'VENCIDO' ? 'bg-white text-rose-700' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-900 dark:text-rose-300 border border-rose-300 dark:border-rose-500/30'
-            }`}>
-              {stats.vencidosCount}
-            </span>
-          </div>
-          <div className="text-base font-black mt-1.5 truncate text-rose-600 dark:text-rose-400">
-            {formatBRL(stats.vencidosTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'VENCIDO' ? 'text-rose-100 font-semibold' : 'text-slate-500 dark:text-slate-300'}`}>
-            Títulos em atraso
-          </div>
-        </button>
-
-        {/* Card: Liquidados */}
-        <button
-          type="button"
-          onClick={() => {
-            setQuickDateFilter(prev => prev === 'LIQUIDADO' ? 'ALL' : 'LIQUIDADO');
-            setStatusFilter('LIQUIDADO');
-          }}
-          className={`p-3.5 rounded-xl border text-left transition-all col-span-2 sm:col-span-1 ${
-            quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO'
-              ? 'bg-emerald-700 text-white border-emerald-800 shadow-md ring-2 ring-emerald-400/40'
-              : 'bg-emerald-50/50 hover:bg-emerald-50 dark:bg-emerald-950/25 dark:hover:bg-emerald-950/45 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-200 shadow-2xs'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-              quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO' ? 'text-emerald-100' : 'text-emerald-800 dark:text-emerald-300'
-            }`}>
-              Recebidos
-            </span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-              quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200'
-            }`}>
-              {stats.liquidadosCount}
-            </span>
-          </div>
-          <div className="text-base font-bold mt-1.5 truncate">
-            {formatBRL(stats.liquidadosTotal)}
-          </div>
-          <div className={`text-[10px] mt-0.5 ${quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO' ? 'text-emerald-100' : 'text-emerald-700 dark:text-emerald-400'}`}>
-            Total liquidado
-          </div>
-        </button>
+        />
+        <StatTile
+          label="Vence hoje"
+          value={formatBRL(stats.hojeTotal)}
+          hint="Vencendo hoje"
+          count={stats.hojeCount}
+          active={quickDateFilter === 'HOJE'}
+          onClick={() => setQuickDateFilter(prev => (prev === 'HOJE' ? 'ALL' : 'HOJE'))}
+        />
+        <StatTile
+          label="Esta semana"
+          value={formatBRL(stats.semanaTotal)}
+          hint="Até domingo"
+          count={stats.semanaCount}
+          active={quickDateFilter === 'ESTA_SEMANA'}
+          onClick={() => setQuickDateFilter(prev => (prev === 'ESTA_SEMANA' ? 'ALL' : 'ESTA_SEMANA'))}
+        />
+        <StatTile
+          label="Vencidos"
+          value={formatBRL(stats.vencidosTotal)}
+          hint="Em atraso"
+          count={stats.vencidosCount}
+          tone={stats.vencidosTotal > 0 ? 'danger' : 'neutral'}
+          active={quickDateFilter === 'VENCIDO'}
+          onClick={() => setQuickDateFilter(prev => (prev === 'VENCIDO' ? 'ALL' : 'VENCIDO'))}
+        />
+        <div className="col-span-2 lg:col-span-1">
+          <StatTile
+            label="Recebidos"
+            value={formatBRL(stats.liquidadosTotal)}
+            hint="Já liquidados"
+            count={stats.liquidadosCount}
+            active={quickDateFilter === 'LIQUIDADO' || statusFilter === 'LIQUIDADO'}
+            onClick={() => {
+              setQuickDateFilter(prev => (prev === 'LIQUIDADO' ? 'ALL' : 'LIQUIDADO'));
+              setStatusFilter('LIQUIDADO');
+            }}
+          />
+        </div>
       </div>
 
-      {/* Top Filter Bar (Superior Filters) */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3">
-        
-        {/* Row 1: Status Pill Tabs & Search */}
-        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
-          
-          {/* Status Pill Tabs (Menu Superior de Títulos) */}
-          <div className="flex items-center space-x-1.5 overflow-x-auto text-xs pb-1 md:pb-0 scrollbar-none">
-            {[
-              { id: 'ABERTO', label: 'Em Aberto', count: stats.openCount },
+      {/* Filtros */}
+      <Card className="space-y-5">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
+          <div className="min-w-0 2xl:flex-1">
+          <TabPills
+            tabs={[
+              { id: 'ABERTO', label: 'Em aberto', count: stats.openCount },
               { id: 'VENCIDO', label: 'Vencidos', count: stats.vencidosCount },
               { id: 'LIQUIDADO', label: 'Liquidados', count: stats.liquidadosCount },
-              { id: 'CONCILIADO', label: '✓✓ Conciliados', count: stats.conciliadosCount },
+              { id: 'CONCILIADO', label: 'Conciliados', count: stats.conciliadosCount },
               { id: 'TODOS', label: 'Todos', count: stats.todosCount },
               { id: 'CANCELADO', label: 'Cancelados', count: stats.canceladosCount }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setStatusFilter(tab.id as any);
-                  setQuickDateFilter('ALL');
-                }}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                  statusFilter === tab.id && quickDateFilter === 'ALL'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-slate-50 border border-slate-200'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  statusFilter === tab.id && quickDateFilter === 'ALL'
-                    ? 'bg-slate-800 text-slate-200'
-                    : 'bg-slate-200/80 text-slate-700'
-                }`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+            ]}
+            value={quickDateFilter === 'ALL' ? statusFilter : ''}
+            onChange={id => {
+              setStatusFilter(id as any);
+              setQuickDateFilter('ALL');
+            }}
+          />
           </div>
-
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-sm">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <div className="relative w-full 2xl:w-72 shrink-0">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
             <input
               type="text"
-              placeholder="Buscar por cliente, documento ou descrição..."
+              placeholder="Buscar por cliente, documento ou descrição"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[var(--border-highlight)]"
             />
           </div>
         </div>
 
-        {/* Row 2: Advanced Dropdown Filters (Category, Client, Bank Account) */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-xs items-center">
-          
-          {/* Categoria / Plano de Contas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                Plano de Contas / Receita:
-              </label>
-              {categoryFilter !== 'ALL' && (
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter('ALL')}
-                  className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
-                  title="Remover filtro de categoria"
-                >
-                  Limpar
-                </button>
-              )}
-            </div>
-            <select
+            <FieldLabel>Plano de contas</FieldLabel>
+            <PremiumSelect
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className={`w-full px-2.5 py-1.5 rounded-lg border text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-colors ${
-                categoryFilter !== 'ALL'
-                  ? 'border-emerald-500 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-200 font-bold'
-                  : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100'
-              }`}
+              onChange={e => setCategoryFilter(e.target.value)}
+              sheetTitle="Plano de contas"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">
-                Todas as Receitas ({categoryStats.totalTitlesInPeriod} no período)
-              </option>
-
+              <option value="ALL">Todas as receitas ({categoryStats.totalTitlesInPeriod} no período)</option>
               {categoryStats.unclassifiedCount > 0 && (
-                <option value="SEM_CATEGORIA" className="font-bold text-amber-600 dark:text-amber-400">
-                  ⚠️ Não Classificados (Sem Categoria) ({categoryStats.unclassifiedCount} títulos • {formatBRL(categoryStats.unclassifiedTotal)})
+                <option value="SEM_CATEGORIA">
+                  Sem categoria ({categoryStats.unclassifiedCount} títulos • {formatBRL(categoryStats.unclassifiedTotal)})
                 </option>
               )}
-
               {categoryStats.inPeriodService.length > 0 && (
-                <optgroup label={`⚡ Receitas de Serviços no Período (${categoryStats.inPeriodService.length})`}>
+                <optgroup label="Receitas de serviços no período">
                   {categoryStats.inPeriodService.map(({ account, count, totalAmount }) => (
                     <option key={account.id} value={account.id}>
                       {account.code} - {account.name} ({count} títulos • {formatBRL(totalAmount)})
@@ -1442,9 +1055,8 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                   ))}
                 </optgroup>
               )}
-
               {categoryStats.inPeriodFinancial.length > 0 && (
-                <optgroup label={`⚡ Receitas Financeiras no Período (${categoryStats.inPeriodFinancial.length})`}>
+                <optgroup label="Receitas financeiras no período">
                   {categoryStats.inPeriodFinancial.map(({ account, count, totalAmount }) => (
                     <option key={account.id} value={account.id}>
                       {account.code} - {account.name} ({count} títulos • {formatBRL(totalAmount)})
@@ -1452,9 +1064,8 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                   ))}
                 </optgroup>
               )}
-
               {categoryStats.othersService.length > 0 && (
-                <optgroup label={`📋 Receitas de Serviços (Plano de Contas) (${categoryStats.othersService.length})`}>
+                <optgroup label="Receitas de serviços (plano de contas)">
                   {categoryStats.othersService.map(acc => (
                     <option key={acc.id} value={acc.id}>
                       {acc.code} - {acc.name}
@@ -1462,9 +1073,8 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                   ))}
                 </optgroup>
               )}
-
               {categoryStats.othersFinancial.length > 0 && (
-                <optgroup label={`📋 Receitas Financeiras (Plano de Contas) (${categoryStats.othersFinancial.length})`}>
+                <optgroup label="Receitas financeiras (plano de contas)">
                   {categoryStats.othersFinancial.map(acc => (
                     <option key={acc.id} value={acc.id}>
                       {acc.code} - {acc.name}
@@ -1472,136 +1082,106 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                   ))}
                 </optgroup>
               )}
-            </select>
+            </PremiumSelect>
           </div>
 
-          {/* Cliente / Contraparte */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
-              Cliente:
-            </label>
-            <select
+            <FieldLabel>Cliente</FieldLabel>
+            <PremiumSelect
               value={counterpartyFilter}
-              onChange={(e) => setCounterpartyFilter(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              onChange={e => setCounterpartyFilter(e.target.value)}
+              sheetTitle="Cliente"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">Todos os Clientes</option>
+              <option value="ALL">Todos os clientes</option>
               {counterparties.map(c => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
               ))}
-            </select>
+            </PremiumSelect>
           </div>
 
-          {/* Origem do Lançamento (Contrato vs Venda vs Manual) */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
-              Origem do Título:
-            </label>
-            <select
+            <FieldLabel>Origem do título</FieldLabel>
+            <PremiumSelect
               value={originFilter}
-              onChange={(e) => setOriginFilter(e.target.value as any)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              onChange={e => setOriginFilter(e.target.value as any)}
+              sheetTitle="Origem do título"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">Todas as Origens</option>
-              <option value="CONTRATO">🏷️ Contratos Recorrentes (Mensalidades)</option>
-              <option value="TAXA_BALANCO">⚖️ Taxas de Balanço Anual (13º)</option>
-              <option value="VENDA">🏷️ Vendas Avulsas / Parceladas</option>
-              <option value="MANUAL">🏷️ Lançamentos Diretos / Manuais</option>
-            </select>
+              <option value="ALL">Todas as origens</option>
+              <option value="CONTRATO">Contratos recorrentes (mensalidades)</option>
+              <option value="TAXA_BALANCO">Taxas de balanço anual (13º)</option>
+              <option value="VENDA">Vendas avulsas ou parceladas</option>
+              <option value="MANUAL">Lançamentos diretos (manuais)</option>
+            </PremiumSelect>
           </div>
 
-          {/* Banco / Conta Prevista */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
-              Conta Bancária / Caixa Previsto:
-            </label>
-            <select
+            <FieldLabel>Conta bancária prevista</FieldLabel>
+            <PremiumSelect
               value={bankFilter}
-              onChange={(e) => setBankFilter(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              onChange={e => setBankFilter(e.target.value)}
+              sheetTitle="Conta bancária"
+              className="w-full h-10 px-3 text-sm"
             >
-              <option value="ALL">Todas as Contas</option>
+              <option value="ALL">Todas as contas</option>
               {bankAccounts.map(b => (
                 <option key={b.id} value={b.id}>
                   {b.name} ({b.type})
                 </option>
               ))}
-            </select>
-          </div>
-
-          {/* Reset Filters Action */}
-          <div className="flex items-end h-full">
-            {hasActiveFilters ? (
-              <button
-                type="button"
-                onClick={handleClearFilters}
-                className="w-full sm:w-auto px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5 border border-slate-300 dark:border-slate-700 cursor-pointer shadow-2xs"
-                title="Limpar todos os filtros selecionados"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                Limpar Filtros
-              </button>
-            ) : (
-              <span className="text-[11px] text-slate-400 italic">
-                Filtros rápidos ativos
-              </span>
-            )}
+            </PremiumSelect>
           </div>
         </div>
 
-        {/* Chip / Banner de Filtro de Categoria Ativo com Ação de Selecionar Todos para Classificar */}
-        {categoryFilter !== 'ALL' && (
-          <div className="pt-2">
-            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-900 dark:text-emerald-200 animate-fade-in shadow-2xs">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-[10px] px-2 py-0.5 rounded bg-emerald-600 text-white uppercase tracking-wider">
-                  Filtro de Categoria
-                </span>
-                <span className="font-bold">
-                  {categoryFilter === 'SEM_CATEGORIA' 
-                    ? '⚠️ Não Classificados (Sem Categoria)' 
+        {(hasActiveFilters || categoryFilter !== 'ALL') && (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <p className="text-sm text-[var(--text-secondary)]">
+              {filteredTitles.length} lançamento(s) •{' '}
+              <span className="tabular-nums">
+                {formatBRL(filteredTitles.reduce((acc, t) => acc + (t.balancePrincipal || t.originalAmount || 0), 0))}
+              </span>
+              {categoryFilter !== 'ALL' && (
+                <span className="text-[var(--text-muted)]">
+                  {' '}
+                  em{' '}
+                  {categoryFilter === 'SEM_CATEGORIA'
+                    ? 'sem categoria'
                     : (() => {
                         const acc = chartAccounts.find(a => a.id === categoryFilter);
                         return acc ? `${acc.code} - ${acc.name}` : categoryFilter;
-                      })()
-                  }
+                      })()}
                 </span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-400 font-mono">
-                  ({filteredTitles.length} lançamentos • {formatBRL(filteredTitles.reduce((acc, t) => acc + (t.balancePrincipal || t.originalAmount || 0), 0))})
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {filteredTitles.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedIds(filteredTitles.map(t => t.id));
-                      setToastMessage({
-                        type: 'info',
-                        text: `${filteredTitles.length} títulos desta categoria selecionados! Você pode classificá-los em lote usando a barra de ações.`
-                      });
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shadow-2xs"
-                    title="Selecionar todos os títulos filtrados para classificar ou editar em lote"
-                  >
-                    Selecionar Todos ({filteredTitles.length})
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter('ALL')}
-                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold transition-colors cursor-pointer shadow-2xs"
-                  title="Limpar filtro de categoria"
+              )}
+            </p>
+            <div className="flex items-center gap-2">
+              {categoryFilter !== 'ALL' && filteredTitles.length > 0 && (
+                <Button
+                  variant="secondary"
+                  className="h-9"
+                  title="Selecionar todos os títulos filtrados para classificar ou editar em lote"
+                  onClick={() => {
+                    setSelectedIds(filteredTitles.map(t => t.id));
+                    setToastMessage({
+                      type: 'info',
+                      text: `${filteredTitles.length} títulos desta categoria selecionados! Você pode classificá-los em lote usando a barra de ações.`
+                    });
+                  }}
                 >
-                  ✕ Limpar Filtro
-                </button>
-              </div>
+                  Selecionar todos ({filteredTitles.length})
+                </Button>
+              )}
+              {hasActiveFilters && (
+                <Button variant="ghost" className="h-9" icon={<RotateCcw className="w-4 h-4" />} onClick={handleClearFilters} title="Limpar todos os filtros">
+                  Limpar filtros
+                </Button>
+              )}
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Receivables Period Navigator (Vencimento) */}
       <ModulePeriodNavigator
@@ -1797,7 +1377,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       {/* Mobile View: Cards Expansíveis (Descrição, Data de Vencimento e Valor; clique na linha expande o restante) */}
       <div className={`block md:hidden space-y-2.5 ${selectedIds.length > 0 ? 'pb-28 sm:pb-0' : ''}`}>
         {sortedTitles.length === 0 ? (
-          <div className="bg-white dark:bg-[#1B212D] p-8 rounded-xl border border-slate-200 dark:border-[#273040] text-center text-slate-600 dark:text-slate-300 text-xs shadow-2xs">
+          <div className="bg-white dark:bg-[#1b1b20] p-8 rounded-xl border border-slate-200 dark:border-[#26262b] text-center text-slate-600 dark:text-slate-300 text-xs shadow-2xs">
             Nenhum título a receber localizado para os filtros informados.
           </div>
         ) : (
@@ -1824,8 +1404,8 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
             const isOverdue = balance > 0 && (diffDays < 0 || titleDueDate < today);
             const isNearDue = balance > 0 && !isOverdue && !isNaN(diffDays) && diffDays <= 3;
 
-            let cardBorder = 'border-slate-200 dark:border-[#273040]';
-            let cardBg = 'bg-white dark:bg-[#1B212D]';
+            let cardBorder = 'border-slate-200 dark:border-[#26262b]';
+            let cardBg = 'bg-white dark:bg-[#1b1b20]';
             if (t.documentState === 'CANCELADO') {
               cardBg = 'bg-slate-50 dark:bg-slate-900/40 opacity-60';
               cardBorder = 'border-slate-200 dark:border-slate-800';
@@ -2016,7 +1596,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                 {/* Conteúdo Expandido ao Clicar na Linha */}
                 {isExpanded && (
-                  <div className="border-t border-slate-200 dark:border-[#273040] bg-slate-50/90 dark:bg-[#131720]/90 p-3.5 space-y-3 text-xs">
+                  <div className="border-t border-slate-200 dark:border-[#26262b] bg-slate-50/90 dark:bg-[#131316]/90 p-3.5 space-y-3 text-xs">
                     
                     {/* Status e Situação */}
                     <div className="flex items-center gap-2 flex-wrap pb-2 border-b border-slate-200 dark:border-slate-800">
@@ -2102,7 +1682,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                     </div>
 
                     {/* Resumo Financeiro */}
-                    <div className="bg-white dark:bg-[#1B212D] p-2.5 rounded-lg border border-slate-200 dark:border-[#273040] flex justify-between items-center text-xs">
+                    <div className="bg-white dark:bg-[#1b1b20] p-2.5 rounded-lg border border-slate-200 dark:border-[#26262b] flex justify-between items-center text-xs">
                       <div>
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 block">Valor Original</span>
                         <span className="font-medium text-slate-700 dark:text-slate-300">{formatBRL(t.originalAmount)}</span>
@@ -2119,7 +1699,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                     {/* Diagnóstico Preditivo do Cliente */}
                     {portfolioRisk.customerProfiles[t.counterpartyId] && (
-                      <div className="p-3 rounded-xl bg-white dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040] space-y-2">
+                      <div className="p-3 rounded-xl bg-white dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -2171,7 +1751,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                     )}
 
                     {/* Ações Rápidas Mobile */}
-                    <div className="pt-2 border-t border-slate-200 dark:border-[#273040] flex flex-wrap gap-2 items-center">
+                    <div className="pt-2 border-t border-slate-200 dark:border-[#26262b] flex flex-wrap gap-2 items-center">
                       {t.balancePrincipal > 0 && t.documentState !== 'CANCELADO' && (
                         <button
                           type="button"
@@ -2337,10 +1917,10 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       </div>
 
       {/* Receivables Table (Desktop & Tablets) */}
-      <div className="hidden md:block bg-white dark:bg-[#131720] rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-200/90 dark:bg-[#121620] border-b-2 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold uppercase tracking-wider select-none">
+            <thead className="bg-slate-200/90 dark:bg-[#131316] border-b-2 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold uppercase tracking-wider select-none">
               <tr>
                 <th className="py-3 px-3 w-10 text-center">
                   <button

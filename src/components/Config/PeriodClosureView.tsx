@@ -47,6 +47,8 @@ import { FinancialEngine, formatBRL, formatDateBR } from '../../services/financi
 import { exportPeriodClosureToPDF } from '../../utils/pdfExportUtils';
 import { NavigationScreen } from '../Sidebar';
 import { BankAccountStatementModal } from '../Financial/BankAccountStatementModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface PeriodClosureViewProps {
   onNavigate?: (screen: NavigationScreen) => void;
@@ -725,8 +727,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
               Selecione a Competência para Auditoria e Fechamento:
             </label>
             <div className="flex items-center gap-2 mt-1">
-              <input
-                type="month"
+              <MonthField
                 value={newCompetence}
                 onChange={e => setNewCompetence(e.target.value)}
                 className="rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-3 py-1.5 font-mono font-bold text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -1362,8 +1363,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
               <label className="block font-semibold text-[var(--text-secondary)] mb-1">
                 Mês / Ano da Competência *
               </label>
-              <input
-                type="month"
+              <MonthField
                 required
                 value={newCompetence}
                 onChange={e => setNewCompetence(e.target.value)}
@@ -1606,22 +1606,21 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                   <label className="block font-semibold text-[var(--text-secondary)] mb-1">
                     Tipo do Ajuste *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={adjDirection}
                     onChange={e => setAdjDirection(e.target.value as 'ENTRADA' | 'SAIDA')}
                     className="w-full rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] px-3 py-2 font-bold text-xs text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   >
                     <option value="SAIDA">Saída (Despesa / Tarifa / IOF)</option>
                     <option value="ENTRADA">Entrada (Receita / Rendimento / Estorno)</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-[var(--text-secondary)] mb-1">
                     Data Efetiva *
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     required
                     value={adjDate}
                     onChange={e => setAdjDate(e.target.value)}
@@ -1649,7 +1648,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                 <label className="block font-semibold text-[var(--text-secondary)] mb-1">
                   Classificação no Plano de Contas *
                 </label>
-                <select
+                <PremiumSelect
                   required
                   value={adjAccountId}
                   onChange={e => setAdjAccountId(e.target.value)}
@@ -1660,7 +1659,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                       {acc.code} - {acc.name} ({acc.nature})
                     </option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Building, Save, CheckCircle2, Download, Database } from 'lucide-react';
 import { CompanyInfo } from '../../types';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const CompanyConfigView: React.FC = () => {
   const [company, setCompany] = useState<CompanyInfo>(storage.getCompany());
@@ -102,7 +103,7 @@ export const CompanyConfigView: React.FC = () => {
             </div>
             <div>
               <label className="block font-medium text-[var(--text-secondary)] mb-1">Regime Tributário</label>
-              <select
+              <PremiumSelect
                 value={company.taxRegime}
                 onChange={e => setCompany({ ...company, taxRegime: e.target.value as any })}
                 className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 font-medium focus:outline-none focus:border-amber-400 transition-colors cursor-pointer"
@@ -110,7 +111,7 @@ export const CompanyConfigView: React.FC = () => {
                 <option value="SIMPLES_NACIONAL">Simples Nacional</option>
                 <option value="LUCRO_PRESUMIDO">Lucro Presumido</option>
                 <option value="LUCRO_REAL">Lucro Real</option>
-              </select>
+              </PremiumSelect>
             </div>
           </div>
 

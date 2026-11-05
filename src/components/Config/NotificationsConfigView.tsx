@@ -23,6 +23,7 @@ import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
 import { NotificationService } from '../../services/notificationService';
 import { NavigationScreen } from '../Sidebar';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface NotificationPreferences {
   contractAlertDays: number;
@@ -333,7 +334,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
               <p className="text-[11px] text-[var(--text-secondary)] mb-2">
                 Avisar com antecedência antes do término da vigência para renegociação ou renovação.
               </p>
-              <select
+              <PremiumSelect
                 value={preferences.contractAlertDays}
                 onChange={e => setPreferences(prev => ({ ...prev, contractAlertDays: Number(e.target.value) }))}
                 className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-hidden focus:border-amber-400"
@@ -343,7 +344,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
                 <option value={45}>45 dias de antecedência</option>
                 <option value={60}>60 dias de antecedência</option>
                 <option value={90}>90 dias de antecedência</option>
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* 2. Toggles de Regras */}

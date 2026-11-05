@@ -15,6 +15,8 @@ import {
 import { FinancialTitle, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL, formatDateBR } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface BatchSettlementModalProps {
   isOpen: boolean;
@@ -231,7 +233,7 @@ export const BatchSettlementModal: React.FC<BatchSettlementModalProps> = ({
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">
                   Conta Bancária / Caixa de Movimentação *
                 </label>
-                <select
+                <PremiumSelect
                   required
                   value={bankAccountId}
                   onChange={e => setBankAccountId(e.target.value)}
@@ -242,7 +244,7 @@ export const BatchSettlementModal: React.FC<BatchSettlementModalProps> = ({
                       {acc.name} ({acc.institution || acc.type})
                     </option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               {/* Data Efetiva da Baixa */}
@@ -250,8 +252,7 @@ export const BatchSettlementModal: React.FC<BatchSettlementModalProps> = ({
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">
                   Data Efetiva da Baixa *
                 </label>
-                <input
-                  type="date"
+                <DateField
                   required
                   max={today}
                   value={settlementDate}
@@ -265,7 +266,7 @@ export const BatchSettlementModal: React.FC<BatchSettlementModalProps> = ({
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">
                   Forma de Liquidação *
                 </label>
-                <select
+                <PremiumSelect
                   value={paymentMethod}
                   onChange={e => setPaymentMethod(e.target.value as any)}
                   className="w-full px-3 py-2 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-sm sm:text-xs text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -276,7 +277,7 @@ export const BatchSettlementModal: React.FC<BatchSettlementModalProps> = ({
                   <option value="CARTAO">💳 Cartão Corporativo</option>
                   <option value="DEBITO">🏧 Débito Automático em Conta</option>
                   <option value="DINHEIRO">💵 Dinheiro / Caixa Físico</option>
-                </select>
+                </PremiumSelect>
               </div>
 
               {/* Observação / Identificador do Lote */}

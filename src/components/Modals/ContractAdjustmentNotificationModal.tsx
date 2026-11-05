@@ -143,11 +143,11 @@ Atenciosamente,
   return (
     <div className="fixed inset-0 z-70 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-150">
       <div 
-        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-[#273040] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col my-auto"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col my-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
               <Send className="w-5 h-5" />
@@ -174,7 +174,7 @@ Atenciosamente,
         {/* Corpo */}
         <div className="p-5 space-y-4 text-xs">
           {/* Card Comparativo do Reajuste */}
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#161C28] border border-slate-200 dark:border-[#273040] space-y-2">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] space-y-2">
             <div className="flex items-center justify-between">
               <div>
                 <span className="block text-[10px] uppercase font-bold text-slate-500">Valor Anterior</span>
@@ -214,7 +214,7 @@ Atenciosamente,
           </div>
 
           {/* Abas: WhatsApp vs E-mail */}
-          <div className="flex rounded-xl bg-slate-100 dark:bg-[#1A2230] p-1 border border-slate-200 dark:border-[#273040]">
+          <div className="flex rounded-xl bg-slate-100 dark:bg-[#1b1b20] p-1 border border-slate-200 dark:border-[#26262b]">
             <button
               type="button"
               onClick={() => setActiveTab('WHATSAPP')}
@@ -254,7 +254,7 @@ Atenciosamente,
                   value={recipientPhone}
                   onChange={e => setRecipientPhone(e.target.value)}
                   placeholder="Ex: (11) 98765-4321"
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-[#161C28] border border-slate-200 dark:border-[#273040] rounded-xl text-xs focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] rounded-xl text-xs focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 outline-none"
                 />
               </div>
 
@@ -285,7 +285,7 @@ Atenciosamente,
                   rows={7}
                   value={whatsAppText}
                   onChange={e => setWhatsAppText(e.target.value)}
-                  className="w-full p-3 bg-slate-50 dark:bg-[#161C28] border border-slate-200 dark:border-[#273040] rounded-xl text-xs font-sans focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 outline-none resize-none leading-relaxed"
+                  className="w-full p-3 bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] rounded-xl text-xs font-sans focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 outline-none resize-none leading-relaxed"
                 />
               </div>
 
@@ -303,7 +303,7 @@ Atenciosamente,
                 <button
                   type="button"
                   onClick={handleCopyMessage}
-                  className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A2230] dark:hover:bg-[#222c3e] font-semibold text-slate-700 dark:text-slate-300 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer border border-slate-200 dark:border-[#273040]"
+                  className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-[#222c3e] font-semibold text-slate-700 dark:text-slate-300 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer border border-slate-200 dark:border-[#26262b]"
                 >
                   <Copy className="w-4 h-4" />
                   <span>Copiar</span>
@@ -324,11 +324,11 @@ Atenciosamente,
                   value={recipientEmail}
                   onChange={e => setRecipientEmail(e.target.value)}
                   placeholder="cliente@exemplo.com.br"
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-[#161C28] border border-slate-200 dark:border-[#273040] rounded-xl text-xs focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] rounded-xl text-xs focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
                 />
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#161C28] border border-slate-200 dark:border-[#273040] space-y-2 text-slate-600 dark:text-slate-300">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] space-y-2 text-slate-600 dark:text-slate-300">
                 <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 font-bold text-[11px]">
                   <Sparkles className="w-4 h-4" />
                   <span>Template Formal com Identidade Visual Contaju</span>
@@ -362,11 +362,11 @@ Atenciosamente,
         </div>
 
         {/* Rodapé */}
-        <div className="px-5 py-3.5 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#161C28] flex items-center justify-end">
+        <div className="px-5 py-3.5 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-[#202838] dark:hover:bg-[#283246] text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-[#202838] dark:hover:bg-[#2c2c33] text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
           >
             Concluir e Fechar
           </button>

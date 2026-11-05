@@ -27,6 +27,8 @@ import {
   getTemporalStatus,
   ContractGenerationProgressState 
 } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { MonthField } from '../Common/DateField';
 
 interface ContractScheduleModalProps {
   contract: Contract | null;
@@ -468,7 +470,7 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
               <div className="flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-1.5 bg-[var(--surface-card)] p-1 rounded-xl border border-[var(--border-subtle)]">
                   <span className="text-[10px] font-bold text-[var(--text-secondary)] pl-2">A partir de:</span>
-                  <select
+                  <PremiumSelect
                     value={startMonthMode}
                     onChange={e => setStartMonthMode(e.target.value as any)}
                     className="bg-transparent border-0 py-1 px-2 text-xs font-bold text-[var(--text-primary)] focus:ring-0 cursor-pointer"
@@ -477,19 +479,18 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
                     <option value="NEXT_MONTH">Próximo Mês</option>
                     <option value="CONTRACT_START">Início do Contrato ({formatCompetence(contract.startDate?.substring(0, 7) || currentMonth)})</option>
                     <option value="CUSTOM">Mês Personalizado...</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 {startMonthMode === 'CUSTOM' && (
-                  <input
-                    type="month"
+                  <MonthField
                     value={customStartMonth}
                     onChange={e => setCustomStartMonth(e.target.value)}
                     className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] px-2.5 py-1.5 text-xs font-bold text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   />
                 )}
 
-                <select
+                <PremiumSelect
                   value={monthsCount}
                   onChange={e => setMonthsCount(Number(e.target.value))}
                   className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] px-2.5 py-2 text-xs font-bold text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -498,7 +499,7 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
                   <option value={12}>12 meses (1 ano)</option>
                   <option value={24}>24 meses (2 anos)</option>
                   <option value={36}>36 meses (3 anos)</option>
-                </select>
+                </PremiumSelect>
 
                 <button
                   type="button"

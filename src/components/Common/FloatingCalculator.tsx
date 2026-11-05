@@ -233,7 +233,7 @@ export const FloatingCalculator: React.FC<FloatingCalculatorProps> = ({
       >
         <div 
           onClick={onOpen}
-          className="group flex items-center gap-2.5 px-3.5 py-2.5 rounded-full bg-slate-900/95 dark:bg-[#121620]/95 hover:bg-slate-900 text-white border border-amber-500/50 shadow-xl shadow-amber-500/10 hover:shadow-amber-500/25 hover:border-amber-400 transition-all cursor-pointer backdrop-blur-md"
+          className="group flex items-center gap-2.5 px-3.5 py-2.5 rounded-full bg-slate-900/95 dark:bg-[#131316]/95 hover:bg-slate-900 text-white border border-amber-500/50 shadow-xl shadow-amber-500/10 hover:shadow-amber-500/25 hover:border-amber-400 transition-all cursor-pointer backdrop-blur-md"
         >
           {/* Grip drag handle */}
           <div 
@@ -314,7 +314,7 @@ export const FloatingCalculator: React.FC<FloatingCalculatorProps> = ({
     <div 
       ref={containerRef}
       style={inlineStyle}
-      className={`fixed z-50 w-[calc(100vw-24px)] max-w-xs sm:w-80 rounded-2xl bg-slate-900/95 dark:bg-[#121620]/95 text-white border border-slate-700/80 shadow-2xl shadow-black/70 backdrop-blur-xl overflow-hidden flex flex-col select-none ${
+      className={`fixed z-50 w-[calc(100vw-24px)] max-w-xs sm:w-80 rounded-2xl bg-slate-900/95 dark:bg-[#131316]/95 text-white border border-slate-700/80 shadow-2xl shadow-black/70 backdrop-blur-xl overflow-hidden flex flex-col select-none ${
         isCustomPos ? '' : 'bottom-[calc(4.75rem+env(safe-area-inset-bottom))] lg:bottom-5 right-3 sm:right-5'
       }`}
     >

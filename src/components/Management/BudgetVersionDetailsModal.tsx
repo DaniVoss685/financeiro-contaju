@@ -205,7 +205,7 @@ export const BudgetVersionDetailsModal: React.FC<BudgetVersionDetailsModalProps>
                 onClose();
               }
             }}
-            className="px-4 py-2 text-xs font-bold text-[#0f172a] bg-amber-500 hover:bg-amber-400 rounded-xl shadow-md transition-all flex items-center"
+            className="px-4 py-2 text-xs font-bold text-[#18181b] bg-amber-500 hover:bg-amber-400 rounded-xl shadow-md transition-all flex items-center"
           >
             <RotateCcw className="w-4 h-4 mr-1.5" />
             Restaurar esta Versão como Meta Ativa

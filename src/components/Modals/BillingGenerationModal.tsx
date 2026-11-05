@@ -17,6 +17,8 @@ import {
   formatCompetence,
   BatchBillingProgressState 
 } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { MonthField } from '../Common/DateField';
 
 interface BillingGenerationModalProps {
   isOpen: boolean;
@@ -167,8 +169,7 @@ export const BillingGenerationModal: React.FC<BillingGenerationModalProps> = ({
                 <label className="block font-semibold text-[var(--text-primary)] mb-1">
                   Competência Inicial *
                 </label>
-                <input
-                  type="month"
+                <MonthField
                   value={competence}
                   disabled={isGenerating}
                   onChange={(e) => {
@@ -184,7 +185,7 @@ export const BillingGenerationModal: React.FC<BillingGenerationModalProps> = ({
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">
                     Quantidade de Meses *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={monthsCount}
                     disabled={isGenerating}
                     onChange={(e) => {
@@ -197,7 +198,7 @@ export const BillingGenerationModal: React.FC<BillingGenerationModalProps> = ({
                     <option value={6}>6 meses futuros</option>
                     <option value={12}>12 meses futuros (1 ano)</option>
                     <option value={24}>24 meses futuros (2 anos)</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
               )}
             </div>

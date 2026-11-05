@@ -24,6 +24,7 @@ import {
   StrategicGroupDefinition,
   MergeAccountsSummary 
 } from '../../services/chartOfAccountsEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 /**
  * Converte qualquer texto digitado para o padrão contábil Title Case inteligente:
@@ -1260,7 +1261,7 @@ export const ChartOfAccountsView: React.FC = () => {
                     {/* Dropdown Rápido: Mover para Grupo */}
                     <td className="py-2.5 px-3">
                       {!isSynthetic ? (
-                        <select
+                        <PremiumSelect
                           value={acc.parentId || ''}
                           onChange={e => handleQuickMoveGroup(acc, e.target.value)}
                           className="w-36 text-[10px] py-1 px-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] font-medium focus:border-amber-500 cursor-pointer"
@@ -1272,7 +1273,7 @@ export const ChartOfAccountsView: React.FC = () => {
                               📁 {grp.dreLabel}
                             </option>
                           ))}
-                        </select>
+                        </PremiumSelect>
                       ) : (
                         <span className="text-[10px] text-slate-400 italic">Pasta Raiz</span>
                       )}
@@ -1419,7 +1420,7 @@ export const ChartOfAccountsView: React.FC = () => {
                 <label className="block font-bold text-[var(--text-primary)] mb-1">
                   Conta de Destino (Que receberá todo o histórico) *
                 </label>
-                <select
+                <PremiumSelect
                   value={mergeTargetAccountId}
                   onChange={e => setMergeTargetAccountId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-2 text-xs font-medium focus:border-amber-500 focus:outline-hidden cursor-pointer"
@@ -1430,7 +1431,7 @@ export const ChartOfAccountsView: React.FC = () => {
                       {target.code} - {target.name} ({target.nature})
                     </option>
                   ))}
-                </select>
+                </PremiumSelect>
                 <p className="text-[10px] text-slate-500 mt-1">
                   Todos os títulos a pagar/receber, conciliações, serviços e contratos apontarão para esta conta.
                 </p>
@@ -1681,7 +1682,7 @@ export const ChartOfAccountsView: React.FC = () => {
                   <span>Categoria Mãe / Grupo Estratégico DRE *</span>
                   <span className="text-[10px] text-amber-500 font-semibold">Auto-numeração sequencial</span>
                 </label>
-                <select
+                <PremiumSelect
                   value={formData.parentId || 'grp-3.2'}
                   onChange={e => handleParentGroupSelect(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-2 font-medium focus:border-amber-500 focus:outline-hidden cursor-pointer"
@@ -1715,7 +1716,7 @@ export const ChartOfAccountsView: React.FC = () => {
                   <optgroup label="📑 8. CONTROLES ESPECÍFICOS">
                     <option value="grp-8">8.1 - Controles Específicos & Transitórias</option>
                   </optgroup>
-                </select>
+                </PremiumSelect>
                 <p className="text-[10px] text-slate-500 mt-1">
                   Ao trocar a categoria mãe, o código e as regras da DRE são recalculados automaticamente para a posição correta.
                 </p>
@@ -1740,7 +1741,7 @@ export const ChartOfAccountsView: React.FC = () => {
                   <label className="block font-medium text-[var(--text-secondary)] mb-1">
                     Natureza Operacional
                   </label>
-                  <select
+                  <PremiumSelect
                     value={formData.nature || 'DESPESA_ADMINISTRATIVA'}
                     onChange={e => setFormData({ ...formData, nature: e.target.value as any })}
                     className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-input)] text-[var(--text-primary)] px-3 py-2 focus:border-amber-500 focus:outline-hidden"
@@ -1758,7 +1759,7 @@ export const ChartOfAccountsView: React.FC = () => {
                     <option value="INVESTIMENTO_ATIVO">Ativo / Investimento (Patrimonial)</option>
                     <option value="FINANCIAMENTO_SOCIO">Financiamento / Sócio (Patrimonial)</option>
                     <option value="CONTROLE_ESPECIFICO">Controle Específico</option>
-                  </select>
+                  </PremiumSelect>
                 </div>
               </div>
 

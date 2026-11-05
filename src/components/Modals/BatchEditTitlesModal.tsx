@@ -4,6 +4,7 @@ import { FinancialTitle } from '../../types';
 import { storage } from '../../services/storageService';
 import { getFilteredChartAccounts, formatChartAccountSelectOptions } from '../../services/financialEngine';
 import { SearchableSelect, SelectOption } from '../Common/SearchableSelect';
+import { DateField, MonthField } from '../Common/DateField';
 
 interface BatchEditTitlesModalProps {
   isOpen: boolean;
@@ -185,8 +186,7 @@ export const BatchEditTitlesModal: React.FC<BatchEditTitlesModalProps> = ({
             </div>
             {enableCompetence && (
               <div className="pt-2 pl-6">
-                <input
-                  type="month"
+                <MonthField
                   value={competence}
                   onChange={(e) => setCompetence(e.target.value)}
                   className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs bg-white w-full"
@@ -235,8 +235,7 @@ export const BatchEditTitlesModal: React.FC<BatchEditTitlesModalProps> = ({
                 </div>
 
                 {dueDateMode === 'FIXED' ? (
-                  <input
-                    type="date"
+                  <DateField
                     value={newDueDate}
                     onChange={(e) => setNewDueDate(e.target.value)}
                     className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs bg-white w-full"

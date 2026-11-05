@@ -1014,9 +1014,9 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
 
         <div className="overflow-x-auto max-h-[720px]">
           <table className="w-full text-left text-xs border-collapse min-w-[1000px]">
-            <thead className="sticky top-0 z-20 bg-slate-100 dark:bg-[#1a2130] border-b border-slate-300 dark:border-slate-700 shadow-xs">
+            <thead className="sticky top-0 z-20 bg-slate-100 dark:bg-[#1b1b20] border-b border-slate-300 dark:border-slate-700 shadow-xs">
               <tr className="text-[11px] font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                <th className="py-3 px-2.5 sm:px-4 min-w-[145px] max-w-[165px] sm:min-w-[220px] sm:max-w-[260px] md:min-w-[300px] sticky left-0 bg-slate-100 dark:bg-[#1a2130] z-30 border-r border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold shadow-sm">
+                <th className="py-3 px-2.5 sm:px-4 min-w-[145px] max-w-[165px] sm:min-w-[220px] sm:max-w-[260px] md:min-w-[300px] sticky left-0 bg-slate-100 dark:bg-[#1b1b20] z-30 border-r border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold shadow-sm">
                   Rubrica Financeira / Estrutura
                 </th>
 
@@ -1026,7 +1026,7 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
                   return (
                     <th 
                       key={mIdx} 
-                      className="py-3 px-2 text-right min-w-[95px] border-r border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold bg-slate-100 dark:bg-[#1a2130]"
+                      className="py-3 px-2 text-right min-w-[95px] border-r border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold bg-slate-100 dark:bg-[#1b1b20]"
                     >
                       {mName}/{String(effectiveYear).substring(2)}
                     </th>
@@ -1034,7 +1034,7 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
                 })}
 
                 {/* Coluna de Total do Período */}
-                <th className="py-3 px-3 text-right font-extrabold text-slate-900 dark:text-slate-100 min-w-[130px] bg-slate-100 dark:bg-[#1a2130] border-l-2 border-slate-300 dark:border-slate-700">
+                <th className="py-3 px-3 text-right font-extrabold text-slate-900 dark:text-slate-100 min-w-[130px] bg-slate-100 dark:bg-[#1b1b20] border-l-2 border-slate-300 dark:border-slate-700">
                   {totalColLabel}
                 </th>
               </tr>
@@ -1056,11 +1056,11 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
                 const periodTotal = getLinePeriodTotal(line);
 
                 let rowBg = 'hover:bg-slate-100/70 dark:hover:bg-slate-800/40 text-slate-900 dark:text-slate-100';
-                let stickyBg = 'bg-white dark:bg-[#121620] text-slate-900 dark:text-slate-100';
+                let stickyBg = 'bg-white dark:bg-[#131316] text-slate-900 dark:text-slate-100';
 
                 if (isFinalBalance) {
                   rowBg = 'bg-slate-200 dark:bg-slate-900 text-slate-900 dark:text-white font-extrabold text-xs border-y-2 border-slate-400 dark:border-slate-600';
-                  stickyBg = 'bg-slate-200 dark:bg-[#1a2230] text-slate-900 dark:text-white font-extrabold';
+                  stickyBg = 'bg-slate-200 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-extrabold';
                 } else if (isTotalNet) {
                   rowBg = 'bg-indigo-500/15 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-100 font-extrabold text-xs border-y-2 border-indigo-500/50';
                   stickyBg = 'bg-indigo-100 dark:bg-[#1a1f3d] text-indigo-950 dark:text-indigo-100 font-extrabold';
@@ -1084,7 +1084,7 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
                   stickyBg = 'bg-slate-200 dark:bg-[#1e2738] text-slate-900 dark:text-slate-100 font-bold';
                 } else if (isSummary) {
                   rowBg = 'bg-slate-100/90 dark:bg-slate-800/60 font-bold text-slate-900 dark:text-slate-100 border-t border-b border-slate-300 dark:border-slate-700';
-                  stickyBg = 'bg-slate-200 dark:bg-[#1a2230] text-slate-900 dark:text-slate-100 font-bold';
+                  stickyBg = 'bg-slate-200 dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 font-bold';
                 }
 
                 return (

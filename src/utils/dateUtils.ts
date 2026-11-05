@@ -82,3 +82,15 @@ export function parseDateBR(dateStr?: string | null): string {
   if (!d || !m || !y) return '';
   return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
 }
+
+/**
+ * Formata um período (mês 1-12 ou 0 para o ano inteiro) como intervalo em dia/mês/ano.
+ * Ex.: (11, 2026) -> "01/11/2026 – 30/11/2026"; (0, 2026) -> "01/01/2026 – 31/12/2026".
+ */
+export function formatPeriodRangeBR(month: number, year: number): string {
+  const firstMonth = month === 0 ? 1 : month;
+  const lastMonth = month === 0 ? 12 : month;
+  const lastDay = getDaysInMonth(year, lastMonth);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `01/${pad(firstMonth)}/${year} – ${pad(lastDay)}/${pad(lastMonth)}/${year}`;
+}

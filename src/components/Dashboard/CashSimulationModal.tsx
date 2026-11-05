@@ -29,6 +29,7 @@ import {
 } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL, parseBRL } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface CashSimulationModalProps {
   isOpen: boolean;
@@ -274,7 +275,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
               <FolderOpen className="w-3.5 h-3.5 mr-1 text-amber-400" />
               Cenários Salvos:
             </span>
-            <select
+            <PremiumSelect
               value={selectedScenarioId}
               onChange={e => {
                 const found = scenarios.find(s => s.id === e.target.value);
@@ -287,7 +288,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                   {s.name} {s.isActive ? '(ATIVO NO DASHBOARD)' : ''}
                 </option>
               ))}
-            </select>
+            </PremiumSelect>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -424,7 +425,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
 
               {/* Seletor para Adicionar Cliente */}
               <div className="flex items-center space-x-2">
-                <select
+                <PremiumSelect
                   value={selectedClientIdToAdd}
                   onChange={e => setSelectedClientIdToAdd(e.target.value)}
                   className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-amber-500 outline-hidden max-w-xs"
@@ -437,7 +438,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                         {c.name} ({formatBRL(getClientExpectedReceivable(c.id))})
                       </option>
                     ))}
-                </select>
+                </PremiumSelect>
 
                 <button
                   type="button"

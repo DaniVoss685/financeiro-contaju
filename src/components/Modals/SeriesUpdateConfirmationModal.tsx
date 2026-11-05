@@ -89,11 +89,11 @@ export const SeriesUpdateConfirmationModal: React.FC<SeriesUpdateConfirmationMod
   return (
     <div className="fixed inset-0 z-60 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-150">
       <div 
-        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-[#273040] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-xs">
               {seriesInfo.seriesType === 'PARCELAMENTO' ? (
@@ -125,7 +125,7 @@ export const SeriesUpdateConfirmationModal: React.FC<SeriesUpdateConfirmationMod
         <div className="p-5 space-y-4 text-xs">
           
           {/* Card com as Modificações Detectadas */}
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#161C28] border border-slate-200 dark:border-[#273040] space-y-3">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] space-y-3">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
               <span>Descrição do Título:</span>
               <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[240px]">
@@ -254,22 +254,22 @@ export const SeriesUpdateConfirmationModal: React.FC<SeriesUpdateConfirmationMod
 
           {/* Lista detalhada expansível dos próximos meses */}
           {subsequentCount > 0 && (
-            <div className="rounded-xl border border-slate-200 dark:border-[#273040] overflow-hidden">
+            <div className="rounded-xl border border-slate-200 dark:border-[#26262b] overflow-hidden">
               <button
                 type="button"
                 onClick={() => setShowDetails(!showDetails)}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-[#161C28] flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-[#17171b] flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <span>Ver os {subsequentCount} lançamentos futuros que serão atualizados</span>
                 {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
 
               {showDetails && (
-                <div className="p-2.5 max-h-40 overflow-y-auto space-y-1.5 bg-white dark:bg-[#121620]">
+                <div className="p-2.5 max-h-40 overflow-y-auto space-y-1.5 bg-white dark:bg-[#131316]">
                   {seriesInfo.subsequentOpenTitles.map(t => (
                     <div 
                       key={t.id} 
-                      className="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 dark:bg-[#161C28] border border-slate-200/60 dark:border-slate-800 text-[11px]"
+                      className="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 dark:bg-[#17171b] border border-slate-200/60 dark:border-slate-800 text-[11px]"
                     >
                       <div className="min-w-0 pr-2">
                         <span className="font-mono text-[10px] text-slate-500 block truncate">{t.titleNumber}</span>
@@ -289,11 +289,11 @@ export const SeriesUpdateConfirmationModal: React.FC<SeriesUpdateConfirmationMod
         </div>
 
         {/* Rodapé com as 2 opções de decisão */}
-        <div className="px-5 py-3.5 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#161C28] flex flex-col sm:flex-row gap-2.5 sm:justify-end">
+        <div className="px-5 py-3.5 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex flex-col sm:flex-row gap-2.5 sm:justify-end">
           <button
             type="button"
             onClick={() => onConfirm(false)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 dark:border-[#273040] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 dark:border-[#26262b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
           >
             <span>Alterar Apenas Este Lançamento</span>
           </button>

@@ -33,6 +33,7 @@ import { AgentDefinition, AgentRoleType, AiModelChainItem } from '../../types';
 import { INITIAL_AGENT_DEFINITIONS } from '../../data/initialAgentsData';
 import { DEFAULT_DYNAMIC_CATALOG } from '../../services/aiModelCatalogService';
 import { AiService } from '../../services/aiService';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const AVAILABLE_AGENT_TOOLS: { id: string; name: string; description: string; category: string }[] = [
   { id: 'consultar_fluxo_caixa', name: 'Fluxo de Caixa', description: 'Consulta extratos, saldos bancários e movimentações financeiras', category: 'Tesouraria' },
@@ -592,7 +593,7 @@ export const AgentEditModal: React.FC<AgentEditModalProps> = ({
                 </div>
 
                 {/* Filtro por Provedor */}
-                <select
+                <PremiumSelect
                   value={selectedProviderFilter}
                   onChange={(e) => setSelectedProviderFilter(e.target.value)}
                   className="px-3 py-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
@@ -603,7 +604,7 @@ export const AgentEditModal: React.FC<AgentEditModalProps> = ({
                       {p.toUpperCase()}
                     </option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
 
               {/* Grid de Modelos Selecionáveis */}

@@ -3,6 +3,7 @@ import { Scale, ArrowRight, CheckCircle2, AlertCircle, Info, Calendar } from 'lu
 import { ReportingEngine } from '../../services/reportingEngine';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatCompetence } from '../../services/financialEngine';
+import { MonthField } from '../Common/DateField';
 
 export const CompareDRECashView: React.FC = () => {
   const currentMonth = new Date().toISOString().substring(0, 7);
@@ -74,8 +75,7 @@ export const CompareDRECashView: React.FC = () => {
 
         <div className="flex items-center space-x-2">
           <label className="text-xs font-semibold text-slate-700">Mês de Análise:</label>
-          <input
-            type="month"
+          <MonthField
             value={selectedCompetence}
             onChange={(e) => setSelectedCompetence(e.target.value)}
             className="rounded border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-900 bg-white"

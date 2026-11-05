@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { storage } from '../../services/storageService';
 import { automaticBackupService, AutoBackupConfig } from '../../services/automaticBackupService';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const BackupView: React.FC = () => {
   const [lastBackupInfo, setLastBackupInfo] = useState<{ filename: string; date: string; sizeKb: number } | null>(() => {
@@ -255,7 +256,7 @@ export const BackupView: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-200">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131720] p-5 rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131316] p-5 rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xs">
         <div>
           <div className="flex items-center space-x-2.5">
             <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
@@ -312,8 +313,8 @@ export const BackupView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
         {/* Card 1: Resumo da Base Atual */}
-        <div className="md:col-span-2 bg-white dark:bg-[#131720] p-6 rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#273040] pb-3">
+        <div className="md:col-span-2 bg-white dark:bg-[#131316] p-6 rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#26262b] pb-3">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-4 h-4 text-amber-500" />
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -326,7 +327,7 @@ export const BackupView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200/80 dark:border-[#273040]">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200/80 dark:border-[#26262b]">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider">Títulos Fin.</span>
                 <FileText className="w-3.5 h-3.5 text-amber-400" />
@@ -335,7 +336,7 @@ export const BackupView: React.FC = () => {
               <div className="text-[10px] text-slate-500">Pagar e Receber</div>
             </div>
 
-            <div className="p-3.5 bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200/80 dark:border-[#273040]">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200/80 dark:border-[#26262b]">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider">Contratos</span>
                 <Building2 className="w-3.5 h-3.5 text-amber-500" />
@@ -344,7 +345,7 @@ export const BackupView: React.FC = () => {
               <div className="text-[10px] text-slate-500">Recorrentes (MRR)</div>
             </div>
 
-            <div className="p-3.5 bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200/80 dark:border-[#273040]">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200/80 dark:border-[#26262b]">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider">Cadastros</span>
                 <Users className="w-3.5 h-3.5 text-emerald-500" />
@@ -353,7 +354,7 @@ export const BackupView: React.FC = () => {
               <div className="text-[10px] text-slate-500">Clientes & Fornecedores</div>
             </div>
 
-            <div className="p-3.5 bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200/80 dark:border-[#273040]">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200/80 dark:border-[#26262b]">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider">Extratos/Caixa</span>
                 <Wallet className="w-3.5 h-3.5 text-cyan-500" />
@@ -375,9 +376,9 @@ export const BackupView: React.FC = () => {
         </div>
 
         {/* Card 2: Status do Último Backup & Ação Rápida */}
-        <div className="bg-white dark:bg-[#131720] p-6 rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xs flex flex-col justify-between space-y-4">
+        <div className="bg-white dark:bg-[#131316] p-6 rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xs flex flex-col justify-between space-y-4">
           <div>
-            <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-[#273040] pb-3">
+            <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-[#26262b] pb-3">
               <Clock className="w-4 h-4 text-slate-500" />
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                 Última Cópia Local Salva
@@ -386,7 +387,7 @@ export const BackupView: React.FC = () => {
 
             {lastBackupInfo ? (
               <div className="mt-4 space-y-2 text-xs">
-                <div className="p-3 bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200 dark:border-[#273040] space-y-1">
+                <div className="p-3 bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200 dark:border-[#26262b] space-y-1">
                   <div className="font-mono font-bold text-slate-800 dark:text-slate-200 truncate" title={lastBackupInfo.filename}>
                     {lastBackupInfo.filename}
                   </div>
@@ -415,7 +416,7 @@ export const BackupView: React.FC = () => {
 
           <button
             onClick={handleExportBackup}
-            className="w-full py-2.5 bg-slate-900 dark:bg-[#1B212D] hover:bg-slate-800 dark:hover:bg-[#222938] text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition-colors flex items-center justify-center space-x-2"
+            className="w-full py-2.5 bg-slate-900 dark:bg-[#1b1b20] hover:bg-slate-800 dark:hover:bg-[#222938] text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition-colors flex items-center justify-center space-x-2"
           >
             <Download className="w-4 h-4" />
             <span>Baixar Cópia de Segurança (.JSON)</span>
@@ -425,12 +426,12 @@ export const BackupView: React.FC = () => {
       </div>
 
       {/* Seção Nova: Rotina Automática de Exportação Semanal por E-mail (.JSON) */}
-      <div className="bg-white dark:bg-[#131720] p-6 rounded-2xl border border-amber-500/30 dark:border-amber-500/20 shadow-md space-y-6 relative overflow-hidden">
+      <div className="bg-white dark:bg-[#131316] p-6 rounded-2xl border border-amber-500/30 dark:border-amber-500/20 shadow-md space-y-6 relative overflow-hidden">
         {/* Glow de fundo dourado sutil */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-amber-500/10 via-transparent to-transparent rounded-bl-full pointer-events-none" />
 
         {/* Header do Card */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-[#273040] pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-[#26262b] pb-4">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-amber-500 border border-amber-500/30 shadow-xs">
               <Mail className="w-5 h-5" />
@@ -496,7 +497,7 @@ export const BackupView: React.FC = () => {
                   value={recipientsInput}
                   onChange={(e) => setRecipientsInput(e.target.value)}
                   placeholder="econtajuridico@gmail.com, seu-email@exemplo.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
                 />
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
@@ -510,10 +511,10 @@ export const BackupView: React.FC = () => {
                   <Calendar className="w-3.5 h-3.5 text-amber-500" />
                   Dia da Semana para Envio:
                 </label>
-                <select
+                <PremiumSelect
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
                 >
                   <option value={1}>Segunda-feira (Recomendado - Abertura de Semana)</option>
                   <option value={2}>Terça-feira</option>
@@ -522,7 +523,7 @@ export const BackupView: React.FC = () => {
                   <option value={5}>Sexta-feira (Fechamento Semanal)</option>
                   <option value={6}>Sábado</option>
                   <option value={0}>Domingo</option>
-                </select>
+                </PremiumSelect>
               </div>
 
               <div>
@@ -534,7 +535,7 @@ export const BackupView: React.FC = () => {
                   type="time"
                   value={selectedTime}
                   onChange={(e) => setSelectedTime(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
                 />
               </div>
             </div>
@@ -544,7 +545,7 @@ export const BackupView: React.FC = () => {
                 type="button"
                 onClick={handleSaveEmailConfig}
                 disabled={isSavingConfig}
-                className="px-4 py-2 bg-slate-900 dark:bg-[#1B212D] hover:bg-slate-800 dark:hover:bg-[#252c3c] text-amber-400 border border-amber-500/40 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 bg-slate-900 dark:bg-[#1b1b20] hover:bg-slate-800 dark:hover:bg-[#252c3c] text-amber-400 border border-amber-500/40 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Salvar Configuração Semanal</span>
@@ -572,7 +573,7 @@ export const BackupView: React.FC = () => {
           </div>
 
           {/* Coluna 3: Painel do Último Envio Realizado */}
-          <div className="bg-slate-50 dark:bg-[#1B212D] p-4 rounded-xl border border-slate-200 dark:border-[#273040] flex flex-col justify-between space-y-3">
+          <div className="bg-slate-50 dark:bg-[#1b1b20] p-4 rounded-xl border border-slate-200 dark:border-[#26262b] flex flex-col justify-between space-y-3">
             <div>
               <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-2.5 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
@@ -593,7 +594,7 @@ export const BackupView: React.FC = () => {
 
               {autoConfig.lastRunAt ? (
                 <div className="space-y-2 text-xs">
-                  <div className="text-[11px] text-slate-500 flex justify-between border-b border-slate-200/50 dark:border-[#273040] pb-1.5">
+                  <div className="text-[11px] text-slate-500 flex justify-between border-b border-slate-200/50 dark:border-[#26262b] pb-1.5">
                     <span>Data/Hora:</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {new Date(autoConfig.lastRunAt).toLocaleString('pt-BR')}
@@ -601,7 +602,7 @@ export const BackupView: React.FC = () => {
                   </div>
 
                   {autoConfig.lastFilename && (
-                    <div className="text-[11px] text-slate-500 flex justify-between border-b border-slate-200/50 dark:border-[#273040] pb-1.5">
+                    <div className="text-[11px] text-slate-500 flex justify-between border-b border-slate-200/50 dark:border-[#26262b] pb-1.5">
                       <span>Arquivo:</span>
                       <span className="font-mono font-bold text-sky-600 dark:text-sky-400 truncate max-w-[140px]" title={autoConfig.lastFilename}>
                         {autoConfig.lastFilename}
@@ -610,7 +611,7 @@ export const BackupView: React.FC = () => {
                   )}
 
                   {autoConfig.lastSizeKb && (
-                    <div className="text-[11px] text-slate-500 flex justify-between border-b border-slate-200/50 dark:border-[#273040] pb-1.5">
+                    <div className="text-[11px] text-slate-500 flex justify-between border-b border-slate-200/50 dark:border-[#26262b] pb-1.5">
                       <span>Tamanho:</span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {autoConfig.lastSizeKb} KB
@@ -621,7 +622,7 @@ export const BackupView: React.FC = () => {
                   {autoConfig.lastSentRecipients && autoConfig.lastSentRecipients.length > 0 && (
                     <div className="text-[11px] text-slate-500 pt-1">
                       <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Enviado para:</span>
-                      <span className="font-mono text-[10px] text-slate-600 dark:text-slate-400 break-all bg-white dark:bg-[#131720] p-1.5 rounded-lg border border-slate-200 dark:border-[#273040] block">
+                      <span className="font-mono text-[10px] text-slate-600 dark:text-slate-400 break-all bg-white dark:bg-[#131316] p-1.5 rounded-lg border border-slate-200 dark:border-[#26262b] block">
                         {autoConfig.lastSentRecipients.join(', ')}
                       </span>
                     </div>
@@ -642,7 +643,7 @@ export const BackupView: React.FC = () => {
               )}
             </div>
 
-            <div className="pt-2 border-t border-slate-200/50 dark:border-[#273040] text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+            <div className="pt-2 border-t border-slate-200/50 dark:border-[#26262b] text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
               <span>Frequência: Semanal (A cada 7 dias)</span>
               <span className="font-semibold text-amber-500">Serviço Ativo</span>
             </div>
@@ -652,8 +653,8 @@ export const BackupView: React.FC = () => {
       </div>
 
       {/* Seção 2: Restauração de Backup */}
-      <div className="bg-white dark:bg-[#131720] p-6 rounded-2xl border border-slate-200 dark:border-[#273040] shadow-2xs space-y-4">
-        <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-[#273040] pb-3">
+      <div className="bg-white dark:bg-[#131316] p-6 rounded-2xl border border-slate-200 dark:border-[#26262b] shadow-2xs space-y-4">
+        <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-[#26262b] pb-3">
           <Upload className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">
             Restaurar Base de Dados a Partir de um Arquivo .JSON
@@ -667,7 +668,7 @@ export const BackupView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
           
           {/* Upload Drop Area */}
-          <div className="border-2 border-dashed border-slate-300 dark:border-[#273040] hover:border-amber-500 dark:hover:border-amber-500/60 rounded-2xl p-6 text-center transition-colors">
+          <div className="border-2 border-dashed border-slate-300 dark:border-[#26262b] hover:border-amber-500 dark:hover:border-amber-500/60 rounded-2xl p-6 text-center transition-colors">
             <input
               type="file"
               id="backupFileInput"
@@ -687,7 +688,7 @@ export const BackupView: React.FC = () => {
           </div>
 
           {/* Preview & Confirmação */}
-          <div className="bg-slate-50 dark:bg-[#1B212D] p-5 rounded-2xl border border-slate-200 dark:border-[#273040] space-y-3">
+          <div className="bg-slate-50 dark:bg-[#1b1b20] p-5 rounded-2xl border border-slate-200 dark:border-[#26262b] space-y-3">
             <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-between">
               <span>Pré-visualização do Arquivo</span>
               {restorePreview && (
@@ -715,9 +716,9 @@ export const BackupView: React.FC = () => {
                 </div>
 
                 {restorePreview.stats && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-[#273040] flex flex-wrap gap-2">
+                  <div className="pt-2 border-t border-slate-200 dark:border-[#26262b] flex flex-wrap gap-2">
                     {Object.entries(restorePreview.stats).map(([k, v]) => (
-                      <span key={k} className="text-[10px] bg-white dark:bg-[#131720] px-2 py-1 rounded border border-slate-200 dark:border-[#273040] font-mono text-slate-700 dark:text-slate-300">
+                      <span key={k} className="text-[10px] bg-white dark:bg-[#131316] px-2 py-1 rounded border border-slate-200 dark:border-[#26262b] font-mono text-slate-700 dark:text-slate-300">
                         {k}: <strong>{v}</strong>
                       </span>
                     ))}

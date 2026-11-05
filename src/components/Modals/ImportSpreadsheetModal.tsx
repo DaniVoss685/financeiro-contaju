@@ -78,6 +78,8 @@ import { ImportMonthlySummaryBar } from './ImportMonthlySummaryBar';
 import { ImportExtraColumnModal } from './ImportExtraColumnModal';
 import { ImportEditRowModal } from './ImportEditRowModal';
 import { ImportCrossReferenceModal } from './ImportCrossReferenceModal';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface ImportSpreadsheetModalProps {
   isOpen: boolean;
@@ -2685,7 +2687,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
         <div className="px-5 py-2.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] flex items-center justify-between text-xs font-semibold shrink-0">
           <div className="flex items-center space-x-2">
             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-              step >= 1 ? 'bg-amber-400 text-[#0f172a]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
+              step >= 1 ? 'bg-amber-400 text-[#18181b]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
             }`}>
               1
             </span>
@@ -2698,7 +2700,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
 
           <div className="flex items-center space-x-2">
             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-              step >= 2 ? 'bg-amber-400 text-[#0f172a]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
+              step >= 2 ? 'bg-amber-400 text-[#18181b]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
             }`}>
               2
             </span>
@@ -2711,7 +2713,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
 
           <div className="flex items-center space-x-2">
             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-              step >= 3 ? 'bg-amber-400 text-[#0f172a]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
+              step >= 3 ? 'bg-amber-400 text-[#18181b]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
             }`}>
               3
             </span>
@@ -2724,7 +2726,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
 
           <div className="flex items-center space-x-2">
             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-              step === 4 ? 'bg-emerald-400 text-[#0f172a]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
+              step === 4 ? 'bg-emerald-400 text-[#18181b]' : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)]'
             }`}>
               4
             </span>
@@ -2885,7 +2887,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                   <span className="text-xs text-[var(--text-secondary)] font-semibold">Perfil de Mapeamento:</span>
                   
                   {/* Dropdown de Modelos do Sistema e Meus Perfis Salvos */}
-                  <select
+                  <PremiumSelect
                     value={selectedProfileId ? `custom:${selectedProfileId}` : selectedPreset}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -2916,7 +2918,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                         ))}
                       </optgroup>
                     )}
-                  </select>
+                  </PremiumSelect>
 
                   {/* Botão para Salvar Novo Perfil Customizado */}
                   <button
@@ -2963,7 +2965,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                     <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1">
                       Método de Identificação de Tipo:
                     </label>
-                    <select
+                    <PremiumSelect
                       value={typeDetectionMode}
                       onChange={e => setTypeDetectionMode(e.target.value as TypeDetectionMode)}
                       className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-amber-400 focus:border-amber-400 focus:outline-hidden"
@@ -2972,21 +2974,21 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                       <option value="SIGNAL_BASED">Baseado em Sinal (+ Receitas / - Despesas)</option>
                       <option value="FORCE_PAYABLE">Forçar todas como Contas a Pagar (Despesas)</option>
                       <option value="FORCE_RECEIVABLE">Forçar todas como Contas a Receber (Receitas)</option>
-                    </select>
+                    </PremiumSelect>
                   </div>
 
                   <div>
                     <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1">
                       Classificação Fallback (quando não identificado na linha):
                     </label>
-                    <select
+                    <PremiumSelect
                       value={fallbackDefaultType}
                       onChange={e => setFallbackDefaultType(e.target.value as TitleType)}
                       className="w-full px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
                     >
                       <option value="PAGAR">Contas a Pagar (Despesa / Fornecedor)</option>
                       <option value="RECEBER">Contas a Receber (Receita / Cliente)</option>
-                    </select>
+                    </PremiumSelect>
                   </div>
                 </div>
 
@@ -2996,7 +2998,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                     <label className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1">
                       Conta Bancária Padrão (para baixas de liquidação):
                     </label>
-                    <select
+                    <PremiumSelect
                       value={fallbackBankAccountId}
                       onChange={e => setFallbackBankAccountId(e.target.value)}
                       className="w-full px-2.5 py-1.5 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-lg text-xs font-medium text-[var(--text-primary)] focus:outline-hidden"
@@ -3006,7 +3008,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                           {b.name} ({b.institution})
                         </option>
                       ))}
-                    </select>
+                    </PremiumSelect>
                   </div>
                 </div>
               </div>
@@ -3128,7 +3130,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                             </td>
 
                             <td className="py-2.5 px-4">
-                              <select
+                              <PremiumSelect
                                 value={currentMappedCol}
                                 onChange={(e) => setMapping(prev => ({ ...prev, [field.key]: e.target.value }))}
                                 aria-label={`Mapeamento para ${field.label}`}
@@ -3149,7 +3151,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                                     Coluna: {h}
                                   </option>
                                 ))}
-                              </select>
+                              </PremiumSelect>
                             </td>
 
                             <td className="py-2.5 px-4 text-[11px] text-[var(--text-secondary)]">
@@ -3291,7 +3293,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                   {/* Seletor da Coluna Alvo */}
                   <div className="flex items-center space-x-1.5">
                     <span className="text-xs font-bold text-[var(--text-secondary)]">Alterar Coluna:</span>
-                    <select
+                    <PremiumSelect
                       value={bulkField}
                       onChange={(e) => setBulkField(e.target.value as any)}
                       aria-label="Coluna para alteração em massa"
@@ -3307,7 +3309,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                       <option value="valorOriginal">💰 Valor Original (R$)</option>
                       <option value="tipo">🔄 Tipo (Receita vs Despesa)</option>
                       <option value="situacao">✅ Situação (Aberto / Pago)</option>
-                    </select>
+                    </PremiumSelect>
                   </div>
 
                   {/* Input do Novo Valor com base na Coluna */}
@@ -3371,8 +3373,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                     )}
 
                     {bulkField === 'vencimento' && (
-                      <input
-                        type="date"
+                      <DateField
                         value={bulkVencimento}
                         onChange={(e) => setBulkVencimento(e.target.value)}
                         className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-mono font-semibold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -3380,8 +3381,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                     )}
 
                     {bulkField === 'dataPagamento' && (
-                      <input
-                        type="date"
+                      <DateField
                         value={bulkDataPagamento}
                         onChange={(e) => setBulkDataPagamento(e.target.value)}
                         className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-mono font-semibold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden"
@@ -4096,8 +4096,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
 
                             {/* Vencimento (Editável Inline com Fallback Seguro para input date) */}
                             <td className="py-2 px-2 text-center w-32">
-                              <input
-                                type="date"
+                              <DateField
                                 value={row.normalized.vencimento && /^\d{4}-\d{2}-\d{2}$/.test(row.normalized.vencimento) ? row.normalized.vencimento : ''}
                                 onChange={(e) => handleInlineUpdate(row.rowNumber, 'vencimento', e.target.value)}
                                 title="Editar data de vencimento"
@@ -4107,8 +4106,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
 
                             {/* Data de Pagamento / Quitação (Editável Inline com Quitação Automática) */}
                             <td className="py-2 px-2 text-center w-32">
-                              <input
-                                type="date"
+                              <DateField
                                 value={row.normalized.dataPagamento && /^\d{4}-\d{2}-\d{2}$/.test(row.normalized.dataPagamento) ? row.normalized.dataPagamento : ''}
                                 onChange={(e) => handleInlinePaymentDateChange(row.rowNumber, e.target.value)}
                                 title="Data de pagamento / quitação efetiva"
@@ -4340,7 +4338,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
               <button
                 type="button"
                 onClick={handleProcessValidation}
-                className="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-[#0f172a] rounded-xl text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.25)] flex items-center"
+                className="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-[#18181b] rounded-xl text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.25)] flex items-center"
               >
                 Analisar Dados & Ver Resumos Mensais
                 <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
@@ -4390,7 +4388,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                   if (onImportCompleted) onImportCompleted();
                   onClose();
                 }}
-                className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-[#0f172a] rounded-xl text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+                className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-[#18181b] rounded-xl text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.25)]"
               >
                 Concluir e Visualizar Títulos Financeiros
               </button>

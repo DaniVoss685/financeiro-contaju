@@ -21,6 +21,7 @@ import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL, formatDateBR } from '../../services/financialEngine';
 import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
 import { matchesSearch } from '../../utils/searchUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface BankAccountStatementModalProps {
   isOpen: boolean;
@@ -433,7 +434,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
           {/* Filtro de Período, Direção e Busca */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {/* Seletor de Período */}
-            <select
+            <PremiumSelect
               value={periodFilter}
               onChange={e => setPeriodFilter(e.target.value as PeriodFilter)}
               className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-medium"
@@ -443,10 +444,10 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
               <option value="LAST_90_DAYS">Últimos 90 dias</option>
               <option value="CURRENT_YEAR">Ano Atual ({currentYear})</option>
               <option value="ALL">Todo o Histórico</option>
-            </select>
+            </PremiumSelect>
 
             {/* Direção */}
-            <select
+            <PremiumSelect
               value={directionFilter}
               onChange={e => setDirectionFilter(e.target.value as DirectionFilter)}
               className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-medium"
@@ -454,7 +455,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
               <option value="ALL">Todas Movimentações</option>
               <option value="ENTRADA">Apenas Entradas (+)</option>
               <option value="SAIDA">Apenas Saídas (-)</option>
-            </select>
+            </PremiumSelect>
 
             {/* Campo de Busca */}
             <div className="relative">

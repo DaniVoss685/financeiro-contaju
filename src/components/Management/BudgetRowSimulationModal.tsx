@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { ChartAccount } from '../../types';
 import { formatBRL } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface BudgetRowSimulationModalProps {
   isOpen: boolean;
@@ -177,7 +178,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#131720] w-full max-w-3xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[#131316] w-full max-w-3xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Cabeçalho */}
         <div className="p-4 sm:p-5 border-b border-slate-700 bg-slate-900 flex items-center justify-between">
@@ -473,7 +474,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
             {periodScope === 'FROM_MONTH' && (
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <span className="text-xs text-slate-300">Aplicar a alteração a partir de:</span>
-                <select
+                <PremiumSelect
                   value={startMonth}
                   onChange={e => setStartMonth(Number(e.target.value))}
                   className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-amber-400 focus:outline-hidden cursor-pointer"
@@ -483,7 +484,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                       {name}/{year} (Mês {idx + 1})
                     </option>
                   ))}
-                </select>
+                </PremiumSelect>
                 <span className="text-xs text-amber-400 font-medium">
                   → até Dezembro/{year} ({12 - startMonth} meses serão alterados)
                 </span>
@@ -496,7 +497,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
             {periodScope === 'CUSTOM_RANGE' && (
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <span className="text-xs text-slate-300">De:</span>
-                <select
+                <PremiumSelect
                   value={startMonth}
                   onChange={e => setStartMonth(Number(e.target.value))}
                   className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-amber-400 focus:outline-hidden cursor-pointer"
@@ -504,10 +505,10 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                   {MONTH_NAMES.map((name, idx) => (
                     <option key={idx} value={idx}>{name}/{year}</option>
                   ))}
-                </select>
+                </PremiumSelect>
 
                 <span className="text-xs text-slate-300">Até:</span>
-                <select
+                <PremiumSelect
                   value={endMonth}
                   onChange={e => setEndMonth(Number(e.target.value))}
                   className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-amber-400 focus:outline-hidden cursor-pointer"
@@ -515,7 +516,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                   {MONTH_NAMES.map((name, idx) => (
                     <option key={idx} value={idx}>{name}/{year}</option>
                   ))}
-                </select>
+                </PremiumSelect>
               </div>
             )}
 

@@ -15,6 +15,7 @@ import {
 import { CohortEngine } from '../../services/cohortEngine';
 import { formatBRL } from '../../services/financialEngine';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface CohortRetentionViewProps {
   onNavigateScreen?: (screen: string) => void;
@@ -224,7 +225,7 @@ export const CohortRetentionView: React.FC<CohortRetentionViewProps> = ({
 
           <div className="flex items-center space-x-2 text-xs text-[var(--text-secondary)]">
             <span>Safras visíveis:</span>
-            <select
+            <PremiumSelect
               value={maxCohorts}
               onChange={(e) => setMaxCohorts(Number(e.target.value))}
               className="px-2.5 py-1 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-lg text-xs font-medium text-[var(--text-primary)] focus:outline-hidden cursor-pointer"
@@ -232,7 +233,7 @@ export const CohortRetentionView: React.FC<CohortRetentionViewProps> = ({
               <option value={6}>Últimas 6 Safras</option>
               <option value={12}>Últimas 12 Safras</option>
               <option value={24}>Últimas 24 Safras</option>
-            </select>
+            </PremiumSelect>
           </div>
         </div>
 

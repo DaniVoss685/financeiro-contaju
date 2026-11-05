@@ -647,7 +647,7 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                   difference === 0
                     ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/40'
                     : difference > 0
-                      ? 'bg-amber-500 hover:bg-amber-400 text-[#0f172a] shadow-amber-900/40 font-bold'
+                      ? 'bg-amber-500 hover:bg-amber-400 text-[#18181b] shadow-amber-900/40 font-bold'
                       : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-900/40'
                 } disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`}
               >

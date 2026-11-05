@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, Check, AlertCircle, Sparkles, Filter } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGlobalPeriod } from '../../hooks/useGlobalPeriod';
 import { GlobalPeriodFilter } from '../../types';
+import { formatPeriodRangeBR } from '../../utils/dateUtils';
 
 interface GlobalPeriodSelectorModalProps {
   isOpen: boolean;
@@ -12,23 +13,10 @@ interface GlobalPeriodSelectorModalProps {
   subtitleOverride?: string;
 }
 
-const MONTHS = [
-  { value: 1, label: '01 - Janeiro' },
-  { value: 2, label: '02 - Fevereiro' },
-  { value: 3, label: '03 - Março' },
-  { value: 4, label: '04 - Abril' },
-  { value: 5, label: '05 - Maio' },
-  { value: 6, label: '06 - Junho' },
-  { value: 7, label: '07 - Julho' },
-  { value: 8, label: '08 - Agosto' },
-  { value: 9, label: '09 - Setembro' },
-  { value: 10, label: '10 - Outubro' },
-  { value: 11, label: '11 - Novembro' },
-  { value: 12, label: '12 - Dezembro' },
-  { value: 0, label: 'Ano Completo (Todos os meses)' }
-];
+const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
-const YEARS = [2024, 2025, 2026, 2027, 2028];
+const chip =
+  'h-11 rounded-xl text-sm transition-colors cursor-pointer border';
 
 export const GlobalPeriodSelectorModal: React.FC<GlobalPeriodSelectorModalProps> = ({
   isOpen,
@@ -53,15 +41,18 @@ export const GlobalPeriodSelectorModal: React.FC<GlobalPeriodSelectorModalProps>
     }
   }, [isOpen, effectivePeriod]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
-  const handleApply = (activeState = true) => {
-    const updated: GlobalPeriodFilter = {
-      active: activeState,
-      year: selectedYear,
-      month: selectedMonth
-    };
-
+  const persist = (updated: GlobalPeriodFilter) => {
     if (onSaveCustomPeriod) {
       onSaveCustomPeriod(updated);
     } else {
@@ -70,255 +61,159 @@ export const GlobalPeriodSelectorModal: React.FC<GlobalPeriodSelectorModalProps>
     onClose();
   };
 
-  const handleDeactivate = () => {
-    const updated: GlobalPeriodFilter = {
-      ...effectivePeriod,
-      active: false
-    };
+  const handleApply = () => persist({ active: true, year: selectedYear, month: selectedMonth });
+  const handleDeactivate = () => persist({ ...effectivePeriod, active: false });
 
-    if (onSaveCustomPeriod) {
-      onSaveCustomPeriod(updated);
-    } else {
-      globalPeriodHook.updatePeriod(updated);
-    }
-    onClose();
-  };
+  const now = new Date();
+  const shortcut = (label: string, month: number, year: number) => (
+    <button
+      type="button"
+      onClick={() => {
+        setSelectedMonth(month);
+        setSelectedYear(year);
+        setIsActive(true);
+      }}
+      className="h-9 px-3.5 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] transition-colors cursor-pointer whitespace-nowrap"
+    >
+      {label}
+    </button>
+  );
 
-  const monthObj = MONTHS.find(m => m.value === selectedMonth);
-  const isIsolated = Boolean(onSaveCustomPeriod);
+  const prev = now.getMonth() === 0 ? { m: 12, y: now.getFullYear() - 1 } : { m: now.getMonth(), y: now.getFullYear() };
+  const next = now.getMonth() === 11 ? { m: 1, y: now.getFullYear() + 1 } : { m: now.getMonth() + 2, y: now.getFullYear() };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#273040] w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-        
-        {/* Header */}
-        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white flex justify-between items-start border-b border-amber-500/30">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-inner">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold tracking-tight text-white">
-                {titleOverride || 'Filtro por Período'}
-              </h2>
-              <p className="text-xs text-slate-300">
-                {subtitleOverride || (isIsolated 
-                  ? 'Filtro exclusivo desta aba — não altera as outras áreas do sistema'
-                  : 'Sincroniza Mês e Ano para a aplicação')}
-              </p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-xs">
+      <div className="w-full max-w-lg overflow-hidden flex flex-col max-h-[92vh]">
+        {/* Cabeçalho */}
+        <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">{titleOverride || 'Escolher período'}</h2>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
+              {subtitleOverride || 'Escolha o mês e o ano que o sistema deve mostrar.'}
+            </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-9 h-9 -mr-2 -mt-1 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer shrink-0"
+            aria-label="Fechar"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          
-          {/* Status Toggle Banner */}
-          <div className={`p-4 rounded-xl border transition-all ${
-            isActive 
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-200' 
-              : 'bg-slate-50 dark:bg-[#1B212D] border-slate-200 dark:border-[#273040] text-slate-800 dark:text-slate-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-wider block text-slate-500 dark:text-slate-400">
-                  {isIsolated ? 'Status do Filtro da Aba' : 'Status do Filtro'}
-                </span>
-                <span className="text-sm font-bold mt-0.5 block">
-                  {isActive ? 'Ativo (Filtrando por Data)' : 'Desativado (Modo Livre - Ver Todos)'}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsActive(!isActive)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isActive ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                    isActive ? 'translate-x-5' : 'translate-x-0'
+        {/* Conteúdo */}
+        <div className="px-6 py-6 space-y-6 overflow-y-auto">
+          {/* Ano */}
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setSelectedYear(y => y - 1)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+              aria-label="Ano anterior"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-xl font-semibold tabular-nums tracking-tight">{selectedYear}</span>
+            <button
+              type="button"
+              onClick={() => setSelectedYear(y => y + 1)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+              aria-label="Próximo ano"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Meses */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {MONTHS.map((label, idx) => {
+              const selected = selectedMonth === idx + 1;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => {
+                    setSelectedMonth(idx + 1);
+                    setIsActive(true);
+                  }}
+                  className={`${chip} ${
+                    selected
+                      ? 'bg-[var(--brand-gold-fill)] border-transparent text-[#18181b] font-semibold'
+                      : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
                   }`}
-                />
-              </button>
+                >
+                  {label.slice(0, 3)}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMonth(0);
+                setIsActive(true);
+              }}
+              className={`${chip} col-span-3 sm:col-span-4 ${
+                selectedMonth === 0
+                  ? 'border-[var(--brand-gold-fill)] ring-1 ring-[var(--brand-gold-fill)] text-[var(--text-primary)] font-medium'
+                  : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              Ano inteiro
+            </button>
+          </div>
+
+          {/* Atalhos */}
+          <div>
+            <p className="text-sm text-[var(--text-muted)] mb-2">Atalhos</p>
+            <div className="flex flex-wrap gap-2">
+              {shortcut('Mês atual', now.getMonth() + 1, now.getFullYear())}
+              {shortcut('Mês anterior', prev.m, prev.y)}
+              {shortcut('Próximo mês', next.m, next.y)}
             </div>
-            <p className="text-xs mt-2 text-slate-600 dark:text-slate-400">
-              {isActive 
-                ? (isIsolated 
-                  ? `Os dados desta aba serão restritos a ${monthObj?.label || 'mês selecionado'} de ${selectedYear}.`
-                  : `Ao confirmar, os módulos focarão em ${monthObj?.label} / ${selectedYear}.`)
-                : 'Quando desativado, você visualiza todos os registros cadastrados.'}
+          </div>
+
+          {/* Prévia */}
+          <div className="rounded-xl bg-[var(--surface-base)] border border-[var(--border-subtle)] px-4 py-3.5">
+            <p className="text-sm text-[var(--text-muted)]">{isActive ? 'Vai mostrar de' : 'Filtro desligado'}</p>
+            <p className="mt-0.5 text-[15px] font-medium tabular-nums text-[var(--text-primary)]">
+              {isActive ? formatPeriodRangeBR(selectedMonth, selectedYear) : 'Todos os lançamentos, sem filtro de data'}
             </p>
           </div>
-
-          {/* Period Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            {/* Year Selector */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Exercício / Ano
-              </label>
-              <div className="grid grid-cols-3 gap-1.5">
-                {YEARS.map(y => (
-                  <button
-                    key={y}
-                    type="button"
-                    onClick={() => setSelectedYear(y)}
-                    className={`py-2 px-3 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
-                      selectedYear === y
-                        ? 'bg-amber-500 text-slate-950 border-amber-500 font-bold shadow-xs'
-                        : 'bg-white dark:bg-[#1B212D] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    {y}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Presets */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Atalhos Rápidos
-              </label>
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const now = new Date();
-                    setSelectedMonth(now.getMonth() + 1);
-                    setSelectedYear(now.getFullYear());
-                    setIsActive(true);
-                  }}
-                  className="w-full py-1.5 px-3 text-xs font-medium rounded-lg border border-slate-200 dark:border-[#273040] hover:bg-amber-500/10 hover:border-amber-500/30 text-slate-700 dark:text-slate-300 transition-colors text-left flex items-center justify-between cursor-pointer"
-                >
-                  <span>Mês Vigente (Atual)</span>
-                  <span className="text-[10px] font-mono text-slate-500">Hoje</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const now = new Date();
-                    const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth();
-                    const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-                    setSelectedMonth(lastMonth);
-                    setSelectedYear(year);
-                    setIsActive(true);
-                  }}
-                  className="w-full py-1.5 px-3 text-xs font-medium rounded-lg border border-slate-200 dark:border-[#273040] hover:bg-amber-500/10 hover:border-amber-500/30 text-slate-700 dark:text-slate-300 transition-colors text-left flex items-center justify-between cursor-pointer"
-                >
-                  <span>Mês Anterior (D-30)</span>
-                  <span className="text-[10px] font-mono text-slate-500">Mês -1</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const now = new Date();
-                    const nextMonth = now.getMonth() === 11 ? 1 : now.getMonth() + 2;
-                    const year = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
-                    setSelectedMonth(nextMonth);
-                    setSelectedYear(year);
-                    setIsActive(true);
-                  }}
-                  className="w-full py-1.5 px-3 text-xs font-medium rounded-lg border border-slate-200 dark:border-[#273040] hover:bg-amber-500/10 hover:border-amber-500/30 text-slate-700 dark:text-slate-300 transition-colors text-left flex items-center justify-between cursor-pointer"
-                >
-                  <span>Próximo Mês (D+30)</span>
-                  <span className="text-[10px] font-mono text-slate-500">Mês +1</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedMonth(0);
-                    setIsActive(true);
-                  }}
-                  className="w-full py-1.5 px-3 text-xs font-medium rounded-lg border border-slate-200 dark:border-[#273040] hover:bg-amber-500/10 hover:border-amber-500/30 text-slate-700 dark:text-slate-300 transition-colors text-left flex items-center justify-between cursor-pointer"
-                >
-                  <span>Ano Completo ({selectedYear})</span>
-                  <span className="text-[10px] font-mono text-slate-500">12 Meses</span>
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Month Grid Selection */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-              Mês de Referência
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {MONTHS.filter(m => m.value > 0).map(m => (
-                <button
-                  key={m.value}
-                  type="button"
-                  onClick={() => setSelectedMonth(m.value)}
-                  className={`py-2 px-2 text-center text-xs font-medium rounded-lg border transition-all cursor-pointer ${
-                    selectedMonth === m.value
-                      ? 'bg-amber-500 text-slate-950 border-amber-500 font-bold shadow-xs'
-                      : 'bg-white dark:bg-[#1B212D] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {m.label.split(' - ')[1]}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setSelectedMonth(0)}
-                className={`col-span-3 sm:col-span-4 py-2 px-3 text-center text-xs font-medium rounded-lg border transition-all cursor-pointer ${
-                  selectedMonth === 0
-                    ? 'bg-slate-950 dark:bg-white text-amber-400 dark:text-slate-950 border-slate-950 dark:border-white font-bold'
-                    : 'bg-slate-100 dark:bg-[#1B212D] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#273040] hover:bg-slate-200 dark:hover:bg-slate-800'
-                }`}
-              >
-                Todos os Meses do Ano ({selectedYear})
-              </button>
-            </div>
-          </div>
-
         </div>
 
-        {/* Footer */}
-        <div className="bg-slate-50 dark:bg-[#1B212D] border-t border-slate-200 dark:border-[#273040] p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+        {/* Rodapé */}
+        <div className="px-6 py-4 border-t border-[var(--border-subtle)] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
           {effectivePeriod.active ? (
             <button
               type="button"
               onClick={handleDeactivate}
-              className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-semibold px-2 py-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+              className="h-10 px-3 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-hover)] transition-colors cursor-pointer text-left"
             >
-              {isIsolated ? 'Ver Todos (Desativar Filtro)' : 'Desativar Filtro Global'}
+              Ver tudo (tirar o filtro)
             </button>
           ) : (
-            <span className="text-xs text-slate-500">
-              Filtro atualmente inativo (Visualizando Todos)
-            </span>
+            <span className="text-sm text-[var(--text-muted)]">Hoje mostrando tudo</span>
           )}
 
-          <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-[#131720] border border-slate-300 dark:border-[#273040] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="h-10 px-4 rounded-xl text-sm border border-[var(--border-highlight)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="button"
-              onClick={() => handleApply(true)}
-              className="px-5 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-xl shadow-sm transition-colors flex items-center cursor-pointer"
+              onClick={handleApply}
+              className="h-10 px-5 rounded-xl text-sm font-semibold bg-[var(--brand-gold-fill)] text-[#18181b] hover:brightness-105 transition cursor-pointer"
             >
-              <Check className="w-4 h-4 mr-1.5" />
-              {isIsolated ? 'Aplicar nesta Aba' : 'Ativar para Todo o App'}
+              Aplicar
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

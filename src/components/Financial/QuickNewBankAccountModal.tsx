@@ -3,6 +3,8 @@ import { Landmark, X, Check, Building2, Wallet, DollarSign, Calendar } from 'luc
 import { BankAccount, BankAccountType } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface QuickNewBankAccountModalProps {
   isOpen: boolean;
@@ -45,7 +47,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
   const [type, setType] = useState<BankAccountType>('CORRENTE');
   const [initialBalance, setInitialBalance] = useState<number>(initialData?.initialBalance || 0);
   const [baseDate, setBaseDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [color, setColor] = useState('#f59e0b');
+  const [color, setColor] = useState('#cdaa58');
   const [errorMsg, setErrorMsg] = useState('');
 
   // Sincroniza quando initialData mudar
@@ -97,7 +99,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
         baseDate: baseDate || new Date().toISOString().split('T')[0],
         includeInCashFlow: true,
         status: 'ATIVO',
-        color: color || '#f59e0b'
+        color: color || '#cdaa58'
       };
 
       storage.saveBankAccounts([...allAccounts, newAccount]);
@@ -122,11 +124,11 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-[#131720] rounded-3xl border border-slate-200 dark:border-[#273040] shadow-2xl max-w-xl w-full flex flex-col max-h-[92vh] overflow-hidden"
+        className="bg-white dark:bg-[#131316] rounded-3xl border border-slate-200 dark:border-[#26262b] shadow-2xl max-w-xl w-full flex flex-col max-h-[92vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/60 shrink-0">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/60 shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
               <Landmark className="w-5 h-5" />
@@ -171,7 +173,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                   className={`p-2 rounded-xl border text-[11px] font-semibold text-center transition-all cursor-pointer truncate ${
                     institution === b.name
                       ? 'border-amber-500 bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold shadow-xs'
-                      : 'border-slate-200 dark:border-[#273040] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+                      : 'border-slate-200 dark:border-[#26262b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {b.name}
@@ -191,7 +193,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Ex: Inter Principal, Nubank PJ"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
               />
             </div>
 
@@ -199,17 +201,17 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
               <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                 Tipo da Conta
               </label>
-              <select
+              <PremiumSelect
                 value={type}
                 onChange={e => setType(e.target.value as BankAccountType)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer"
               >
-                <option value="CORRENTE" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">Conta Corrente</option>
-                <option value="POUPANCA" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">Poupança</option>
-                <option value="INVESTIMENTO" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">Aplicação / Investimento</option>
-                <option value="CAIXA_FISICO" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">Caixa Físico / Gaveta</option>
-              </select>
+                <option value="CORRENTE" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">Conta Corrente</option>
+                <option value="POUPANCA" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">Poupança</option>
+                <option value="INVESTIMENTO" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">Aplicação / Investimento</option>
+                <option value="CAIXA_FISICO" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">Caixa Físico / Gaveta</option>
+              </PremiumSelect>
             </div>
           </div>
 
@@ -223,7 +225,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 value={bankCode}
                 onChange={e => setBankCode(e.target.value)}
                 placeholder="077"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono"
               />
             </div>
 
@@ -236,7 +238,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 value={agency}
                 onChange={e => setAgency(e.target.value)}
                 placeholder="0001-9"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono"
               />
             </div>
 
@@ -249,7 +251,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 value={accountNumber}
                 onChange={e => setAccountNumber(e.target.value)}
                 placeholder="1234567-8"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono"
               />
             </div>
           </div>
@@ -266,7 +268,7 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 value={initialBalance}
                 onChange={e => setInitialBalance(parseFloat(e.target.value) || 0)}
                 placeholder="0,00"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono font-bold"
               />
               <span className="text-[10px] text-slate-500 mt-0.5 block">
                 Saldo na data de início do controle
@@ -278,16 +280,15 @@ export const QuickNewBankAccountModal: React.FC<QuickNewBankAccountModalProps> =
                 <Calendar className="w-3.5 h-3.5 text-sky-500" />
                 Data-Base de Abertura
               </label>
-              <input
-                type="date"
+              <DateField
                 value={baseDate}
                 onChange={e => setBaseDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#273040] bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white"
               />
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-200 dark:border-[#273040] flex items-center justify-end space-x-3">
+          <div className="pt-4 border-t border-slate-200 dark:border-[#26262b] flex items-center justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}

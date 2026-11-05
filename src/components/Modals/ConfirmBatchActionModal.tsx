@@ -39,7 +39,7 @@ export const ConfirmBatchActionModal: React.FC<ConfirmBatchActionModalProps> = (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div 
         id="confirm-batch-action-modal"
-        className="bg-white dark:bg-[#131720] rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150"
+        className="bg-white dark:bg-[#131316] rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Header */}
         <div className={`px-6 py-4 flex items-center justify-between border-b ${

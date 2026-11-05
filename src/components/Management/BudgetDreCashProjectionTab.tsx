@@ -237,7 +237,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
           </button>
           <button
             onClick={handleExportConsolidatedExcel}
-            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-[#0f172a] rounded-xl text-xs font-bold transition-all shadow-xs flex items-center"
+            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-[#18181b] rounded-xl text-xs font-bold transition-all shadow-xs flex items-center"
           >
             <FileSpreadsheet className="w-4 h-4 mr-1.5" />
             Exportar Excel DRE x Caixa

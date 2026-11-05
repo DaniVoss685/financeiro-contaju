@@ -13,6 +13,8 @@ import {
 import { CreditCard, BankAccount } from '../../types';
 import { FinancialEngine, formatBRL } from '../../services/financialEngine';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface CreditCardInvoicePaymentModalProps {
   isOpen: boolean;
@@ -101,11 +103,11 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs overflow-y-auto animate-fadeIn">
       <div 
-        className="bg-white dark:bg-[#131720] border border-slate-200 dark:border-[#273040] rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/80 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
               <CardIcon className="w-5 h-5" />
@@ -158,26 +160,26 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Debitar da Conta Bancária PJ *
             </label>
-            <select
+            <PremiumSelect
               required
               value={bankAccountId}
               onChange={(e) => setBankAccountId(e.target.value)}
               style={{ colorScheme: 'light dark' }}
-              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 cursor-pointer text-xs"
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 cursor-pointer text-xs"
             >
-              <option value="" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">
+              <option value="" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
                 Selecione a conta bancária pagadora...
               </option>
               {bankAccounts.map(b => (
                 <option 
                   key={b.id} 
                   value={b.id}
-                  className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                  className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                 >
                   {b.name} ({b.bankName || 'Banco PJ'})
                 </option>
               ))}
-            </select>
+            </PremiumSelect>
             {selectedBank && (
               <div className="flex items-center justify-between mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                 <span>Saldo contábil disponível:</span>
@@ -194,13 +196,12 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Data do Pagamento *
               </label>
-              <input
-                type="date"
+              <DateField
                 required
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
               />
             </div>
 
@@ -217,7 +218,7 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
                 style={{ colorScheme: 'light dark' }}
                 value={amountToPay}
                 onChange={(e) => setAmountToPay(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
               />
             </div>
           </div>
@@ -232,7 +233,7 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Ex: Pago via débito automático / Pix bancário"
-              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs"
             />
           </div>
 
@@ -257,11 +258,11 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-slate-200 dark:border-[#273040] flex items-center justify-end gap-2.5 shrink-0">
+          <div className="pt-4 border-t border-slate-200 dark:border-[#26262b] flex items-center justify-end gap-2.5 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1B212D] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#273040] rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
             >
               Cancelar
             </button>

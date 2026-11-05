@@ -16,6 +16,8 @@ import {
 import { FinancialTitle, BankAccount, Counterparty } from '../../types';
 import { FinancialEngine, formatBRL, formatDateBR } from '../../services/financialEngine';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface BoletoBatchSettlementModalProps {
   isOpen: boolean;
@@ -238,10 +240,10 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040] rounded-none sm:rounded-2xl shadow-2xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] max-w-4xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] rounded-none sm:rounded-2xl shadow-2xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] max-w-4xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
         
         {/* Header Fixo */}
-        <div className="shrink-0 p-4 sm:p-5 border-b border-slate-200 dark:border-[#273040] flex items-center justify-between bg-slate-50 dark:bg-[#131720] z-10">
+        <div className="shrink-0 p-4 sm:p-5 border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between bg-slate-50 dark:bg-[#131316] z-10">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
               <Barcode className="w-5 h-5" />
@@ -294,7 +296,7 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Cole aqui a linha digitável com pontos e espaços (ex: 34191.79001 01043.510047 91020.150008 5 98450000185000) ou apenas números..."
               rows={2}
-              className="w-full p-3 font-mono text-sm sm:text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#131720] text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-hidden transition-all shadow-2xs"
+              className="w-full p-3 font-mono text-sm sm:text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#131316] text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-hidden transition-all shadow-2xs"
             />
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               💡 Suporta leitor de código de barras óptico, relatórios de remessa bancária e múltiplos boletos colados de uma só vez.
@@ -321,10 +323,10 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
                 </h3>
               </div>
 
-              <div className="border border-slate-200 dark:border-[#273040] rounded-xl overflow-hidden shadow-2xs">
+              <div className="border border-slate-200 dark:border-[#26262b] rounded-xl overflow-hidden shadow-2xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[11px]">
-                    <thead className="bg-slate-50 dark:bg-[#131720] border-b border-slate-200 dark:border-[#273040] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
+                    <thead className="bg-slate-50 dark:bg-[#131316] border-b border-slate-200 dark:border-[#26262b] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
                       <tr>
                         <th className="py-2.5 px-3 w-10 text-center">
                           <input
@@ -347,7 +349,7 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
                         <th className="py-2.5 px-3">Status do Cruzamento</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#273040] bg-white dark:bg-[#1B212D]">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#26262b] bg-white dark:bg-[#1b1b20]">
                       {recognizedBoletos.map((b) => {
                         const isMatched = !!b.matchedTitle;
                         const isSelected = selectedBoletoIds.includes(b.id);
@@ -431,7 +433,7 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
 
           {/* Dados para a Baixa Financeira */}
           {validSelectedBoletos.length > 0 && (
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#131720] border border-slate-200 dark:border-[#273040] space-y-4">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] space-y-4">
               <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-xs">
                 <CreditCard className="w-4 h-4 text-amber-500" />
                 <span>Configuração da Baixa no Contas a Pagar</span>
@@ -442,33 +444,32 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
                   <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Conta Bancária de Débito:
                   </label>
-                  <select
+                  <PremiumSelect
                     value={selectedAccount}
                     onChange={(e) => setSelectedAccount(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white text-sm sm:text-xs font-semibold focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white text-sm sm:text-xs font-semibold focus:ring-2 focus:ring-amber-500"
                   >
                     {bankAccounts.filter(a => a.status === 'ATIVO').map(a => (
                       <option key={a.id} value={a.id}>
                         {a.bankName} - {a.accountNumber} ({a.name})
                       </option>
                     ))}
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Data do Pagamento / Débito:
                   </label>
-                  <input
-                    type="date"
+                  <DateField
                     value={settlementDate}
                     onChange={(e) => setSettlementDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1B212D] text-slate-900 dark:text-white text-sm sm:text-xs font-semibold focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white text-sm sm:text-xs font-semibold focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-200 dark:border-[#273040] flex items-center justify-between">
+              <div className="pt-2 border-t border-slate-200 dark:border-[#26262b] flex items-center justify-between">
                 <span className="text-xs text-slate-600 dark:text-slate-400">
                   Total Selecionado para Quitação:
                 </span>
@@ -481,7 +482,7 @@ export const BoletoBatchSettlementModal: React.FC<BoletoBatchSettlementModalProp
         </div>
 
         {/* Footer Fixo */}
-        <div className="shrink-0 sticky bottom-0 p-3 sm:p-4 border-t border-slate-200 dark:border-[#273040] bg-slate-50/95 dark:bg-[#131720]/95 backdrop-blur flex items-center justify-between gap-3 z-10 shadow-lg">
+        <div className="shrink-0 sticky bottom-0 p-3 sm:p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50/95 dark:bg-[#131316]/95 backdrop-blur flex items-center justify-between gap-3 z-10 shadow-lg">
           <button
             type="button"
             onClick={onClose}

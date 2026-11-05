@@ -35,6 +35,7 @@ import { AiProviderConfig, AiModelChainItem, AiProviderName, AiModelCategory } f
 import { AiService } from '../../services/aiService';
 import { AiModelCatalogService, AI_PROVIDER_PRESETS, detectProviderFromKey } from '../../services/aiModelCatalogService';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const AiConfigView: React.FC = () => {
   const [config, setConfig] = useState<AiProviderConfig>(() => AiService.getConfig());
@@ -234,7 +235,7 @@ export const AiConfigView: React.FC = () => {
     <div className="space-y-6 max-w-6xl mx-auto pb-12 animate-in fade-in">
       
       {/* Header com identidade executiva */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131720] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#131316] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs">
         <div className="flex items-center space-x-3.5">
           <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-500 shadow-xs">
             <Bot className="w-7 h-7" />
@@ -300,7 +301,7 @@ export const AiConfigView: React.FC = () => {
       )}
 
       {/* Card 1: Credenciais e Conexão da OpenCode */}
-      <div className="bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-5">
+      <div className="bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-5">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
           <div className="flex items-center gap-2.5">
             <Key className="w-4 h-4 text-amber-500" />
@@ -372,7 +373,7 @@ export const AiConfigView: React.FC = () => {
                   }
                 }}
                 placeholder="Ex: opencode_sk_live_..., sk-or-..., AIzaSy... ou gsk_..."
-                className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#19202D] text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
               <button
                 type="button"
@@ -406,7 +407,7 @@ export const AiConfigView: React.FC = () => {
               value={config.endpointUrl}
               onChange={(e) => setConfig({ ...config, endpointUrl: e.target.value })}
               placeholder="https://opencode.ai/zen/go/v1"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#19202D] text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
             <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">
               Compatível com Chat Completions, OpenRouter, OpenAI, Gemini e Groq.
@@ -416,7 +417,7 @@ export const AiConfigView: React.FC = () => {
       </div>
 
       {/* Card 2: Cadeia de Modelos & Contingência Ativa (Failover Engine) */}
-      <div className="bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-5">
+      <div className="bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-4">
           <div className="flex items-center gap-2.5">
             <Layers className="w-4 h-4 text-amber-500" />
@@ -458,7 +459,7 @@ export const AiConfigView: React.FC = () => {
                 className={`p-3.5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-all ${
                   isPrimary
                     ? 'border-amber-500/50 bg-amber-50/25 dark:bg-amber-950/20 shadow-xs'
-                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#18202F]'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#1b1b20]'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -579,7 +580,7 @@ export const AiConfigView: React.FC = () => {
             value={customModelInput}
             onChange={(e) => setCustomModelInput(e.target.value)}
             placeholder="Ou digite manualmente um identificador específico (ex: mistral-large, custom-fin-model)"
-            className="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#19202D] text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
           />
           <button
             type="submit"
@@ -592,7 +593,7 @@ export const AiConfigView: React.FC = () => {
       </div>
 
       {/* Card 3: Explorador do Catálogo Dinâmico de Modelos (OpenCode Discovery Hub) */}
-      <div className="bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-5">
+      <div className="bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
           <div>
             <div className="flex items-center gap-2">
@@ -633,7 +634,7 @@ export const AiConfigView: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Pesquisar por nome, identificador ou capacidade (ex: deepseek, luna, flash, raciocínio)..."
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#19202D] text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
               {searchQuery && (
                 <button
@@ -646,17 +647,17 @@ export const AiConfigView: React.FC = () => {
               )}
             </div>
 
-            <select
+            <PremiumSelect
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#19202D] text-xs font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none cursor-pointer"
+              className="px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1b1b20] text-xs font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none cursor-pointer"
             >
               <option value="ALL">Todas as Categorias</option>
               <option value="financeiro">💰 Financeiro & Conciliação</option>
               <option value="raciocinio">🧠 Raciocínio & Balanço</option>
               <option value="rapido">⚡ Flash / Ultra-Rápido</option>
               <option value="codigo">🛠️ Dev Agents & Automação</option>
-            </select>
+            </PremiumSelect>
           </div>
 
           {/* Filtros em formato de Chips por Provedor */}
@@ -716,7 +717,7 @@ export const AiConfigView: React.FC = () => {
                       ? 'bg-blue-50/20 dark:bg-blue-950/15 border-blue-400/40'
                       : model.isDevAgentOnly
                       ? 'bg-slate-100/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-80'
-                      : 'bg-slate-50/50 dark:bg-[#18202F] border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      : 'bg-slate-50/50 dark:bg-[#1b1b20] border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <div>
@@ -857,7 +858,7 @@ export const AiConfigView: React.FC = () => {
       )}
 
       {/* Card 5: Casos de Uso e Recursos de Produtividade */}
-      <div className="bg-white dark:bg-[#131720] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-4">
+      <div className="bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xs space-y-4">
         <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800/80 pb-3">
           <Sparkles className="w-4 h-4 text-amber-500" />
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
@@ -866,7 +867,7 @@ export const AiConfigView: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161C26] space-y-2">
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#131316] space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileCheck className="w-4 h-4 text-emerald-500" />
@@ -884,7 +885,7 @@ export const AiConfigView: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161C26] space-y-2">
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#131316] space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-blue-500" />
@@ -902,7 +903,7 @@ export const AiConfigView: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161C26] space-y-2">
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#131316] space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500" />

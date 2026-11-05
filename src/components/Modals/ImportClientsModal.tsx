@@ -603,7 +603,7 @@ export const ImportClientsModal: React.FC<ImportClientsModalProps> = ({
                 <button
                   type="button"
                   onClick={handleDownloadTemplate}
-                  className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-[#071321] rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center space-x-2 whitespace-nowrap cursor-pointer active:scale-95"
+                  className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-[#0b0b0d] rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center space-x-2 whitespace-nowrap cursor-pointer active:scale-95"
                 >
                   <Download className="w-4 h-4" />
                   <span>Baixar Planilha Modelo (.xlsx)</span>
@@ -1057,7 +1057,7 @@ export const ImportClientsModal: React.FC<ImportClientsModalProps> = ({
                 type="button"
                 disabled={toCreateCount + toUpdateCount === 0}
                 onClick={handleConfirmImport}
-                className="px-5 py-2.5 text-xs font-bold text-[#071321] bg-amber-400 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.25)] transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                className="px-5 py-2.5 text-xs font-bold text-[#0b0b0d] bg-amber-400 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.25)] transition-all flex items-center gap-2 cursor-pointer active:scale-95"
               >
                 <Check className="w-4 h-4" />
                 <span>Confirmar Importação de {toCreateCount + toUpdateCount} Clientes</span>

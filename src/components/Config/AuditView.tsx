@@ -4,6 +4,7 @@ import { storage } from '../../services/storageService';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { formatDateBR } from '../../services/financialEngine';
 import { matchesSearch } from '../../utils/searchUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 export const AuditView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,7 +101,7 @@ export const AuditView: React.FC = () => {
         <div className="flex items-center space-x-2 text-xs">
           <Filter className="w-3.5 h-3.5 text-amber-500" />
           <label className="font-semibold text-[var(--text-secondary)]">Módulo:</label>
-          <select
+          <PremiumSelect
             value={moduleFilter}
             onChange={e => setModuleFilter(e.target.value)}
             className="rounded-xl border border-[var(--border-subtle)] px-2.5 py-1.5 bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none cursor-pointer"
@@ -109,7 +110,7 @@ export const AuditView: React.FC = () => {
             {modules.map(m => (
               <option key={m} value={m}>{m}</option>
             ))}
-          </select>
+          </PremiumSelect>
         </div>
 
         <div className="relative flex-1 max-w-sm">

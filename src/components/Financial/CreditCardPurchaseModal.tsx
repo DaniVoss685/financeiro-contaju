@@ -17,6 +17,8 @@ import { CreditCard, Counterparty, ChartAccount, CreditCardPurchase, CreditCardI
 import { storage } from '../../services/storageService';
 import { formatBRL } from '../../services/financialEngine';
 import { getDaysInMonth } from '../../utils/dateUtils';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface CreditCardPurchaseModalProps {
   isOpen: boolean;
@@ -284,11 +286,11 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs overflow-y-auto animate-fadeIn">
       <div 
-        className="bg-white dark:bg-[#131720] border border-slate-200 dark:border-[#273040] rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/80 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
               isCreditType
@@ -386,23 +388,23 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Cartão de Crédito Utilizado *
               </label>
-              <select
+              <PremiumSelect
                 required
                 value={cardId}
                 onChange={(e) => setCardId(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
                 {cards.map(card => (
                   <option 
                     key={card.id} 
                     value={card.id}
-                    className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                    className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                   >
                     {card.name} ({card.institution} • Final {card.lastFourDigits || '••••'}) — Fecha dia {card.closingDay} / Vence dia {card.dueDay}
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* Data da Compra */}
@@ -410,13 +412,12 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Data da Compra *
               </label>
-              <input
-                type="date"
+              <DateField
                 required
                 value={purchaseDate}
                 onChange={(e) => setPurchaseDate(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
               {selectedCard && (
                 <span className="text-[10px] text-slate-500 block mt-0.5">
@@ -430,11 +431,11 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Categoria / Plano de Contas *
               </label>
-              <select
+              <PremiumSelect
                 value={chartAccountId}
                 onChange={(e) => setChartAccountId(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
                 {chartAccounts
                   .filter(a => (transactionType === 'DESPESA' ? a.type === 'DESPESA' : true) && a.acceptsLaunches)
@@ -442,12 +443,12 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                     <option 
                       key={a.id} 
                       value={a.id}
-                      className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                      className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                     >
                       {a.code} - {a.name}
                     </option>
                   ))}
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* Descrição */}
@@ -461,7 +462,7 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: Assinatura de Software, Material de Escritório, Passagens..."
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
 
@@ -470,25 +471,25 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Fornecedor Cadastrado
               </label>
-              <select
+              <PremiumSelect
                 value={counterpartyId}
                 onChange={(e) => setCounterpartyId(e.target.value)}
                 style={{ colorScheme: 'light dark' }}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
-                <option value="" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">
+                <option value="" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
                   Selecione ou digite ao lado...
                 </option>
                 {counterparties.map(c => (
                   <option 
                     key={c.id} 
                     value={c.id}
-                    className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                    className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                   >
                     {c.name} ({c.type})
                   </option>
                 ))}
-              </select>
+              </PremiumSelect>
             </div>
 
             {/* Ou Nome do Estabelecimento */}
@@ -501,7 +502,7 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                 value={customCounterpartyName}
                 onChange={(e) => setCustomCounterpartyName(e.target.value)}
                 placeholder="Ex: Amazon AWS, Posto Shell, Kalunga..."
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
 
@@ -545,31 +546,31 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                   <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Número de Parcelas *
                   </label>
-                  <select
+                  <PremiumSelect
                     value={installmentsCount}
                     onChange={(e) => setInstallmentsCount(parseInt(e.target.value, 10) || 1)}
                     style={{ colorScheme: 'light dark' }}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
                   >
-                    <option value="1" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">
+                    <option value="1" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
                       1x (À vista na fatura)
                     </option>
                     {Array.from({ length: 23 }, (_, i) => i + 2).map(n => (
                       <option 
                         key={n} 
                         value={n}
-                        className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                        className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                       >
                         {n}x parcelado
                       </option>
                     ))}
-                    <option value="36" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">
+                    <option value="36" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
                       36x parcelado
                     </option>
-                    <option value="48" className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white">
+                    <option value="48" className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white">
                       48x parcelado
                     </option>
-                  </select>
+                  </PremiumSelect>
                 </div>
 
                 {calculationMode === 'TOTAL_DIVIDED' ? (
@@ -670,12 +671,12 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Detalhes adicionais sobre a compra ou projeto correspondente..."
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 text-xs"
               />
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-200 dark:border-[#273040] flex items-center justify-between gap-3 shrink-0">
+          <div className="pt-4 border-t border-slate-200 dark:border-[#26262b] flex items-center justify-between gap-3 shrink-0">
             <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               Sincroniza automaticamente com o relatório de Contas a Pagar
@@ -685,7 +686,7 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1B212D] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#273040] rounded-xl transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

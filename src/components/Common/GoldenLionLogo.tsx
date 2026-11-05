@@ -24,7 +24,7 @@ export const GoldenLionLogo: React.FC<GoldenLionLogoProps> = ({
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
       {/* Black badge with gold lion emblem */}
       <div 
-        className={`${dimensions.box} rounded-xl bg-gradient-to-b from-[#18181b] via-[#09090b] to-[#000000] border border-[#d4af37]/60 shadow-[0_0_12px_rgba(212,175,55,0.28)] flex items-center justify-center relative overflow-hidden flex-shrink-0 group`}
+        className={`${dimensions.box} rounded-xl bg-gradient-to-b from-[#18181b] via-[#09090b] to-[#000000] border border-[#d4af37]/40 flex items-center justify-center relative overflow-hidden flex-shrink-0 group`}
       >
         {/* Subtle golden ambient sheen */}
         <div className="absolute inset-0 bg-gradient-to-tr from-[#d4af37]/10 via-transparent to-[#fef08a]/20 opacity-80" />
@@ -87,7 +87,7 @@ export const GoldenLionLogo: React.FC<GoldenLionLogoProps> = ({
       {showText && (
         <div className="truncate text-left leading-tight">
           <div className={`font-bold tracking-wide text-[var(--text-primary)] ${dimensions.text} flex items-center gap-1.5`}>
-            <span className="bg-gradient-to-r from-[#fbbf24] via-[#d4af37] to-[#f59e0b] bg-clip-text text-transparent drop-shadow-2xs">
+            <span className="bg-gradient-to-r from-[#fbbf24] via-[#d4af37] to-[#cdaa58] bg-clip-text text-transparent drop-shadow-2xs">
               LEÃO DOURADO
             </span>
             <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-500 border border-amber-500/30 font-semibold tracking-wider uppercase">

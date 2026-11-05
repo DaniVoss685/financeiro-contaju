@@ -113,11 +113,11 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-[#242D3D] rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100"
         onClick={e => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-amber-500/15 rounded-xl border border-amber-500/30 text-amber-600 dark:text-amber-400">
               <FileText className="w-5 h-5" />
@@ -155,14 +155,14 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
         </div>
 
         {/* Executive Summary Metrics Grid */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#242D3D] bg-slate-50/50 dark:bg-[#0E121A] grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50/50 dark:bg-[#0b0b0d] grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             type="button"
             onClick={() => setStatusFilter('ALL')}
             className={`p-3 rounded-xl border text-left transition-all ${
               statusFilter === 'ALL'
                 ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white border-slate-900 shadow-xs ring-2 ring-slate-900/20'
-                : 'bg-white dark:bg-[#161C28] border-slate-200 dark:border-[#242D3D] hover:border-slate-300'
+                : 'bg-white dark:bg-[#17171b] border-slate-200 dark:border-[#26262b] hover:border-slate-300'
             }`}
           >
             <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
@@ -178,7 +178,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
             className={`p-3 rounded-xl border text-left transition-all ${
               statusFilter === 'CONCILIADO'
                 ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-700/20'
-                : 'bg-white dark:bg-[#161C28] border-slate-200 dark:border-[#242D3D] hover:border-emerald-500/50'
+                : 'bg-white dark:bg-[#17171b] border-slate-200 dark:border-[#26262b] hover:border-emerald-500/50'
             }`}
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -196,7 +196,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
             className={`p-3 rounded-xl border text-left transition-all ${
               statusFilter === 'SUGESTAO'
                 ? 'bg-amber-600 text-white border-amber-600 shadow-xs ring-2 ring-amber-600/20'
-                : 'bg-white dark:bg-[#161C28] border-slate-200 dark:border-[#242D3D] hover:border-amber-500/50'
+                : 'bg-white dark:bg-[#17171b] border-slate-200 dark:border-[#26262b] hover:border-amber-500/50'
             }`}
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
@@ -214,7 +214,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
             className={`p-3 rounded-xl border text-left transition-all ${
               statusFilter === 'NAO_CONCILIADO'
                 ? 'bg-rose-700 text-white border-rose-700 shadow-xs ring-2 ring-rose-700/20'
-                : 'bg-white dark:bg-[#161C28] border-slate-200 dark:border-[#242D3D] hover:border-rose-500/50'
+                : 'bg-white dark:bg-[#17171b] border-slate-200 dark:border-[#26262b] hover:border-rose-500/50'
             }`}
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
@@ -230,7 +230,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-[#242D3D] bg-white dark:bg-[#121620] flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
@@ -238,7 +238,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Buscar por descrição, motivo ou título..."
-              className="w-full bg-slate-50 dark:bg-[#161C28] border border-slate-300 dark:border-[#242D3D] rounded-lg pl-9 pr-3 py-1.5 text-xs font-medium outline-hidden focus:border-amber-500"
+              className="w-full bg-slate-50 dark:bg-[#17171b] border border-slate-300 dark:border-[#26262b] rounded-lg pl-9 pr-3 py-1.5 text-xs font-medium outline-hidden focus:border-amber-500"
             />
           </div>
 
@@ -288,7 +288,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
         </div>
 
         {/* Logs List Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 scrollbar-thin bg-slate-50/30 dark:bg-[#0B0E14]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 scrollbar-thin bg-slate-50/30 dark:bg-[#0b0b0d]">
           {filteredLogs.length === 0 ? (
             <div className="text-center py-16 text-slate-500 dark:text-slate-400 text-xs space-y-2">
               <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-500 opacity-60" />
@@ -306,10 +306,10 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
                   key={log.id}
                   className={`rounded-xl border transition-all ${
                     log.status === 'CONCILIADO' || log.status === 'REGRA_APLICADA'
-                      ? 'bg-white dark:bg-[#131822] border-slate-200 dark:border-[#222B3B]'
+                      ? 'bg-white dark:bg-[#131316] border-slate-200 dark:border-[#26262b]'
                       : log.status === 'SUGESTAO_ENCONTRADA'
-                        ? 'bg-white dark:bg-[#131822] border-amber-500/30 dark:border-amber-500/30'
-                        : 'bg-white dark:bg-[#131822] border-rose-300 dark:border-rose-900/50 shadow-2xs'
+                        ? 'bg-white dark:bg-[#131316] border-amber-500/30 dark:border-amber-500/30'
+                        : 'bg-white dark:bg-[#131316] border-rose-300 dark:border-rose-900/50 shadow-2xs'
                   }`}
                 >
                   {/* Card Header / Summary Row */}
@@ -385,7 +385,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
 
                   {/* Expanded Analytical Details */}
                   {isExpanded && (
-                    <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0E121A] text-xs space-y-4">
+                    <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0b0d] text-xs space-y-4">
                       
                       {/* Breakdown Bars if candidate existed */}
                       {log.breakdown && (
@@ -394,7 +394,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
                             Composição da Pontuação Algorítmica (Total: {log.bestCandidateScore}/100)
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div className="p-2.5 rounded-lg bg-white dark:bg-[#161C28] border border-slate-200 dark:border-[#242D3D]">
+                            <div className="p-2.5 rounded-lg bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
                               <div className="flex justify-between items-center text-[11px] font-bold">
                                 <span>Valor ({log.breakdown.amountScore}/50)</span>
                                 <span className={log.breakdown.amountScore >= 40 ? 'text-emerald-600' : 'text-amber-600'}>
@@ -412,7 +412,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
                               </div>
                             </div>
 
-                            <div className="p-2.5 rounded-lg bg-white dark:bg-[#161C28] border border-slate-200 dark:border-[#242D3D]">
+                            <div className="p-2.5 rounded-lg bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
                               <div className="flex justify-between items-center text-[11px] font-bold">
                                 <span>Data ({log.breakdown.dateScore}/30)</span>
                                 <span className={log.breakdown.dateScore >= 20 ? 'text-emerald-600' : 'text-amber-600'}>
@@ -430,7 +430,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
                               </div>
                             </div>
 
-                            <div className="p-2.5 rounded-lg bg-white dark:bg-[#161C28] border border-slate-200 dark:border-[#242D3D]">
+                            <div className="p-2.5 rounded-lg bg-white dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b]">
                               <div className="flex justify-between items-center text-[11px] font-bold">
                                 <span>Descrição ({log.breakdown.descriptionScore}/20)</span>
                                 <span className={log.breakdown.descriptionScore >= 10 ? 'text-emerald-600' : 'text-slate-400'}>
@@ -531,7 +531,7 @@ export const ReconciliationDiagnosticsModal: React.FC<ReconciliationDiagnosticsM
         </div>
 
         {/* Modal Bottom Bar */}
-        <div className="p-4 border-t border-slate-200 dark:border-[#242D3D] bg-slate-50 dark:bg-[#161C28] flex items-center justify-between text-xs">
+        <div className="p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#17171b] flex items-center justify-between text-xs">
           <span className="text-slate-500 dark:text-slate-400">
             Limiar de aceitação automática configurado em: <strong>{toleranceThreshold}%</strong>
           </span>

@@ -43,6 +43,7 @@ import {
 } from '../../utils/cardInvoiceParser';
 import { parseOFX } from '../../utils/ofxParser';
 import { toast } from '../../hooks/useToast';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface CreditCardInvoiceImportModalProps {
   isOpen: boolean;
@@ -332,16 +333,16 @@ Vencimento: 15/${m}/${y} | Período de Compras
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xs overflow-y-auto animate-fadeIn">
       <div 
-        className="bg-white dark:bg-[#131720] border border-slate-200 dark:border-[#273040] rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+        className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Header com identidade do Cartão */}
-        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/80 flex items-center justify-between gap-4 shrink-0">
+        <div className="px-6 py-4.5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/80 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3">
             <div 
               className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md shrink-0"
-              style={{ backgroundColor: card.color || '#f59e0b' }}
+              style={{ backgroundColor: card.color || '#cdaa58' }}
             >
               <CardIcon className="w-5 h-5 text-white" />
             </div>
@@ -698,7 +699,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                                   />
                                 </td>
                                 <td className="p-3">
-                                  <select
+                                  <PremiumSelect
                                     value={edits.chartAccountId}
                                     onChange={(e) => handleEditChange(it.id, 'chartAccountId', e.target.value)}
                                     style={{ colorScheme: 'light dark' }}
@@ -710,12 +711,12 @@ Vencimento: 15/${m}/${y} | Período de Compras
                                         <option 
                                           key={a.id} 
                                           value={a.id}
-                                          className="bg-white text-slate-900 dark:bg-[#131720] dark:text-white"
+                                          className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                                         >
                                           {a.code} - {a.name}
                                         </option>
                                       ))}
-                                  </select>
+                                  </PremiumSelect>
                                 </td>
                                 <td className="p-3">
                                   <input
@@ -855,7 +856,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
         </div>
 
         {/* Footer com botões de ação */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D]/80 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20]/80 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <div className="text-xs text-slate-600 dark:text-slate-400">
             {importedItems.length > 0 && (
               <span>
@@ -868,7 +869,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1B212D] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#273040] rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
             >
               Cancelar
             </button>

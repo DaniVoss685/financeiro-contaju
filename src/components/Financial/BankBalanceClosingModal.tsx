@@ -24,6 +24,8 @@ import {
 import { BankAccount, BankBalanceClosingRecord } from '../../types';
 import { FinancialEngine, formatBRL, formatDateBR } from '../../services/financialEngine';
 import { storage } from '../../services/storageService';
+import { PremiumSelect } from '../Common/PremiumSelect';
+import { DateField } from '../Common/DateField';
 
 interface BankBalanceClosingModalProps {
   isOpen: boolean;
@@ -209,10 +211,10 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white dark:bg-[#131720] border border-slate-200 dark:border-[#273040] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
+      <div className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
         
         {/* Header com identidade visual Leão Dourado */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-500 dark:text-amber-400 shrink-0">
               <Scale className="w-6 h-6" />
@@ -234,7 +236,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
             {/* Abas */}
-            <div className="flex bg-slate-200 dark:bg-[#131720] p-0.5 rounded-xl border border-slate-300 dark:border-[#273040] text-xs font-semibold">
+            <div className="flex bg-slate-200 dark:bg-[#131316] p-0.5 rounded-xl border border-slate-300 dark:border-[#26262b] text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setActiveTab('conference')}
@@ -262,7 +264,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
 
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-[#273040] transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-[#26262b] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -296,17 +298,16 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
           {activeTab === 'conference' ? (
             <>
               {/* Filtros e Controles de Conferência */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 dark:bg-[#1B212D] p-3.5 rounded-xl border border-slate-200 dark:border-[#273040]">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 dark:bg-[#1b1b20] p-3.5 rounded-xl border border-slate-200 dark:border-[#26262b]">
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                       Data da Conferência
                     </label>
-                    <input
-                      type="date"
+                    <DateField
                       value={closingDate}
                       onChange={e => setClosingDate(e.target.value)}
-                      className="rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
+                      className="rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
 
@@ -314,10 +315,10 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                     <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                       Filtrar Conta
                     </label>
-                    <select
+                    <PremiumSelect
                       value={selectedAccountId}
                       onChange={e => setSelectedAccountId(e.target.value)}
-                      className="rounded-lg border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
+                      className="rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
                     >
                       <option value="ALL">Todas as Contas (Fechamento Global)</option>
                       {accounts.map(a => (
@@ -325,7 +326,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                           {a.name} ({a.institution})
                         </option>
                       ))}
-                    </select>
+                    </PremiumSelect>
                   </div>
                 </div>
 
@@ -360,8 +361,8 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
               </div>
 
               {/* Tabela Comparativa de Bancos (Sistema vs Real que Tenho) */}
-              <div className="bg-white dark:bg-[#131720] rounded-xl border border-slate-200 dark:border-[#273040] shadow-2xs overflow-hidden">
-                <div className="p-3.5 bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] flex items-center justify-between">
+              <div className="bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs overflow-hidden">
+                <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
                     <Landmark className="w-4 h-4 text-amber-500" />
                     Comparativo por Banco / Conta Corrente
@@ -371,9 +372,9 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                   </span>
                 </div>
 
-                <div className="divide-y divide-slate-100 dark:divide-[#273040]">
+                <div className="divide-y divide-slate-100 dark:divide-[#26262b]">
                   {accountsData.map(item => (
-                    <div key={item.account.id} className="p-4 hover:bg-slate-50 dark:hover:bg-[#1B212D]/40 transition-colors">
+                    <div key={item.account.id} className="p-4 hover:bg-slate-50 dark:hover:bg-[#1b1b20]/40 transition-colors">
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                         
                         {/* Identificação do Banco */}
@@ -434,7 +435,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                               step="0.01"
                               value={item.realBalance}
                               onChange={e => handleBalanceChange(item.account.id, e.target.value)}
-                              className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-amber-500/40 bg-white dark:bg-[#131720] font-mono font-bold text-sm text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                              className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-amber-500/40 bg-white dark:bg-[#131316] font-mono font-bold text-sm text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500 focus:outline-none"
                               placeholder="0,00"
                             />
                           </div>
@@ -537,12 +538,12 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   placeholder="Ex: Conferência diária de encerramento do dia, saldos conferidos via aplicativo..."
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#273040] bg-white dark:bg-[#131720] px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
+                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               {/* Dicas para Alcançar o Fechamento Perfeito */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1B212D] border border-slate-200 dark:border-[#273040] text-xs space-y-1.5 text-slate-600 dark:text-slate-400">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] text-xs space-y-1.5 text-slate-600 dark:text-slate-400">
                 <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-amber-500" />
                   Como resolver divergências e fazer o fechamento perfeito:
@@ -573,13 +574,13 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
               </div>
 
               {closingHistory.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 text-xs bg-slate-50 dark:bg-[#1B212D] rounded-xl border border-slate-200 dark:border-[#273040]">
+                <div className="py-12 text-center text-slate-500 text-xs bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200 dark:border-[#26262b]">
                   Nenhum fechamento salvo anteriormente. Realize a conferência na aba "Conferência Atual" e clique em "Salvar Conferência de Fechamento".
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#273040]">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#26262b]">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 dark:bg-[#1B212D] border-b border-slate-200 dark:border-[#273040] text-slate-700 dark:text-slate-300 font-semibold uppercase text-[10px]">
+                    <thead className="bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-300 font-semibold uppercase text-[10px]">
                       <tr>
                         <th className="py-3 px-4">Data / Hora</th>
                         <th className="py-3 px-4">Conta Bancária</th>
@@ -590,11 +591,11 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                         <th className="py-3 px-4">Responsável / Obs</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#273040]">
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
                       {closingHistory.map(rec => {
                         const acc = accounts.find(a => a.id === rec.bankAccountId);
                         return (
-                          <tr key={rec.id} className="hover:bg-slate-50 dark:hover:bg-[#1B212D]/50 transition-colors">
+                          <tr key={rec.id} className="hover:bg-slate-50 dark:hover:bg-[#1b1b20]/50 transition-colors">
                             <td className="py-3 px-4 font-mono">
                               <div>{formatDateBR(rec.closingDate)}</div>
                               <div className="text-[10px] text-slate-500">{rec.closingTime}</div>
@@ -652,11 +653,11 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
         </div>
 
         {/* Rodapé Fixo de Ações */}
-        <div className="p-4 border-t border-slate-200 dark:border-[#273040] bg-slate-50 dark:bg-[#1B212D] flex items-center justify-between shrink-0">
+        <div className="p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#273040] rounded-xl transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#26262b] rounded-xl transition-colors cursor-pointer"
           >
             Fechar
           </button>

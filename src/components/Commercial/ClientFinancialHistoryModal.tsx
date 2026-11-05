@@ -25,6 +25,7 @@ import {
 import { Counterparty, Contract, FinancialTitle, Settlement, BankAccount } from '../../types';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
+import { PremiumSelect } from '../Common/PremiumSelect';
 
 interface ClientFinancialHistoryModalProps {
   client: Counterparty;
@@ -317,7 +318,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                 Vínculo com Contrato Ativo:
               </label>
               <div className="relative">
-                <select
+                <PremiumSelect
                   value={selectedContractFilter}
                   onChange={(e) => setSelectedContractFilter(e.target.value)}
                   className="w-full appearance-none pl-3 pr-8 py-2 text-xs rounded-xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-amber-500/40 focus:border-amber-400 focus:outline-none shadow-xs font-medium cursor-pointer"
@@ -343,7 +344,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                       ))}
                     </optgroup>
                   )}
-                </select>
+                </PremiumSelect>
                 <ChevronDown className="w-4 h-4 text-amber-400 absolute right-2.5 top-2.5 pointer-events-none" />
               </div>
             </div>
@@ -1271,7 +1272,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
             )}
             <button
               onClick={onClose}
-              className="px-5 py-2 text-xs font-bold text-[#071321] bg-amber-400 hover:bg-amber-300 rounded-xl shadow-[0_0_12px_rgba(245,158,11,0.3)] transition-all"
+              className="px-5 py-2 text-xs font-bold text-[#0b0b0d] bg-amber-400 hover:bg-amber-300 rounded-xl shadow-[0_0_12px_rgba(245,158,11,0.3)] transition-all"
             >
               Fechar Ficha
             </button>
