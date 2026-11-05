@@ -48,7 +48,8 @@ import { CohortRetentionView } from './CohortRetentionView';
 import { StressTestingView } from './StressTestingView';
 import { BankAccountStatementModal } from '../Financial/BankAccountStatementModal';
 import { EditTitleModal } from '../Modals/EditTitleModal';
-import { PageToolbar, Button, TabPills, Card } from '../Common/ui';
+import { PageToolbar, Button, TabPills, Card, IconTile, IconBadge, Badge } from '../Common/ui';
+import { TReceipt, TBank, TWallet, TTrendUp, TChart, TAlert, TRepeat } from '../Common/tileIcons';
 
 interface DashboardViewProps {
   onNavigate: (screen: NavigationScreen) => void;
@@ -463,6 +464,48 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {activeTab === 'DASHBOARD' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           
+          {/* DESTAQUE: disponibilidade e termômetro do mês */}
+          <Card hero className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-6 lg:gap-8 items-center">
+            <div className="min-w-0">
+              <div className="flex items-center gap-3.5">
+                <IconTile><TWallet /></IconTile>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-semibold">Disponibilidade consolidada</p>
+                  <p className="text-sm text-[var(--text-muted)]">Saldo somado de todas as contas ativas</p>
+                </div>
+              </div>
+              <p className="mt-6 text-[40px] leading-[48px] sm:text-[48px] sm:leading-[56px] font-semibold tracking-tight tabular-nums">
+                {formatBRL(consolidatedCash)}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Badge tone="gold">MRR {formatBRL(mrr)}</Badge>
+                <Badge tone="info">{activeContractsCount} contratos ativos</Badge>
+                <Badge tone={delinquency.rate > 0 ? 'danger' : 'success'}>Inadimplência {delinquency.rate}%</Badge>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
+                <IconBadge tone="success"><TTrendUp /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">Receita do mês</p>
+                <p className="mt-1 text-lg font-semibold tracking-tight tabular-nums">{formatBRL(currentMonthGrossRevenue)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Acumulado no ano {formatBRL(ytdGrossRevenue)}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
+                <IconBadge tone={currentMonthNetResult < 0 ? 'danger' : 'gold'}><TChart /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">Resultado líquido</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${currentMonthNetResult < 0 ? 'text-[var(--status-danger)]' : ''}`}>{formatBRL(currentMonthNetResult)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Margem no ano {ytdMargin.toFixed(1)}%</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
+                <IconBadge tone="info"><TRepeat /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">Faturado no mês</p>
+                <p className="mt-1 text-lg font-semibold tracking-tight tabular-nums">{formatBRL(totalBilledThisMonth)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">{contractsBilledCount} de {activeContractsCount} contratos</p>
+              </div>
+            </div>
+          </Card>
+
           {/* WIDGET SOLICITADO: AVISOS PENDENTES (PRÓXIMOS 3 DIAS) */}
           {safeVisibleWidgets.includes('widget_avisos_pendentes') && (
             <PendingAlertsWidget 
@@ -499,7 +542,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="space-y-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h3>Faturamento do mês</h3>
+                      <div className="flex items-center gap-3">
+                        <IconTile><TReceipt /></IconTile>
+                        <h3>Faturamento do mês</h3>
+                      </div>
                       <p className="text-sm text-[var(--text-muted)] mt-1">
                         Competência {dreData.months[effectiveMonthIdx]}/{effectiveYear}
                       </p>
@@ -550,7 +596,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="space-y-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h3>Saldos bancários</h3>
+                      <div className="flex items-center gap-3">
+                        <IconTile><TBank /></IconTile>
+                        <h3>Saldos bancários</h3>
+                      </div>
                       <p className="text-sm text-[var(--text-muted)] mt-1">Dê dois cliques numa conta para abrir o extrato</p>
                     </div>
                     <div className="text-right shrink-0">

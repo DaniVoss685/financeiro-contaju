@@ -332,12 +332,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           group relative w-full h-10 flex items-center rounded-lg text-sm transition-colors cursor-pointer
                           ${collapsed ? 'justify-center' : 'gap-3 px-3'}
                           ${isActive
-                            ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)] font-medium'
+                            ? 'bg-[linear-gradient(90deg,rgba(201,162,74,0.18),rgba(201,162,74,0.04))] ring-1 ring-[var(--gold-edge)] text-[var(--text-primary)] font-medium'
                             : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'}
                         `}
                       >
                         {isActive && (
-                          <span className="absolute -left-3 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[var(--brand-gold-fill)]" />
+                          <span className="absolute -left-3 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full bg-[var(--brand-gold-fill)] shadow-[0_0_14px_2px_rgba(201,162,74,0.75)]" />
                         )}
                         <span className="relative shrink-0">
                           <Icon

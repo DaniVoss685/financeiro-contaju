@@ -57,6 +57,7 @@ import { toast } from '../../hooks/useToast';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
+import { TWallet, TClock, TCalendar, TAlert, TCheck } from '../Common/tileIcons';
 
 interface PayablesViewProps {
   onOpenNewTitleModal: (type: 'PAGAR') => void;
@@ -880,7 +881,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       {/* Indicadores (também funcionam como filtros rápidos) */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <StatTile
-          label="Em aberto"
+          label="Em aberto" icon={<TWallet />} accent="info"
           value={formatBRL(stats.openTotal)}
           hint="Total a pagar"
           count={stats.openCount}
@@ -891,7 +892,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
           }}
         />
         <StatTile
-          label="Vence hoje"
+          label="Vence hoje" icon={<TClock />} accent="gold"
           value={formatBRL(stats.hojeTotal)}
           hint="Vencendo hoje"
           count={stats.hojeCount}
@@ -899,7 +900,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
           onClick={() => setQuickDateFilter(prev => (prev === 'HOJE' ? 'ALL' : 'HOJE'))}
         />
         <StatTile
-          label="Esta semana"
+          label="Esta semana" icon={<TCalendar />} accent="info"
           value={formatBRL(stats.semanaTotal)}
           hint="Até domingo"
           count={stats.semanaCount}
@@ -907,7 +908,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
           onClick={() => setQuickDateFilter(prev => (prev === 'ESTA_SEMANA' ? 'ALL' : 'ESTA_SEMANA'))}
         />
         <StatTile
-          label="Vencidos"
+          label="Vencidos" icon={<TAlert />} accent="danger"
           value={formatBRL(stats.vencidosTotal)}
           hint="Em atraso"
           count={stats.vencidosCount}
@@ -917,7 +918,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
         />
         <div className="col-span-2 lg:col-span-1">
           <StatTile
-            label="Pagos"
+            label="Pagos" icon={<TCheck />} accent="success"
             value={formatBRL(stats.liquidadosTotal)}
             hint="Já liquidados"
             count={stats.liquidadosCount}

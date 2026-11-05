@@ -306,7 +306,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => newMenu.setOpen(o => !o)}
-            className="h-10 flex items-center gap-2 pl-3.5 pr-3 sm:pr-3.5 rounded-xl bg-[var(--brand-gold-fill)] text-[#18181b] text-sm font-semibold hover:brightness-105 active:brightness-95 transition cursor-pointer"
+            className="h-10 flex items-center gap-2 pl-3.5 pr-3 sm:pr-3.5 rounded-xl btn-gold text-sm font-semibold active:brightness-95 transition cursor-pointer"
             aria-haspopup="menu"
             aria-expanded={newMenu.open}
           >
@@ -372,7 +372,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
             {totalAlerts > 0 && (
-              <span className="absolute top-2 right-2 min-w-[8px] h-2 rounded-full bg-[var(--brand-gold-fill)] ring-2 ring-[var(--surface-card)]" />
+              <span className="absolute top-2 right-2 min-w-[8px] h-2 rounded-full bg-[var(--brand-gold-fill)] ring-2 ring-[var(--surface-card)] shadow-[0_0_10px_2px_rgba(201,162,74,0.7)]" />
             )}
           </button>
 

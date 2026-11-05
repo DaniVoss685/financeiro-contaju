@@ -14,7 +14,7 @@ import {
 import { FinancialTitle, Counterparty } from '../../types';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
 import { storage } from '../../services/storageService';
-import { Card } from '../Common/ui';
+import { Card, IconTile, IconBadge } from '../Common/ui';
 import { NavigationScreen } from '../Sidebar';
 
 interface PendingAlertsWidgetProps {
@@ -108,6 +108,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
+            <IconTile><BellRing /></IconTile>
             <h3>Avisos dos próximos 3 dias</h3>
             <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)]">
               <span className={`w-1.5 h-1.5 rounded-full ${totalAlertsCount > 0 ? 'bg-[var(--brand-gold-fill)]' : 'bg-[var(--status-success)]'}`} />
@@ -143,7 +144,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
           className="p-5 rounded-2xl border border-[var(--border-subtle)] cursor-pointer hover:border-[var(--border-highlight)] transition-colors"
         >
           <div className="flex justify-between items-center text-sm text-[var(--text-secondary)]">
-            <span>A receber</span>
+            <span className="flex items-center gap-2.5"><IconBadge tone="success"><ArrowUpRight /></IconBadge>A receber</span>
             <span className="text-xs text-[var(--text-muted)] tabular-nums">{pendingReceivables.length}</span>
           </div>
           <div className={`mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${totalReceivableAmount > 0 ? 'text-[var(--status-success)]' : ''}`}>
@@ -157,7 +158,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
           className="p-5 rounded-2xl border border-[var(--border-subtle)] cursor-pointer hover:border-[var(--border-highlight)] transition-colors"
         >
           <div className="flex justify-between items-center text-sm text-[var(--text-secondary)]">
-            <span>A pagar</span>
+            <span className="flex items-center gap-2.5"><IconBadge tone="danger"><ArrowDownRight /></IconBadge>A pagar</span>
             <span className="text-xs text-[var(--text-muted)] tabular-nums">{pendingPayables.length}</span>
           </div>
           <div className={`mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${totalPayableAmount > 0 ? 'text-[var(--status-danger)]' : ''}`}>
@@ -168,7 +169,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
 
         <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
           <div className="flex justify-between items-center text-sm text-[var(--text-secondary)]">
-            <span>Saldo líquido</span>
+            <span className="flex items-center gap-2.5"><IconBadge tone="gold"><DollarSign /></IconBadge>Saldo líquido</span>
             <span className="text-xs text-[var(--text-muted)]">{netProjected >= 0 ? 'Superávit' : 'Déficit'}</span>
           </div>
           <div className={`mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${netProjected < 0 ? 'text-[var(--status-danger)]' : ''}`}>

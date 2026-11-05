@@ -159,7 +159,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
         </Button>
       </PageToolbar>
 
-      <Card className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
+      <Card hero className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
           <p className="text-sm text-[var(--text-secondary)]">Disponibilidade líquida consolidada</p>
           <p className="mt-2 text-[32px] leading-10 font-semibold tracking-tight tabular-nums">{formatBRL(consolidated)}</p>

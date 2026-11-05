@@ -20,6 +20,7 @@ import { EditTitleModal } from '../Modals/EditTitleModal';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField } from '../Common/DateField';
 import { Card, PageToolbar, StatCard, FieldLabel, MoreMenu } from '../Common/ui';
+import { TTrendUp, TTrendDown, TWallet } from '../Common/tileIcons';
 
 interface MovementsViewProps {
   initialSearch?: string;
@@ -201,9 +202,9 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
       </PageToolbar>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <StatCard label="Total de entradas" value={formatBRL(totalIn)} tone={totalIn > 0 ? 'success' : 'neutral'} hint="No filtro atual" />
-        <StatCard label="Total de saídas" value={formatBRL(totalOut)} tone={totalOut > 0 ? 'danger' : 'neutral'} hint="No filtro atual" />
-        <StatCard label="Saldo líquido movimentado" value={formatBRL(totalIn - totalOut)} tone={totalIn - totalOut < 0 ? 'danger' : 'neutral'} hint="Entradas menos saídas" />
+        <StatCard label="Total de entradas" icon={<TTrendUp />} accent="success" value={formatBRL(totalIn)} tone={totalIn > 0 ? 'success' : 'neutral'} hint="No filtro atual" />
+        <StatCard label="Total de saídas" icon={<TTrendDown />} accent="danger" value={formatBRL(totalOut)} tone={totalOut > 0 ? 'danger' : 'neutral'} hint="No filtro atual" />
+        <StatCard label="Saldo líquido movimentado" icon={<TWallet />} accent="gold" value={formatBRL(totalIn - totalOut)} tone={totalIn - totalOut < 0 ? 'danger' : 'neutral'} hint="Entradas menos saídas" />
       </div>
 
       <Card className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[repeat(2,minmax(0,16rem))_minmax(0,1fr)] gap-4 items-end">

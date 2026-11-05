@@ -31,7 +31,8 @@ import { formatBRL } from '../../services/financialEngine';
 import { CashSimulationModal } from './CashSimulationModal';
 import { TitlesCompositionModal } from './TitlesCompositionModal';
 import { PremiumSelect } from '../Common/PremiumSelect';
-import { Card, Button, TabPills } from '../Common/ui';
+import { Card, Button, TabPills, IconTile, IconBadge } from '../Common/ui';
+import { TTrendUp, TTrendDown, TWallet, TTarget, TAlert, TShield, TCheck } from '../Common/tileIcons';
 
 interface CashLiquiditySimulationWidgetProps {
   currentCompetenceStr: string; // ex: '2026-10'
@@ -182,6 +183,7 @@ export const CashLiquiditySimulationWidget: React.FC<CashLiquiditySimulationWidg
       <div className="p-5 sm:p-6 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
+            <IconTile><TTrendUp /></IconTile>
             <h3>Projeção de caixa do mês</h3>
             <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-[var(--surface-elevated)] text-xs text-[var(--text-secondary)]">
               <span className={`w-1.5 h-1.5 rounded-full ${isSimulationEnabled ? 'bg-[var(--brand-gold-fill)]' : 'bg-[var(--text-tertiary)]'}`} />
@@ -267,14 +269,14 @@ export const CashLiquiditySimulationWidget: React.FC<CashLiquiditySimulationWidg
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
-              <p className="text-sm text-[var(--text-secondary)]">Disponibilidade atual</p>
+              <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2.5"><IconBadge tone="info"><TWallet /></IconBadge>Disponibilidade atual</p>
               <p className="mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums">{formatBRL(nominalCashBalance)}</p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">Saldo consolidado nos bancos hoje</p>
             </div>
 
             <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm text-[var(--text-secondary)]">A receber no mês</p>
+                <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2.5"><IconBadge tone="success"><TTrendUp /></IconBadge>A receber no mês</p>
                 <span className="text-xs text-[var(--text-muted)] tabular-nums whitespace-nowrap">{openReceivablesTitles.length} títulos</span>
               </div>
               <p className="mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums text-[var(--status-success)]">
@@ -292,7 +294,7 @@ export const CashLiquiditySimulationWidget: React.FC<CashLiquiditySimulationWidg
 
             <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm text-[var(--text-secondary)]">A pagar no mês</p>
+                <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2.5"><IconBadge tone="danger"><TTrendDown /></IconBadge>A pagar no mês</p>
                 <span className="text-xs text-[var(--text-muted)] tabular-nums whitespace-nowrap">{openPayablesTitles.length} títulos</span>
               </div>
               <p className="mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums text-[var(--status-danger)]">
@@ -309,7 +311,7 @@ export const CashLiquiditySimulationWidget: React.FC<CashLiquiditySimulationWidg
             </div>
 
             <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-base)]">
-              <p className="text-sm text-[var(--text-secondary)]">Saldo final projetado</p>
+              <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2.5"><IconBadge tone="gold"><TTarget /></IconBadge>Saldo final projetado</p>
               <p className={`mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${nominalProjectedFinal < 0 ? 'text-[var(--status-danger)]' : ''}`}>
                 {formatBRL(nominalProjectedFinal)}
               </p>
@@ -335,7 +337,7 @@ export const CashLiquiditySimulationWidget: React.FC<CashLiquiditySimulationWidg
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
-              <p className="text-sm text-[var(--text-secondary)]">Inadimplência prevista</p>
+              <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2.5"><IconBadge tone="danger"><TAlert /></IconBadge>Inadimplência prevista</p>
               <p className={`mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${isSimulationEnabled && totalExpectedDelinquency > 0 ? 'text-[var(--status-danger)]' : ''}`}>
                 {isSimulationEnabled ? `-${formatBRL(totalExpectedDelinquency)}` : 'R$ 0,00'}
               </p>
@@ -345,13 +347,13 @@ export const CashLiquiditySimulationWidget: React.FC<CashLiquiditySimulationWidg
             </div>
 
             <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
-              <p className="text-sm text-[var(--text-secondary)]">Recebíveis confiáveis</p>
+              <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2.5"><IconBadge tone="success"><TShield /></IconBadge>Recebíveis confiáveis</p>
               <p className="mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums">{formatBRL(adjustedReceivables)}</p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">A receber descontado o risco</p>
             </div>
 
-            <div className="p-5 rounded-2xl border border-[var(--brand-gold-fill)] ring-1 ring-[var(--brand-gold-fill)] bg-[var(--surface-card)]">
-              <p className="text-sm font-medium text-[var(--text-primary)]">Caixa líquido real</p>
+            <div className="hero-glow p-5 rounded-2xl border border-[var(--brand-gold-fill)] bg-[var(--surface-card)]">
+              <p className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2.5"><IconTile className="w-9 h-9"><TCheck /></IconTile>Caixa líquido real</p>
               <p className={`mt-2 text-[26px] leading-8 font-semibold tracking-tight tabular-nums ${reliableNetCash < 0 ? 'text-[var(--status-danger)]' : ''}`}>
                 {formatBRL(reliableNetCash)}
               </p>

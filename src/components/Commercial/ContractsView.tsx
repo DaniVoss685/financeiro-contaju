@@ -62,6 +62,7 @@ import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, TabPills, MoreMenu } from '../Common/ui';
+import { TTrendUp, TFile, TBan, TCoins } from '../Common/tileIcons';
 
 interface ContractsViewProps {
   onOpenBillingModal: () => void;
@@ -830,19 +831,19 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       )}
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label="MRR da carteira ativa" value={formatBRL(mrr)} hint="Só contratos com faturamento ativo" />
+        <StatCard label="MRR da carteira ativa" icon={<TTrendUp />} accent="success" value={formatBRL(mrr)} hint="Só contratos com faturamento ativo" />
         <StatCard
-          label="Contratos ativos"
+          label="Contratos ativos" icon={<TFile />} accent="info"
           value={activeContracts.length}
           hint={`${Math.round((activeContracts.length / (contracts.length || 1)) * 100)}% da base (${contracts.length} cadastrados)`}
         />
         <StatCard
-          label="Cancelados e inativos"
+          label="Cancelados e inativos" icon={<TBan />} accent="danger"
           value={outOfPortfolioContracts.length}
           tone={outOfPortfolioContracts.length > 0 ? 'danger' : 'neutral'}
           hint={`${formatBRL(outOfPortfolioTotal)}/mês saiu do faturamento`}
         />
-        <StatCard label="Ticket médio ativo" value={formatBRL(activeAvgTicket)} hint="Valor médio mensal por contrato" />
+        <StatCard label="Ticket médio ativo" icon={<TCoins />} accent="gold" value={formatBRL(activeAvgTicket)} hint="Valor médio mensal por contrato" />
       </div>
 
       <Card className="space-y-4">

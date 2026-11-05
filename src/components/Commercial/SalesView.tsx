@@ -33,6 +33,7 @@ import { useGlobalPeriod } from '../../hooks/useGlobalPeriod';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, TabPills } from '../Common/ui';
+import { TReceipt, TRepeat, TBriefcase } from '../Common/tileIcons';
 
 interface SalesViewProps {
   onOpenBillingModal?: () => void;
@@ -653,17 +654,17 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <StatCard
-          label={`Total faturado • ${metrics.totalCount} vendas`}
+          label={`Total faturado • ${metrics.totalCount} vendas`} icon={<TReceipt />} accent="gold"
           value={formatBRL(metrics.totalSalesAmount)}
           hint={`${activePeriodLabel} • ${activeDateTypeLabel}`}
         />
         <StatCard
-          label={`Contratos recorrentes • ${metrics.contractSalesCount} faturas`}
+          label={`Contratos recorrentes • ${metrics.contractSalesCount} faturas`} icon={<TRepeat />} accent="info"
           value={formatBRL(metrics.contractSalesAmount)}
           hint="Faturamento recorrente do período"
         />
         <StatCard
-          label={`Vendas avulsas • ${metrics.standaloneSalesCount} vendas`}
+          label={`Vendas avulsas • ${metrics.standaloneSalesCount} vendas`} icon={<TBriefcase />} accent="success"
           value={formatBRL(metrics.standaloneSalesAmount)}
           hint="Consultorias e serviços do período"
         />

@@ -27,6 +27,9 @@ import {
 import { storage } from '../../services/storageService';
 import { User, UserRole } from '../../types';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { GoldenLionLogo } from '../Common/GoldenLionLogo';
+import { IconTile, IconBadge } from '../Common/ui';
+import { TWallet, TBank, TChart, TFile } from '../Common/tileIcons';
 
 interface LoginViewProps {
   onLoginSuccess: (user: User) => void;
@@ -386,47 +389,72 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   return (
     <div className="min-h-screen w-full bg-[var(--surface-canvas)] flex flex-col justify-between text-[var(--text-primary)] transition-colors duration-200">
       
-      {/* Barra Superior com Marca e Alternador de Tema */}
-      <header className="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      {/* Barra superior: marca e tema */}
+      <header className="w-full max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20">
-            <Building2 className="w-5 h-5 font-bold" />
-          </div>
-          <div>
-            <span className="text-lg font-black tracking-tight text-[var(--text-primary)]">
-              CONTAJU
-            </span>
-            <span className="text-[10px] block font-semibold text-amber-500 uppercase tracking-widest">
-              Gestão Financeira
-            </span>
-          </div>
+          <GoldenLionLogo size="md" />
+          <span className="leading-tight">
+            <span className="block text-[17px] font-semibold tracking-tight">ContaJu</span>
+            <span className="block text-xs text-[var(--text-muted)]">Gestão financeira</span>
+          </span>
         </div>
 
         <button
           onClick={handleToggleTheme}
           type="button"
-          title={`Alternar para modo ${currentTheme === 'dark' ? 'claro' : 'escuro'}`}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all text-xs font-medium cursor-pointer shadow-2xs"
+          title={`Alternar para o modo ${currentTheme === 'dark' ? 'claro' : 'escuro'}`}
+          className="h-10 flex items-center gap-2 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm cursor-pointer"
         >
           {currentTheme === 'dark' ? (
             <>
-              <Sun className="w-4 h-4 text-amber-400" />
-              <span>Modo Claro</span>
+              <Sun className="w-4 h-4" strokeWidth={1.75} />
+              <span>Modo claro</span>
             </>
           ) : (
             <>
-              <Moon className="w-4 h-4 text-slate-600" />
-              <span>Modo Escuro</span>
+              <Moon className="w-4 h-4" strokeWidth={1.75} />
+              <span>Modo escuro</span>
             </>
           )}
         </button>
       </header>
 
       {/* Conteúdo Central */}
-      <main className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col lg:flex-row gap-8 items-stretch justify-center my-auto">
+      <main className="login-main w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] gap-8 xl:gap-12 items-center my-auto">
+
+        {/* Painel de marca (somente telas grandes) */}
+        <section className="hidden lg:flex flex-col justify-between gap-12 relative overflow-hidden rounded-3xl border border-[var(--gold-edge)] hero-glow bg-[var(--surface-card)] p-10 xl:p-12 min-h-[600px]">
+          <div>
+            <IconTile className="w-14 h-14 rounded-2xl [&>svg]:w-7 [&>svg]:h-7"><TWallet /></IconTile>
+            <h2 className="mt-10 text-[34px] leading-[42px] xl:text-[40px] xl:leading-[48px] font-semibold tracking-tight max-w-lg">
+              Tesouraria, contratos e resultado num só lugar.
+            </h2>
+            <p className="mt-5 text-[15px] leading-relaxed text-[var(--text-secondary)] max-w-md">
+              Acompanhe contas a receber e a pagar, concilie o extrato do banco e veja o DRE por competência e por caixa.
+            </p>
+          </div>
+
+          <ul className="space-y-5">
+            <li className="flex items-center gap-4">
+              <IconBadge tone="success"><TBank /></IconBadge>
+              <span className="text-sm text-[var(--text-secondary)]">Conciliação bancária com sugestões automáticas</span>
+            </li>
+            <li className="flex items-center gap-4">
+              <IconBadge tone="gold"><TChart /></IconBadge>
+              <span className="text-sm text-[var(--text-secondary)]">DRE gerencial e fluxo de caixa em tempo real</span>
+            </li>
+            <li className="flex items-center gap-4">
+              <IconBadge tone="info"><TFile /></IconBadge>
+              <span className="text-sm text-[var(--text-secondary)]">Contratos recorrentes e faturamento em lote</span>
+            </li>
+          </ul>
+        </section>
+
+        <div className="w-full max-w-lg mx-auto space-y-5">
+
         
         {/* Formulário Principal: Login ou Cadastro */}
-        <div className="w-full lg:w-1/2 max-w-md mx-auto bg-[var(--surface-card)] p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)] shadow-xl flex flex-col justify-between">
+        <div className="elevate hero-glow w-full bg-[var(--surface-card)] p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)] flex flex-col justify-between">
           <div>
             
             {/* Alternador de Abas ou Botão Voltar */}
@@ -546,7 +574,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="exemplo@contaju.com.br"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs transition-all font-medium"
+                      className="w-full pl-10 pr-4 h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium"
                     />
                   </div>
                 </div>
@@ -579,7 +607,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs transition-all font-medium"
+                      className="w-full pl-10 pr-10 h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium"
                     />
                     <button
                       type="button"
@@ -608,7 +636,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                         Preencher Credencial do Gestor Geral
                       </span>
                       <span className="text-[10px] text-[var(--text-secondary)] block truncate">
-                        leonardoricardoarantes@gmail.com • Senha: contaju123
+                        Preenche o e-mail e a senha do gestor geral
                       </span>
                     </div>
                   </div>
@@ -620,7 +648,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full mt-2 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-2 h-12 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
@@ -713,7 +741,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       placeholder="seu.email@contaju.com.br"
                       required
                       autoFocus
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs transition-all font-medium"
+                      className="w-full pl-10 pr-4 h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium"
                     />
                   </div>
                   <span className="text-[10px] text-[var(--text-secondary)] block mt-1">
@@ -724,7 +752,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
@@ -770,7 +798,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Mínimo 6 caracteres"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-xs transition-all font-medium"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
                   />
                 </div>
 
@@ -784,14 +812,14 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
                     placeholder="Repita a nova senha"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-xs transition-all font-medium"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full mt-2 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full mt-2 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? 'Redefinindo...' : 'Salvar Nova Senha e Entrar'}
                 </button>
@@ -811,7 +839,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                     placeholder="Ex: João da Silva"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-xs transition-all font-medium"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
                   />
                 </div>
 
@@ -825,7 +853,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
                     placeholder="colaborador@contaju.com.br"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-xs transition-all font-medium"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
                   />
                 </div>
 
@@ -840,7 +868,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       value={regPassword}
                       onChange={(e) => setRegPassword(e.target.value)}
                       placeholder="Mín. 6 dígitos"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-xs transition-all font-medium"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
                     />
                   </div>
                   <div>
@@ -853,7 +881,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       value={regConfirmPassword}
                       onChange={(e) => setRegConfirmPassword(e.target.value)}
                       placeholder="Repita a senha"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-xs transition-all font-medium"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
                     />
                   </div>
                 </div>
@@ -886,7 +914,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
@@ -914,7 +942,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         </div>
 
         {/* Painel Lateral: Usuários Ativos e Solicitações Pendentes */}
-        <div className="w-full lg:w-1/2 max-w-md mx-auto flex flex-col justify-between bg-[var(--surface-elevated)] p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)] shadow-md">
+        <div className="elevate w-full flex flex-col justify-between bg-[var(--surface-card)] p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)]">
           <div>
             
             {/* Se houver solicitações pendentes */}
@@ -980,9 +1008,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   <div className="mt-1 flex items-center gap-2">
                     <span className="inline-block text-[9px] px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/60 font-black">
                       👑 GESTOR GERAL (TOTAL)
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      Senha: <strong className="text-amber-400">contaju123</strong>
                     </span>
                   </div>
                 </div>
@@ -1106,6 +1131,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           </div>
         </div>
 
+        </div>
       </main>
 
       {/* Rodapé */}

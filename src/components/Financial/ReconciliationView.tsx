@@ -61,6 +61,7 @@ import { BANCO_INTER_ACCOUNT, BANCO_INTER_OFX_TRANSACTIONS } from '../../data/in
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, FieldLabel, MoreMenu } from '../Common/ui';
+import { TSparkles, TCoins, THourglass, TCheck } from '../Common/tileIcons';
 
 export const ReconciliationView: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -2719,10 +2720,10 @@ export const ReconciliationView: React.FC = () => {
       )}
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label="Sugestões encontradas" value={suggestionCount} hint="Pela regra de aproximação" />
-        <StatCard label="Já baixados no sistema" value={settledExactMatches.length} hint="Valor exato no extrato, sem duplicar caixa" />
-        <StatCard label="Extrato pendente" value={pendingCount} hint="Vincule a um título ou crie um novo" />
-        <StatCard label="Conciliados" value={reconciledCount} hint="Saldo bancário e contábil conferidos" />
+        <StatCard label="Sugestões encontradas" icon={<TSparkles />} accent="gold" value={suggestionCount} hint="Pela regra de aproximação" />
+        <StatCard label="Já baixados no sistema" icon={<TCoins />} accent="info" value={settledExactMatches.length} hint="Valor exato no extrato, sem duplicar caixa" />
+        <StatCard label="Extrato pendente" icon={<THourglass />} accent="gold" value={pendingCount} hint="Vincule a um título ou crie um novo" />
+        <StatCard label="Conciliados" icon={<TCheck />} accent="success" value={reconciledCount} hint="Saldo bancário e contábil conferidos" />
       </div>
 
       {/* GRID PRINCIPAL: 2 COLUNAS DE CONCILIAÇÃO BANCÁRIA (Adaptativo) */}

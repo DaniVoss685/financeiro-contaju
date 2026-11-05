@@ -24,7 +24,7 @@ export const GoldenLionLogo: React.FC<GoldenLionLogoProps> = ({
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
       {/* Black badge with gold lion emblem */}
       <div 
-        className={`${dimensions.box} rounded-xl bg-gradient-to-b from-[#18181b] via-[#09090b] to-[#000000] border border-[#d4af37]/40 flex items-center justify-center relative overflow-hidden flex-shrink-0 group`}
+        className={`${dimensions.box} rounded-xl bg-gradient-to-b from-[#18181b] via-[#09090b] to-[#000000] border border-[#d4af37]/50 shadow-[0_0_26px_-6px_rgba(212,175,55,0.6)] flex items-center justify-center relative overflow-hidden flex-shrink-0 group`}
       >
         {/* Subtle golden ambient sheen */}
         <div className="absolute inset-0 bg-gradient-to-tr from-[#d4af37]/10 via-transparent to-[#fef08a]/20 opacity-80" />

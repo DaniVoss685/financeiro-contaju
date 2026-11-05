@@ -1,0 +1,27 @@
+// Ícones usados nos indicadores (StatTile/StatCard). Nomes com prefixo T para não colidir com imports locais.
+export {
+  Wallet as TWallet,
+  Clock as TClock,
+  CalendarDays as TCalendar,
+  AlertTriangle as TAlert,
+  CheckCircle2 as TCheck,
+  TrendingUp as TTrendUp,
+  TrendingDown as TTrendDown,
+  Users as TUsers,
+  UserPlus as TUserPlus,
+  FileText as TFile,
+  HandCoins as TCoins,
+  Landmark as TBank,
+  Sparkles as TSparkles,
+  Receipt as TReceipt,
+  Repeat as TRepeat,
+  Ban as TBan,
+  Scale as TScale,
+  Briefcase as TBriefcase,
+  Hourglass as THourglass,
+  ShieldCheck as TShield,
+  Target as TTarget,
+  BarChart3 as TChart,
+  Percent as TPercent,
+  Bell as TBell
+} from 'lucide-react';

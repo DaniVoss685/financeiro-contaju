@@ -39,6 +39,7 @@ import { validateFiscalDocument } from '../../utils/cnpjValidator';
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, StatCard, TabPills } from '../Common/ui';
+import { TUsers, TUserPlus, TFile, TWallet } from '../Common/tileIcons';
 
 interface ClientsViewProps {
   initialSearch?: string;
@@ -361,17 +362,17 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
-          label="Clientes ativos"
+          label="Clientes ativos" icon={<TUsers />} accent="info"
           value={clientMetrics.activeClients}
           hint={`Base total de ${clientMetrics.totalClients} (${clientMetrics.activePercentage}% ativos)`}
         />
         <StatCard
-          label="Novos no período"
+          label="Novos no período" icon={<TUserPlus />} accent="success"
           value={`+${clientMetrics.newClientsPeriod}`}
           hint={`Expansão de ${clientMetrics.growthRate > 0 ? '+' : ''}${clientMetrics.growthRate}% no mês`}
         />
         <StatCard
-          label="Com contrato recorrente"
+          label="Com contrato recorrente" icon={<TFile />} accent="gold"
           value={
             <>
               {clientMetrics.clientsWithActiveContracts}
@@ -381,7 +382,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
           hint={`${clientMetrics.contractCoveragePercentage}% da carteira`}
         />
         <StatCard
-          label="Saldo em aberto"
+          label="Saldo em aberto" icon={<TWallet />} accent="gold"
           value={formatBRL(totalOpenReceivables)}
           hint={`Ticket médio ${formatBRL(clientMetrics.averageTicketPerClient)}/mês`}
         />

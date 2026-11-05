@@ -261,6 +261,17 @@
     --tint-neutral: rgba(255, 255, 255, 0.04);
     --tint-neutral-hover: rgba(255, 255, 255, 0.07);
 
+    /* Acentos: dourado com brilho + cores de status (usadas em ícones e selos) */
+    --status-info: #6cb4f0;
+    --status-info-bg: rgba(108, 180, 240, 0.14);
+    --gold-gradient: linear-gradient(135deg, #ecd38a 0%, #c9a24a 52%, #a67c2e 100%);
+    --gold-edge: rgba(201, 162, 74, 0.34);
+    --gold-glow: 0 0 0 1px rgba(201, 162, 74, 0.38), 0 10px 34px -10px rgba(201, 162, 74, 0.55);
+    --gold-btn-shadow: 0 8px 22px -8px rgba(201, 162, 74, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    --card-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 60%);
+    --card-ring: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --page-glow: radial-gradient(900px 520px at 88% -8%, rgba(201, 162, 74, 0.09), transparent 62%), radial-gradient(700px 460px at -4% 105%, rgba(201, 162, 74, 0.05), transparent 60%);
+
     color-scheme: dark;
   }
 
@@ -299,6 +310,16 @@
     --overlay: rgba(24, 24, 27, 0.42);
     --tint-neutral: rgba(24, 24, 27, 0.035);
     --tint-neutral-hover: rgba(24, 24, 27, 0.06);
+
+    --status-info: #2f6fb0;
+    --status-info-bg: rgba(47, 111, 176, 0.10);
+    --gold-gradient: linear-gradient(135deg, #efd790 0%, #cfa94e 52%, #b08531 100%);
+    --gold-edge: rgba(176, 133, 49, 0.38);
+    --gold-glow: 0 0 0 1px rgba(176, 133, 49, 0.35), 0 10px 30px -10px rgba(176, 133, 49, 0.45);
+    --gold-btn-shadow: 0 8px 20px -8px rgba(176, 133, 49, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    --card-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 70%);
+    --card-ring: 0 1px 2px rgba(24, 24, 27, 0.04);
+    --page-glow: radial-gradient(900px 520px at 88% -8%, rgba(201, 162, 74, 0.13), transparent 62%), radial-gradient(700px 460px at -4% 105%, rgba(201, 162, 74, 0.07), transparent 60%);
 
     color-scheme: light;
   }
@@ -824,7 +845,7 @@ main [class*="text-amber-"]:not([class*="bg-"]) {
 /* CARTÃO-TÍTULO REPETIDO: o nome da tela já aparece no topo, então o cartão    */
 /* vira só "descrição + ações", sem moldura e sem título duplicado.             */
 /* ========================================================================= */
-main > div > div > :first-child:has(h1),
+main:not(.login-main) > div > div > :first-child:has(h1),
 .settings-content > div > :first-child:has(h1) {
   background: transparent;
   border: 0;
@@ -832,15 +853,135 @@ main > div > div > :first-child:has(h1),
   box-shadow: none;
   padding: 0;
 }
-main > div > div > :first-child:has(h1) div:has(> h1),
-main > div > div > :first-child:has(h1) :is(div, span):has(+ div h1),
+main:not(.login-main) > div > div > :first-child:has(h1) div:has(> h1),
+main:not(.login-main) > div > div > :first-child:has(h1) :is(div, span):has(+ div h1),
 .settings-content > div > :first-child:has(h1) div:has(> h1),
 .settings-content > div > :first-child:has(h1) :is(div, span):has(+ div h1) {
   display: none;
 }
-main > div > div > :first-child:has(h1) p,
+main:not(.login-main) > div > div > :first-child:has(h1) p,
 .settings-content > div > :first-child:has(h1) p {
   font-size: 0.875rem;
   line-height: 1.375rem;
   color: var(--text-secondary);
+}
+
+
+/* ========================================================================= */
+/* ACENTOS: dourado com brilho, profundidade e ícones coloridos por status     */
+/* ========================================================================= */
+
+/* Luz suave no fundo do app (dourado bem discreto) */
+#root > div {
+  background-image: var(--page-glow);
+  background-repeat: no-repeat;
+}
+main {
+  background-color: transparent !important;
+}
+
+/* Profundidade nos cartões feitos com o componente Card */
+.elevate {
+  background-image: var(--card-sheen);
+  box-shadow: var(--card-ring);
+}
+
+/* Cartão de destaque: luz dourada no canto e contorno dourado */
+.hero-glow {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--gold-edge) !important;
+  background-image:
+    radial-gradient(520px 260px at 100% 0%, rgba(201, 162, 74, 0.22), transparent 65%),
+    var(--card-sheen);
+  box-shadow: 0 0 0 1px rgba(201, 162, 74, 0.10), 0 24px 60px -30px rgba(201, 162, 74, 0.45);
+}
+
+/* Ícone dourado em gradiente (usado em títulos de blocos e cabeçalhos) */
+.icon-tile-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--gold-gradient);
+  color: #18181b;
+  box-shadow: var(--gold-glow);
+}
+
+/* Botões dourados sólidos ganham gradiente e brilho */
+button[class~="bg-amber-500"],
+button[class~="bg-amber-400"],
+a[class~="bg-amber-500"],
+.btn-gold {
+  background-image: var(--gold-gradient);
+  background-color: #c9a24a;
+  color: #18181b;
+  border-color: transparent;
+  box-shadow: var(--gold-btn-shadow);
+}
+button[class~="bg-amber-500"]:hover,
+button[class~="bg-amber-400"]:hover,
+.btn-gold:hover {
+  filter: brightness(1.06);
+}
+button[class*="from-amber"][class*="bg-gradient"] {
+  background-image: var(--gold-gradient) !important;
+  box-shadow: var(--gold-btn-shadow);
+}
+
+/* ------------------------------ MODAIS ----------------------------------- */
+.fixed.inset-0[class*="backdrop-blur"] {
+  background-color: var(--overlay);
+  background-image: radial-gradient(1100px 560px at 78% -12%, rgba(201, 162, 74, 0.14), transparent 62%),
+    radial-gradient(800px 480px at 8% 108%, rgba(201, 162, 74, 0.08), transparent 60%);
+}
+.fixed.inset-0[class*="backdrop-blur"] > div {
+  border-color: var(--gold-edge);
+  background-image: var(--card-sheen);
+  box-shadow: 0 0 0 1px rgba(201, 162, 74, 0.10), 0 40px 100px -32px rgba(0, 0, 0, 0.55), 0 0 90px -42px rgba(201, 162, 74, 0.5);
+}
+
+/* Ícone do cabeçalho do modal vira "selo" dourado com brilho */
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] :is(div, span):has(> svg:only-child),
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] > div > svg:first-child {
+  background: var(--gold-gradient);
+  border: 0;
+  color: #18181b;
+  box-shadow: var(--gold-glow);
+  border-radius: 0.75rem;
+}
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] > div > svg:first-child {
+  box-sizing: content-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0.5rem;
+  margin-right: 0.25rem;
+}
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] :is(div, span):has(> svg:only-child) > svg {
+  color: #18181b;
+}
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] h2,
+.fixed.inset-0[class*="backdrop-blur"] > div > div:first-child[class*="border-b"] h3 {
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Tema escuro: fundos claros semi-opacos (rodapés de modal, barras) viram superfícies escuras */
+html.dark :is(
+  [class~="bg-white/80"], [class~="bg-white/90"], [class~="bg-white/95"],
+  [class~="bg-slate-50/70"], [class~="bg-slate-50/80"], [class~="bg-slate-50/90"], [class~="bg-slate-50/95"],
+  [class~="bg-slate-100/70"], [class~="bg-slate-100/80"], [class~="bg-slate-100/90"]
+):not([class*="dark:bg-"]) {
+  background-color: var(--surface-card);
+}
+html.dark :is(
+  [class~="bg-slate-50/30"], [class~="bg-slate-50/40"], [class~="bg-slate-50/50"],
+  [class~="bg-slate-100/40"], [class~="bg-slate-100/60"]
+):not([class*="dark:bg-"]) {
+  background-color: var(--surface-elevated);
+}
+html.dark :is(.bg-gray-50, .bg-gray-100, .bg-zinc-50, .bg-zinc-100):not([class*="dark:bg-"]) {
+  background-color: var(--surface-elevated);
 }
