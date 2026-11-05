@@ -376,7 +376,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={toggleTheme}
-            className={`${iconButton} hidden`}
+            className={`${iconButton}`}
             title={theme === 'dark' ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'}
             aria-label="Alternar tema"
           >

@@ -454,15 +454,15 @@ export const AgentCenterView: React.FC = () => {
         </div>
 
         {/* Painel Central de Conexão Multi-Provedores & IAs */}
-        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-amber-950/20 to-slate-900 border border-purple-500/30 shadow-lg space-y-4">
+        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--gold-edge)] shadow-lg space-y-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/40 shrink-0 mt-0.5">
+              <div className="p-2.5 rounded-xl bg-purple-600/20 text-[var(--brand-gold)] border border-purple-500/40 shrink-0 mt-0.5">
                 <Key className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                  <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                     <span>Hub de Conexão Multi-Provedores de IA</span>
                   </h3>
                   {aiConfig.apiKey ? (
@@ -471,20 +471,20 @@ export const AgentCenterView: React.FC = () => {
                       Chave Ativa
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-[var(--brand-gold)] border border-amber-500/40 animate-pulse">
                       Selecione o provedor e insira sua chave
                     </span>
                   )}
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-500/20 text-[var(--brand-gold)] border border-purple-500/30">
                     {catalogModels.length} IAs Carregadas
                   </span>
                   {aiConfig.primaryModel && (
-                    <span className="text-[11px] text-slate-300">
-                      Modelo: <strong className="text-amber-400">{aiConfig.primaryModel}</strong>
+                    <span className="text-[11px] text-[var(--text-secondary)]">
+                      Modelo: <strong className="text-[var(--brand-gold)]">{aiConfig.primaryModel}</strong>
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-300 mt-1 max-w-xl">
+                <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-xl">
                   Conecte sua chave da <strong>OpenCode</strong>, <strong>OpenRouter</strong>, <strong>OpenAI</strong>, <strong>Google Gemini</strong>, <strong>Groq</strong> ou <strong>Endpoint Customizado</strong>. Ao colar sua chave, o sistema detecta o provedor automaticamente.
                 </p>
               </div>
@@ -494,24 +494,24 @@ export const AgentCenterView: React.FC = () => {
               type="button"
               onClick={handleRefreshCatalog}
               disabled={isSyncingModels}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 disabled:opacity-50 self-stretch sm:self-auto"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover,var(--surface-elevated))] text-[var(--text-secondary)] border border-[var(--border-subtle)] flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 disabled:opacity-50 self-stretch sm:self-auto"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingModels ? 'animate-spin text-purple-400' : 'text-slate-300'}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingModels ? 'animate-spin text-[var(--brand-gold)]' : 'text-[var(--text-secondary)]'}`} />
               <span>{isSyncingModels ? 'Sincronizando...' : 'Recarregar Catálogo'}</span>
             </button>
           </div>
 
           {/* Seletor de Presets de Provedores com 1 Clique */}
-          <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
+          <div className="space-y-1.5 pt-2 border-t border-[var(--border-subtle)]">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                 <span>Escolha o Provedor da sua Chave:</span>
               </span>
               <button
                 type="button"
                 onClick={() => setShowEndpointCustomInput(!showEndpointCustomInput)}
-                className="text-[11px] text-amber-400 hover:text-amber-300 underline cursor-pointer"
+                className="text-[11px] text-[var(--brand-gold)] hover:text-[var(--brand-gold)] underline cursor-pointer"
               >
                 {showEndpointCustomInput ? 'Ocultar URL do Endpoint' : 'Ver/Editar URL do Endpoint'}
               </button>
@@ -527,14 +527,14 @@ export const AgentCenterView: React.FC = () => {
                     onClick={() => handleSelectPreset(preset)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                       isSelected
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/10'
-                        : 'bg-slate-900/60 hover:bg-slate-800 text-slate-300 border-slate-700/60'
+                        ? 'bg-amber-500/20 text-[var(--brand-gold)] border-amber-500/50 shadow-sm shadow-amber-500/10'
+                        : 'bg-[var(--surface-elevated)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
                     }`}
                   >
                     <span>{preset.name}</span>
                     {preset.badge && (
                       <span className={`text-[9px] px-1.5 py-0.2 rounded-md font-semibold ${
-                        isSelected ? 'bg-amber-500/30 text-amber-200' : 'bg-slate-800 text-slate-400'
+                        isSelected ? 'bg-amber-500/30 text-amber-200' : 'bg-[var(--surface-elevated)] text-[var(--text-muted)]'
                       }`}>
                         {preset.badge}
                       </span>
@@ -547,8 +547,8 @@ export const AgentCenterView: React.FC = () => {
 
           {/* Campo Customizável de Endpoint URL caso expandido */}
           {showEndpointCustomInput && (
-            <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-              <label className="block text-[11px] font-bold text-slate-300">
+            <div className="p-3 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] space-y-1">
+              <label className="block text-[11px] font-bold text-[var(--text-secondary)]">
                 URL Base do Endpoint da API (OpenAI-Compatible):
               </label>
               <input
@@ -556,9 +556,9 @@ export const AgentCenterView: React.FC = () => {
                 value={endpointUrlInput}
                 onChange={(e) => setEndpointUrlInput(e.target.value)}
                 placeholder="https://opencode.ai/zen/go/v1 ou https://openrouter.ai/api/v1"
-                className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 text-xs font-mono text-white placeholder:text-slate-500 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-mono text-[var(--text-primary)] placeholder:text-slate-500 focus:ring-1 focus:ring-amber-500 focus:outline-none"
               />
-              <span className="text-[10px] text-slate-400 block">
+              <span className="text-[10px] text-[var(--text-muted)] block">
                 O gateway adicionará automaticamente <code>/chat/completions</code> para despacho das mensagens.
               </span>
             </div>
@@ -567,7 +567,7 @@ export const AgentCenterView: React.FC = () => {
           {/* Aviso de Auto-Detecção */}
           {autoDetectNotice && (
             <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200 text-xs flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+              <Sparkles className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
               <span>{autoDetectNotice}</span>
             </div>
           )}
@@ -580,12 +580,12 @@ export const AgentCenterView: React.FC = () => {
                 value={apiKeyInput}
                 onChange={(e) => handleApiKeyChange(e.target.value)}
                 placeholder={AI_PROVIDER_PRESETS.find(p => p.id === selectedPresetId)?.placeholder || 'Cole sua API Key aqui'}
-                className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-700 bg-slate-950/80 text-xs font-mono text-white placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-xs font-mono text-[var(--text-primary)] placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white p-1 cursor-pointer"
+                className="absolute right-2.5 top-2.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 cursor-pointer"
                 title={showApiKey ? 'Ocultar chave' : 'Exibir chave'}
               >
                 {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -638,7 +638,7 @@ export const AgentCenterView: React.FC = () => {
                     href={connectionDiagnostic.consoleUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+                    className="px-3.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-[var(--text-primary)] font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>Acessar Console para Gerar Nova Chave</span>

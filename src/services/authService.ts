@@ -67,7 +67,7 @@ function friendlyError(message: string): string {
   if (m.includes('invalid login')) return 'E-mail ou senha incorretos.';
   if (m.includes('email not confirmed')) return 'Confirme seu e-mail pelo link que enviamos e depois entre.';
   if (m.includes('already registered') || m.includes('already been registered')) return 'Este e-mail já tem conta. Use "Entrar".';
-  if (m.includes('password should be') || m.includes('weak')) return 'Escolha uma senha mais forte (mínimo de 8 caracteres).';
+  if (m.includes('password should be') || m.includes('weak')) return 'Escolha uma senha mais forte (mínimo de 6 caracteres).';
   if (m.includes('rate limit') || m.includes('too many')) return 'Muitas tentativas. Aguarde um minuto e tente de novo.';
   return 'Não foi possível concluir. Tente novamente.';
 }
@@ -157,7 +157,11 @@ export async function signUp(name: string, email: string, password: string) {
   });
   if (error) return { success: false as const, error: friendlyError(error.message) };
   if (!data.session) {
-    return { success: true as const, needsConfirmation: true as const };
+    // E-mail autorizado pela consultoria já nasce confirmado: basta entrar com a senha recém-criada
+    const login = await client.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+    if (login.error) {
+      return { success: true as const, needsConfirmation: true as const };
+    }
   }
   const res = await finishLogin();
   return { ...res, needsConfirmation: false as const };

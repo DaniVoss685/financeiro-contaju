@@ -287,15 +287,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       return;
     }
     if (!regEmail.trim()) {
-      setErrorMessage('Por favor, preencha seu e-mail corporativo.');
+      setErrorMessage('Por favor, preencha seu e-mail.');
       return;
     }
     if (regPassword.length < 6) {
       setErrorMessage('A senha deve possuir no mínimo 6 caracteres.');
-      return;
-    }
-    if (regPassword !== regConfirmPassword) {
-      setErrorMessage('A confirmação de senha não coincide com a senha digitada.');
       return;
     }
 
@@ -310,7 +306,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         return;
       }
       if (result.success && result.needsConfirmation) {
-        setSuccessNotice('Conta criada! Confirme seu e-mail pelo link que enviamos e depois entre. O acesso só é liberado se a consultoria autorizou este e-mail.');
+        setSuccessNotice('Cadastro recebido. Se a consultoria autorizou este e-mail, entre com seu e-mail e senha.');
         // Limpar formulário de cadastro e voltar para aba de login
         setRegName('');
         setRegEmail('');
@@ -532,21 +528,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && <KeyRound className="w-3.5 h-3.5 text-amber-500" />}
                 
                 {authMode === 'LOGIN' && 'Acesso seguro'}
-                {authMode === 'REGISTER' && 'Aprovação por E-mail (Resend)'}
+                {authMode === 'REGISTER' && 'Novo cadastro'}
                 {authMode === 'TWO_FACTOR' && 'Autenticação em Duas Etapas'}
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && 'Recuperação de Credencial'}
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && 'Redefinição de Senha'}
               </span>
               <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
                 {authMode === 'LOGIN' && 'Entrar'}
-                {authMode === 'REGISTER' && 'Criar Nova Conta'}
+                {authMode === 'REGISTER' && 'Criar cadastro'}
                 {authMode === 'TWO_FACTOR' && 'Código de Verificação (2FA)'}
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && 'Esqueceu sua Senha?'}
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && 'Criar Nova Senha'}
               </h1>
               <p className="text-xs text-[var(--text-secondary)] mt-1">
                 {authMode === 'LOGIN' && 'Use seu e-mail e senha.'}
-                {authMode === 'REGISTER' && 'Cadastre-se com e-mail e senha. A solicitação será enviada para aprovação do administrador.'}
+                {authMode === 'REGISTER' && 'Informe seu nome, e-mail e senha.'}
                 {authMode === 'TWO_FACTOR' && `Digite o código de 6 dígitos enviado para ${maskedEmail}.`}
                 {authMode === 'FORGOT_PASSWORD_REQUEST' && 'Informe o seu e-mail corporativo cadastrado para receber o código de recuperação.'}
                 {authMode === 'FORGOT_PASSWORD_VERIFY' && 'Informe o código de 6 dígitos enviado para o seu e-mail e digite sua nova senha.'}
@@ -596,7 +592,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="seu@email.com"
                       required
                       className="w-full pl-10 pr-4 h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium"
                     />
@@ -629,7 +624,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
                       required
                       className="w-full pl-10 pr-10 h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium"
                     />
@@ -824,85 +818,40 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </form>
             )}
 
-            {/* Formulário: CADASTRO COM RESEND */}
-            {authMode === 'REGISTER' && (
-              <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+            {/* Formulário: CRIAR CADASTRO */}
+            {!recovering && authMode === 'REGISTER' && (
+              <form onSubmit={handleRegisterSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">
-                    Nome Completo *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    placeholder="Ex: João da Silva"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
-                  />
+                  <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1.5">Nome completo</label>
+                  <input type="text" required autoComplete="name" value={regName} onChange={(e) => setRegName(e.target.value)} className="w-full h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium px-4" />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">
-                    E-mail Corporativo *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    placeholder="colaborador@contaju.com.br"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
-                  />
+                  <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1.5">E-mail</label>
+                  <input type="email" required autoComplete="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="w-full h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium px-4" />
                 </div>
-
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">
-                      Criar Senha *
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      placeholder="Mín. 6 dígitos"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">
-                      Confirmar Senha *
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={regConfirmPassword}
-                      onChange={(e) => setRegConfirmPassword(e.target.value)}
-                      placeholder="Repita a senha"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-amber-500 text-sm transition-all font-medium"
-                    />
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1.5">Senha</label>
+                  <div className="relative">
+                    <input type={showPassword ? 'text' : 'password'} required autoComplete="new-password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} className="w-full h-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm transition-all font-medium pl-4 pr-11" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
-
-                <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                  O acesso só é liberado se a consultoria autorizou o seu e-mail.
-                </p>
-
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full mt-2 h-12 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                      Enviando Solicitação...
-                    </span>
+                    <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <>
-                      <span>Solicitar Cadastro</span>
-                      <Send className="w-3.5 h-3.5" />
-                    </>
+                    <span>Criar cadastro</span>
                   )}
                 </button>
               </form>
