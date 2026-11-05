@@ -990,3 +990,17 @@ html.dark :is(.bg-gray-50, .bg-gray-100, .bg-zinc-50, .bg-zinc-100):not([class*=
 html.simple-mode .adv-only {
   display: none !important;
 }
+
+/* Campos em branco: sem texto de exemplo dentro (buscas continuam com a dica) */
+input:not([type="search"]):not([placeholder^="Buscar"]):not([placeholder^="Pesquis"]):not([placeholder^="Digite"])::placeholder,
+textarea::placeholder {
+  color: transparent !important;
+}
+
+/* Só na versão simples (empresas clientes) */
+.simple-only {
+  display: none;
+}
+html.simple-mode .simple-only {
+  display: revert-layer;
+}

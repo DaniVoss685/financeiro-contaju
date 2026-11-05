@@ -60,6 +60,7 @@ import { ContractAdjustmentNotificationModal } from '../Modals/ContractAdjustmen
 import { BalanceFeeBatchBillingModal } from '../Modals/BalanceFeeBatchBillingModal';
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { DateField, MonthField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, TabPills, MoreMenu } from '../Common/ui';
 import { TTrendUp, TFile, TBan, TCoins } from '../Common/tileIcons';
@@ -75,6 +76,7 @@ const MONTH_NAMES = [
 ];
 
 export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal, initialSearch = '' }) => {
+  const simple = useIsSimpleMode();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   useEffect(() => {
@@ -831,7 +833,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       )}
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label="MRR da carteira ativa" icon={<TTrendUp />} accent="success" value={formatBRL(mrr)} hint="Só contratos com faturamento ativo" />
+        <StatCard label={simple ? 'Receita mensal fixa' : 'MRR da carteira ativa'} icon={<TTrendUp />} accent="success" value={formatBRL(mrr)} hint="Só contratos com faturamento ativo" />
         <StatCard
           label="Contratos ativos" icon={<TFile />} accent="info"
           value={activeContracts.length}
@@ -899,12 +901,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
               <tr>
-                <th className="py-3 px-4">Contrato / Tipo</th>
+                <th className="py-3 px-4 adv-only">Contrato / Tipo</th>
                 <th className="py-3 px-4">Cliente / Contratante</th>
-                <th className="py-3 px-4">Entrada & Origem</th>
+                <th className="py-3 px-4 adv-only">Entrada & Origem</th>
                 <th className="py-3 px-4">Vencimento</th>
+                <th className="py-3 px-4 simple-only">Prazo</th>
                 <th className="py-3 px-4 text-right">Mensalidade</th>
-                <th className="py-3 px-4 text-center">Faturamento & Próximos Meses</th>
+                <th className="py-3 px-4 text-center adv-only">Faturamento & Próximos Meses</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-right">Ações</th>
               </tr>
@@ -919,7 +922,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                 return (
                   <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-[#1b1b20]/50 transition-colors">
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 adv-only">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900 dark:text-slate-100 font-mono">{c.contractNumber}</span>
                         {isRecurring ? (
@@ -971,9 +974,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           </button>
                         )}
                       </div>
-                      <div className="text-[10px] text-slate-500 font-mono">{client?.document}</div>
+                      <div className="text-[10px] text-slate-500 font-mono adv-only">{client?.document}</div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5 simple-only">{c.description}</div>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 adv-only">
                       <div className="flex items-center text-slate-800 dark:text-slate-200 font-medium text-[11px]">
                         <CalendarClock className="w-3.5 h-3.5 mr-1 text-amber-500 shrink-0" />
                         <span>Entrada: {formatDateBR(c.entryDate || c.startDate)}</span>
@@ -1013,9 +1017,14 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                     </td>
                     <td className="py-3 px-4">
                       <span className="font-semibold text-slate-900 dark:text-slate-100">Todo dia {c.dueDay}</span>
-                      <div className="text-[10px] text-slate-500">
+                      <div className="text-[10px] text-slate-500 adv-only">
                         {c.dueRule === 'NEXT_MONTH' ? 'Mês seguinte (D+1)' : 'Mesmo mês (D+0)'}
                       </div>
+                    </td>
+                    <td className="py-3 px-4 simple-only text-[var(--text-secondary)]">
+                      {isRecurring && !c.endDate
+                        ? 'Todo mês, sem data final'
+                        : `${formatDateBR(c.startDate || c.entryDate)} a ${c.endDate ? formatDateBR(c.endDate) : '—'}`}
                     </td>
                     <td className="py-3 px-4 text-right">
                       {c.status === 'CANCELADO' || c.status === 'INATIVO' ? (
@@ -1032,13 +1041,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           <div className="font-bold text-slate-900 dark:text-amber-400 text-sm">
                             {formatBRL(c.monthlyTotal)}
                           </div>
-                          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 adv-only">
                             Renda Ativa
                           </span>
                         </div>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-4 text-center adv-only">
                       {isRecurring ? (
                         <button
                           type="button"

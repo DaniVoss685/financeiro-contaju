@@ -352,9 +352,10 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-[var(--text-primary)]">
-                  Cronograma & Faturas do Contrato
+                  <span className="adv-only">Cronograma & Faturas do Contrato</span>
+                  <span className="simple-only">Parcelas do contrato</span>
                 </h2>
-                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                <span className="adv-only font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                   {contract.contractNumber}
                 </span>
                 {duplicateCount > 0 && (
@@ -364,7 +365,7 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                Cliente: <strong className="text-[var(--text-primary)]">{client?.name || 'Cliente'}</strong> • Mensalidade: <strong className="text-[var(--text-primary)] font-mono">{formatBRL(contract.monthlyTotal)}</strong> • Venc. Todo dia {contract.dueDay} ({contract.dueRule === 'NEXT_MONTH' ? 'mês seguinte' : 'mesmo mês'})
+                Cliente: <strong className="text-[var(--text-primary)]">{client?.name || 'Cliente'}</strong> • Mensalidade: <strong className="text-[var(--text-primary)] font-mono">{formatBRL(contract.monthlyTotal)}</strong><span className="adv-only"> • Venc. Todo dia {contract.dueDay} ({contract.dueRule === 'NEXT_MONTH' ? 'mês seguinte' : 'mesmo mês'})</span>
               </p>
             </div>
           </div>
@@ -382,8 +383,14 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 text-xs">
           
+          {/* Resumo simples */}
+          <div className="simple-only flex flex-wrap gap-x-8 gap-y-2 text-sm text-[var(--text-secondary)]">
+            <span><strong className="text-[var(--text-primary)]">{stats.openCount}</strong> a receber ({formatBRL(stats.totalOpenAmount)})</span>
+            <span><strong className="text-[var(--text-primary)]">{stats.settledCount}</strong> recebidas ({formatBRL(stats.totalSettledAmount)})</span>
+          </div>
+
           {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="adv-only grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
               <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)] block">
                 Meses Programados
@@ -459,9 +466,9 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
               <div>
                 <h3 className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 uppercase tracking-wide">
                   <Sparkles className="w-4 h-4 text-amber-500" />
-                  Gerar Novas Faturas & Próximos Meses
+                  Gerar próximos meses
                 </h3>
-                <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
+                <p className="adv-only text-[11px] text-[var(--text-secondary)] mt-0.5">
                   Projeta vendas e parcelas vinculadas no Contas a Receber com proteção contra duplicidade.
                 </p>
               </div>
@@ -622,9 +629,9 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
           <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--surface-card)]">
             <div className="p-3 bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] flex items-center justify-between">
               <span className="font-bold text-[var(--text-primary)] text-xs uppercase tracking-wide">
-                Cronograma de Parcelas & Vendas ({contractTitles.length})
+                Parcelas ({contractTitles.length})
               </span>
-              <span className="text-[11px] text-[var(--text-secondary)]">
+              <span className="adv-only text-[11px] text-[var(--text-secondary)]">
                 Clique no valor ou no ícone para editar o valor de um mês específico
               </span>
             </div>
@@ -646,12 +653,12 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
               </div>
             ) : (
               <div className="overflow-x-auto max-h-[380px]">
-                <table className="w-full text-left text-xs min-w-[760px]">
+                <table className="w-full text-left text-xs sm:min-w-[560px]">
                   <thead className="bg-[var(--surface-elevated)]/60 border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-semibold text-[11px] sticky top-0 z-10 backdrop-blur-xs">
                     <tr>
                       <th className="py-2.5 px-3 w-[110px]">Competência</th>
-                      <th className="py-2.5 px-3 w-[150px]">Nº Fatura / Venda</th>
-                      <th className="py-2.5 px-3">Descrição do Serviço</th>
+                      <th className="py-2.5 px-3 w-[150px] adv-only">Nº Fatura / Venda</th>
+                      <th className="py-2.5 px-3 adv-only">Descrição do Serviço</th>
                       <th className="py-2.5 px-3 text-center w-[110px]">Vencimento</th>
                       <th className="py-2.5 px-3 text-right w-[160px]">Valor da Parcela</th>
                       <th className="py-2.5 px-3 text-center w-[120px]">Situação</th>
@@ -675,7 +682,7 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
                               {formatCompetence(t.competence)}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 font-mono text-[11px] text-[var(--text-secondary)]">
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-[var(--text-secondary)] adv-only">
                             <div className="flex flex-col">
                               <span className="font-semibold text-[var(--text-primary)]">{t.titleNumber}</span>
                               {saleNumber && (
@@ -686,7 +693,7 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
                               )}
                             </div>
                           </td>
-                          <td className="py-2.5 px-3 text-[var(--text-primary)]">
+                          <td className="py-2.5 px-3 text-[var(--text-primary)] adv-only">
                             <div className="flex items-center gap-1.5">
                               {isBalanceFee ? (
                                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0">
@@ -791,7 +798,7 @@ export const ContractScheduleModal: React.FC<ContractScheduleModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-3.5 border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-between shrink-0">
-          <span className="text-[11px] text-[var(--text-secondary)]">
+          <span className="adv-only text-[11px] text-[var(--text-secondary)]">
             As alterações de valor e novas parcelas sincronizam automaticamente com a <strong>Aba Vendas</strong>, <strong>Contas a Receber</strong> e <strong>Fluxo de Caixa</strong>.
           </span>
           <button

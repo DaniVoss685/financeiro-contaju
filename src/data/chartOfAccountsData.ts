@@ -820,3 +820,20 @@ export const INITIAL_CHART_ACCOUNTS: ChartAccount[] = [
     isActive: true,
   },
 ];
+
+/**
+ * Modelo de plano de contas para empresas clientes: mesma estrutura (a DRE e os controles
+ * continuam funcionando), mas com receitas genéricas. Cada empresa ajusta as suas categorias.
+ */
+const GENERIC_REVENUE_NAMES: Record<string, string> = {
+  'acc-1.1.01': 'Vendas de produtos',
+  'acc-1.1.02': 'Prestação de serviços',
+  'acc-1.1.03': 'Outras receitas'
+};
+export const GENERIC_CHART_ACCOUNTS: ChartAccount[] = INITIAL_CHART_ACCOUNTS
+  .filter(a => !(a.parentId === 'grp-1.1' && !GENERIC_REVENUE_NAMES[a.id]))
+  .map(a => {
+    if (GENERIC_REVENUE_NAMES[a.id]) return { ...a, name: GENERIC_REVENUE_NAMES[a.id] };
+    if (a.id === 'grp-1.1') return { ...a, name: 'Receitas' };
+    return a;
+  });

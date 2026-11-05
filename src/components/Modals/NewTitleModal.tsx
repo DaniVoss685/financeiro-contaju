@@ -525,11 +525,6 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
               <div className="min-w-0">
                 <h2 className="text-sm sm:text-base font-bold text-slate-900 truncate flex items-center gap-2">
                   <span className="truncate">{type === 'PAGAR' ? 'Lançamento de Contas a Pagar' : 'Lançamento de Contas a Receber'}</span>
-                  <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
-                    type === 'PAGAR' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
-                  }`}>
-                    {type === 'PAGAR' ? 'Saída / Custo' : 'Entrada / Receita'}
-                  </span>
                 </h2>
                 <p className="text-[11px] sm:text-xs text-slate-500 truncate hidden xs:block">
                   Lançamento avulso, parcelamento de compras ou contas recorrentes com Magic Board
@@ -603,28 +598,26 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
 
             {/* Alternador de Tipo de Título (Pagar / Receber) */}
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <span className="font-semibold text-slate-700">Fluxo:</span>
-                <label className="flex items-center space-x-1.5 cursor-pointer min-h-[36px] py-1">
-                  <input
-                    type="radio"
-                    name="titleType"
-                    checked={type === 'PAGAR'}
-                    onChange={() => handleTypeChange('PAGAR')}
-                    className="text-rose-600 focus:ring-rose-500 cursor-pointer"
-                  />
-                  <span className="font-semibold text-rose-700">Conta a Pagar</span>
-                </label>
-                <label className="flex items-center space-x-1.5 cursor-pointer min-h-[36px] py-1">
-                  <input
-                    type="radio"
-                    name="titleType"
-                    checked={type === 'RECEBER'}
-                    onChange={() => handleTypeChange('RECEBER')}
-                    className="text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <span className="font-semibold text-emerald-700">Conta a Receber</span>
-                </label>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <span className="font-semibold text-slate-700 shrink-0">{simple ? 'Tipo' : 'Fluxo:'}</span>
+                <div role="radiogroup" aria-label="Tipo de lançamento" className="grid grid-cols-2 gap-1 p-1 rounded-xl border border-slate-200 bg-slate-100/80 flex-1 sm:flex-none sm:min-w-[320px]">
+                  {([['PAGAR', 'Conta a pagar'], ['RECEBER', 'Conta a receber']] as const).map(([val, label]) => (
+                    <button
+                      key={val}
+                      type="button"
+                      role="radio"
+                      aria-checked={type === val}
+                      onClick={() => handleTypeChange(val)}
+                      className={`min-h-[38px] px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        type === val
+                          ? 'bg-amber-500 text-slate-950 shadow-sm'
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className={`text-[11px] text-slate-500 hidden ${simple ? '' : 'sm:block'}`}>

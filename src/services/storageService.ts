@@ -56,7 +56,7 @@ import {
   INITIAL_MODULES, 
   INITIAL_IMPROVEMENTS 
 } from '../data/initialData';
-import { INITIAL_CHART_ACCOUNTS } from '../data/chartOfAccountsData';
+import { INITIAL_CHART_ACCOUNTS, GENERIC_CHART_ACCOUNTS } from '../data/chartOfAccountsData';
 import { INITIAL_BUDGET_PLANS } from '../data/initialBudgetData';
 import { 
   INITIAL_CREDIT_CARDS, 
@@ -519,10 +519,24 @@ class StorageService {
     }
   }
 
+  /** A empresa da própria consultoria (Contaju) mantém o plano completo; as demais usam o modelo genérico. */
+  private isOwnerFirmSession(): boolean {
+    try {
+      const orgs = JSON.parse(localStorage.getItem('contaju_orgs') || '[]');
+      const active = orgs.find((o: any) => o.id === localStorage.getItem('contaju_active_org'));
+      return String(active?.name || '').trim().toLowerCase() === 'contaju';
+    } catch {
+      return false;
+    }
+  }
+
   private get<T>(key: string, fallback: T): T {
     // O plano de contas continua nascendo com o modelo padrão (é estrutura, não demonstração)
     if (Array.isArray(fallback) && key !== STORAGE_KEYS.CHART_ACCOUNTS && this.isTenantSession()) {
       fallback = [] as unknown as T;
+    }
+    if (key === STORAGE_KEYS.CHART_ACCOUNTS && this.isTenantSession() && !this.isOwnerFirmSession()) {
+      fallback = GENERIC_CHART_ACCOUNTS as unknown as T;
     }
     if (this.inMemoryCache.has(key)) {
       return this.inMemoryCache.get(key);
@@ -1388,8 +1402,9 @@ class StorageService {
 
   // Chart of accounts
   public getChartAccounts(): ChartAccount[] {
-    const list = this.get<ChartAccount[]>(STORAGE_KEYS.CHART_ACCOUNTS, INITIAL_CHART_ACCOUNTS);
-    if (!Array.isArray(list) || list.length === 0) return INITIAL_CHART_ACCOUNTS;
+    const base = this.isTenantSession() && !this.isOwnerFirmSession() ? GENERIC_CHART_ACCOUNTS : INITIAL_CHART_ACCOUNTS;
+    const list = this.get<ChartAccount[]>(STORAGE_KEYS.CHART_ACCOUNTS, base);
+    if (!Array.isArray(list) || list.length === 0) return base;
     if (!list.some(a => a.id === 'grp-3.4' || (a.code === '3.4' && !a.isAnalytical))) {
       const grp34 = INITIAL_CHART_ACCOUNTS.find(a => a.id === 'grp-3.4');
       if (grp34) {

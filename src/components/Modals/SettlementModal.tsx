@@ -6,6 +6,7 @@ import { FinancialEngine, formatBRL } from '../../services/financialEngine';
 import { TitleSettlementHistoryModal } from '../Financial/TitleSettlementHistoryModal';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField } from '../Common/DateField';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 
 interface SettlementModalProps {
   title: FinancialTitle;
@@ -29,6 +30,8 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
   const [settlementDate, setSettlementDate] = useState(today);
   const [bankAccountId, setBankAccountId] = useState(title?.expectedBankAccountId || accounts[0]?.id || '');
   const [principalSettled, setPrincipalSettled] = useState<number>(title?.balancePrincipal || 0);
+  const simple = useIsSimpleMode();
+  const [showExtras, setShowExtras] = useState<boolean>(false);
   const [discount, setDiscount] = useState<number>(0);
   const [interest, setInterest] = useState<number>(0);
   const [fine, setFine] = useState<number>(0);
@@ -140,7 +143,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         </div>
 
         {/* Banner Informativo de Baixa Parcial Prévia */}
-        {(title.settlementState === 'PARCIAL' || (title.settledPrincipal && title.settledPrincipal > 0)) && (
+        {(title.settlementState === 'PARCIAL' || Boolean(title.settledPrincipal && title.settledPrincipal > 0)) && (
           <div className="shrink-0 px-4 py-2.5 sm:px-6 bg-amber-500/10 border-b border-amber-500/20 text-xs flex items-center justify-between gap-3 animate-in fade-in">
             <div className="flex items-center gap-2 text-amber-900">
               <Clock className="w-4 h-4 text-amber-600 shrink-0" />
@@ -237,9 +240,9 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             <div className="flex items-center justify-between font-semibold text-slate-800 border-b border-slate-200 pb-2">
               <span className="flex items-center">
                 <Calculator className="w-4 h-4 mr-1 text-amber-500" />
-                Composição Financeira da Baixa
+                {simple ? 'Valor da baixa' : 'Composição Financeira da Baixa'}
               </span>
-              <span className="text-[10px] font-normal text-slate-500">Regra de Cálculo Oficial</span>
+              <span className={`text-[10px] font-normal text-slate-500 ${simple ? 'hidden' : ''}`}>Regra de Cálculo Oficial</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -260,6 +263,22 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 />
               </div>
 
+              <div className="col-span-2 sm:col-span-4">
+                <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={showExtras}
+                    onChange={(e) => {
+                      setShowExtras(e.target.checked);
+                      if (!e.target.checked) { setDiscount(0); setInterest(0); setFine(0); setBankFee(0); }
+                    }}
+                    className="w-4 h-4 rounded"
+                  />
+                  <span className="text-slate-700 font-medium">Teve desconto, juros ou multa?</span>
+                </label>
+              </div>
+
+              {showExtras && (<>
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Desconto (R$)
@@ -327,24 +346,25 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                   </div>
                 </div>
               )}
+              </>)}
             </div>
 
             {/* Calculated Results Summary Box */}
             <div className="mt-3 pt-3 border-t border-slate-300/80 space-y-1.5 text-xs">
               <div className="flex justify-between items-center text-slate-700">
-                <span>Dinheiro Efetivo no Banco:</span>
+                <span>{simple ? (isReceivable ? 'Valor que entra no banco:' : 'Valor que sai do banco:') : 'Dinheiro Efetivo no Banco:'}</span>
                 <span className="font-bold text-sm text-slate-900">{formatBRL(netFinancialAmount)}</span>
               </div>
-              <div className="flex justify-between items-center text-slate-600">
-                <span>Saldo Principal Restante:</span>
+              <div className={`flex justify-between items-center text-slate-600 ${simple && newBalancePrincipal <= 0 ? 'hidden' : ''}`}>
+                <span>{simple ? 'Fica faltando:' : 'Saldo Principal Restante:'}</span>
                 <span className="font-semibold text-slate-800">{formatBRL(newBalancePrincipal)}</span>
               </div>
               <div className="flex justify-between items-center text-slate-600">
-                <span>Status Resultante:</span>
-                <span className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
-                  resultingState === 'LIQUIDADO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                <span>{simple ? 'Situação:' : 'Status Resultante:'}</span>
+                <span className={`font-semibold px-2.5 py-0.5 rounded-full text-[11px] ${
+                  resultingState === 'LIQUIDADO' ? 'bg-[var(--status-success-bg)] text-[var(--status-success)]' : 'bg-[var(--brand-gold-soft)] text-[var(--brand-gold)]'
                 }`}>
-                  {resultingState === 'LIQUIDADO' ? 'Quitação Total' : 'Baixa Parcial'}
+                  {resultingState === 'LIQUIDADO' ? (simple ? (isReceivable ? 'Recebido por inteiro' : 'Pago por inteiro') : 'Quitação Total') : (simple ? 'Parcial' : 'Baixa Parcial')}
                 </span>
               </div>
             </div>
@@ -353,7 +373,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
 
           {/* Notes and Document Reference */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="adv-only">
               <label className="block font-medium text-slate-700 mb-1">
                 Nº Comprovante / Autenticação
               </label>
@@ -361,7 +381,6 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 type="text"
                 value={voucherRef}
                 onChange={(e) => setVoucherRef(e.target.value)}
-                placeholder="Ex: TED 849102 ou Pix E2E"
                 className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm sm:text-xs focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -374,7 +393,6 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ex: Recebido com autorização ou acordo"
                 className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm sm:text-xs focus:ring-2 focus:ring-amber-500"
               />
             </div>
