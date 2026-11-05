@@ -136,6 +136,8 @@ interface NavItem {
   badgeTone?: 'alert' | 'neutral';
   /** Item pouco usado: fica atrás de "Mais opções" no grupo. */
   secondary?: boolean;
+  /** Técnico/contábil: some na versão simples (empresas clientes). */
+  advanced?: boolean;
 }
 
 interface NavGroup {
@@ -273,16 +275,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'CARTAO_CREDITO', label: 'Cartões de crédito', icon: CreditCard },
         { id: 'MOVIMENTACOES', label: 'Movimentações', icon: ArrowLeftRight },
         { id: 'BANCOS_CONTAS', label: 'Bancos e contas', icon: Landmark },
-        { id: 'CONCILIACAO', label: 'Conciliação bancária', icon: CheckCheck, badge: pendingReconciliation || undefined, badgeTone: 'neutral' }
+        { id: 'CONCILIACAO', advanced: true, label: 'Conciliação bancária', icon: CheckCheck, badge: pendingReconciliation || undefined, badgeTone: 'neutral' }
       ]
     },
     {
       title: 'Gestão',
       items: [
-        { id: 'DRE', label: 'DRE gerencial', icon: BarChart3 },
+        { id: 'DRE', label: 'DRE gerencial', icon: BarChart3, advanced: true },
         { id: 'FLUXO_CAIXA', label: 'Fluxo de caixa', icon: LineChart },
-        { id: 'PLANEJAMENTO_ORCAMENTARIO', label: 'Planejamento orçamentário', icon: Target, secondary: true },
-        { id: 'COMPARE_DRE_CAIXA', label: 'Comparar DRE x caixa', icon: Scale, secondary: true },
+        { id: 'PLANEJAMENTO_ORCAMENTARIO', label: 'Planejamento orçamentário', icon: Target, secondary: true, advanced: true },
+        { id: 'COMPARE_DRE_CAIXA', label: 'Comparar DRE x caixa', icon: Scale, secondary: true, advanced: true },
         { id: 'RELATORIOS', label: 'Relatórios gerenciais', icon: FileSpreadsheet }
       ]
     },
@@ -383,7 +385,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         title={collapsed ? `${item.label}${item.badge ? ` (${item.badge})` : ''}` : undefined}
                         aria-current={isActive ? 'page' : undefined}
                         className={`
-                          group relative w-full flex rounded-lg text-sm transition-colors cursor-pointer
+                          group relative w-full flex rounded-lg text-sm transition-colors cursor-pointer ${item.advanced ? 'adv-only' : ''}
                           ${collapsed ? 'flex-col items-center justify-center gap-1 py-2 min-h-[56px]' : 'h-10 items-center gap-3 px-3'}
                           ${isActive
                             ? 'bg-[linear-gradient(90deg,rgba(201,162,74,0.18),rgba(201,162,74,0.04))] ring-1 ring-[var(--gold-edge)] text-[var(--text-primary)] font-medium'

@@ -73,7 +73,7 @@ import { toast } from '../../hooks/useToast';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
-import { formatPeriodRangeBR } from '../../utils/dateUtils';
+import { formatPeriodRangeBR, formatCompetenceShort } from '../../utils/dateUtils';
 import { TWallet, TClock, TCalendar, TAlert, TCheck, TShield } from '../Common/tileIcons';
 
 interface ReceivablesViewProps {
@@ -1034,7 +1034,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
+          <div className="adv-only">
             <FieldLabel>Plano de contas</FieldLabel>
             <PremiumSelect
               value={categoryFilter}
@@ -1104,7 +1104,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
             </PremiumSelect>
           </div>
 
-          <div>
+          <div className="adv-only">
             <FieldLabel>Origem do título</FieldLabel>
             <PremiumSelect
               value={originFilter}
@@ -1120,7 +1120,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
             </PremiumSelect>
           </div>
 
-          <div>
+          <div className="adv-only">
             <FieldLabel>Conta bancária prevista</FieldLabel>
             <PremiumSelect
               value={bankFilter}
@@ -1653,7 +1653,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                       <div>
                         <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block uppercase tracking-wider">Competência</span>
                         <span className="font-mono font-medium text-slate-800 dark:text-slate-200 block">
-                          {t.competence || '-'}
+                          {formatCompetenceShort(t.competence)}
                         </span>
                       </div>
 
@@ -1974,7 +1974,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                 {/* Sortable Column: Competência (Adaptativo: oculto em notebooks compactos, visível em Mac/Desktops) */}
                 <th 
                   onClick={() => handleSort('competence')}
-                  className="hidden xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none transition-colors"
+                  className="adv-only hidden xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none transition-colors"
                   title="Clique para ordenar por competência"
                 >
                   <div className="flex items-center gap-1">
@@ -2006,7 +2006,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                 {/* Sortable Column: Previsão Caixa (Adaptativo: visível em telas 2K/Grandes) */}
                 <th 
                   onClick={() => handleSort('expectedCashDate')}
-                  className="hidden 2xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none transition-colors"
+                  className="adv-only hidden 2xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 select-none transition-colors"
                   title="Clique para ordenar por previsão de caixa"
                 >
                   <div className="flex items-center gap-1">
@@ -2210,15 +2210,15 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                         <div className="text-[10px] text-slate-700">{client?.document}</div>
                       </td>
 
-                      <td className="hidden xl:table-cell py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
-                        {t.competence}
+                      <td className="adv-only hidden xl:table-cell py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
+                        {formatCompetenceShort(t.competence)}
                       </td>
 
                       <td className="py-3 px-4 text-slate-700 font-medium">
                         {formatDateBR(t.dueDate)}
                       </td>
 
-                      <td className="hidden 2xl:table-cell py-3 px-4 text-slate-600">
+                      <td className="adv-only hidden 2xl:table-cell py-3 px-4 text-slate-600">
                         {formatDateBR(t.expectedCashDate || t.dueDate)}
                       </td>
 
@@ -2246,7 +2246,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                         )}
                       </td>
 
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-3 px-4 text-center whitespace-nowrap min-w-[96px]">
                         <div className="flex flex-col items-center justify-center gap-1">
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
                             t.documentState === 'CANCELADO'

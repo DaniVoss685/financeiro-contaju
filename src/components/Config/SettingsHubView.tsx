@@ -205,6 +205,8 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
   };
 
   const consultant = isConsultant();
+  // Telas técnicas: somem para empresas clientes (versão simples)
+  const ADVANCED_TABS = new Set<ConfigSubTab>(['PLANO_CONTAS', 'RECORRENCIAS', 'FECHAMENTO_PERIODO', 'IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'MELHORIAS']);
   // Empresas clientes não veem a conexão técnica com o banco.
   const visibleTabs = tabs.filter(t => t.id !== 'SUPABASE' || consultant);
   const byId = (ids: ConfigSubTab[]) => ids.map(id => visibleTabs.find(t => t.id === id)).filter(Boolean) as TabDefinition[];
@@ -237,7 +239,7 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
                     onClick={() => setActiveTab(tab.id)}
                     title={tab.description}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`shrink-0 lg:w-full h-10 px-3.5 lg:px-3 flex items-center gap-3 rounded-lg text-sm whitespace-nowrap transition-colors cursor-pointer ${
+                    className={`shrink-0 lg:w-full h-10 px-3.5 lg:px-3 flex items-center gap-3 rounded-lg text-sm whitespace-nowrap transition-colors cursor-pointer ${ADVANCED_TABS.has(tab.id) ? 'adv-only' : ''} ${
                       isActive
                         ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)] font-medium'
                         : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
@@ -255,7 +257,7 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
               };
             const open = !section.collapsible || advancedOpen || advancedHasActive;
             return (
-              <div key={section.title} className="flex lg:flex-col gap-1 shrink-0 lg:shrink">
+              <div key={section.title} className={`flex lg:flex-col gap-1 shrink-0 lg:shrink ${section.collapsible ? 'adv-only' : ''}`}>
                 {section.collapsible ? (
                   <button
                     type="button"

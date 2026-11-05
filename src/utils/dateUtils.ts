@@ -94,3 +94,10 @@ export function formatPeriodRangeBR(month: number, year: number): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `01/${pad(firstMonth)}/${year} – ${pad(lastDay)}/${pad(lastMonth)}/${year}`;
 }
+
+/** Competência no formato do dia a dia: 2026-11 vira 11/2026. */
+export function formatCompetenceShort(comp?: string | null): string {
+  if (!comp) return '-';
+  const m = /^(\d{4})-(\d{2})/.exec(comp);
+  return m ? `${m[2]}/${m[1]}` : comp;
+}

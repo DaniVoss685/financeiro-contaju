@@ -985,3 +985,8 @@ html.dark :is(
 html.dark :is(.bg-gray-50, .bg-gray-100, .bg-zinc-50, .bg-zinc-100):not([class*="dark:bg-"]) {
   background-color: var(--surface-elevated);
 }
+
+/* Versão simples (empresas clientes): esconde o que é técnico/contábil */
+html.simple-mode .adv-only {
+  display: none !important;
+}

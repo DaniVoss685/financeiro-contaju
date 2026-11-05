@@ -32,6 +32,7 @@ import { toast } from '../../hooks/useToast';
 import { addMonthsSafe, advanceCompetence, getDaysInMonth } from '../../utils/dateUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 
 interface NewTitleModalProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
   onCreated,
   onError
 }) => {
+  const simple = useIsSimpleMode();
   const today = new Date().toISOString().split('T')[0];
   const currentMonth = today.substring(0, 7);
 
@@ -78,6 +80,11 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
   const [competence, setCompetence] = useState(currentMonth);
   const [dueDate, setDueDate] = useState(today);
   const [expectedCashDate, setExpectedCashDate] = useState(today);
+
+  // Versão simples: a competência acompanha o mês do vencimento (sem pedir ao cliente)
+  useEffect(() => {
+    if (simple && dueDate) setCompetence(dueDate.substring(0, 7));
+  }, [simple, dueDate]);
 
   // Valores e Modo Parcelado/Recorrente
   const [originalAmount, setOriginalAmount] = useState<number>(0);
@@ -559,12 +566,12 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 onClick={() => setLaunchMode('UNICO')}
                 className={`min-h-[40px] py-2 px-1 sm:px-3 rounded-lg font-semibold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   launchMode === 'UNICO'
-                    ? 'bg-white text-amber-600 shadow-xs border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Receipt className="w-4 h-4 shrink-0" />
-                <span className="text-center">Único (1x)</span>
+                <span className="text-center">{simple ? 'Uma vez' : 'Único (1x)'}</span>
               </button>
 
               <button
@@ -572,12 +579,12 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 onClick={() => setLaunchMode('PARCELADO')}
                 className={`min-h-[40px] py-2 px-1 sm:px-3 rounded-lg font-semibold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   launchMode === 'PARCELADO'
-                    ? 'bg-white text-amber-600 shadow-xs border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Layers className="w-4 h-4 shrink-0" />
-                <span className="text-center">Parcelado (Nx)</span>
+                <span className="text-center">{simple ? 'Parcelado' : 'Parcelado (Nx)'}</span>
               </button>
 
               <button
@@ -585,12 +592,12 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 onClick={() => setLaunchMode('RECORRENTE')}
                 className={`min-h-[40px] py-2 px-1 sm:px-3 rounded-lg font-semibold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   launchMode === 'RECORRENTE'
-                    ? 'bg-white text-amber-600 shadow-xs border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Repeat className="w-4 h-4 shrink-0" />
-                <span className="text-center">Recorrente</span>
+                <span className="text-center">{simple ? 'Todo mês' : 'Recorrente'}</span>
               </button>
             </div>
 
@@ -620,7 +627,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 </label>
               </div>
 
-              <div className="text-[11px] text-slate-500 hidden sm:block">
+              <div className={`text-[11px] text-slate-500 hidden ${simple ? '' : 'sm:block'}`}>
                 Doc Base: <span className="font-mono font-medium">{baseTitleNumber}</span>
               </div>
             </div>
@@ -629,7 +636,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
               
               {/* Fornecedor / Cliente com opção de clientes no contas a pagar */}
-              <div className="md:col-span-8">
+              <div className={simple ? 'md:col-span-12' : 'md:col-span-8'}>
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <div className="flex items-center gap-2">
                     <label className="font-semibold text-slate-700 flex items-center gap-1.5">
@@ -644,7 +651,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('TODOS')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'TODOS' ? 'bg-white text-amber-600 shadow-2xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                            counterpartyFilter === 'TODOS' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
                           }`}
                           title="Exibir todos os fornecedores e clientes cadastrados"
                         >
@@ -654,7 +661,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('FORNECEDORES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'FORNECEDORES' ? 'bg-white text-amber-600 shadow-2xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                            counterpartyFilter === 'FORNECEDORES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
                           }`}
                         >
                           Fornecedores
@@ -663,7 +670,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('CLIENTES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'CLIENTES' ? 'bg-white text-amber-600 shadow-2xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                            counterpartyFilter === 'CLIENTES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
                           }`}
                           title="Permite selecionar clientes cadastrados dos quais você comprou produtos ou serviços"
                         >
@@ -717,7 +724,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
               </div>
 
               {/* Número do Documento */}
-              <div className="md:col-span-4">
+              <div className={`md:col-span-4 ${simple ? 'hidden' : ''}`}>
                 <label className="block font-semibold text-slate-700 mb-1">
                   Nº Documento / Título *
                 </label>
@@ -735,13 +742,13 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
             {/* Descrição do Título */}
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Descrição do Lançamento *
+                {simple ? 'Descrição *' : 'Descrição do Lançamento *'}
               </label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Ex: Licença de software Figma, Fatura de Internet Fibra, Aluguel do Escritório, Compra de computadores..."
+                placeholder={simple ? '' : 'Ex: Licença de software Figma, Fatura de Internet Fibra, Aluguel do Escritório, Compra de computadores...'}
                 className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm sm:text-xs focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 required
               />
@@ -754,12 +761,14 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <label className="font-semibold text-slate-800 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-amber-500" />
                     <span>
-                      {type === 'RECEBER' 
-                        ? 'Classificação de Receitas (Plano de Contas) *' 
-                        : 'Classificação de Custos & Despesas (Plano de Contas) *'}
+                      {simple
+                        ? 'Categoria *'
+                        : type === 'RECEBER'
+                          ? 'Classificação de Receitas (Plano de Contas) *'
+                          : 'Classificação de Custos & Despesas (Plano de Contas) *'}
                     </span>
                   </label>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  <span className={`${simple ? 'hidden' : ''} text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                     type === 'RECEBER' 
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
                       : 'bg-rose-50 text-rose-700 border-rose-200'
@@ -776,16 +785,16 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   title="Não encontrou a conta necessária? Clique para criar uma nova categoria ou subcategoria agora"
                 >
                   <FolderPlus className="w-3.5 h-3.5 text-amber-500" />
-                  <span>+ Criar Categoria / Subcategoria</span>
+                  <span>{simple ? '+ Nova categoria' : '+ Criar Categoria / Subcategoria'}</span>
                 </button>
               </div>
 
               <SearchableSelect
-                options={chartAccountOptions}
+                options={simple ? chartAccountOptions.map(o => ({ ...o, label: String(o.label).replace(/^[\d.]+\s*-\s*/, ''), sublabel: undefined, badge: undefined })) : chartAccountOptions}
                 value={accountId}
                 onChange={setAccountId}
-                placeholder={type === 'RECEBER' ? "Selecione a conta analítica de receitas..." : "Selecione a conta analítica de custos ou despesas..."}
-                searchPlaceholder="Buscar por código ou descrição da conta..."
+                placeholder={simple ? 'Escolha uma categoria' : (type === 'RECEBER' ? "Selecione a conta analítica de receitas..." : "Selecione a conta analítica de custos ou despesas...")}
+                searchPlaceholder={simple ? 'Buscar categoria...' : 'Buscar por código ou descrição da conta...'}
                 required
               />
             </div>
@@ -816,7 +825,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                     </div>
                   </div>
 
-                  <div>
+                  <div className="adv-only">
                     <label className="block font-semibold text-slate-700 mb-1">
                       Conta Bancária Prevista
                     </label>
@@ -1092,17 +1101,17 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-slate-800 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-600" />
-                  <span>Datas Fundamentais & Competência Econômica</span>
+                  <span>{simple ? 'Quando' : 'Datas Fundamentais & Competência Econômica'}</span>
                 </span>
-                <span className="text-[10px] text-slate-500">
+                <span className={`text-[10px] text-slate-500 ${simple ? 'hidden' : ''}`}>
                   Data de emissão removida (utiliza a data de lançamento)
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className={`grid grid-cols-1 gap-3 ${simple ? 'sm:grid-cols-1' : 'sm:grid-cols-3'}`}>
                 
                 {/* Data de Lançamento */}
-                <div>
+                <div className={simple ? 'hidden' : ''}>
                   <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                     Data de Lançamento *
                   </label>
@@ -1115,7 +1124,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 </div>
 
                 {/* Competência DRE */}
-                <div>
+                <div className={simple ? 'hidden' : ''}>
                   <label className="block text-slate-700 text-[11px] mb-1 font-semibold">
                     Competência DRE *
                   </label>
@@ -1170,9 +1179,11 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   <div>
                     <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
                       <Wallet className={`w-4 h-4 ${type === 'PAGAR' ? 'text-rose-600' : 'text-emerald-600'}`} />
-                      {type === 'PAGAR' 
-                        ? 'Este lançamento já foi pago? (Registrar liquidação imediata)' 
-                        : 'Este lançamento já foi recebido? (Registrar recebimento imediato)'}
+                      {simple
+                        ? (type === 'PAGAR' ? 'Já foi pago?' : 'Já foi recebido?')
+                        : type === 'PAGAR'
+                          ? 'Este lançamento já foi pago? (Registrar liquidação imediata)'
+                          : 'Este lançamento já foi recebido? (Registrar recebimento imediato)'}
                     </span>
                     <p className="text-[11px] text-slate-500 mt-0.5">
                       {type === 'PAGAR'

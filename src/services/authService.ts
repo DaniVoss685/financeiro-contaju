@@ -38,7 +38,7 @@ export function setActiveOrgId(id: string): void {
 
 const KEEP_KEYS = new Set([
   'contaju_auth_session', 'contaju_current_user_id', 'contaju_theme', 'contaju_orgs', 'contaju_active_org',
-  'contaju_is_consultant', 'contaju_cache_org', 'contaju_supabase_url', 'contaju_supabase_anon_key',
+  'contaju_is_consultant', 'contaju_view_mode', 'contaju_cache_org', 'contaju_supabase_url', 'contaju_supabase_anon_key',
   'contaju_supabase_auto_sync', 'contaju_sidebar_minimized', 'contaju_calc_open', 'contaju_calc_minimized'
 ]);
 

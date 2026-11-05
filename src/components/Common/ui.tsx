@@ -151,7 +151,7 @@ export const TabPills: React.FC<{
   value: string;
   onChange: (id: string) => void;
 }> = ({ tabs, value, onChange }) => (
-  <div className="flex items-center gap-1 p-1 rounded-xl bg-[var(--surface-elevated)] overflow-x-auto scrollbar-none max-w-full">
+  <div className="flex items-center gap-1 p-1 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] overflow-x-auto scrollbar-none max-w-full">
     {tabs.map(tab => {
       const active = tab.id === value;
       return (
@@ -161,13 +161,13 @@ export const TabPills: React.FC<{
           onClick={() => onChange(tab.id)}
           className={`h-9 px-3.5 shrink-0 inline-flex items-center gap-2 rounded-lg text-sm whitespace-nowrap transition-colors cursor-pointer ${
             active
-              ? 'bg-[var(--surface-card)] text-[var(--text-primary)] font-medium ring-1 ring-[var(--gold-edge)] shadow-[0_6px_20px_-10px_rgba(201,162,74,0.55)]'
+              ? 'btn-gold font-semibold'
               : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
           }`}
         >
           {tab.label}
           {tab.count !== undefined && (
-            <span className={`text-xs tabular-nums ${active ? 'text-[var(--brand-gold)] font-medium' : 'text-[var(--text-muted)]'}`}>{tab.count}</span>
+            <span className={`text-xs tabular-nums ${active ? 'font-semibold' : 'text-[var(--text-muted)]'}`}>{tab.count}</span>
           )}
         </button>
       );

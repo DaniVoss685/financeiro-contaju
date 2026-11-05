@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useTransition, Suspense, lazy } fr
 import { Header } from './components/Header';
 import { Sidebar, NavigationScreen } from './components/Sidebar';
 import { isConsultant, getOrgs, getActiveOrgId, switchOrg } from './services/authService';
+import { useIsSimpleMode } from './hooks/useViewMode';
 import { BottomNavBar } from './components/Common/BottomNavBar';
 import { storage } from './services/storageService';
 import { User } from './types';
@@ -73,6 +74,8 @@ function AppContent() {
   const [isPendingScreen, startScreenTransition] = useTransition();
   const [dataVersion, setDataVersion] = useState(0);
   const [currentUser, setCurrentUser] = useState<User>(() => storage.getCurrentUser());
+  // Mantém a classe da versão simples/contábil no <html> (esconde campos técnicos para empresas clientes)
+  useIsSimpleMode();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
 

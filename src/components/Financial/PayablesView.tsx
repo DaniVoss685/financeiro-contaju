@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { FinancialTitle, ChartAccount } from '../../types';
 import { storage } from '../../services/storageService';
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import { FinancialEngine, formatBRL, formatDateBR, getTemporalStatus, getFilteredChartAccounts, formatAccountNameWithoutCode, getAccountBadgeColorClasses, triggerWhatsAppForTitle } from '../../services/financialEngine';
 import { matchesSearch } from '../../utils/searchUtils';
 import { SettlementModal } from '../Modals/SettlementModal';
@@ -964,7 +965,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
+          <div className="adv-only">
             <FieldLabel>Plano de contas</FieldLabel>
             <PremiumSelect
               value={categoryFilter}
@@ -1043,7 +1044,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
             </PremiumSelect>
           </div>
 
-          <div>
+          <div className="adv-only">
             <FieldLabel>Conta bancária</FieldLabel>
             <PremiumSelect
               value={bankFilter}
@@ -1060,7 +1061,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
             </PremiumSelect>
           </div>
 
-          <div>
+          <div className="adv-only">
             <FieldLabel>Origem do título</FieldLabel>
             <PremiumSelect
               value={originFilter}
@@ -1602,7 +1603,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                       <div>
                         <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block uppercase tracking-wider">Competência</span>
                         <span className="font-mono font-medium text-slate-800 dark:text-slate-200 block">
-                          {t.competence || '-'}
+                          {formatCompetenceShort(t.competence)}
                         </span>
                       </div>
 
@@ -1843,7 +1844,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
                 {/* Competência (Adaptativo: oculto em notebooks compactos, visível em Mac/Desktops) */}
                 <th 
-                  className="hidden xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800/60 transition-colors text-slate-900 dark:text-slate-100 font-bold"
+                  className="adv-only hidden xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800/60 transition-colors text-slate-900 dark:text-slate-100 font-bold"
                   onClick={() => handleSort('competence')}
                   title="Clique para ordenar por Competência"
                 >
@@ -1875,7 +1876,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
                 {/* Previsão Caixa (Adaptativo: visível em monitores 2K/Grandes) */}
                 <th 
-                  className="hidden 2xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800/60 transition-colors text-slate-900 dark:text-slate-100 font-bold"
+                  className="adv-only hidden 2xl:table-cell py-3 px-4 cursor-pointer hover:bg-slate-300/60 dark:hover:bg-slate-800/60 transition-colors text-slate-900 dark:text-slate-100 font-bold"
                   onClick={() => handleSort('expectedCashDate')}
                   title="Clique para ordenar por Data de Previsão de Pagamento"
                 >
@@ -2081,15 +2082,15 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         <div className="text-[10px] text-slate-500 dark:text-slate-400">{supplier?.document}</div>
                       </td>
 
-                      <td className="hidden xl:table-cell py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
-                        {t.competence}
+                      <td className="adv-only hidden xl:table-cell py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
+                        {formatCompetenceShort(t.competence)}
                       </td>
 
                       <td className="py-3 px-4 text-slate-700 dark:text-slate-300 font-medium">
                         {formatDateBR(t.dueDate)}
                       </td>
 
-                      <td className="hidden 2xl:table-cell py-3 px-4 text-slate-600 dark:text-slate-400">
+                      <td className="adv-only hidden 2xl:table-cell py-3 px-4 text-slate-600 dark:text-slate-400">
                         {formatDateBR(t.expectedCashDate || t.dueDate)}
                       </td>
 
@@ -2117,7 +2118,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         )}
                       </td>
 
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-3 px-4 text-center whitespace-nowrap min-w-[96px]">
                         <div className="flex flex-col items-center justify-center gap-1">
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
                             t.documentState === 'CANCELADO'

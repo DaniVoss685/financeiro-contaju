@@ -18,8 +18,11 @@ import {
   Menu,
   LogOut,
   Check,
-  Bot
+  Bot,
+  Eye
 } from 'lucide-react';
+import { isConsultant } from '../services/authService';
+import { useIsSimpleMode, setViewMode } from '../hooks/useViewMode';
 import { User, UserRole } from '../types';
 import { NavigationScreen, getScreenTitle } from './Sidebar';
 import { storage } from '../services/storageService';
@@ -192,6 +195,8 @@ export const Header: React.FC<HeaderProps> = ({
       setTotalAlerts(computeNotifications());
     });
   }, [computeNotifications]);
+
+  const simpleView = useIsSimpleMode();
 
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
@@ -438,6 +443,12 @@ export const Header: React.FC<HeaderProps> = ({
                 </>
               )}
 
+              {isConsultant() && (
+                <button type="button" role="menuitem" onClick={() => { userMenu.setOpen(false); setViewMode(simpleView ? 'contabil' : 'simples'); }} className={menuItem}>
+                  <Eye className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
+                  {simpleView ? 'Ver versão contábil' : 'Ver versão simples'}
+                </button>
+              )}
               <button type="button" role="menuitem" onClick={() => { userMenu.setOpen(false); toggleTheme(); }} className={menuItem}>
                 {theme === 'dark' ? <Sun className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} /> : <Moon className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />}
                 {theme === 'dark' ? 'Tema claro' : 'Tema escuro'}

@@ -308,7 +308,7 @@ class StorageService {
     } else {
       try {
         const currentUsers: User[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
-        if (!currentUsers.some(u => u.email === 'leonardoricardoarantes@gmail.com' || u.id === 'usr-master-1')) {
+        if (!localStorage.getItem('contaju_active_org') && !currentUsers.some(u => u.email === 'leonardoricardoarantes@gmail.com' || u.id === 'usr-master-1')) {
           currentUsers.unshift(INITIAL_USERS[0]);
           localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(currentUsers));
         }
@@ -510,7 +510,20 @@ class StorageService {
   }
 
   // Generic getter/setter com proteção total contra QuotaExceededError e cache em memória O(1)
+  /** Sessão de empresa (login real): os dados vêm só do banco, nunca da demonstração embutida. */
+  private isTenantSession(): boolean {
+    try {
+      return typeof localStorage !== 'undefined' && !!localStorage.getItem('contaju_active_org');
+    } catch {
+      return false;
+    }
+  }
+
   private get<T>(key: string, fallback: T): T {
+    // O plano de contas continua nascendo com o modelo padrão (é estrutura, não demonstração)
+    if (Array.isArray(fallback) && key !== STORAGE_KEYS.CHART_ACCOUNTS && this.isTenantSession()) {
+      fallback = [] as unknown as T;
+    }
     if (this.inMemoryCache.has(key)) {
       return this.inMemoryCache.get(key);
     }
@@ -671,6 +684,29 @@ class StorageService {
 
   // Company
   public getCompany(): CompanyProfile {
+    if (this.isTenantSession()) {
+      let orgName = '';
+      try {
+        const orgs = JSON.parse(localStorage.getItem('contaju_orgs') || '[]');
+        orgName = orgs.find((o: any) => o.id === localStorage.getItem('contaju_active_org'))?.name || '';
+      } catch {
+        // ignora
+      }
+      const blank: CompanyProfile = {
+        ...INITIAL_COMPANY,
+        id: 'comp-' + (localStorage.getItem('contaju_active_org') || '1'),
+        companyName: orgName,
+        tradeName: orgName,
+        cnpj: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: ''
+      };
+      return this.get(STORAGE_KEYS.COMPANY, blank);
+    }
     return this.get(STORAGE_KEYS.COMPANY, INITIAL_COMPANY);
   }
   public saveCompany(comp: CompanyProfile) {
@@ -680,6 +716,9 @@ class StorageService {
   // Users & Authentication
   public getUsers(): User[] {
     const rawUsers = this.get<User[]>(STORAGE_KEYS.USERS, INITIAL_USERS);
+    if (this.isTenantSession()) {
+      return rawUsers.map(u => ({ ...u, password: u.password || '' }));
+    }
     const MASTER_EMAIL = 'leonardoricardoarantes@gmail.com';
 
     let hasMaster = false;
@@ -1297,9 +1336,12 @@ class StorageService {
 
   /** Inicia a sessão local depois de um login validado pelo Supabase Auth. */
   public startSession(user: User): void {
-    const others = this.getUsers().filter(
-      u => u.id !== user.id && u.email.trim().toLowerCase() !== user.email.trim().toLowerCase()
-    );
+    // Empresa com login real: a lista de usuários nasce só com a própria pessoa (nada de demonstração)
+    const others = this.isTenantSession()
+      ? []
+      : this.getUsers().filter(
+          u => u.id !== user.id && u.email.trim().toLowerCase() !== user.email.trim().toLowerCase()
+        );
     this.saveUsers([user, ...others]);
     localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify({
       userId: user.id,
