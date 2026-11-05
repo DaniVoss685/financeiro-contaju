@@ -39,6 +39,7 @@ import { ReportingEngine } from '../../services/reportingEngine';
 import { NavigationScreen } from '../Sidebar';
 import { useDashboardConfig } from '../../hooks/useDashboardConfig';
 import { useModulePeriod } from '../../hooks/useModulePeriod';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { ModulePeriodNavigator } from '../Common/ModulePeriodNavigator';
 import { PendingAlertsWidget } from './PendingAlertsWidget';
 import { CashLiquiditySimulationWidget } from './CashLiquiditySimulationWidget';
@@ -62,6 +63,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenNewTitleModal,
   onOpenBillingModal
 }) => {
+  const simple = useIsSimpleMode();
   const today = new Date().toISOString().split('T')[0];
   const currentYear = new Date().getFullYear();
   const currentMonthIdx = new Date().getMonth(); // 0-based
@@ -268,7 +270,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const KPI_CATALOG = [
     {
       id: 'faturamento_bruto',
-      name: 'Receita Bruta (Mês)',
+      name: simple ? 'Receita do mês' : 'Receita Bruta (Mês)',
       category: 'Competência',
       value: formatBRL(currentMonthGrossRevenue),
       subtext: `Acumulado Ano: ${formatBRL(ytdGrossRevenue)}`,
@@ -278,7 +280,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     },
     {
       id: 'resultado_liquido',
-      name: 'Resultado Líquido (Mês)',
+      name: simple ? 'Lucro do mês' : 'Resultado Líquido (Mês)',
       category: 'Competência',
       value: formatBRL(currentMonthNetResult),
       subtext: `Margem: ${monthMargin.toFixed(1)}%`,
@@ -288,7 +290,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     },
     {
       id: 'mrr',
-      name: 'MRR (Receita Recorrente)',
+      name: simple ? 'Receita fixa mensal' : 'MRR (Receita Recorrente)',
       category: 'Comercial',
       value: formatBRL(mrr),
       subtext: `${activeContractsCount} contratos ativos`,
@@ -328,7 +330,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     },
     {
       id: 'inadimplencia',
-      name: 'Taxa de Inadimplência',
+      name: simple ? 'Atrasos (%)' : 'Taxa de Inadimplência',
       category: 'Risco',
       value: `${delinquency.rate}%`,
       subtext: `Vencido: ${formatBRL(delinquency.overdueBalance)}`,
@@ -368,7 +370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     },
     {
       id: 'saldo_liquido_caixa',
-      name: 'Geração Líquida de Caixa',
+      name: simple ? 'Sobra de caixa' : 'Geração Líquida de Caixa',
       category: 'Caixa',
       value: formatBRL(currentMonthNetCash),
       subtext: currentMonthNetCash >= 0 ? 'Superávit no período' : 'Déficit no período',
@@ -398,7 +400,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     },
     {
       id: 'margem_liquida',
-      name: 'Margem Gerencial Ano',
+      name: simple ? 'Margem de lucro no ano' : 'Margem Gerencial Ano',
       category: 'Controladoria',
       value: `${ytdMargin.toFixed(1)}%`,
       subtext: `Lucro YTD: ${formatBRL(ytdNetResult)}`,
@@ -450,7 +452,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <ModulePeriodNavigator
         moduleType="DASHBOARD"
         titlePrefix="Período de Apuração"
-        filterSubtitle="Painel Executivo e DRE"
+        filterSubtitle={simple ? 'Painel' : 'Painel Executivo e DRE'}
         matchedCount={(titles || []).filter(t => t.competence?.startsWith(String(effectiveYear))).length}
         totalCount={(titles || []).length}
       />
@@ -467,17 +469,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center gap-3.5">
                 <IconTile><TWallet /></IconTile>
                 <div className="min-w-0">
-                  <p className="text-[15px] font-semibold">Disponibilidade consolidada</p>
-                  <p className="text-sm text-[var(--text-muted)]">Saldo somado de todas as contas ativas</p>
+                  <p className="text-[15px] font-semibold">{simple ? 'Saldo em contas' : 'Disponibilidade consolidada'}</p>
+                  <p className="text-sm text-[var(--text-muted)]">{simple ? 'Soma de todas as suas contas' : 'Saldo somado de todas as contas ativas'}</p>
                 </div>
               </div>
               <p className="mt-6 text-[40px] leading-[48px] sm:text-[48px] sm:leading-[56px] font-semibold tracking-tight tabular-nums">
                 {formatBRL(consolidatedCash)}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Badge tone="gold">MRR {formatBRL(mrr)}</Badge>
+                <Badge tone="gold">{simple ? 'Receita fixa' : 'MRR'} {formatBRL(mrr)}</Badge>
                 <Badge tone="info">{activeContractsCount} contratos ativos</Badge>
-                <Badge tone={delinquency.rate > 0 ? 'danger' : 'success'}>Inadimplência {delinquency.rate}%</Badge>
+                <Badge tone={delinquency.rate > 0 ? 'danger' : 'success'}>{simple ? 'Em atraso' : 'Inadimplência'} {delinquency.rate}%</Badge>
               </div>
             </div>
 
@@ -490,7 +492,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
                 <IconBadge tone={currentMonthNetResult < 0 ? 'danger' : 'gold'}><TChart /></IconBadge>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">Resultado líquido</p>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">{simple ? 'Lucro do mês' : 'Resultado líquido'}</p>
                 <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${currentMonthNetResult < 0 ? 'text-[var(--status-danger)]' : ''}`}>{formatBRL(currentMonthNetResult)}</p>
                 <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Margem no ano {ytdMargin.toFixed(1)}%</p>
               </div>
@@ -662,7 +664,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <Disclosure
             icon={<TWallet />}
-            title="Projeção de caixa e inadimplência"
+            title={simple ? 'Projeção de caixa e atrasos' : 'Projeção de caixa e inadimplência'}
             subtitle="Quanto deve sobrar nos próximos meses"
             open={!!openSec['projecao']}
             onToggle={() => setOpenSec(p => ({ ...p, projecao: !p['projecao'] }))}
@@ -913,7 +915,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {formatBRL(clientMetrics.averageTicketPerClient)}
                       </div>
                       <div className="text-[11px] text-amber-400 flex items-center justify-between pt-0.5">
-                        <span>MRR Normalizado:</span>
+                        <span>{simple ? 'Receita fixa:' : 'MRR Normalizado:'}</span>
                         <span className="font-semibold text-amber-300">{formatBRL(mrr)}/mês</span>
                       </div>
                     </div>
@@ -971,7 +973,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <Disclosure
             icon={<TChart />}
             title="Indicadores do período"
-            subtitle="Os indicadores que você escolheu"
+            subtitle="Os números que você escolheu acompanhar"
             open={!!openSec['kpis']}
             onToggle={() => setOpenSec(p => ({ ...p, kpis: !p['kpis'] }))}
           >
@@ -1080,7 +1082,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <Disclosure
             icon={<TTrendUp />}
             title="Resultado do mês"
-            subtitle="Receitas, custos e lucro por competência"
+            subtitle={simple ? 'Quanto entrou, quanto saiu e quanto sobrou' : 'Receitas, custos e lucro por competência'}
             open={!!openSec['dre']}
             onToggle={() => setOpenSec(p => ({ ...p, dre: !p['dre'] }))}
           >
@@ -1091,14 +1093,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center space-x-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                   <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                    Demonstração do Resultado do Exercício (DRE Econômico)
+                    {simple ? 'Resultado do mês' : 'Demonstração do Resultado do Exercício (DRE Econômico)'}
                   </h2>
                 </div>
                 <button
                   onClick={() => onNavigate('DRE')}
                   className="text-xs text-amber-500 hover:text-amber-400 font-semibold"
                 >
-                  Abrir DRE Completa →
+                  {simple ? 'Ver completo →' : 'Abrir DRE Completa →'}
                 </button>
               </div>
 
@@ -1133,7 +1135,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
                   <div className="flex justify-between items-center text-xs text-amber-400 font-medium">
-                    <span>MRR (Receita Recorrente)</span>
+                    <span>{simple ? 'Receita fixa mensal' : 'MRR (Receita Recorrente)'}</span>
                     <FileText className="w-4 h-4 text-amber-400" />
                   </div>
                   <div className="text-xl font-bold font-mono text-amber-300 mt-1">

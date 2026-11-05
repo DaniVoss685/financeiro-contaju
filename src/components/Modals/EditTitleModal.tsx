@@ -13,6 +13,7 @@ import { advanceCompetence, getDaysInMonth } from '../../utils/dateUtils';
 import { toast } from '../../hooks/useToast';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 
 interface EditTitleModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
   onClose,
   onSaved
 }) => {
+  const simple = useIsSimpleMode();
   const today = new Date().toISOString().split('T')[0];
   const [description, setDescription] = useState('');
   const [counterpartyId, setCounterpartyId] = useState('');
@@ -614,15 +616,15 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
               </div>
               <div className="min-w-0">
                 <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate flex items-center gap-2">
-                  <span>Editar Lançamento:</span>
-                  <span className="font-mono text-amber-600 dark:text-amber-400">{title.titleNumber}</span>
-                  <span className={`text-[10px] sm:text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
+                  <span>{simple ? (isReceber ? 'Editar recebimento' : 'Editar despesa') : 'Editar Lançamento:'}</span>
+                  <span className="adv-only font-mono text-amber-600 dark:text-amber-400">{title.titleNumber}</span>
+                  <span className={`adv-only text-[10px] sm:text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
                     isReceber ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                   }`}>
                     {isReceber ? 'Conta a Receber' : 'Conta a Pagar'}
                   </span>
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                <p className="adv-only text-[11px] text-slate-500 dark:text-slate-400 truncate">
                   Visualização ampla: ajuste Favorecido/Cliente, valores, competência, vencimento e Plano de Contas
                 </p>
               </div>
@@ -678,7 +680,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('TODOS')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'TODOS' ? 'bg-white dark:bg-slate-700 text-amber-600 shadow-2xs font-semibold' : 'text-slate-600 dark:text-slate-400'
+                            counterpartyFilter === 'TODOS' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
                           }`}
                         >
                           Todos
@@ -687,7 +689,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('FORNECEDORES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'FORNECEDORES' ? 'bg-white dark:bg-slate-700 text-amber-600 shadow-2xs font-semibold' : 'text-slate-600 dark:text-slate-400'
+                            counterpartyFilter === 'FORNECEDORES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
                           }`}
                         >
                           Forn.
@@ -696,7 +698,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('CLIENTES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'CLIENTES' ? 'bg-white dark:bg-slate-700 text-amber-600 shadow-2xs font-semibold' : 'text-slate-600 dark:text-slate-400'
+                            counterpartyFilter === 'CLIENTES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
                           }`}
                           title="Permite selecionar clientes cadastrados dos quais você comprou"
                         >
@@ -751,7 +753,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
               {/* Valor Original R$ */}
               <div className="md:col-span-4">
                 <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                  Valor Original (R$) *
+                  {simple ? 'Valor (R$) *' : 'Valor Original (R$) *'}
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">R$</span>
@@ -773,7 +775,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
               {/* Descrição do Título */}
               <div className="md:col-span-12">
                 <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Descrição do Lançamento *
+                  {simple ? 'Descrição *' : 'Descrição do Lançamento *'}
                 </label>
                 <input
                   type="text"
@@ -794,16 +796,16 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                     </div>
                     <div>
                       <label className="block text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                        {isReceber ? 'Classificação de Receitas (Plano de Contas DRE) *' : 'Classificação de Custos & Despesas (Plano de Contas DRE) *'}
+                        {simple ? 'Categoria *' : (isReceber ? 'Classificação de Receitas (Plano de Contas DRE) *' : 'Classificação de Custos & Despesas (Plano de Contas DRE) *')}
                       </label>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <span className="adv-only text-[11px] text-slate-500 dark:text-slate-400">
                         Selecione a conta analítica para apuração precisa na DRE Gerencial e no Fluxo de Caixa
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                    <span className={`adv-only text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full border ${
                       isReceber 
                         ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' 
                         : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
@@ -816,14 +818,14 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                       className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-amber-500" />
-                      <span>+ Criar Nova Conta</span>
+                      <span>{simple ? '+ Nova categoria' : '+ Criar Nova Conta'}</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Seletor com Visual Amplo, Altura Generosa e Busca Rápida */}
                 <SearchableSelect
-                  options={chartAccountOptions}
+                  options={simple ? chartAccountOptions.map(o => ({ ...o, label: String(o.label).replace(/^[\d.]+\s*-\s*/, ''), sublabel: undefined, badge: undefined })) : chartAccountOptions}
                   value={accountId}
                   onChange={setAccountId}
                   placeholder={isReceber ? "Pesquise ou selecione a conta analítica de receitas..." : "Pesquise ou selecione a conta analítica de custos ou despesas..."}
@@ -835,7 +837,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
                 {/* Card Informativo com a Conta Selecionada */}
                 {selectedAccount && (
-                  <div className="p-3.5 bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-[#26262b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                  <div className="adv-only p-3.5 bg-white dark:bg-[#131316] rounded-2xl border border-slate-200 dark:border-[#26262b] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                     <div className="flex items-center gap-3">
                       <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                         {selectedAccount.code}
@@ -857,7 +859,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
               </div>
 
               {/* Datas e Banco em 3 Colunas Equilibradas */}
-              <div className="md:col-span-4">
+              <div className="md:col-span-4 adv-only">
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
                   Competência Contábil *
                 </label>
@@ -879,6 +881,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                   onChange={(e) => {
                     setDueDate(e.target.value);
                     setExpectedCashDate(e.target.value);
+                    if (simple && e.target.value) setCompetence(e.target.value.substring(0, 7));
                   }}
                   style={{ colorScheme: 'light dark' }}
                   className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-white px-3 py-2.5 text-xs sm:text-sm font-medium"
@@ -886,7 +889,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 />
               </div>
 
-              <div className="md:col-span-4">
+              <div className="md:col-span-4 adv-only">
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
                   Conta Bancária Prevista
                 </label>
@@ -901,7 +904,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
               {/* Linha Digitável e Observações */}
               <div className="md:col-span-6">
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
-                  Linha Digitável / Código de Barras do Boleto
+                  {simple ? 'Código de barras do boleto' : 'Linha Digitável / Código de Barras do Boleto'}
                 </label>
                 <input
                   type="text"
@@ -914,7 +917,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
               <div className="md:col-span-6">
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
-                  Observações (Opcional)
+                  {simple ? 'Observações' : 'Observações (Opcional)'}
                 </label>
                 <input
                   type="text"
@@ -942,12 +945,12 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                   />
                   <span className="font-bold text-xs text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                     <Repeat className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    Ativar recorrência para os próximos meses
+                    {simple ? 'Repetir nos próximos meses' : 'Ativar recorrência para os próximos meses'}
                   </span>
                 </label>
 
                 {isRecurringEnabled && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                  <span className="adv-only text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                     🔄 Recorrência Ativada
                   </span>
                 )}
@@ -1032,7 +1035,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
             {title.balancePrincipal > 0 && (
               <div className={`p-3.5 rounded-xl border transition-all ${
                 isAlreadySettled
-                  ? (isReceber ? 'bg-emerald-50/60 border-emerald-300 shadow-xs' : 'bg-rose-50/60 border-rose-300 shadow-xs')
+                  ? (isReceber ? 'bg-[var(--status-success-bg)] border-[var(--status-success)]/40' : 'bg-[var(--status-danger-bg)] border-[var(--status-danger)]/40')
                   : 'bg-slate-50 border-slate-200 hover:border-slate-300'
               }`}>
                 <div className="flex items-center justify-between">
@@ -1053,13 +1056,13 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                     <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
                       <Wallet className={`w-4 h-4 ${isReceber ? 'text-emerald-600' : 'text-rose-600'}`} />
                       {isReceber
-                        ? `Marcar como já recebido agora? (Saldo de ${formatBRL(title.balancePrincipal)})`
-                        : `Marcar como já pago agora? (Saldo de ${formatBRL(title.balancePrincipal)})`}
+                        ? (simple ? 'Já foi recebido?' : `Marcar como já recebido agora? (Saldo de ${formatBRL(title.balancePrincipal)})`)
+                        : (simple ? 'Já foi pago?' : `Marcar como já pago agora? (Saldo de ${formatBRL(title.balancePrincipal)})`)}
                     </span>
                   </label>
 
                   {isAlreadySettled && (
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                    <span className={`adv-only text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                       isReceber ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-100 text-rose-800 border-rose-200'
                     }`}>
                       {isReceber ? '✓ Receber Agora' : '✓ Pagar Agora'}
@@ -1122,7 +1125,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    <div className="adv-only grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                       <div>
                         <label className="block text-slate-600 text-[10px] font-medium mb-1">
                           Desconto (R$)
@@ -1240,7 +1243,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 title={isReconciled ? 'Este título está conciliado via banco e não pode ser alterado diretamente.' : undefined}
               >
                 <CheckCircle2 className="w-4 h-4 mr-1.5 shrink-0" />
-                <span>{isReconciled ? 'Bloqueado (Conciliado via Banco)' : 'Salvar Alterações'}</span>
+                <span>{isReconciled ? (simple ? 'Bloqueado' : 'Bloqueado (Conciliado via Banco)') : 'Salvar Alterações'}</span>
               </button>
             </div>
 

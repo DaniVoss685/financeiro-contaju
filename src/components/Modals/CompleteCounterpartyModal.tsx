@@ -3,6 +3,7 @@ import { X, UserCheck, Building, Mail, Phone, MapPin, FileText, CheckCircle2, Al
 import { Counterparty } from '../../types';
 import { storage } from '../../services/storageService';
 import { CNPJInputField } from '../Common/CNPJInputField';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { validateFiscalDocument } from '../../utils/cnpjValidator';
 
 interface CompleteCounterpartyModalProps {
@@ -20,6 +21,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
   onClose,
   onSaved
 }) => {
+  const simple = useIsSimpleMode();
   const [formData, setFormData] = useState<Partial<Counterparty>>({
     name: '',
     tradeName: '',
@@ -154,14 +156,14 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
       <div className="bg-white dark:bg-[#131316] rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 dark:border-[#26262b] animate-in fade-in zoom-in-95">
         
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-amber-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)]">
           <div className="flex items-center space-x-2">
             <UserCheck className="w-5 h-5 text-amber-400" />
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-bold text-[var(--text-primary)]">
                 {modalTitle}
               </h2>
-              <p className="text-[11px] text-slate-300">
+              <p className="adv-only text-[11px] text-[var(--text-secondary)]">
                 {isCreatingNew 
                   ? 'Preencha os dados do registro sem sair do fluxo atual.' 
                   : 'Atualize os dados fiscais e cadastrais do cliente/fornecedor.'}
@@ -171,7 +173,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
           <button 
             type="button" 
             onClick={onClose} 
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -194,7 +196,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
           
           <div>
             <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Razão Social / Nome Completo *
+              {simple ? 'Nome *' : 'Razão Social / Nome Completo *'}
             </label>
             <input
               type="text"
@@ -206,7 +208,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="adv-only">
               <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Nome Fantasia
               </label>
@@ -227,7 +229,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
                   setFormData(prev => ({ ...prev, document: maskedVal }));
                   if (docError) setDocError(null);
                 }}
-                label="CNPJ (Cadastro Fiscal) *"
+                label={simple ? 'CNPJ *' : 'CNPJ (Cadastro Fiscal) *'}
                 placeholder="00.000.000/0000-00"
               />
             </div>
@@ -236,7 +238,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
-                E-mail para Faturamento
+                {simple ? 'E-mail' : 'E-mail para Faturamento'}
               </label>
               <input
                 type="email"
@@ -263,7 +265,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
 
           <div>
             <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Endereço Completo
+              {simple ? 'Endereço' : 'Endereço Completo'}
             </label>
             <input
               type="text"
@@ -276,7 +278,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
 
           <div>
             <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Observações Adicionais
+              {simple ? 'Observações' : 'Observações Adicionais'}
             </label>
             <textarea
               rows={2}

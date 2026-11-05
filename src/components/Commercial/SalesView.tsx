@@ -31,6 +31,7 @@ import { BatchEditSalesModal } from '../Modals/BatchEditSalesModal';
 import { CompleteCounterpartyModal } from '../Modals/CompleteCounterpartyModal';
 import { useGlobalPeriod } from '../../hooks/useGlobalPeriod';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { DateField, MonthField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, TabPills } from '../Common/ui';
 import { TReceipt, TRepeat, TBriefcase } from '../Common/tileIcons';
@@ -42,6 +43,7 @@ interface SalesViewProps {
 }
 
 export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initialSearch = '', onNavigate }) => {
+  const simple = useIsSimpleMode();
   const today = new Date().toISOString().split('T')[0];
   const currentMonth = today.substring(0, 7);
   const currentYear = new Date().getFullYear();
@@ -62,6 +64,9 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
   // Estados de Filtragem Temporal e Período Avançado
   const [filterDateType, setFilterDateType] = useState<'COMPETENCIA' | 'VENCIMENTO' | 'EMISSAO'>('COMPETENCIA');
+  useEffect(() => {
+    if (simple) setFilterDateType('VENCIMENTO');
+  }, [simple]);
   const [periodPreset, setPeriodPreset] = useState<string>(() => {
     if (globalPeriod && globalPeriod.active) {
       if (globalPeriod.month > 0) {
@@ -137,6 +142,10 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
   const [totalAmount, setTotalAmount] = useState<number>(6000);
   const [installmentsCount, setInstallmentsCount] = useState<number>(3);
   const [firstDueDate, setFirstDueDate] = useState(today);
+  // Versão simples: a competência acompanha o mês do vencimento
+  useEffect(() => {
+    if (simple && firstDueDate) setCompetence(firstDueDate.substring(0, 7));
+  }, [simple, firstDueDate]);
   const [accountId, setAccountId] = useState(chartAccounts[0]?.id || '');
   const [isGeneratingSale, setIsGeneratingSale] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -641,7 +650,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
       <PageToolbar description="Vendas geradas por contratos recorrentes e faturamento de serviços avulsos. O contrato gera a venda (receita no DRE) e a venda gera as parcelas a receber (caixa).">
         <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={() => setIsModalOpen(true)}>
-          Faturar venda avulsa
+          {simple ? 'Nova venda' : 'Faturar venda avulsa'}
         </Button>
       </PageToolbar>
 
@@ -697,7 +706,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
         <div className="pt-5 border-t border-[var(--border-subtle)] space-y-4">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 adv-only">
               <p className="text-sm font-medium text-[var(--text-secondary)]">Filtrar pela data de</p>
               <TabPills
                 tabs={[
@@ -890,15 +899,15 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                     aria-label="Selecionar todas as vendas filtradas"
                   />
                 </th>
-                <th className="py-3 px-4 w-[130px]">Nº da Venda</th>
-                <th className="py-3 px-4 w-[150px]">Origem / Vínculo</th>
+                <th className="py-3 px-4 w-[130px] adv-only">Nº da Venda</th>
+                <th className="py-3 px-4 w-[150px] adv-only">Origem / Vínculo</th>
                 <th className="py-3 px-4">Cliente</th>
-                <th className="py-3 px-4">Descrição do Serviço</th>
-                <th className="py-3 px-4 text-center w-[110px]">Competência (DRE)</th>
-                <th className="py-3 px-4 text-center w-[100px]">Data Emissão</th>
-                <th className="py-3 px-4 text-center w-[130px]">Vencimento (Caixa)</th>
-                <th className="py-3 px-4 text-right w-[130px]">Valor da Venda</th>
-                <th className="py-3 px-4 text-center w-[120px]">Parcelas a Receber</th>
+                <th className="py-3 px-4">Descrição</th>
+                <th className="py-3 px-4 text-center w-[110px] adv-only">Competência (DRE)</th>
+                <th className="py-3 px-4 text-center w-[100px] adv-only">Data Emissão</th>
+                <th className="py-3 px-4 text-center w-[130px]">Vencimento</th>
+                <th className="py-3 px-4 text-right w-[130px]">Valor</th>
+                <th className="py-3 px-4 text-center w-[120px]">Parcelas</th>
                 <th className="py-3 px-4 text-center w-[110px]">Ações</th>
               </tr>
             </thead>
@@ -943,10 +952,10 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                           aria-label={`Selecionar venda ${s.saleNumber}`}
                         />
                       </td>
-                      <td className="py-3 px-4 font-mono font-bold text-[var(--text-primary)]">
+                      <td className="py-3 px-4 font-mono font-bold text-[var(--text-primary)] adv-only">
                         {s.saleNumber}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 adv-only">
                         {isContract ? (
                           <div className="flex flex-col">
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
@@ -988,10 +997,10 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                           {s.items?.[0]?.description || s.notes || 'Prestação de Serviços'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-center font-mono font-bold text-[var(--text-primary)]">
+                      <td className="py-3 px-4 text-center font-mono font-bold text-[var(--text-primary)] adv-only">
                         {formatCompetence(s.competence)}
                       </td>
-                      <td className="py-3 px-4 text-center text-[var(--text-secondary)] font-mono">
+                      <td className="py-3 px-4 text-center text-[var(--text-secondary)] font-mono adv-only">
                         {formatDateBR(s.date)}
                       </td>
                       <td className="py-3 px-4 text-center font-mono">
@@ -1245,7 +1254,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
           <div className="bg-[var(--surface-card)] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-[var(--border-subtle)] animate-in fade-in zoom-in-95">
             <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)]">
               <h2 className="text-base font-bold text-[var(--text-primary)]">
-                Faturamento de Venda Avulsa / Parcelada
+                {simple ? 'Nova venda' : 'Faturamento de Venda Avulsa / Parcelada'}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -1319,7 +1328,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-primary)] mb-1">Descrição do Serviço / Venda *</label>
+                <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Descrição *' : 'Descrição do Serviço / Venda *'}</label>
                 <input
                   type="text"
                   required
@@ -1332,7 +1341,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[var(--text-primary)] mb-1">Valor Total da Venda (R$) *</label>
+                  <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Valor total (R$) *' : 'Valor Total da Venda (R$) *'}</label>
                   <input
                     type="number"
                     step="0.01"
@@ -1345,7 +1354,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-primary)] mb-1">Número de Parcelas *</label>
+                  <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Parcelas *' : 'Número de Parcelas *'}</label>
                   <PremiumSelect
                     value={installmentsCount}
                     onChange={e => setInstallmentsCount(parseInt(e.target.value) || 1)}
@@ -1363,7 +1372,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="adv-only">
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Competência DRE *</label>
                   <MonthField
                     value={competence}
@@ -1387,14 +1396,14 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-primary)] mb-1">Classificação Contábil DRE *</label>
+                <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Categoria *' : 'Classificação Contábil DRE *'}</label>
                 <PremiumSelect
                   value={accountId}
                   onChange={e => setAccountId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
                 >
                   {chartAccounts.map(a => (
-                    <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
+                    <option key={a.id} value={a.id}>{simple ? a.name : `${a.code} - ${a.name}`}</option>
                   ))}
                 </PremiumSelect>
               </div>
@@ -1574,7 +1583,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-primary)] mb-1">Descrição do Serviço / Faturamento *</label>
+                <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Descrição *' : 'Descrição do Serviço / Faturamento *'}</label>
                 <input
                   type="text"
                   required
@@ -1587,7 +1596,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[var(--text-primary)] mb-1">Valor Total da Venda (R$) *</label>
+                  <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Valor total (R$) *' : 'Valor Total da Venda (R$) *'}</label>
                   <input
                     type="number"
                     step="0.01"
@@ -1600,7 +1609,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-primary)] mb-1">Situação da Venda *</label>
+                  <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Situação *' : 'Situação da Venda *'}</label>
                   <PremiumSelect
                     value={editStatus}
                     onChange={e => setEditStatus(e.target.value as 'CONFIRMADA' | 'CANCELADA')}
@@ -1613,7 +1622,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="adv-only">
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Competência DRE *</label>
                   <MonthField
                     value={editCompetence}
@@ -1623,7 +1632,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   />
                 </div>
 
-                <div>
+                <div className="adv-only">
                   <label className="block font-semibold text-[var(--text-primary)] mb-1">Data de Emissão *</label>
                   <DateField
                     value={editDate}
@@ -1635,14 +1644,14 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-primary)] mb-1">Classificação Contábil DRE</label>
+                <label className="block font-semibold text-[var(--text-primary)] mb-1">{simple ? 'Categoria' : 'Classificação Contábil DRE'}</label>
                 <PremiumSelect
                   value={editAccountId}
                   onChange={e => setEditAccountId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
                 >
                   {chartAccounts.map(a => (
-                    <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
+                    <option key={a.id} value={a.id}>{simple ? a.name : `${a.code} - ${a.name}`}</option>
                   ))}
                 </PremiumSelect>
               </div>

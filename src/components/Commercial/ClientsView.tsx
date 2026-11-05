@@ -38,6 +38,7 @@ import { CNPJInputField } from '../Common/CNPJInputField';
 import { validateFiscalDocument } from '../../utils/cnpjValidator';
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { Card, PageToolbar, Button, StatCard, TabPills } from '../Common/ui';
 import { TUsers, TUserPlus, TFile, TWallet } from '../Common/tileIcons';
 
@@ -46,6 +47,7 @@ interface ClientsViewProps {
 }
 
 export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) => {
+  const simple = useIsSimpleMode();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   React.useEffect(() => {
@@ -437,13 +439,13 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
           <table className="w-full text-left text-xs">
             <thead className="bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-semibold uppercase tracking-wider">
               <tr>
-                <th className="py-3 px-4">Cliente / Razão Social</th>
-                <th className="py-3 px-4">CNPJ / CPF</th>
-                <th className="py-3 px-4 min-w-[200px]">Contratos Ativos (Vínculo)</th>
+                <th className="py-3 px-4">Cliente</th>
+                <th className="py-3 px-4 adv-only">CNPJ / CPF</th>
+                <th className="py-3 px-4 min-w-[200px]">Contratos ativos</th>
                 <th className="py-3 px-4">Contatos</th>
                 <th className="py-3 px-4 text-right">Saldo em Aberto</th>
-                <th className="py-3 px-4 text-center">Inadimplência</th>
-                <th className="py-3 px-4 text-center">Health Score (Risco)</th>
+                <th className="py-3 px-4 text-center">Atrasos</th>
+                <th className="py-3 px-4 text-center adv-only">Health Score (Risco)</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-right">Ações</th>
               </tr>
@@ -476,7 +478,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                         <div className="text-[11px] text-[var(--text-secondary)]">{client.tradeName}</div>
                       )}
                     </td>
-                    <td className="py-3 px-4 font-mono text-[var(--text-secondary)]">{client.document || '-'}</td>
+                    <td className="py-3 px-4 font-mono text-[var(--text-secondary)] adv-only">{client.document || '-'}</td>
                     
                     {/* MENU DROPDOWN DE VINCULAÇÃO COM CONTRATOS ATIVOS */}
                     <td className="py-3 px-4">
@@ -555,7 +557,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                     </td>
 
                     {/* Health Score & Risco de Churn */}
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-4 text-center adv-only">
                       {(() => {
                         const risk = riskAssessmentMap.get(client.id);
                         if (!risk) {
@@ -671,7 +673,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
           <div className="bg-[var(--surface-card)] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-[var(--border-subtle)] text-[var(--text-primary)]">
             <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)]">
               <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">
-                {editingClient ? 'Editar Cliente' : 'Novo Cliente Contaju'}
+                {editingClient ? 'Editar cliente' : (simple ? 'Novo cliente' : 'Novo Cliente Contaju')}
               </h2>
               <button 
                 onClick={() => setIsFormOpen(false)} 
@@ -726,7 +728,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Razão Social / Nome Completo *</label>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">{simple ? 'Nome *' : 'Razão Social / Nome Completo *'}</label>
                 <input
                   type="text"
                   required
@@ -736,7 +738,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                 />
               </div>
 
-              <div>
+              <div className="adv-only">
                 <label className="block font-semibold text-[var(--text-secondary)] mb-1">Nome Fantasia</label>
                 <input
                   type="text"
@@ -748,7 +750,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">E-mail Financeiro</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">{simple ? 'E-mail' : 'E-mail Financeiro'}</label>
                   <input
                     type="email"
                     value={formData.email || ''}
@@ -768,7 +770,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Endereço Comercial</label>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">{simple ? 'Endereço' : 'Endereço Comercial'}</label>
                 <input
                   type="text"
                   value={formData.address || ''}

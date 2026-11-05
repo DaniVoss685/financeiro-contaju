@@ -61,6 +61,7 @@ import { BalanceFeeBatchBillingModal } from '../Modals/BalanceFeeBatchBillingMod
 import { matchesSearch } from '../../utils/searchUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
+import { formatCompetenceShort } from '../../utils/dateUtils';
 import { DateField, MonthField } from '../Common/DateField';
 import { Card, PageToolbar, Button, StatCard, TabPills, MoreMenu } from '../Common/ui';
 import { TTrendUp, TFile, TBan, TCoins } from '../Common/tileIcons';
@@ -1300,7 +1301,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 }`}
               >
                 <CalendarClock className="w-3.5 h-3.5 text-amber-500" />
-                <span>Cronograma & Faturas Geradas</span>
+                <span>{simple ? 'Parcelas' : 'Cronograma & Faturas Geradas'}</span>
                 <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                   editingContractTitles.length > 0
                     ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
@@ -1313,7 +1314,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               <button
                 type="button"
                 onClick={() => setContractModalTab('AUDIT_LOG')}
-                className={`pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                className={`adv-only pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   contractModalTab === 'AUDIT_LOG'
                     ? 'border-amber-500 text-amber-600 dark:text-amber-400'
                     : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -1805,18 +1806,17 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 {/* Bloco 1: Identificação e Cliente */}
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
                   <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
-                    1. Identificação & Contratante
+                    {simple ? 'Cliente e serviço' : '1. Identificação & Contratante'}
                   </span>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-                    <div>
+                    <div className="adv-only">
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Nº do Contrato *
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="Ex: CTR-2026-001"
                         value={formData.contractNumber || ''}
                         onChange={e => setFormData({ ...formData, contractNumber: e.target.value })}
                         className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
@@ -1873,12 +1873,11 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                   <div>
                     <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                      Objeto do Contrato / Descrição dos Honorários *
+                      {simple ? 'Descrição do serviço *' : 'Objeto do Contrato / Descrição dos Honorários *'}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Assessoria Contábil, Fiscal e Gestão Financeira"
                       value={formData.description || ''}
                       onChange={e => setFormData({ ...formData, description: e.target.value })}
                       className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
@@ -1889,13 +1888,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 {/* Bloco 2: Vigência & Prazos */}
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
                   <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
-                    2. Vigência & Prazos de Vencimento
+                    {simple ? 'Datas' : '2. Vigência & Prazos de Vencimento'}
                   </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
                     <div>
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                        Data de Início do Contrato *
+                        {simple ? 'Início *' : 'Data de Início do Contrato *'}
                       </label>
                       <DateField
                         required
@@ -1903,12 +1902,12 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         onChange={e => setFormData({ ...formData, startDate: e.target.value })}
                         className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
-                      <span className="text-[10px] text-slate-500 mt-1 block">Início da vigência contratual</span>
+                      <span className="adv-only text-[10px] text-slate-500 mt-1 block">Início da vigência contratual</span>
                     </div>
 
                     <div>
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                        Dia do Vencimento Mensal *
+                        {simple ? 'Dia do vencimento *' : 'Dia do Vencimento Mensal *'}
                       </label>
                       <input
                         type="number"
@@ -1920,10 +1919,22 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         onChange={e => setFormData({ ...formData, dueDay: parseInt(e.target.value) || 10 })}
                         className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       />
-                      <span className="text-[10px] text-slate-500 mt-1 block">Dia fixo (Ex: 10, 15, 20)</span>
+                      <span className="adv-only text-[10px] text-slate-500 mt-1 block">Dia fixo (Ex: 10, 15, 20)</span>
                     </div>
 
                     <div>
+                      <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                        {simple ? 'Término (se tiver)' : 'Data final do contrato (opcional)'}
+                      </label>
+                      <DateField
+                        value={formData.endDate || ''}
+                        onChange={e => setFormData({ ...formData, endDate: e.target.value || undefined })}
+                        className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+                      />
+                      <span className="text-[10px] text-slate-500 mt-1 block">Deixe vazio se o contrato não tem data final</span>
+                    </div>
+
+                    <div className="adv-only">
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Regra da Competência
                       </label>
@@ -1943,13 +1954,13 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 {/* Bloco 3: Valores Financeiros & Faturamento */}
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
                   <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
-                    3. Honorários Mensais & Cobrança
+                    {simple ? 'Valor e cobrança' : '3. Honorários Mensais & Cobrança'}
                   </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
                     <div>
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                        Valor Mensal Atual (R$) *
+                        {simple ? 'Valor mensal (R$) *' : 'Valor Mensal Atual (R$) *'}
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-500">R$</span>
@@ -1964,7 +1975,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] pl-9 pr-3.5 py-2 text-xs font-bold text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                         />
                       </div>
-                      <span className="text-[10px] text-slate-500 mt-1 block">Honorário mensal recorrente</span>
+                      <span className="adv-only text-[10px] text-slate-500 mt-1 block">Honorário mensal recorrente</span>
                     </div>
 
                     <div>
@@ -1985,7 +1996,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
                     <div>
                       <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                        Status do Contrato
+                        {simple ? 'Situação' : 'Status do Contrato'}
                       </label>
                       <PremiumSelect
                         value={formData.status || 'ATIVO'}
@@ -2000,11 +2011,11 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         }}
                         className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                       >
-                        <option value="ATIVO">🟢 ATIVO (Gera Faturamento & compõe MRR)</option>
-                        <option value="CANCELADO">🔴 CANCELADO (Rescindido / Fora do MRR)</option>
-                        <option value="INATIVO">🟡 INATIVO (Pausado / Fora do MRR)</option>
-                        <option value="SUSPENSO">🟣 SUSPENSO (Temporário)</option>
-                        <option value="ENCERRADO">⚪ ENCERRADO (Vigência Concluída)</option>
+                        <option value="ATIVO">{simple ? 'Ativo' : '🟢 ATIVO (Gera Faturamento & compõe MRR)'}</option>
+                        <option value="CANCELADO">{simple ? 'Cancelado' : '🔴 CANCELADO (Rescindido / Fora do MRR)'}</option>
+                        <option value="INATIVO">{simple ? 'Pausado' : '🟡 INATIVO (Pausado / Fora do MRR)'}</option>
+                        <option value="SUSPENSO">{simple ? 'Suspenso' : '🟣 SUSPENSO (Temporário)'}</option>
+                        <option value="ENCERRADO">{simple ? 'Encerrado' : '⚪ ENCERRADO (Vigência Concluída)'}</option>
                       </PremiumSelect>
                     </div>
                   </div>
@@ -2061,9 +2072,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                   <div>
                     <span className="text-[11px] font-bold text-amber-900 dark:text-amber-400 uppercase tracking-wider block flex items-center gap-1.5">
                       <CalendarClock className="w-4 h-4 text-amber-500" />
-                      4. Tipo de Contrato & Faturamento Automático dos Próximos Meses
+                      {simple ? 'Tipo de contrato' : '4. Tipo de Contrato & Faturamento Automático dos Próximos Meses'}
                     </span>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                    <p className="adv-only text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                       Defina se o contrato é recorrente ou avulso e se deseja agendar imediatamente os títulos a receber de todos os meses futuros.
                     </p>
                   </div>
@@ -2091,12 +2102,12 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       />
                       <div>
                         <div className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <span>Contrato Recorrente</span>
+                          <span>{simple ? 'Todo mês' : 'Contrato Recorrente'}</span>
                           <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500 text-slate-950">
                             Recomendado
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                        <p className="adv-only text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                           Honorário contábil contínuo. Permite projeção de MRR e faturamento automático dos próximos meses.
                         </p>
                       </div>
@@ -2123,9 +2134,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       />
                       <div>
                         <div className="font-bold text-xs text-slate-900 dark:text-white">
-                          Contrato Avulso / Pontual
+                          {simple ? 'Uma vez só' : 'Contrato Avulso / Pontual'}
                         </div>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                        <p className="adv-only text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                           Serviço esporádico ou pontual, sem geração de parcelas recorrentes contínuas.
                         </p>
                       </div>
@@ -2144,7 +2155,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 border-slate-300 dark:border-slate-700"
                           />
                           <span className="font-bold text-xs text-slate-900 dark:text-white">
-                            ⚡ Gerar faturamento automático de todos os próximos meses agora
+                            {simple ? 'Gerar as parcelas dos próximos meses agora' : '⚡ Gerar faturamento automático de todos os próximos meses agora'}
                           </span>
                         </label>
 
@@ -2188,7 +2199,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                 className="text-amber-500 focus:ring-amber-500"
                               />
                               <div>
-                                <div className="text-xs">Mês Atual ({new Date().toISOString().substring(0, 7)})</div>
+                                <div className="text-xs">Mês Atual ({formatCompetenceShort(new Date().toISOString().substring(0, 7))})</div>
                                 <div className="text-[10px] font-normal text-slate-500 dark:text-slate-400">Recomendado (a partir de agora)</div>
                               </div>
                             </label>
@@ -2206,7 +2217,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                 className="text-amber-500 focus:ring-amber-500"
                               />
                               <div>
-                                <div className="text-xs">Data de Entrada ({formData.startDate?.substring(0, 7) || new Date().toISOString().substring(0, 7)})</div>
+                                <div className="text-xs">Data de Entrada ({formatCompetenceShort(formData.startDate?.substring(0, 7) || new Date().toISOString().substring(0, 7))})</div>
                                 <div className="text-[10px] font-normal text-slate-500 dark:text-slate-400">Desde o início do contrato</div>
                               </div>
                             </label>
@@ -2333,7 +2344,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 </div>
 
                 {/* Bloco 5: Entrada do Cliente & Origem da Aquisição */}
-                <div className="p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/20 space-y-3">
+                <div className="adv-only p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/20 space-y-3">
                   <span className="text-[11px] font-bold text-amber-900 dark:text-amber-400 uppercase tracking-wider block flex items-center gap-1.5">
                     <Compass className="w-3.5 h-3.5 text-amber-500" />
                     5. Data de Entrada & Canal de Aquisição do Cliente
@@ -2441,7 +2452,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 </div>
 
                 {/* Bloco 5: Histórico & Registro de Reajustes de Valor */}
-                <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] space-y-3">
+                <div className="adv-only p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider block flex items-center gap-1.5">
@@ -2679,7 +2690,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 </div>
 
                 {/* Bloco 6: Taxa de Balanço Anual (13º Honorário Contábil) */}
-                <div className="p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/30 space-y-3">
+                <div className="adv-only p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/30 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[11px] font-bold text-amber-900 dark:text-amber-400 uppercase tracking-wider block flex items-center gap-1.5">
@@ -3079,7 +3090,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <CalendarClock className="w-3.5 h-3.5" />
-                        <span>Ver Cronograma & Faturas ({editingContractTitles.length})</span>
+                        <span>{simple ? 'Ver parcelas (' : 'Ver Cronograma & Faturas ('}{editingContractTitles.length})</span>
                       </button>
                       <button
                         type="button"
