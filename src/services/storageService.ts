@@ -754,19 +754,30 @@ class StorageService {
     }
     const sessionStr = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
     let activeId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
+    let sessionUser: User | null = null;
 
     if (sessionStr) {
       try {
         const session = JSON.parse(sessionStr);
         if (session.userId) {
           activeId = session.userId;
+          // Login real (Supabase Auth): se a lista local não tem a pessoa, usa os dados da própria sessão
+          sessionUser = {
+            id: session.userId,
+            name: session.name || session.email,
+            email: session.email,
+            role: session.role,
+            status: 'ATIVO',
+            password: '',
+            createdAt: session.loggedAt
+          } as User;
         }
       } catch {
         // ignore
       }
     }
 
-    return users.find(u => u.id === activeId) || users[0];
+    return users.find(u => u.id === activeId) || sessionUser || users[0];
   }
 
   public setCurrentUserId(id: string) {
