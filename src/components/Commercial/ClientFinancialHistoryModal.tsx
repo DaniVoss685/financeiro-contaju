@@ -201,7 +201,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
           color: t.settlementState === 'LIQUIDADO' 
             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
             : t.dueDate < today 
-              ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+              ? 'bg-rose-500/10 text-[var(--status-danger)] border border-rose-500/30'
               : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
         },
         details: `Saldo devedor atual: ${formatBRL(t.balancePrincipal)}`
@@ -260,7 +260,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
         contractNumber: contract?.contractNumber,
         statusBadge: {
           label: `${diff} DIAS DE ATRASO`,
-          color: 'bg-rose-500/15 text-rose-400 border border-rose-500/40 font-bold'
+          color: 'bg-rose-500/15 text-[var(--status-danger)] border border-rose-500/40 font-bold'
         },
         details: `Multa contratual projetada: 2% (${formatBRL(t.balancePrincipal * 0.02)}) + juros de mora.`
       });
@@ -392,10 +392,10 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
         )}
 
         {/* NAVIGATION TABS */}
-        <div className="border-b border-[var(--border-subtle)] px-6 flex items-center space-x-2 bg-[var(--surface-elevated)] overflow-x-auto text-sm">
+        <div className="border-b border-[var(--border-subtle)] px-6 sm:px-8 pt-3 flex items-center gap-3 bg-[var(--surface-elevated)] overflow-x-auto text-sm">
           <button
             onClick={() => setActiveTab('VISAO_GERAL')}
-            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-5 font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'VISAO_GERAL'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -407,7 +407,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
           <button
             onClick={() => setActiveTab('PAGAMENTOS')}
-            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-5 font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'PAGAMENTOS'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -422,7 +422,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
           <button
             onClick={() => setActiveTab('CONTRATOS')}
-            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-5 font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'CONTRATOS'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -439,16 +439,16 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
 
           <button
             onClick={() => setActiveTab('ATRASOS')}
-            className={`py-4 px-4 font-semibold transition-all border-b-2 flex items-center space-x-1.5 whitespace-nowrap ${
+            className={`py-4 px-5 font-semibold transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'ATRASOS'
-                ? 'border-rose-400 text-rose-400 bg-rose-500/5'
+                ? 'border-[var(--status-danger)] text-[var(--status-danger)] bg-rose-500/5'
                 : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+            <AlertTriangle className="w-3.5 h-3.5 text-[var(--status-danger)]" />
             <span>{simple ? 'Em atraso' : 'Atrasos & Inadimplência'}</span>
             {metrics.overdueCount > 0 && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold ml-1 animate-pulse">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/20 text-[var(--status-danger)] border border-rose-500/30 font-bold ml-1 animate-pulse">
                 {metrics.overdueCount}
               </span>
             )}
@@ -646,7 +646,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                 <div className="bg-[var(--surface-elevated)] rounded-2xl border border-[var(--border-subtle)] p-6 space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold text-[var(--status-danger)] flex items-center text-base">
-                      <AlertTriangle className="w-4 h-4 mr-1.5 text-rose-400" />
+                      <AlertTriangle className="w-4 h-4 mr-1.5 text-[var(--status-danger)]" />
                       {simple ? 'Em atraso' : 'Situação de Atrasos & Cobrança'}
                     </h3>
                     <button
@@ -670,9 +670,9 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                         return (
                           <div key={t.id} className="px-4 py-3 rounded-xl bg-[var(--status-danger-bg)] border border-[var(--status-danger)]/30 flex justify-between items-center">
                             <div>
-                              <div className="font-semibold text-rose-300 flex items-center space-x-1.5">
+                              <div className="font-semibold text-[var(--status-danger)] flex items-center space-x-1.5">
                                 <span className="adv-only">{t.titleNumber}</span><span className="simple-only">{t.description}</span>
-                                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300">
+                                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-[var(--status-danger)]">
                                   {diff} dias de atraso
                                 </span>
                               </div>
@@ -681,7 +681,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                               </div>
                             </div>
                             <div className="text-right">
-                              <span className="font-semibold tabular-nums text-rose-400 block">
+                              <span className="font-semibold tabular-nums text-[var(--status-danger)] block">
                                 {formatBRL(t.balancePrincipal)}
                               </span>
                               <span className="text-[10px] text-[var(--text-secondary)]">Saldo a liquidar</span>
@@ -894,13 +894,13 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                                     ct.status === 'ATIVO' 
                                       ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
                                       : ct.status === 'CANCELADO'
-                                      ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                                      ? 'bg-rose-500/15 text-[var(--status-danger)] border-rose-500/30'
                                       : 'bg-slate-500/10 text-slate-400 border-slate-500/30'
                                   }`}>
                                     {ct.status}
                                   </span>
                                   {ct.cancellationDate && (
-                                    <span className="text-[10px] text-rose-400 font-medium">
+                                    <span className="text-[10px] text-[var(--status-danger)] font-medium">
                                       • Cancelado em {formatDateBR(ct.cancellationDate)} {ct.cancellationReason ? `(${ct.cancellationReason})` : ''}
                                     </span>
                                   )}
@@ -990,8 +990,8 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
                 <div>
-                  <h3 className="font-bold text-rose-400 text-sm flex items-center">
-                    <AlertTriangle className="w-4 h-4 mr-1.5 text-rose-400" />
+                  <h3 className="font-bold text-[var(--status-danger)] text-sm flex items-center">
+                    <AlertTriangle className="w-4 h-4 mr-1.5 text-[var(--status-danger)]" />
                     Títulos em Atraso & Análise de Inadimplência
                   </h3>
                   <p className="text-[11px] text-[var(--text-secondary)]">
@@ -1000,7 +1000,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-[var(--text-secondary)]">Dívida total vencida: </span>
-                  <strong className="text-rose-400 font-mono font-bold text-sm">
+                  <strong className="text-[var(--status-danger)] font-mono font-bold text-sm">
                     {formatBRL(metrics.overdueBalance)}
                   </strong>
                 </div>
@@ -1018,13 +1018,13 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                 <div className="space-y-4">
                   
                   {/* Alert summary banner */}
-                  <div className="bg-rose-950/30 border border-rose-500/40 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="bg-[var(--status-danger-bg)] border border-rose-500/40 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <div className="font-bold text-rose-300 flex items-center text-xs uppercase tracking-wider">
-                        <AlertTriangle className="w-4 h-4 mr-1.5 text-rose-400" />
+                      <div className="font-bold text-[var(--status-danger)] flex items-center text-xs uppercase tracking-wider">
+                        <AlertTriangle className="w-4 h-4 mr-1.5 text-[var(--status-danger)]" />
                         Alerta de Cobrança Ativo
                       </div>
-                      <div className="text-xs text-rose-200/80 mt-1">
+                      <div className="text-xs text-[var(--text-secondary)] mt-1">
                         Existem <strong>{delayedTitles.length} título(s)</strong> em atraso acumulando saldo devedor de <strong>{formatBRL(metrics.overdueBalance)}</strong>. Média de atraso: <strong>{metrics.avgDelayDays} dias</strong>.
                       </div>
                     </div>
@@ -1053,32 +1053,32 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                           const projectedTotal = t.balancePrincipal + fine + interest;
 
                           return (
-                            <tr key={t.id} className="hover:bg-rose-950/10 transition-colors">
+                            <tr key={t.id} className="hover:bg-[var(--status-danger-bg)] transition-colors">
                               <td className="py-2.5 px-3 font-semibold text-[var(--text-primary)]">
                                 {t.titleNumber}
                               </td>
                               <td className="py-2.5 px-3 font-mono text-[var(--text-secondary)]">
                                 {t.competence}
                               </td>
-                              <td className="py-2.5 px-3 font-mono font-medium text-rose-400">
+                              <td className="py-2.5 px-3 font-mono font-medium text-[var(--status-danger)]">
                                 {formatDateBR(t.dueDate)}
                               </td>
                               <td className="py-2.5 px-3 text-center">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-[var(--status-danger)] border border-rose-500/30">
                                   {diff} dias
                                 </span>
                               </td>
                               <td className="py-2.5 px-3 text-right font-medium text-[var(--text-secondary)]">
                                 {formatBRL(t.originalAmount)}
                               </td>
-                              <td className="py-2.5 px-3 text-right font-semibold tabular-nums text-rose-400">
+                              <td className="py-2.5 px-3 text-right font-semibold tabular-nums text-[var(--status-danger)]">
                                 {formatBRL(t.balancePrincipal)}
                               </td>
                               <td className="py-2.5 px-3 text-right text-[11px] text-amber-400">
                                 +{formatBRL(fine + interest)}
                               </td>
                               <td className="py-2.5 px-3 text-center">
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/15 text-[var(--status-danger)] border border-rose-500/30">
                                   VENCIDO
                                 </span>
                               </td>
@@ -1154,7 +1154,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                     onClick={() => setMovementFilter('ATRASO')}
                     className={`px-2 py-1 rounded font-medium transition-all ${
                       movementFilter === 'ATRASO'
-                        ? 'bg-rose-500/20 text-rose-300 font-semibold'
+                        ? 'bg-rose-500/20 text-[var(--status-danger)] font-semibold'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -1178,7 +1178,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                           ev.type === 'PAGAMENTO'
                             ? 'border-emerald-400 ring-4 ring-emerald-500/10'
                             : ev.type === 'ATRASO'
-                              ? 'border-rose-400 ring-4 ring-rose-500/10'
+                              ? 'border-[var(--status-danger)] ring-4 ring-rose-500/10'
                               : ev.type === 'CONTRATO'
                                 ? 'border-amber-400 ring-4 ring-amber-500/10'
                                 : 'border-amber-400 ring-4 ring-amber-500/10'
@@ -1207,7 +1207,7 @@ export const ClientFinancialHistoryModal: React.FC<ClientFinancialHistoryModalPr
                                   ev.type === 'PAGAMENTO' 
                                     ? 'text-emerald-400' 
                                     : ev.type === 'ATRASO' 
-                                      ? 'text-rose-400' 
+                                      ? 'text-[var(--status-danger)]' 
                                       : 'text-[var(--text-primary)]'
                                 }`}>
                                   {ev.amount}

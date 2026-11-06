@@ -47,7 +47,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
   
   // Saldos declarados pelo usuário (Key: bankAccountId, Value: number)
   const [realBalances, setRealBalances] = useState<Record<string, number>>({});
-  const [notes, setNotes] = useState<string>('Fechamento de conferência de saldos bancários');
+  const [notes, setNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [successToast, setSuccessToast] = useState<string>('');
   const [errorToast, setErrorToast] = useState<string>('');
@@ -165,7 +165,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
         realBalance: item.realBalance,
         difference: item.difference,
         status: item.status,
-        notes,
+        notes: notes.trim() || 'Conferência de saldos',
         pendingStatementsCount: item.pendingStmtsCount,
         pendingTitlesCount: item.openTitlesCount,
         createdAt: now.toISOString()
@@ -223,14 +223,11 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                  Conferência de Saldos Bancários & Fechamento Perfeito
+                  Conferir com o banco
                 </h2>
-                <span className="text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
-                  Bancos & Caixa
-                </span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Compare o saldo registrado no sistema com o saldo real que você tem no banco e identifique valores faltando ou passando.
+                Compare o saldo do sistema com o do banco.
               </p>
             </div>
           </div>
@@ -247,7 +244,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                Conferência Atual
+                Conferir
               </button>
               <button
                 type="button"
@@ -298,261 +295,94 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
 
           {activeTab === 'conference' ? (
             <>
-              {/* Filtros e Controles de Conferência */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 dark:bg-[#1b1b20] p-3.5 rounded-xl border border-slate-200 dark:border-[#26262b]">
-                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                      Data da Conferência
-                    </label>
-                    <DateField
-                      value={closingDate}
-                      onChange={e => setClosingDate(e.target.value)}
-                      className="rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                      Filtrar Conta
-                    </label>
-                    <PremiumSelect
-                      value={selectedAccountId}
-                      onChange={e => setSelectedAccountId(e.target.value)}
-                      className="rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
-                    >
-                      <option value="ALL">Todas as Contas (Fechamento Global)</option>
-                      {accounts.map(a => (
-                        <option key={a.id} value={a.id}>
-                          {a.name} ({a.institution})
-                        </option>
-                      ))}
-                    </PremiumSelect>
-                  </div>
+              {/* Data e conta */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Data da conferência</label>
+                  <DateField
+                    value={closingDate}
+                    onChange={e => setClosingDate(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 text-sm text-slate-900 dark:text-white"
+                  />
                 </div>
-
-                {/* Banner de Status Consolidado */}
-                <div className="flex items-center gap-3 self-end sm:self-auto">
-                  {consolidated.isAllPerfect ? (
-                    <div className="flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <div>
-                        <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 block">
-                          Fechamento Perfeito
-                        </span>
-                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400">
-                          Saldos 100% equalizados
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 px-3 py-1.5 rounded-xl">
-                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                      <div>
-                        <span className="text-xs font-bold text-amber-900 dark:text-amber-300 block">
-                          Divergência Total: {formatBRL(consolidated.totalDifference)}
-                        </span>
-                        <span className="text-[10px] text-slate-600 dark:text-slate-400">
-                          {consolidated.totalDifference > 0 ? 'Passando no banco' : 'Faltando no banco'}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                <div>
+                  <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Conta</label>
+                  <PremiumSelect
+                    value={selectedAccountId}
+                    onChange={e => setSelectedAccountId(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 text-sm text-slate-900 dark:text-white"
+                  >
+                    <option value="ALL">Todas as contas</option>
+                    {accounts.map(a => (
+                      <option key={a.id} value={a.id}>{a.name}</option>
+                    ))}
+                  </PremiumSelect>
                 </div>
               </div>
 
-              {/* Tabela Comparativa de Bancos (Sistema vs Real que Tenho) */}
-              <div className="bg-white dark:bg-[#131316] rounded-xl border border-slate-200 dark:border-[#26262b] shadow-2xs overflow-hidden">
-                <div className="p-3.5 bg-slate-50 dark:bg-[#1b1b20] border-b border-slate-200 dark:border-[#26262b] flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                    <Landmark className="w-4 h-4 text-amber-500" />
-                    Comparativo por Banco / Conta Corrente
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    Digite no campo "Saldo que Tenho" o valor que consta no extrato ou aplicativo do banco
-                  </span>
-                </div>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Digite o saldo que aparece no seu banco. O sistema mostra se bate com o que está registrado.
+              </p>
 
-                <div className="divide-y divide-slate-100 dark:divide-[#26262b]">
-                  {accountsData.map(item => (
-                    <div key={item.account.id} className="p-4 hover:bg-slate-50 dark:hover:bg-[#1b1b20]/40 transition-colors">
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                        
-                        {/* Identificação do Banco */}
-                        <div className="lg:col-span-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 font-bold text-xs">
-                              {item.account.institution.slice(0, 3).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <span>{item.account.name}</span>
-                                <span className="text-[10px] text-slate-500 font-normal">
-                                  ({item.account.type})
-                                </span>
-                              </div>
-                              <div className="text-[11px] text-slate-500 font-mono">
-                                Ag: {item.account.agency || '0001'} • CC: {item.account.accountNumber || '00000'}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Diagnóstico rápido */}
-                          <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                            {item.pendingStmtsCount > 0 ? (
-                              <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                                ⚡ {item.pendingStmtsCount} extratos pendentes ({formatBRL(item.pendingStmtsTotal)})
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">✓ Extrato zerado</span>
-                            )}
-                            {item.openTitlesCount > 0 && (
-                              <span className="text-slate-500 dark:text-slate-400">
-                                • {item.openTitlesCount} títulos em aberto ({formatBRL(item.openTitlesTotal)})
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Saldo no Sistema (ERP) */}
-                        <div className="lg:col-span-2 text-left lg:text-right">
-                          <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                            Saldo no Sistema (ERP)
+              {/* Uma linha limpa por conta */}
+              <div className="space-y-3">
+                {accountsData.map(item => (
+                  <div key={item.account.id} className="rounded-2xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                        <Landmark className="w-4 h-4" />
+                      </div>
+                      <span className="font-semibold text-slate-900 dark:text-white">{item.account.name}</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                      <div>
+                        <span className="block text-sm text-[var(--text-secondary)] mb-1.5">No sistema</span>
+                        <span className="block h-11 leading-[2.75rem] font-semibold tabular-nums text-slate-900 dark:text-white">{formatBRL(item.systemBalance)}</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-[var(--text-secondary)] mb-1.5">No banco (R$)</label>
+                        <MoneyField value={parseFloat(String(item.realBalance)) || 0} onChange={(v: number) => handleBalanceChange(item.account.id, String(v))} className="w-full h-11 px-3.5 rounded-xl border border-amber-500/40 bg-white dark:bg-[#131316] font-semibold text-sm text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500 focus:outline-none" allowNegative />
+                      </div>
+                      <div>
+                        <span className="block text-sm text-[var(--text-secondary)] mb-1.5">Resultado</span>
+                        {item.status === 'PERFEITO' ? (
+                          <span className="inline-flex items-center gap-1.5 h-11 font-semibold text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="w-4 h-4" /> Bateu certinho
                           </span>
-                          <span className="font-mono font-bold text-sm text-slate-900 dark:text-white">
-                            {formatBRL(item.systemBalance)}
+                        ) : (
+                          <span className={`block h-11 leading-[2.75rem] font-semibold tabular-nums ${item.status === 'SOBRA' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                            {item.status === 'SOBRA' ? 'Sobra ' : 'Falta '}{formatBRL(Math.abs(item.difference))}
                           </span>
-                        </div>
-
-                        {/* Saldo que Tenho no Banco (Input Editável) */}
-                        <div className="lg:col-span-3">
-                          <label className="block text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 mb-1">
-                            Saldo que Tenho no Banco (R$) *
-                          </label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2 text-xs font-bold text-slate-400">R$</span>
-                            <MoneyField value={parseFloat(String(item.realBalance)) || 0} onChange={(v: number) => handleBalanceChange(item.account.id, String(v))} className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-amber-500/40 bg-white dark:bg-[#131316] font-mono font-bold text-sm text-slate-900 dark:text-amber-400 focus:ring-2 focus:ring-amber-500 focus:outline-none" allowNegative />
-                          </div>
-                        </div>
-
-                        {/* Diferença Apurada & Status */}
-                        <div className="lg:col-span-3 text-left lg:text-right">
-                          <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                            Divergência (Real - Sistema)
-                          </span>
-                          <div className="flex lg:justify-end items-center gap-1.5 mt-0.5">
-                            {item.status === 'PERFEITO' ? (
-                              <span className="inline-flex items-center gap-1 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                R$ 0,00
-                              </span>
-                            ) : item.status === 'SOBRA' ? (
-                              <span className="inline-flex items-center gap-1 font-mono font-bold text-amber-600 dark:text-amber-400 text-sm">
-                                <TrendingUp className="w-4 h-4 text-amber-500" />
-                                +{formatBRL(item.difference)}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 font-mono font-bold text-rose-600 dark:text-rose-400 text-sm">
-                                <TrendingDown className="w-4 h-4 text-rose-500" />
-                                {formatBRL(item.difference)}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Mensagem Explicativa */}
-                          <div className="text-[11px] mt-1 font-medium">
-                            {item.status === 'PERFEITO' && (
-                              <span className="text-emerald-700 dark:text-emerald-400">
-                                Fechamento 100% exato!
-                              </span>
-                            )}
-                            {item.status === 'SOBRA' && (
-                              <span className="text-amber-700 dark:text-amber-400" title="Possíveis recebimentos do dia ainda não baixados ou registrados no sistema">
-                                Sobrando no banco (falta lançar entradas)
-                              </span>
-                            )}
-                            {item.status === 'FALTA' && (
-                              <span className="text-rose-700 dark:text-rose-400" title="Possíveis despesas, tarifas ou saídas que caíram no banco mas ainda não foram baixadas no sistema">
-                                Faltando no banco (falta lançar saídas/tarifas)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
+                        )}
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                {/* Linha de Totalização Geral */}
-                <div className="p-4 bg-amber-500/10 dark:bg-amber-500/5 border-t border-amber-500/20 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                  <div className="lg:col-span-4">
-                    <span className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider block">
-                      Total Consolidado da Conferência
-                    </span>
-                    <span className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Soma de todas as contas ativas listadas
-                    </span>
                   </div>
-
-                  <div className="lg:col-span-2 text-left lg:text-right">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Total Sistema</span>
-                    <span className="font-mono font-bold text-sm text-slate-900 dark:text-white">
-                      {formatBRL(consolidated.totalSystem)}
-                    </span>
-                  </div>
-
-                  <div className="lg:col-span-3 text-left lg:text-right">
-                    <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block">Total Real Declarado</span>
-                    <span className="font-mono font-bold text-sm text-amber-600 dark:text-amber-400">
-                      {formatBRL(consolidated.totalReal)}
-                    </span>
-                  </div>
-
-                  <div className="lg:col-span-3 text-left lg:text-right">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Divergência Total</span>
-                    <span className={`font-mono font-bold text-base ${
-                      consolidated.isAllPerfect 
-                        ? 'text-emerald-600 dark:text-emerald-400' 
-                        : (consolidated.totalDifference > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400')
-                    }`}>
-                      {consolidated.isAllPerfect ? 'R$ 0,00 (Perfeito)' : formatBRL(consolidated.totalDifference)}
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Notas do Fechamento */}
+              {/* Só aparece quando há diferença */}
+              {!consolidated.isAllPerfect && (
+                <div className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-5 text-sm text-[var(--text-secondary)] space-y-1.5">
+                  <span className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" /> Como achar a diferença
+                  </span>
+                  <p>
+                    {consolidated.totalDifference > 0
+                      ? 'Sobrando no banco: veja se entrou algum PIX ou transferência que ainda não foi lançado.'
+                      : 'Faltando no banco: veja se saiu alguma tarifa, débito automático ou pagamento que ainda não foi lançado.'}
+                  </p>
+                </div>
+              )}
+
+              {/* Observação (opcional) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Observações & Anotações do Fechamento
-                </label>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Observação (opcional)</label>
                 <input
                   type="text"
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
-                  placeholder="Ex: Conferência diária de encerramento do dia, saldos conferidos via aplicativo..."
-                  className="w-full rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-11 rounded-xl border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 text-sm text-slate-900 dark:text-slate-100"
                 />
-              </div>
-
-              {/* Dicas para Alcançar o Fechamento Perfeito */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] text-xs space-y-1.5 text-slate-600 dark:text-slate-400">
-                <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  Como resolver divergências e fazer o fechamento perfeito:
-                </span>
-                <ul className="list-disc list-inside space-y-1 text-[11px]">
-                  <li>
-                    <strong>Se a diferença for positiva (Sobrando no banco):</strong> verifique se houve entradas por PIX ou transferências no extrato que ainda não foram conciliadas no menu Conciliação Bancária.
-                  </li>
-                  <li>
-                    <strong>Se a diferença for negativa (Faltando no banco):</strong> verifique tarifas bancárias, juros de limite, débitos automáticos ou pagamentos feitos no banco que ainda não foram baixados no Contas a Pagar.
-                  </li>
-                  <li>
-                    Importe o arquivo <strong>OFX</strong> atualizado do banco na tela de Conciliação para casar todos os lançamentos pendentes com 1 clique!
-                  </li>
-                </ul>
               </div>
             </>
           ) : (
@@ -569,7 +399,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
 
               {closingHistory.length === 0 ? (
                 <div className="py-12 text-center text-slate-500 text-xs bg-slate-50 dark:bg-[#1b1b20] rounded-xl border border-slate-200 dark:border-[#26262b]">
-                  Nenhum fechamento salvo anteriormente. Realize a conferência na aba "Conferência Atual" e clique em "Salvar Conferência de Fechamento".
+                  Nenhum fechamento salvo anteriormente. Realize a conferência na aba "Conferência Atual" e clique em "Salvar conferência".
                 </div>
               ) : (
                 <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#26262b]">
@@ -664,7 +494,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
               className="px-5 py-2 text-xs font-bold text-black bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4 text-black stroke-[2.5]" />
-              <span>Salvar Conferência de Fechamento</span>
+              <span>Salvar conferência</span>
             </button>
           )}
         </div>

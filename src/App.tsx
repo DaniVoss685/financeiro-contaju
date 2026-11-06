@@ -70,6 +70,14 @@ const ScreenLoadingFallback: React.FC = () => (
 
 function AppContent() {
   const { toasts, dismissToast, showSuccess, showError, showInfo } = useToast();
+  // Ao entrar no sistema o período é sempre o mês atual (vira o mês, muda sozinho)
+  useState(() => {
+    try {
+      const n = new Date();
+      storage.saveGlobalPeriodFilter({ active: true, year: n.getFullYear(), month: n.getMonth() + 1 });
+    } catch { /* segue com o filtro que já existe */ }
+    return 0;
+  });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => storage.isAuthenticated());
   const [currentScreen, setCurrentScreen] = useState<NavigationScreen>('DASHBOARD');
   const [isPendingScreen, startScreenTransition] = useTransition();

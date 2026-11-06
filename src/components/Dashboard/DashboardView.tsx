@@ -241,7 +241,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, [titles, currentCompetenceStr, dashboardRefreshTrigger]);
 
   const monthExpense = Math.max(0, currentMonthGrossRevenue - currentMonthNetResult);
-  const projectedProfit = currentMonthNetResult + monthToReceive - monthToPay;
+  const projectedProfit = consolidatedCash + monthToReceive - monthToPay;
 
   // 5. Client KPIs & Metrics memoizado
   const clientMetrics = useMemo(() => {
@@ -505,25 +505,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
-                <IconBadge tone={'success'}><TTrendUp /></IconBadge>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">Receita do mês</p>
-                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${false?'text-[var(--status-danger)]':''}`}>{formatBRL(currentMonthGrossRevenue)}</p>
-                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Acumulado no ano {formatBRL(ytdGrossRevenue)}</p>
-              </div>
-              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
-                <IconBadge tone={'danger'}><TRepeat /></IconBadge>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">{simple ? 'Despesa do mês' : 'Custos e despesas'}</p>
-                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${false?'text-[var(--status-danger)]':''}`}>{formatBRL(monthExpense)}</p>
-                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">{simple ? 'Tudo o que saiu neste mês' : 'Total do mês'}</p>
-              </div>
-              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
-                <IconBadge tone={currentMonthNetResult < 0 ? 'danger' : 'gold'}><TChart /></IconBadge>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">{simple ? 'Lucro do mês' : 'Resultado líquido'}</p>
-                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${currentMonthNetResult < 0?'text-[var(--status-danger)]':''}`}>{formatBRL(currentMonthNetResult)}</p>
-                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Margem no ano {ytdMargin.toFixed(1)}%</p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
                 <IconBadge tone={'info'}><TTrendUp /></IconBadge>
                 <p className="mt-3 text-sm text-[var(--text-secondary)]">A receber no mês</p>
@@ -538,9 +520,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
                 <IconBadge tone={projectedProfit < 0 ? 'danger' : 'gold'}><TChart /></IconBadge>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">Lucro projetado</p>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">Saldo projetado</p>
                 <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${projectedProfit < 0?'text-[var(--status-danger)]':''}`}>{formatBRL(projectedProfit)}</p>
-                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Lucro de hoje + a receber − a pagar</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Saldo de hoje + a receber − a pagar</p>
               </div>
             </div>
           </Card>

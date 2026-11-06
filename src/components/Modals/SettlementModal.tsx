@@ -112,13 +112,13 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
           isReceivable ? 'bg-emerald-50/70 border-emerald-100' : 'bg-rose-50/70 border-rose-100'
         }`}>
           <div>
-            <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+            <span className={`${simple ? 'hidden' : ''} text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
               isReceivable ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
             }`}>
               {isReceivable ? 'Baixa de Recebimento' : 'Baixa de Pagamento'}
             </span>
             <h2 className="text-base font-semibold text-slate-900 mt-1">
-              Título: {title.titleNumber}
+              {simple ? (isReceivable ? 'Marcar como recebido' : 'Marcar como pago') : `Título: ${title.titleNumber}`}
             </h2>
           </div>
           <button 
@@ -138,7 +138,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             <div className="text-slate-700 text-xs">{title.description}</div>
           </div>
           <div className="text-right">
-            <div className="text-slate-700">Saldo Atual em Aberto:</div>
+            <div className="text-slate-700">{simple ? (isReceivable ? 'Valor a receber' : 'Valor a pagar') : 'Saldo Atual em Aberto:'}</div>
             <div className="font-bold text-base text-slate-900">{formatBRL(title.balancePrincipal)}</div>
           </div>
         </div>
@@ -149,7 +149,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             <div className="flex items-center gap-2 text-amber-900">
               <Clock className="w-4 h-4 text-amber-600 shrink-0" />
               <span>
-                <strong>Título parcialmente pago:</strong> Valor original de {formatBRL(title.originalAmount)}, sendo que <strong>{formatBRL(title.settledPrincipal || 0)}</strong> já foi amortizado.
+                <strong>{simple ? 'Já foi pago em parte:' : 'Título parcialmente pago:'}</strong> Valor original de {formatBRL(title.originalAmount)}, sendo que <strong>{formatBRL(title.settledPrincipal || 0)}</strong> já foi amortizado.
               </span>
             </div>
             <button
@@ -178,7 +178,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div className="md:col-span-4">
               <label className="block font-medium text-slate-700 mb-1">
-                Data Efetiva da Baixa *
+                {simple ? (isReceivable ? 'Data em que recebeu *' : 'Data em que pagou *') : 'Data Efetiva da Baixa *'}
               </label>
               <DateField
                 max={today}
@@ -187,12 +187,12 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
                 required
               />
-              <span className="text-[10px] text-slate-500 mt-0.5 block">Data do movimento bancário</span>
+              <span className={`text-[10px] text-slate-500 mt-0.5 ${simple ? 'hidden' : 'block'}`}>Data do movimento bancário</span>
             </div>
 
             <div className="md:col-span-8">
               <label className="block font-medium text-slate-700 mb-1">
-                Conta Bancária / Caixa de Movimentação *
+                {simple ? (isReceivable ? 'Em qual conta caiu? *' : 'De qual conta saiu? *') : 'Conta Bancária / Caixa de Movimentação *'}
               </label>
               <PremiumSelect
                 value={bankAccountId}
@@ -203,13 +203,13 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 <option value="">Selecione a conta bancária...</option>
                 {accounts.map(acc => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.name} — Ag: {acc.agency || '-'} CC: {acc.accountNumber || '-'} ({acc.type}) — Saldo: {formatBRL(FinancialEngine.getAccountBalance(acc.id))}
+                    {simple ? acc.name : `${acc.name} — Ag: ${acc.agency || '-'} CC: ${acc.accountNumber || '-'} (${acc.type}) — Saldo: ${formatBRL(FinancialEngine.getAccountBalance(acc.id))}`}
                   </option>
                 ))}
               </PremiumSelect>
 
               {/* Visual Card showing selected bank details descending cleanly */}
-              {selectedAccount && (
+              {selectedAccount && !simple && (
                 <div className="mt-2 p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                   <div>
                     <div className="font-semibold text-slate-900 flex items-center gap-1.5">
@@ -241,7 +241,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             <div className="flex items-center justify-between font-semibold text-slate-800 border-b border-slate-200 pb-2">
               <span className="flex items-center">
                 <Calculator className="w-4 h-4 mr-1 text-amber-500" />
-                {simple ? 'Valor da baixa' : 'Composição Financeira da Baixa'}
+                {simple ? 'Valores' : 'Composição Financeira da Baixa'}
               </span>
               <span className={`text-[10px] font-normal text-slate-500 ${simple ? 'hidden' : ''}`}>Regra de Cálculo Oficial</span>
             </div>
@@ -249,7 +249,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
-                  Principal Baixar (R$) *
+                  {simple ? (isReceivable ? 'Valor recebido (R$) *' : 'Valor pago (R$) *') : 'Principal Baixar (R$) *'}
                 </label>
                 <MoneyField value={principalSettled} onChange={setPrincipalSettled} className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-sm sm:text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-amber-500" required max={title.balancePrincipal} />
               </div>
@@ -377,7 +377,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
               }`}
             >
               <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              <span>{isSubmitting ? 'Processando...' : 'Confirmar Baixa'}</span>
+              <span>{isSubmitting ? 'Processando...' : simple ? (isReceivable ? 'Recebido' : 'Pago') : 'Confirmar Baixa'}</span>
             </button>
           </div>
 
