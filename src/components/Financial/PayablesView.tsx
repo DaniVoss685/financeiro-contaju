@@ -59,6 +59,7 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
+import { RecurringSeriesService } from '../../services/recurringSeriesService';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -77,6 +78,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   const [minAmount, setMinAmount] = usePersistentState<number>('pagar_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('pagar_max', 0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[] } | null>(null);
   const [statusFilter, setStatusFilter] = usePersistentState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>('pagar_status', initialSearch ? 'TODOS' : 'ABERTO');
 
   React.useEffect(() => {
@@ -653,6 +655,16 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
         text: `🔒 Esta despesa já foi conferida com o banco e não pode ser excluída. Desfaça a conciliação bancária primeiro na tela de Conciliação.`
       });
       return;
+    }
+    try {
+      const series = RecurringSeriesService.detectSeries(t);
+      const nextIds = series.subsequentOpenTitles.filter(x => x.id !== t.id).map(x => x.id);
+      if (series.isSeries && (series.seriesType === 'RECORRENCIA' || series.seriesType === 'CONTRATO') && nextIds.length > 0) {
+        setSeriesDelete({ title: t, nextIds });
+        return;
+      }
+    } catch {
+      // segue com a exclusão simples
     }
     setConfirmModalState({
       isOpen: true,
@@ -2175,7 +2187,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                           <button
                             onClick={() => setSelectedTitleForSettlement(t)}
                             className="px-2.5 py-1 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded shadow-2xs transition-colors inline-flex items-center cursor-pointer"
-                            title="Efetuar pagamento da obrigação"
+                            title="Marcar como paga"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                             Pagar
@@ -2194,11 +2206,11 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                             title={
                               t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
                                 ? 'Bloqueado: Título conciliado via banco. Desfaça a conciliação na tela de Conciliação Bancária antes de estornar.'
-                                : 'Voltar obrigação para EM ABERTO (Estornar pagamento)'
+                                : 'Desfazer o pagamento'
                             }
                           >
                             <RotateCcw className="w-3.5 h-3.5 mr-1" />
-                            Voltar Aberto
+                            Desfazer pagamento
                           </button>
                         )}
 
@@ -2213,7 +2225,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                           title={
                             t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
                               ? 'Bloqueado: Título conciliado via banco não pode ser editado. Desfaça a conciliação na tela de Conciliação Bancária.'
-                              : 'Editar obrigação (ou dê duplo clique na linha)'
+                              : 'Editar despesa'
                           }
                         >
                           <Edit3 className="w-4 h-4" />
@@ -2221,7 +2233,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
                         <button
                           onClick={(e) => handleDuplicateOne(t, e)}
-                          className="p-1 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer"
+                          className="adv-only p-1 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer"
                           title="Copiar esta despesa"
                         >
                           <Copy className="w-4 h-4" />
@@ -2230,7 +2242,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         {t.balancePrincipal > 0 && t.documentState !== 'CANCELADO' && (
                           <button
                             onClick={(e) => handleTriggerWhatsApp(t, e)}
-                            className="p-1 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded transition-colors cursor-pointer"
+                            className="adv-only p-1 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded transition-colors cursor-pointer"
                             title="Enviar aviso ou confirmação de pagamento via WhatsApp"
                           >
                             <MessageCircle className="w-4 h-4" />
@@ -2239,7 +2251,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
                         <button
                           onClick={() => setHistoryTitle(t)}
-                          className="p-1 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                          className="adv-only p-1 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
                           title="Ver detalhes e histórico de pagamentos"
                         >
                           <Eye className="w-4 h-4" />
@@ -2260,7 +2272,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                                 : 'Cancelar despesa'
                             }
                           >
-                            <Ban className="w-4 h-4" />
+                            <Ban className="adv-only w-4 h-4" />
                           </button>
                         )}
 
@@ -2275,7 +2287,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                           title={
                             t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
                               ? 'Bloqueado: despesa já conferida com o banco não pode ser excluída.'
-                              : 'Excluir Lançamento Definitivamente'
+                              : 'Excluir despesa'
                           }
                         >
                           <Trash2 className="w-4 h-4" />
@@ -2374,6 +2386,49 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
           setToastMessage({ type: 'success', text: 'Vencimentos prorrogados com sucesso!' });
         }}
       />
+
+      {/* Conta que se repete todo mês: excluir só este mês ou este e os próximos */}
+      {seriesDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs" onClick={() => setSeriesDelete(null)}>
+          <div className="w-full max-w-md rounded-2xl p-7 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="space-y-1.5">
+              <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">Excluir despesa que se repete</h2>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Esta despesa acontece todo mês. O que você quer fazer com <strong>{seriesDelete.title.description}</strong>?
+              </p>
+            </div>
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  storage.batchCancelTitles([seriesDelete.title.id]);
+                  setSeriesDelete(null);
+                  setRefreshKey(k => k + 1);
+                  setToastMessage({ type: 'success', text: 'Só este mês foi retirado. Os próximos meses continuam.' });
+                }}
+                className="w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
+              >
+                Só este mês
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  storage.batchDeleteTitles([seriesDelete.title.id, ...seriesDelete.nextIds]);
+                  setSeriesDelete(null);
+                  setRefreshKey(k => k + 1);
+                  setToastMessage({ type: 'success', text: 'Este mês e os próximos foram excluídos.' });
+                }}
+                className="w-full h-12 rounded-xl border border-[var(--border-highlight)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer"
+              >
+                Este mês e os próximos
+              </button>
+              <button type="button" onClick={() => setSeriesDelete(null)} className="w-full h-10 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirm Batch or Single Delete / Cancel Modal */}
       <ConfirmBatchActionModal

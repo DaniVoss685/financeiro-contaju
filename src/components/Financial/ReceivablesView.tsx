@@ -74,6 +74,7 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
+import { RecurringSeriesService } from '../../services/recurringSeriesService';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -93,6 +94,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
   const [minAmount, setMinAmount] = usePersistentState<number>('receber_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('receber_max', 0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[] } | null>(null);
   const [statusFilter, setStatusFilter] = usePersistentState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>('receber_status', initialSearch ? 'TODOS' : 'ABERTO');
 
   React.useEffect(() => {
@@ -681,6 +683,16 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
         text: `🔒 O recebimento #${t.titleNumber} está conciliado via banco e não pode ser excluído. Desfaça a conciliação bancária primeiro na tela de Conciliação.`
       });
       return;
+    }
+    try {
+      const series = RecurringSeriesService.detectSeries(t);
+      const nextIds = series.subsequentOpenTitles.filter(x => x.id !== t.id).map(x => x.id);
+      if (series.isSeries && (series.seriesType === 'RECORRENCIA' || series.seriesType === 'CONTRATO') && nextIds.length > 0) {
+        setSeriesDelete({ title: t, nextIds });
+        return;
+      }
+    } catch {
+      // segue com a exclusão simples
     }
     setConfirmModalState({
       isOpen: true,
@@ -2312,10 +2324,10 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                           <button
                             onClick={() => setSelectedTitleForSettlement(t)}
                             className="px-2.5 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-2xs transition-colors inline-flex items-center"
-                            title="Efetuar baixa de recebimento"
+                            title="Marcar como recebida"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                            Baixar
+                            Receber
                           </button>
                         )}
 
@@ -2338,7 +2350,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                         <button
                           onClick={(e) => handleDuplicateOne(t, e)}
-                          className="p-1 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer"
+                          className="adv-only p-1 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer"
                           title="Duplicar este lançamento"
                         >
                           <Copy className="w-4 h-4" />
@@ -2347,7 +2359,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                         {t.balancePrincipal > 0 && t.documentState !== 'CANCELADO' && (
                           <button
                             onClick={(e) => handleTriggerWhatsApp(t, e)}
-                            className="p-1 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded transition-colors cursor-pointer"
+                            className="adv-only p-1 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded transition-colors cursor-pointer"
                             title="Enviar aviso de cobrança via WhatsApp"
                           >
                             <MessageCircle className="w-4 h-4" />
@@ -2356,7 +2368,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                         <button
                           onClick={() => setHistoryTitle(t)}
-                          className="p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded cursor-pointer"
+                          className="adv-only p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded cursor-pointer"
                           title="Ver detalhes e histórico de liquidações"
                         >
                           <Eye className="w-4 h-4" />
@@ -2407,7 +2419,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                                 : 'Cancelar Título (muda status para CANCELADO)'
                             }
                           >
-                            <Ban className="w-4 h-4" />
+                            <Ban className="adv-only w-4 h-4" />
                           </button>
                         )}
 
@@ -2422,7 +2434,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                           title={
                             t.reconciliationStatus === 'CONCILIADO' || t.reconciledViaBank
                               ? 'Bloqueado: Título conciliado via banco não pode ser excluído.'
-                              : 'Excluir Lançamento Definitivamente'
+                              : 'Excluir receita'
                           }
                         >
                           <Trash2 className="w-4 h-4" />
@@ -2521,6 +2533,49 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
           setToastMessage({ type: 'success', text: 'Vencimentos prorrogados com sucesso!' });
         }}
       />
+
+      {/* Conta que se repete todo mês: excluir só este mês ou este e os próximos */}
+      {seriesDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs" onClick={() => setSeriesDelete(null)}>
+          <div className="w-full max-w-md rounded-2xl p-7 space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="space-y-1.5">
+              <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">Excluir receita que se repete</h2>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Esta receita acontece todo mês. O que você quer fazer com <strong>{seriesDelete.title.description}</strong>?
+              </p>
+            </div>
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  storage.batchCancelTitles([seriesDelete.title.id]);
+                  setSeriesDelete(null);
+                  setRefreshKey(k => k + 1);
+                  setToastMessage({ type: 'success', text: 'Só este mês foi retirado. Os próximos meses continuam.' });
+                }}
+                className="w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
+              >
+                Só este mês
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  storage.batchDeleteTitles([seriesDelete.title.id, ...seriesDelete.nextIds]);
+                  setSeriesDelete(null);
+                  setRefreshKey(k => k + 1);
+                  setToastMessage({ type: 'success', text: 'Este mês e os próximos foram excluídos.' });
+                }}
+                className="w-full h-12 rounded-xl border border-[var(--border-highlight)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer"
+              >
+                Este mês e os próximos
+              </button>
+              <button type="button" onClick={() => setSeriesDelete(null)} className="w-full h-10 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirm Batch or Single Delete / Cancel Modal */}
       <ConfirmBatchActionModal

@@ -827,7 +827,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             }])
           ]}
         />
-        <Button variant="secondary" icon={<CalendarClock className="w-4 h-4" />} onClick={onOpenBillingModal}>
+        <Button variant="secondary" className="adv-only" icon={<CalendarClock className="w-4 h-4" />} onClick={onOpenBillingModal}>
           Processar faturamento mensal
         </Button>
         <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={handleOpenNew}>

@@ -40,6 +40,7 @@ import { NavigationScreen } from '../Sidebar';
 import { useDashboardConfig } from '../../hooks/useDashboardConfig';
 import { useModulePeriod } from '../../hooks/useModulePeriod';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
+import { ScenarioSimulatorModal } from './ScenarioSimulatorModal';
 import { ModulePeriodNavigator } from '../Common/ModulePeriodNavigator';
 import { PendingAlertsWidget } from './PendingAlertsWidget';
 import { CashLiquiditySimulationWidget } from './CashLiquiditySimulationWidget';
@@ -64,6 +65,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenBillingModal
 }) => {
   const simple = useIsSimpleMode();
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const today = new Date().toISOString().split('T')[0];
   const currentYear = new Date().getFullYear();
   const currentMonthIdx = new Date().getMonth(); // 0-based
@@ -224,6 +226,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       totalBilledThisMonth: billedMonth
     };
   }, [today, currentCompetenceStr, dashboardRefreshTrigger]);
+
+  // A receber / a pagar que ainda faltam no mês e lucro projetado
+  const { monthToReceive, monthToPay } = useMemo(() => {
+    let rec = 0, pay = 0;
+    (titles || []).forEach((t: any) => {
+      if (!t || t.documentState === 'CANCELADO') return;
+      if (String(t.dueDate || '').substring(0, 7) !== currentCompetenceStr) return;
+      const v = Number(t.balancePrincipal) || 0;
+      if (v <= 0) return;
+      if (t.type === 'RECEBER') rec += v; else if (t.type === 'PAGAR') pay += v;
+    });
+    return { monthToReceive: rec, monthToPay: pay };
+  }, [titles, currentCompetenceStr, dashboardRefreshTrigger]);
+
+  const monthExpense = Math.max(0, currentMonthGrossRevenue - currentMonthNetResult);
+  const projectedProfit = currentMonthNetResult + monthToReceive - monthToPay;
 
   // 5. Client KPIs & Metrics memoizado
   const clientMetrics = useMemo(() => {
@@ -422,9 +440,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
+      <ScenarioSimulatorModal isOpen={isSimulatorOpen} onClose={() => setIsSimulatorOpen(false)} />
       
       <PageToolbar description="Seu caixa, o que vence nos próximos dias e o resultado do mês.">
-        <Button variant="primary" icon={<Calendar className="w-4 h-4" />} onClick={onOpenBillingModal}>
+        <Button variant="primary" icon={<Sparkles className="w-4 h-4" />} onClick={() => setIsSimulatorOpen(true)}>
+          Simular
+        </Button>
+        <Button variant="secondary" className="adv-only" icon={<Calendar className="w-4 h-4" />} onClick={onOpenBillingModal}>
           Faturamento mensal
         </Button>
         <MoreMenu
@@ -483,24 +505,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
-                <IconBadge tone="success"><TTrendUp /></IconBadge>
+                <IconBadge tone={'success'}><TTrendUp /></IconBadge>
                 <p className="mt-3 text-sm text-[var(--text-secondary)]">Receita do mês</p>
-                <p className="mt-1 text-lg font-semibold tracking-tight tabular-nums">{formatBRL(currentMonthGrossRevenue)}</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${false?'text-[var(--status-danger)]':''}`}>{formatBRL(currentMonthGrossRevenue)}</p>
                 <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Acumulado no ano {formatBRL(ytdGrossRevenue)}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
+                <IconBadge tone={'danger'}><TRepeat /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">{simple ? 'Despesa do mês' : 'Custos e despesas'}</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${false?'text-[var(--status-danger)]':''}`}>{formatBRL(monthExpense)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">{simple ? 'Tudo o que saiu neste mês' : 'Total do mês'}</p>
               </div>
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
                 <IconBadge tone={currentMonthNetResult < 0 ? 'danger' : 'gold'}><TChart /></IconBadge>
                 <p className="mt-3 text-sm text-[var(--text-secondary)]">{simple ? 'Lucro do mês' : 'Resultado líquido'}</p>
-                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${currentMonthNetResult < 0 ? 'text-[var(--status-danger)]' : ''}`}>{formatBRL(currentMonthNetResult)}</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${currentMonthNetResult < 0?'text-[var(--status-danger)]':''}`}>{formatBRL(currentMonthNetResult)}</p>
                 <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Margem no ano {ytdMargin.toFixed(1)}%</p>
               </div>
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
-                <IconBadge tone="info"><TRepeat /></IconBadge>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">Faturado no mês</p>
-                <p className="mt-1 text-lg font-semibold tracking-tight tabular-nums">{formatBRL(totalBilledThisMonth)}</p>
-                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">{contractsBilledCount} de {activeContractsCount} contratos</p>
+                <IconBadge tone={'info'}><TTrendUp /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">A receber no mês</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${false?'text-[var(--status-danger)]':''}`}>{formatBRL(monthToReceive)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Ainda falta entrar</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
+                <IconBadge tone={'warning'}><TRepeat /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">A pagar no mês</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${false?'text-[var(--status-danger)]':''}`}>{formatBRL(monthToPay)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Ainda falta pagar</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 p-4">
+                <IconBadge tone={projectedProfit < 0 ? 'danger' : 'gold'}><TChart /></IconBadge>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">Lucro projetado</p>
+                <p className={`mt-1 text-lg font-semibold tracking-tight tabular-nums ${projectedProfit < 0?'text-[var(--status-danger)]':''}`}>{formatBRL(projectedProfit)}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">Lucro de hoje + a receber − a pagar</p>
               </div>
             </div>
           </Card>
