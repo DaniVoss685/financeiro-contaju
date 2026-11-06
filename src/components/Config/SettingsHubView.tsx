@@ -23,6 +23,7 @@ import { isConsultant } from '../../services/authService';
 import { CompanyConfigView } from './CompanyConfigView';
 import { SuppliersView } from './SuppliersView';
 import { ChartOfAccountsView } from './ChartOfAccountsView';
+import { CategoriesView } from './CategoriesView';
 import { RecurrencesView } from './RecurrencesView';
 import { UsersPermissionsView } from './UsersPermissionsView';
 import { PeriodClosureView } from './PeriodClosureView';
@@ -38,6 +39,7 @@ export type ConfigSubTab =
   | 'EMPRESA'
   | 'FORNECEDORES'
   | 'PLANO_CONTAS'
+  | 'CATEGORIAS'
   | 'RECORRENCIAS'
   | 'USUARIOS_PERMISSOES'
   | 'FECHAMENTO_PERIODO'
@@ -115,9 +117,16 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
       icon: Truck
     },
     {
+      id: 'CATEGORIAS',
+      label: 'Categorias',
+      shortLabel: 'Categorias',
+      description: 'Categorias de receita e de despesa da sua empresa',
+      icon: Network
+    },
+    {
       id: 'PLANO_CONTAS',
       label: 'Plano de Contas',
-      shortLabel: 'Plano de contas',
+      shortLabel: 'Plano de contas (DRE)',
       description: 'Estrutura analítica e sintética de receitas e despesas',
       icon: Network
     },
@@ -206,12 +215,12 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
 
   const consultant = isConsultant();
   // Telas técnicas: somem para empresas clientes (versão simples)
-  const ADVANCED_TABS = new Set<ConfigSubTab>(['PLANO_CONTAS', 'RECORRENCIAS', 'FECHAMENTO_PERIODO', 'IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'MELHORIAS']);
+  const ADVANCED_TABS = new Set<ConfigSubTab>(['NOTIFICACOES', 'PLANO_CONTAS', 'RECORRENCIAS', 'FECHAMENTO_PERIODO', 'IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'MELHORIAS']);
   // Empresas clientes não veem a conexão técnica com o banco.
   const visibleTabs = tabs.filter(t => t.id !== 'SUPABASE' || consultant);
   const byId = (ids: ConfigSubTab[]) => ids.map(id => visibleTabs.find(t => t.id === id)).filter(Boolean) as TabDefinition[];
   const sections: { title: string; tabs: TabDefinition[]; collapsible?: boolean }[] = [
-    { title: 'Minha empresa', tabs: byId(['EMPRESA', 'FORNECEDORES', 'PLANO_CONTAS', 'RECORRENCIAS']) },
+    { title: 'Minha empresa', tabs: byId(['EMPRESA', 'FORNECEDORES', 'CATEGORIAS', 'PLANO_CONTAS', 'RECORRENCIAS']) },
     { title: 'Controle', tabs: byId(['USUARIOS_PERMISSOES', 'FECHAMENTO_PERIODO', 'NOTIFICACOES']) },
     { title: 'Avançado', collapsible: true, tabs: byId(['IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'BACKUP', 'MELHORIAS']) }
   ];
@@ -293,6 +302,7 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
       <div className="settings-content">
         {activeTab === 'EMPRESA' && <CompanyConfigView />}
         {activeTab === 'FORNECEDORES' && <SuppliersView />}
+        {activeTab === 'CATEGORIAS' && <CategoriesView />}
         {activeTab === 'PLANO_CONTAS' && <ChartOfAccountsView />}
         {activeTab === 'RECORRENCIAS' && (
           <RecurrencesView onOpenBillingModal={onOpenBillingModal || (() => {})} />

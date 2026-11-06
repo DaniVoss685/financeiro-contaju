@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { Sidebar, NavigationScreen } from './components/Sidebar';
 import { isConsultant, getOrgs, getActiveOrgId, switchOrg } from './services/authService';
 import { useIsSimpleMode } from './hooks/useViewMode';
+import { FinancialEngine } from './services/financialEngine';
 import { BottomNavBar } from './components/Common/BottomNavBar';
 import { storage } from './services/storageService';
 import { User } from './types';
@@ -74,6 +75,27 @@ function AppContent() {
   const [isPendingScreen, startScreenTransition] = useTransition();
   const [dataVersion, setDataVersion] = useState(0);
   const [currentUser, setCurrentUser] = useState<User>(() => storage.getCurrentUser());
+  // Contratos "todo mês" (sem data final) sempre têm os próximos 12 meses prontos: renova uma vez por dia
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const timer = setTimeout(() => {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const key = 'contaju_renovacao_contratos';
+        const org = localStorage.getItem('contaju_active_org') || 'local';
+        if (localStorage.getItem(key) === org + ':' + today) return;
+        const month = today.substring(0, 7);
+        storage.getContracts()
+          .filter(c => c.status === 'ATIVO' && c.contractType !== 'AVULSO' && c.isRecurring !== false && !c.endDate && c.autoGenerateFutureMonths === true)
+          .forEach(c => FinancialEngine.generateContractFutureInstallments(c, 12, month));
+        localStorage.setItem(key, org + ':' + today);
+      } catch {
+        // a renovação roda de novo no próximo acesso
+      }
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated]);
+
   // Mantém a classe da versão simples/contábil no <html> (esconde campos técnicos para empresas clientes)
   useIsSimpleMode();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);

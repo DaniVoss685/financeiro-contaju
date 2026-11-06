@@ -10,6 +10,8 @@ export interface NotificationItem {
   amount?: number;
   tone: 'danger' | 'gold' | 'info';
   screen: NavigationScreen;
+  /** Texto para abrir a tela já filtrando este item. */
+  search?: string;
 }
 
 export interface NotificationGroup {
@@ -43,7 +45,8 @@ export function collectNotifications(): NotificationGroup[] {
       detail: late > 0 ? `Venceu em ${br(due)} (${late} ${late === 1 ? 'dia' : 'dias'} de atraso)` : due === today ? 'Vence hoje' : `Vence em ${br(due)}`,
       amount: Number(t.balancePrincipal) || 0,
       tone: late > 0 ? 'danger' : 'gold',
-      screen: kind === 'PAGAR' ? 'CONTAS_PAGAR' : 'CONTAS_RECEBER'
+      screen: kind === 'PAGAR' ? 'CONTAS_PAGAR' : 'CONTAS_RECEBER',
+      search: String(t.titleNumber || t.description || who)
     };
   };
 
@@ -67,7 +70,8 @@ export function collectNotifications(): NotificationGroup[] {
       detail: `O contrato termina em ${br(c.endDate as string)}`,
       amount: Number(c.monthlyTotal) || 0,
       tone: 'info' as const,
-      screen: 'CONTRATOS' as NavigationScreen
+      screen: 'CONTRATOS' as NavigationScreen,
+      search: names.get(c.customerId) || ''
     }));
 
   const pendentes = storage

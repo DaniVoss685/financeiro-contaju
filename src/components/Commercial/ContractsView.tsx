@@ -214,7 +214,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
 
   const [formData, setFormData] = useState<Partial<Contract>>({
     contractNumber: '',
-    customerId: counterparties[0]?.id || '',
+    customerId: '',
     description: '',
     startDate: new Date().toISOString().split('T')[0],
     entryDate: new Date().toISOString().split('T')[0],
@@ -282,7 +282,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
     setContractModalTab('FORM');
     setFormData({
       contractNumber: `CTR-${new Date().getFullYear()}-${Math.floor(Math.random() * 900 + 100)}`,
-      customerId: counterparties[0]?.id || '',
+      customerId: '',
       description: simple ? '' : 'Honorários Contábeis e Fiscais',
       startDate: new Date().toISOString().split('T')[0],
       entryDate: new Date().toISOString().split('T')[0],

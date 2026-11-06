@@ -495,6 +495,15 @@ export const Header: React.FC<HeaderProps> = ({
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
         onNavigate={screen => onNavigate && onNavigate(screen)}
+        onOpenItem={item => {
+          if (item.search && onNavigateWithSearch && (item.screen === 'CONTAS_PAGAR' || item.screen === 'CONTAS_RECEBER')) {
+            // Um item atrasado pode ser de outro mês: tira o filtro de data para ele aparecer
+            storage.saveGlobalPeriodFilter({ ...storage.getGlobalPeriodFilter(), fromDate: undefined, toDate: undefined, active: false });
+            onNavigateWithSearch(item.screen, item.search);
+          } else if (onNavigate) {
+            onNavigate(item.screen);
+          }
+        }}
       />
 
       {isPeriodModalOpen && (

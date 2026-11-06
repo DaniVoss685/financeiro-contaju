@@ -11,6 +11,8 @@ interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigate: (screen: NavigationScreen) => void;
+  /** Abre a tela já filtrando o item escolhido. */
+  onOpenItem?: (item: NotificationItem) => void;
 }
 
 const ICONS: Record<NotificationGroupId, React.ReactNode> = {
@@ -26,7 +28,7 @@ const TONE_TEXT: Record<NotificationItem['tone'], string> = {
   info: 'text-[var(--status-info)]'
 };
 
-export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, onClose, onNavigate }) => {
+export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, onClose, onNavigate, onOpenItem }) => {
   const simple = useIsSimpleMode();
   const [tick, setTick] = useState(0);
   const [tab, setTab] = useState<'ALL' | NotificationGroupId>('ALL');
@@ -116,7 +118,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, 
                     <button
                       type="button"
                       onClick={() => {
-                        onNavigate(item.screen);
+                        if (onOpenItem) onOpenItem(item);
+                        else onNavigate(item.screen);
                         onClose();
                       }}
                       className="w-full flex items-center justify-between gap-4 px-4 py-3 text-left hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
