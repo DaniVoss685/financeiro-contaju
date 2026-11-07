@@ -785,7 +785,7 @@ export const BudgetPlanningView: React.FC = () => {
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
               (kpis?.revenueExecutionRate ?? 0) >= 98 
                 ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' 
-                : 'bg-slate-800 text-slate-300 border-slate-700'
+                : 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-subtle)]'
             }`}>
               {(kpis?.revenueExecutionRate ?? 0).toFixed(1)}% Realizado
             </span>
@@ -800,7 +800,7 @@ export const BudgetPlanningView: React.FC = () => {
           </div>
           <div className="mt-2 text-[11px] text-[var(--text-secondary)] flex items-center justify-between">
             <span>Desvio Nominal:</span>
-            <span className={`font-mono font-semibold ${(kpis?.revenueVarianceNominal ?? 0) >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+            <span className={`font-mono font-semibold ${(kpis?.revenueVarianceNominal ?? 0) >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
               {(kpis?.revenueVarianceNominal ?? 0) >= 0 ? '+' : ''}{formatBRL(kpis?.revenueVarianceNominal ?? 0)}
             </span>
           </div>
@@ -830,7 +830,7 @@ export const BudgetPlanningView: React.FC = () => {
           </div>
           <div className="mt-2 text-[11px] text-[var(--text-secondary)] flex items-center justify-between">
             <span>Saldo Orçamentário:</span>
-            <span className={`font-mono font-semibold ${((kpis?.totalExpensesPlanned ?? 0) - (kpis?.totalExpensesRealized ?? 0)) >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+            <span className={`font-mono font-semibold ${((kpis?.totalExpensesPlanned ?? 0) - (kpis?.totalExpensesRealized ?? 0)) >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
               {formatBRL((kpis?.totalExpensesPlanned ?? 0) - (kpis?.totalExpensesRealized ?? 0))}
             </span>
           </div>
@@ -851,7 +851,7 @@ export const BudgetPlanningView: React.FC = () => {
             </span>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className={`text-lg font-mono font-bold ${(kpis?.netIncomeRealized ?? 0) >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+            <span className={`text-lg font-mono font-bold ${(kpis?.netIncomeRealized ?? 0) >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
               {formatBRL(kpis?.netIncomeRealized ?? 0)}
             </span>
             <span className="text-xs text-[var(--text-secondary)] font-mono">
@@ -860,7 +860,7 @@ export const BudgetPlanningView: React.FC = () => {
           </div>
           <div className="mt-2 text-[11px] text-[var(--text-secondary)] flex items-center justify-between">
             <span>Superávit/Déficit:</span>
-            <span className={`font-mono font-semibold ${(kpis?.netIncomeVarianceNominal ?? 0) >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+            <span className={`font-mono font-semibold ${(kpis?.netIncomeVarianceNominal ?? 0) >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
               {(kpis?.netIncomeVarianceNominal ?? 0) >= 0 ? '+' : ''}{formatBRL(kpis?.netIncomeVarianceNominal ?? 0)}
             </span>
           </div>
@@ -877,7 +877,7 @@ export const BudgetPlanningView: React.FC = () => {
             </span>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-lg font-mono font-bold text-amber-400">
+            <span className="text-lg font-mono font-bold text-[var(--brand-gold)]">
               {(kpis?.overallBudgetAdherence ?? 0).toFixed(1)}%
             </span>
             <span className="text-xs text-[var(--text-secondary)]">
@@ -903,7 +903,7 @@ export const BudgetPlanningView: React.FC = () => {
           <div className="bg-[var(--surface-card)] p-4 rounded-2xl border border-[var(--border-subtle)] shadow-xs space-y-3">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center mr-1">
+                <span className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center mr-1">
                   <Sparkles className="w-3.5 h-3.5 mr-1" />
                   Simulações Rápidas:
                 </span>
@@ -914,7 +914,7 @@ export const BudgetPlanningView: React.FC = () => {
                   className="px-2.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-amber-500/15 hover:border-amber-500/40 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl text-xs font-semibold transition-colors flex items-center"
                   title="Simular aumento de 5% em todas as contas de Receita"
                 >
-                  <TrendingUp className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  <TrendingUp className="w-3.5 h-3.5 mr-1 text-[var(--brand-gold)]" />
                   +5% Faturamento
                 </button>
 
@@ -923,7 +923,7 @@ export const BudgetPlanningView: React.FC = () => {
                   className="px-2.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-amber-500/15 hover:border-amber-500/40 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl text-xs font-semibold transition-colors flex items-center"
                   title="Simular aumento de 10% em todas as contas de Receita"
                 >
-                  <TrendingUp className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  <TrendingUp className="w-3.5 h-3.5 mr-1 text-[var(--brand-gold)]" />
                   +10% Faturamento
                 </button>
 
@@ -932,7 +932,7 @@ export const BudgetPlanningView: React.FC = () => {
                   className="px-2.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-amber-500/15 hover:border-amber-500/40 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl text-xs font-semibold transition-colors flex items-center"
                   title="Simular redução de 5% em Custos e Despesas"
                 >
-                  <TrendingDown className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  <TrendingDown className="w-3.5 h-3.5 mr-1 text-[var(--brand-gold)]" />
                   -5% Despesas
                 </button>
 
@@ -941,7 +941,7 @@ export const BudgetPlanningView: React.FC = () => {
                   className="px-2.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-amber-500/15 hover:border-amber-500/40 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl text-xs font-semibold transition-colors flex items-center"
                   title="Simular redução de 10% em Custos e Despesas"
                 >
-                  <TrendingDown className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  <TrendingDown className="w-3.5 h-3.5 mr-1 text-[var(--brand-gold)]" />
                   -10% Despesas
                 </button>
 
@@ -961,7 +961,7 @@ export const BudgetPlanningView: React.FC = () => {
                     onClick={() => handleQuickSimulation('BATCH_PERCENT')}
                     className="px-2.5 py-1 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] font-semibold rounded-lg text-xs transition-colors flex items-center border border-[var(--border-subtle)]"
                   >
-                    <Percent className="w-3 h-3 mr-1 text-amber-400" />
+                    <Percent className="w-3 h-3 mr-1 text-[var(--brand-gold)]" />
                     Aplicar no Geral
                   </button>
                 </div>
@@ -986,7 +986,7 @@ export const BudgetPlanningView: React.FC = () => {
                     }
                   }}
                   defaultValue=""
-                  className="px-2.5 py-1.5 bg-slate-800 border border-amber-500/40 text-amber-400 rounded-xl text-xs font-semibold focus:border-amber-400 focus:outline-hidden cursor-pointer"
+                  className="px-2.5 py-1.5 bg-[var(--surface-elevated)] border border-amber-500/40 text-[var(--brand-gold)] rounded-xl text-xs font-semibold focus:border-amber-400 focus:outline-hidden cursor-pointer"
                   title="Selecione uma conta para personalizar reajuste por percentual, valor e período"
                 >
                   <option value="" disabled>⚡ Personalizar Linha Específica...</option>
@@ -1028,7 +1028,7 @@ export const BudgetPlanningView: React.FC = () => {
                     <span className="text-[11px] text-[var(--text-secondary)] block">Faturamento Projetado:</span>
                     <span className="font-mono font-bold text-[var(--text-primary)]">
                       {formatBRL(simulationImpact.newRevenue)}
-                      <span className={`ml-1.5 text-[10px] ${simulationImpact.revenueDiff >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+                      <span className={`ml-1.5 text-[10px] ${simulationImpact.revenueDiff >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
                         ({simulationImpact.revenueDiff >= 0 ? '+' : ''}{formatBRL(simulationImpact.revenueDiff)})
                       </span>
                     </span>
@@ -1038,17 +1038,17 @@ export const BudgetPlanningView: React.FC = () => {
                     <span className="text-[11px] text-[var(--text-secondary)] block">Despesas Projetadas:</span>
                     <span className="font-mono font-bold text-[var(--text-primary)]">
                       {formatBRL(simulationImpact.newExpense)}
-                      <span className={`ml-1.5 text-[10px] ${simulationImpact.expenseDiff <= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+                      <span className={`ml-1.5 text-[10px] ${simulationImpact.expenseDiff <= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
                         ({simulationImpact.expenseDiff >= 0 ? '+' : ''}{formatBRL(simulationImpact.expenseDiff)})
                       </span>
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[11px] text-amber-300 block font-semibold">Novo Lucro Líquido:</span>
-                    <span className="font-mono font-bold text-amber-400 text-sm">
+                    <span className="text-[11px] text-[var(--brand-gold)] block font-semibold">Novo Lucro Líquido:</span>
+                    <span className="font-mono font-bold text-[var(--brand-gold)] text-sm">
                       {formatBRL(simulationImpact.newNetIncome)}
-                      <span className={`ml-1.5 text-[10px] ${simulationImpact.netDiff >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+                      <span className={`ml-1.5 text-[10px] ${simulationImpact.netDiff >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
                         ({simulationImpact.netDiff >= 0 ? '+' : ''}{formatBRL(simulationImpact.netDiff)})
                       </span>
                     </span>
@@ -1056,7 +1056,7 @@ export const BudgetPlanningView: React.FC = () => {
 
                   <div className="border-l border-[var(--border-subtle)] pl-4 hidden md:block">
                     <span className="text-[11px] text-[var(--text-secondary)] block">Rastreamento:</span>
-                    <span className="font-bold text-amber-400">
+                    <span className="font-bold text-[var(--brand-gold)]">
                       {changesList.length} células modificadas em {changedCountByAccount.size} contas
                     </span>
                   </div>
@@ -1085,13 +1085,13 @@ export const BudgetPlanningView: React.FC = () => {
               
               <div className="flex flex-wrap items-center gap-2">
                 {/* Toggle Visão: Expandida vs Recolhida */}
-                <div className="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-700">
+                <div className="flex items-center bg-[var(--surface-card)] p-0.5 rounded-lg border border-[var(--border-subtle)]">
                   <button
                     onClick={() => handleSetGlobalStructure('EXPANDED')}
                     className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
                       structureMode === 'EXPANDED'
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
+                        : 'text-[var(--text-secondary)] hover:text-slate-200'
                     }`}
                     title="Exibir todas as contas analíticas detalhadas"
                   >
@@ -1103,7 +1103,7 @@ export const BudgetPlanningView: React.FC = () => {
                     className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
                       structureMode === 'COLLAPSED'
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
+                        : 'text-[var(--text-secondary)] hover:text-slate-200'
                     }`}
                     title="Recolher contas e exibir apenas linhas sintéticas e principais"
                   >
@@ -1112,7 +1112,7 @@ export const BudgetPlanningView: React.FC = () => {
                   </button>
                 </div>
 
-                <span className="inline-flex items-center gap-1 text-[11px] text-amber-400">
+                <span className="inline-flex items-center gap-1 text-[11px] text-[var(--brand-gold)]">
                   <span className="w-2.5 h-2.5 rounded-xs bg-amber-500/30 border border-amber-500" />
                   Modificado
                 </span>
@@ -1158,7 +1158,7 @@ export const BudgetPlanningView: React.FC = () => {
                   {/* ========================================================================= */}
                   {/* 1. GRUPO: RECEITAS OPERACIONAIS (FATURAMENTO) */}
                   {/* ========================================================================= */}
-                  <tr className="bg-slate-900 border-t-2 border-b border-amber-500/40">
+                  <tr className="bg-[var(--surface-card)] border-t-2 border-b border-amber-500/40">
                     <td colSpan={15} className="py-2.5 px-4">
                       <div className="flex items-center justify-between">
                         <button
@@ -1170,17 +1170,17 @@ export const BudgetPlanningView: React.FC = () => {
                             {isRevenueExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                           </span>
                           <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                          <span className="font-bold text-xs text-amber-300 uppercase tracking-wider group-hover:text-amber-200">
+                          <span className="font-bold text-xs text-[var(--brand-gold)] uppercase tracking-wider group-hover:text-amber-200">
                             1. Receitas Operacionais (Faturamento)
                           </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 font-semibold border border-amber-500/30">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] text-[var(--brand-gold)] font-semibold border border-amber-500/30">
                             {revenueAccounts.length} {revenueAccounts.length === 1 ? 'conta' : 'contas'}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-[var(--text-secondary)] font-normal">
                             ({isRevenueExpanded ? 'Clique p/ recolher' : 'Clique p/ expandir'})
                           </span>
                         </button>
-                        <span className="text-xs font-mono font-bold text-amber-400">
+                        <span className="text-xs font-mono font-bold text-[var(--brand-gold)]">
                           Total Anual Previsto: {formatBRL(planningSummary.totalRevenue)}
                         </span>
                       </div>
@@ -1208,7 +1208,7 @@ export const BudgetPlanningView: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            <span className="font-mono text-[10px] text-amber-400">{acc.code}</span>
+                            <span className="font-mono text-[10px] text-[var(--brand-gold)]">{acc.code}</span>
                           </div>
                         </td>
 
@@ -1281,19 +1281,19 @@ export const BudgetPlanningView: React.FC = () => {
                   })}
 
                   {/* Subtotal de Receitas */}
-                  <tr className="bg-slate-900 font-bold text-amber-300 border-y-2 border-amber-500/40 text-xs">
-                    <td className="py-2.5 px-4 sticky left-0 bg-slate-900 z-10 border-r border-amber-500/40 text-amber-300">
+                  <tr className="bg-[var(--surface-card)] font-bold text-[var(--brand-gold)] border-y-2 border-amber-500/40 text-xs">
+                    <td className="py-2.5 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-amber-500/40 text-[var(--brand-gold)]">
                       SUBTOTAL RECEITAS OPERACIONAIS
                     </td>
-                    <td className="py-2 px-3 text-right font-mono text-amber-300 bg-slate-800 border-r border-amber-500/40">
+                    <td className="py-2 px-3 text-right font-mono text-[var(--brand-gold)] bg-[var(--surface-elevated)] border-r border-amber-500/40">
                       {formatBRL(planningSummary.totalRevenue)}
                     </td>
                     {planningSummary.monthlyRevenue.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono text-amber-300 border-r border-amber-500/30">
+                      <td key={idx} className="py-2 px-2 text-right font-mono text-[var(--brand-gold)] border-r border-amber-500/30">
                         {formatBRL(v)}
                       </td>
                     ))}
-                    <td className="bg-slate-900"></td>
+                    <td className="bg-[var(--surface-card)]"></td>
                   </tr>
 
                   {/* ========================================================================= */}
@@ -1301,17 +1301,17 @@ export const BudgetPlanningView: React.FC = () => {
                   {/* ========================================================================= */}
                   {deductionAccounts.length > 0 && (
                     <>
-                      <tr className="bg-slate-900 border-t-2 border-b border-slate-700">
+                      <tr className="bg-[var(--surface-card)] border-t-2 border-b border-[var(--border-subtle)]">
                         <td colSpan={15} className="py-2.5 px-4">
                           <div className="flex items-center justify-between">
                             <button
                               onClick={() => toggleSectionCollapse('deductions')}
                               className="flex items-center space-x-2 group cursor-pointer text-left"
                             >
-                              <span className="p-1 rounded-md bg-slate-800 text-slate-300 group-hover:bg-slate-700 transition-colors">
+                              <span className="p-1 rounded-md bg-[var(--surface-elevated)] text-[var(--text-primary)] group-hover:bg-slate-700 transition-colors">
                                 {isDeductionsExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                               </span>
-                              <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">
+                              <span className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-wider">
                                 Deduções e Impostos sobre Faturamento
                               </span>
                             </button>
@@ -1363,7 +1363,7 @@ export const BudgetPlanningView: React.FC = () => {
                   {/* ========================================================================= */}
                   {/* 3. GRUPO: CUSTOS DOS SERVIÇOS PRESTADOS (CSP) */}
                   {/* ========================================================================= */}
-                  <tr className="bg-slate-900 border-t-2 border-b border-amber-500/40">
+                  <tr className="bg-[var(--surface-card)] border-t-2 border-b border-amber-500/40">
                     <td colSpan={15} className="py-2.5 px-4">
                       <div className="flex items-center justify-between">
                         <button
@@ -1375,17 +1375,17 @@ export const BudgetPlanningView: React.FC = () => {
                             {isCostsExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                           </span>
                           <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                          <span className="font-bold text-xs text-amber-300 uppercase tracking-wider group-hover:text-amber-200">
+                          <span className="font-bold text-xs text-[var(--brand-gold)] uppercase tracking-wider group-hover:text-amber-200">
                             2. Custos dos Serviços Prestados (Custos Diretos)
                           </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 font-semibold border border-amber-500/30">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] text-[var(--brand-gold)] font-semibold border border-amber-500/30">
                             {costAccounts.length} {costAccounts.length === 1 ? 'conta' : 'contas'}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-[var(--text-secondary)] font-normal">
                             ({isCostsExpanded ? 'Clique p/ recolher' : 'Clique p/ expandir'})
                           </span>
                         </button>
-                        <span className="text-xs font-mono font-bold text-amber-400">
+                        <span className="text-xs font-mono font-bold text-[var(--brand-gold)]">
                           Total Anual Previsto: {formatBRL(planningSummary.totalCosts)}
                         </span>
                       </div>
@@ -1413,7 +1413,7 @@ export const BudgetPlanningView: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            <span className="font-mono text-[10px] text-amber-400">{acc.code}</span>
+                            <span className="font-mono text-[10px] text-[var(--brand-gold)]">{acc.code}</span>
                           </div>
                         </td>
 
@@ -1486,25 +1486,25 @@ export const BudgetPlanningView: React.FC = () => {
                   })}
 
                   {/* Subtotal de Custos */}
-                  <tr className="bg-slate-900 font-bold text-amber-300 border-y-2 border-amber-500/40 text-xs">
-                    <td className="py-2.5 px-4 sticky left-0 bg-slate-900 z-10 border-r border-amber-500/40 text-amber-300">
+                  <tr className="bg-[var(--surface-card)] font-bold text-[var(--brand-gold)] border-y-2 border-amber-500/40 text-xs">
+                    <td className="py-2.5 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-amber-500/40 text-[var(--brand-gold)]">
                       SUBTOTAL CUSTOS DIRETOS (CSP)
                     </td>
-                    <td className="py-2 px-3 text-right font-mono text-amber-300 bg-slate-800 border-r border-amber-500/40">
+                    <td className="py-2 px-3 text-right font-mono text-[var(--brand-gold)] bg-[var(--surface-elevated)] border-r border-amber-500/40">
                       {formatBRL(planningSummary.totalCosts)}
                     </td>
                     {planningSummary.monthlyCosts.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono text-amber-300 border-r border-amber-500/30">
+                      <td key={idx} className="py-2 px-2 text-right font-mono text-[var(--brand-gold)] border-r border-amber-500/30">
                         {formatBRL(v)}
                       </td>
                     ))}
-                    <td className="bg-slate-900"></td>
+                    <td className="bg-[var(--surface-card)]"></td>
                   </tr>
 
                   {/* ========================================================================= */}
                   {/* 4. GRUPO: DESPESAS OPERACIONAIS */}
                   {/* ========================================================================= */}
-                  <tr className="bg-slate-900 border-t-2 border-b border-slate-700">
+                  <tr className="bg-[var(--surface-card)] border-t-2 border-b border-[var(--border-subtle)]">
                     <td colSpan={15} className="py-2.5 px-4">
                       <div className="flex items-center justify-between">
                         <button
@@ -1512,21 +1512,21 @@ export const BudgetPlanningView: React.FC = () => {
                           className="flex items-center space-x-2 group cursor-pointer text-left"
                           title="Clique para expandir ou recolher este grupo"
                         >
-                          <span className="p-1 rounded-md bg-slate-800 text-slate-300 group-hover:bg-slate-700 transition-colors">
+                          <span className="p-1 rounded-md bg-[var(--surface-elevated)] text-[var(--text-primary)] group-hover:bg-slate-700 transition-colors">
                             {isExpensesExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                           </span>
                           <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-                          <span className="font-bold text-xs text-slate-200 uppercase tracking-wider group-hover:text-white">
+                          <span className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-wider group-hover:text-white">
                             3. Despesas Operacionais (Administrativas, Comerciais, Pessoal & Gerais)
                           </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-semibold border border-slate-700">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] text-[var(--text-primary)] font-semibold border border-[var(--border-subtle)]">
                             {expenseAccounts.length} {expenseAccounts.length === 1 ? 'conta' : 'contas'}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-[var(--text-secondary)] font-normal">
                             ({isExpensesExpanded ? 'Clique p/ recolher' : 'Clique p/ expandir'})
                           </span>
                         </button>
-                        <span className="text-xs font-mono font-bold text-slate-300">
+                        <span className="text-xs font-mono font-bold text-[var(--text-primary)]">
                           Total Anual Previsto: {formatBRL(planningSummary.totalExpenses)}
                         </span>
                       </div>
@@ -1554,11 +1554,11 @@ export const BudgetPlanningView: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            <span className="font-mono text-[10px] text-slate-400">{acc.code}</span>
+                            <span className="font-mono text-[10px] text-[var(--text-secondary)]">{acc.code}</span>
                           </div>
                         </td>
 
-                        <td className="py-2 px-3 text-right font-mono font-bold text-slate-300 bg-slate-800/40 border-r border-[var(--border-subtle)]">
+                        <td className="py-2 px-3 text-right font-mono font-bold text-[var(--text-primary)] bg-[var(--surface-elevated)]/40 border-r border-[var(--border-subtle)]">
                           <div>{formatBRL(annualTotal)}</div>
                           <div className="text-[10px] text-[var(--text-secondary)] font-normal mt-0.5">
                             Real: {formatBRL(rTotal)}
@@ -1627,15 +1627,15 @@ export const BudgetPlanningView: React.FC = () => {
                   })}
 
                   {/* Subtotal de Despesas */}
-                  <tr className="bg-gradient-to-r from-rose-950/90 via-rose-900/50 to-[var(--surface-card)] font-bold text-rose-300 border-y-2 border-rose-500/40 text-xs">
-                    <td className="py-2.5 px-4 sticky left-0 bg-rose-950/95 z-10 border-r border-rose-500/40 text-rose-300">
+                  <tr className="bg-gradient-to-r from-rose-950/90 via-rose-900/50 to-[var(--surface-card)] font-bold text-[var(--status-danger)] border-y-2 border-rose-500/40 text-xs">
+                    <td className="py-2.5 px-4 sticky left-0 bg-rose-950/95 z-10 border-r border-rose-500/40 text-[var(--status-danger)]">
                       SUBTOTAL DESPESAS OPERACIONAIS
                     </td>
-                    <td className="py-2 px-3 text-right font-mono text-rose-300 bg-rose-900/60 border-r border-rose-500/40">
+                    <td className="py-2 px-3 text-right font-mono text-[var(--status-danger)] bg-rose-900/60 border-r border-rose-500/40">
                       {formatBRL(planningSummary.totalExpenses)}
                     </td>
                     {planningSummary.monthlyExpenses.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono text-rose-300 border-r border-rose-500/30">
+                      <td key={idx} className="py-2 px-2 text-right font-mono text-[var(--status-danger)] border-r border-rose-500/30">
                         {formatBRL(v)}
                       </td>
                     ))}
@@ -1645,22 +1645,22 @@ export const BudgetPlanningView: React.FC = () => {
                   {/* ========================================================================= */}
                   {/* SOMA GERAL — DRE (REGIME DE COMPETÊNCIA) */}
                   {/* ========================================================================= */}
-                  <tr className="bg-[var(--surface-elevated)] border-t-4 border-amber-500/60 font-bold uppercase text-[11px] text-amber-400">
+                  <tr className="bg-[var(--surface-elevated)] border-t-4 border-amber-500/60 font-bold uppercase text-[11px] text-[var(--brand-gold)]">
                     <td colSpan={15} className="py-2.5 px-4">
                       SOMA GERAL — DEMONSTRAÇÃO DO RESULTADO (DRE - REGIME DE COMPETÊNCIA)
                     </td>
                   </tr>
 
                   {/* (+) Receita Operacional Bruta */}
-                  <tr className="bg-slate-900/60 font-semibold text-amber-300">
-                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-amber-300">
+                  <tr className="bg-[var(--surface-card)]/60 font-semibold text-[var(--brand-gold)]">
+                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)]">
                       (+) Receita Operacional Bruta
                     </td>
                     <td className="py-2 px-3 text-right font-mono font-bold text-amber-400 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                       {formatBRL(planningSummary.totalRevenue)}
                     </td>
                     {planningSummary.monthlyRevenue.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-amber-300">
+                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-[var(--brand-gold)]">
                         {formatBRL(v)}
                       </td>
                     ))}
@@ -1668,15 +1668,15 @@ export const BudgetPlanningView: React.FC = () => {
                   </tr>
 
                   {/* (-) Custos Operacionais */}
-                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-amber-300">
-                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-amber-300 pl-8">
+                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-[var(--brand-gold)]">
+                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)] pl-8">
                       (-) Custos dos Serviços Prestados
                     </td>
                     <td className="py-2 px-3 text-right font-mono text-amber-300 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                       {formatBRL(planningSummary.totalCosts)}
                     </td>
                     {planningSummary.monthlyCosts.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-amber-300">
+                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-[var(--brand-gold)]">
                         {formatBRL(v)}
                       </td>
                     ))}
@@ -1700,15 +1700,15 @@ export const BudgetPlanningView: React.FC = () => {
                   </tr>
 
                   {/* (-) Despesas Operacionais */}
-                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-rose-300">
-                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-rose-300 pl-8">
+                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-[var(--status-danger)]">
+                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--status-danger)] pl-8">
                       (-) Despesas Operacionais Totais
                     </td>
                     <td className="py-2 px-3 text-right font-mono text-rose-300 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                       {formatBRL(planningSummary.totalExpenses)}
                     </td>
                     {planningSummary.monthlyExpenses.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-rose-300">
+                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-[var(--status-danger)]">
                         {formatBRL(v)}
                       </td>
                     ))}
@@ -1717,7 +1717,7 @@ export const BudgetPlanningView: React.FC = () => {
 
                   {/* (=) RESULTADO LÍQUIDO DO EXERCÍCIO (DRE) */}
                   <tr className="bg-amber-500/20 font-extrabold border-t-2 border-amber-500/50 text-amber-300 text-xs">
-                    <td className="py-2.5 px-4 sticky left-0 bg-amber-950/80 z-10 border-r border-amber-500/40 text-amber-300">
+                    <td className="py-2.5 px-4 sticky left-0 bg-amber-950/80 z-10 border-r border-amber-500/40 text-[var(--brand-gold)]">
                       (=) RESULTADO LÍQUIDO DO EXERCÍCIO (DRE)
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono font-extrabold text-amber-300 bg-amber-500/25 border-r border-amber-500/40 text-sm">
@@ -1725,7 +1725,7 @@ export const BudgetPlanningView: React.FC = () => {
                     </td>
                     {planningSummary.monthlyNetIncome.map((v, idx) => (
                       <td key={idx} className={`py-2.5 px-2 text-right font-mono font-bold border-r border-amber-500/25 ${
-                        v >= 0 ? 'text-amber-300' : 'text-rose-400'
+                        v >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                       }`}>
                         {formatBRL(v)}
                       </td>
@@ -1736,22 +1736,22 @@ export const BudgetPlanningView: React.FC = () => {
                   {/* ========================================================================= */}
                   {/* SOMA GERAL — FLUXO DE CAIXA (REGIME FINANCEIRO) */}
                   {/* ========================================================================= */}
-                  <tr className="bg-[var(--surface-elevated)] border-t-4 border-amber-500/60 font-bold uppercase text-[11px] text-amber-400">
+                  <tr className="bg-[var(--surface-elevated)] border-t-4 border-amber-500/60 font-bold uppercase text-[11px] text-[var(--brand-gold)]">
                     <td colSpan={15} className="py-2.5 px-4">
                       SOMA GERAL — FLUXO FINANCEIRO DE CAIXA (REGIME DE CAIXA)
                     </td>
                   </tr>
 
                   {/* (+) Entradas de Caixa */}
-                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-amber-300 font-medium">
-                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-amber-300 pl-8">
+                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-[var(--brand-gold)] font-medium">
+                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)] pl-8">
                       (+) Entradas Operacionais de Caixa
                     </td>
                     <td className="py-2 px-3 text-right font-mono font-bold text-amber-400 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                       {formatBRL(planningSummary.totalRevenue)}
                     </td>
                     {planningSummary.monthlyRevenue.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-amber-300">
+                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-[var(--brand-gold)]">
                         {formatBRL(v)}
                       </td>
                     ))}
@@ -1759,15 +1759,15 @@ export const BudgetPlanningView: React.FC = () => {
                   </tr>
 
                   {/* (-) Saídas de Caixa */}
-                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-rose-400 font-medium">
-                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-rose-400 pl-8">
+                  <tr className="hover:bg-[var(--surface-elevated)]/40 text-[var(--status-danger)] font-medium">
+                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--status-danger)] pl-8">
                       (-) Saídas Operacionais (Custos + Despesas)
                     </td>
                     <td className="py-2 px-3 text-right font-mono font-bold text-rose-400 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                       {formatBRL(planningSummary.totalCosts + planningSummary.totalExpenses)}
                     </td>
                     {planningSummary.monthlyTotalExpensesAndCosts.map((v, idx) => (
-                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-rose-400">
+                      <td key={idx} className="py-2 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 text-[var(--status-danger)]">
                         {formatBRL(v)}
                       </td>
                     ))}
@@ -1776,17 +1776,17 @@ export const BudgetPlanningView: React.FC = () => {
 
                   {/* (=) Geração Líquida de Caixa */}
                   <tr className="bg-amber-500/10 font-bold text-amber-300 border-t border-[var(--border-subtle)]">
-                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-elevated)] z-10 border-r border-[var(--border-subtle)] text-amber-300">
+                    <td className="py-2 px-4 sticky left-0 bg-[var(--surface-elevated)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)]">
                       (=) GERAÇÃO LÍQUIDA DE CAIXA NO MÊS
                     </td>
                     <td className={`py-2 px-3 text-right font-mono font-extrabold bg-amber-500/20 border-r border-[var(--border-subtle)] ${
-                      planningSummary.totalCashNet >= 0 ? 'text-amber-400' : 'text-rose-400'
+                      planningSummary.totalCashNet >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                     }`}>
                       {planningSummary.totalCashNet >= 0 ? '+' : ''}{formatBRL(planningSummary.totalCashNet)}
                     </td>
                     {planningSummary.monthlyCashNet.map((v, idx) => (
                       <td key={idx} className={`py-2 px-2 text-right font-mono font-bold border-r border-[var(--border-subtle)]/40 ${
-                        v >= 0 ? 'text-amber-400' : 'text-rose-400'
+                        v >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                       }`}>
                         {v >= 0 ? '+' : ''}{formatBRL(v)}
                       </td>
@@ -1795,21 +1795,21 @@ export const BudgetPlanningView: React.FC = () => {
                   </tr>
 
                   {/* (=) SALDO FINAL ACUMULADO DE CAIXA */}
-                  <tr className="bg-slate-950 font-extrabold border-t-2 border-amber-500/50 text-amber-400 text-xs">
-                    <td className="py-2.5 px-4 sticky left-0 bg-slate-950 z-10 border-r border-amber-500/40 text-amber-400">
+                  <tr className="bg-[var(--surface-elevated)] font-extrabold border-t-2 border-amber-500/50 text-[var(--brand-gold)] text-xs">
+                    <td className="py-2.5 px-4 sticky left-0 bg-[var(--surface-elevated)] z-10 border-r border-amber-500/40 text-[var(--brand-gold)]">
                       (=) SALDO FINAL ACUMULADO DE CAIXA
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono font-extrabold text-amber-400 bg-slate-900 border-r border-amber-500/40 text-sm">
+                    <td className="py-2.5 px-3 text-right font-mono font-extrabold text-[var(--brand-gold)] bg-[var(--surface-card)] border-r border-amber-500/40 text-sm">
                       {formatBRL(planningSummary.finalYearCash)}
                     </td>
                     {planningSummary.monthlyCashFinal.map((v, idx) => (
                       <td key={idx} className={`py-2.5 px-2 text-right font-mono font-bold border-r border-amber-500/30 ${
-                        v >= 0 ? 'text-amber-400' : 'text-rose-400'
+                        v >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                       }`}>
                         {formatBRL(v)}
                       </td>
                     ))}
-                    <td className="bg-slate-950"></td>
+                    <td className="bg-[var(--surface-elevated)]"></td>
                   </tr>
                 </tbody>
               </table>
@@ -1892,7 +1892,7 @@ export const BudgetPlanningView: React.FC = () => {
           <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xs p-4 overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2.5">
               <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center">
-                <Layers className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+                <Layers className="w-3.5 h-3.5 mr-1.5 text-[var(--brand-gold)]" />
                 Resumo Consolidado Mês a Mês ({selectedYear})
               </span>
               <span className="text-[11px] text-[var(--text-secondary)] font-medium">
@@ -1935,7 +1935,7 @@ export const BudgetPlanningView: React.FC = () => {
                     <td className={`py-2 px-2.5 font-sans font-semibold text-[var(--text-primary)] sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] ${isFitScreen ? 'truncate' : ''}`}>
                       Receita Bruta (R$)
                     </td>
-                    <td className="py-2 px-1.5 text-right font-bold text-amber-400 bg-[var(--surface-elevated)]">
+                    <td className="py-2 px-1.5 text-right font-bold text-[var(--brand-gold)] bg-[var(--surface-elevated)]">
                       {isFitScreen && useCompactNumbers 
                         ? formatCompactBRL(monthlySummaryRibbon.revRealized.reduce((a, b) => a + b, 0))
                         : formatBRL(monthlySummaryRibbon.revRealized.reduce((a, b) => a + b, 0))}
@@ -1960,7 +1960,7 @@ export const BudgetPlanningView: React.FC = () => {
                     <td className={`py-2 px-2.5 font-sans font-semibold text-[var(--text-primary)] sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] ${isFitScreen ? 'truncate' : ''}`}>
                       Custos & Despesas (R$)
                     </td>
-                    <td className="py-2 px-1.5 text-right font-bold text-rose-400 bg-[var(--surface-elevated)]">
+                    <td className="py-2 px-1.5 text-right font-bold text-[var(--status-danger)] bg-[var(--surface-elevated)]">
                       {isFitScreen && useCompactNumbers 
                         ? formatCompactBRL(monthlySummaryRibbon.expRealized.reduce((a, b) => a + b, 0))
                         : formatBRL(monthlySummaryRibbon.expRealized.reduce((a, b) => a + b, 0))}
@@ -1982,10 +1982,10 @@ export const BudgetPlanningView: React.FC = () => {
 
                   {/* Resultado Líquido */}
                   <tr className="bg-amber-500/5 font-bold hover:bg-amber-500/10 transition-colors">
-                    <td className={`py-2 px-2.5 font-sans font-bold text-amber-400 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] ${isFitScreen ? 'truncate' : ''}`}>
+                    <td className={`py-2 px-2.5 font-sans font-bold text-[var(--brand-gold)] sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] ${isFitScreen ? 'truncate' : ''}`}>
                       Resultado Líquido (R$)
                     </td>
-                    <td className="py-2 px-1.5 text-right font-bold text-amber-400 bg-[var(--surface-elevated)]">
+                    <td className="py-2 px-1.5 text-right font-bold text-[var(--brand-gold)] bg-[var(--surface-elevated)]">
                       {isFitScreen && useCompactNumbers 
                         ? formatCompactBRL(monthlySummaryRibbon.netRealized.reduce((a, b) => a + b, 0))
                         : formatBRL(monthlySummaryRibbon.netRealized.reduce((a, b) => a + b, 0))}
@@ -1994,7 +1994,7 @@ export const BudgetPlanningView: React.FC = () => {
                       const isCurrent = idx === currentMonthIndex && selectedYear === currentYear;
                       const isEven = idx % 2 === 0;
                       return (
-                        <td key={idx} className={`py-2 px-1 text-right ${val >= 0 ? 'text-amber-400' : 'text-rose-400'} ${
+                        <td key={idx} className={`py-2 px-1 text-right ${val >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'} ${
                           isCurrent 
                             ? 'bg-amber-500/20 font-bold border-x border-amber-500/40 text-amber-300' 
                             : isEven ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
@@ -2073,7 +2073,7 @@ export const BudgetPlanningView: React.FC = () => {
                       stickyBg = 'bg-[var(--surface-elevated)]';
                     } else if (isSummary) {
                       rowBg = 'bg-amber-500/10 font-bold text-amber-300 border-t-2 border-b-2 border-amber-500/30';
-                      fontStyle = 'font-bold text-amber-300';
+                      fontStyle = 'font-bold text-[var(--brand-gold)]';
                       stickyBg = 'bg-amber-950/40';
                     }
 
@@ -2096,7 +2096,7 @@ export const BudgetPlanningView: React.FC = () => {
                                 {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                               </button>
                             )}
-                            <span className="font-mono text-[10px] text-amber-400 font-medium shrink-0">
+                            <span className="font-mono text-[10px] text-[var(--brand-gold)] font-medium shrink-0">
                               {line.code}
                             </span>
                             <span className={`${fontStyle} truncate text-xs sm:text-[13px]`} title={line.name}>
@@ -2115,7 +2115,7 @@ export const BudgetPlanningView: React.FC = () => {
                               <span className="text-[10px] text-[var(--text-secondary)] font-mono mt-0.5">
                                 Real: {isFitScreen && useCompactNumbers ? formatCompactBRL(line.realizedTotal) : formatBRL(line.realizedTotal)}
                               </span>
-                              <span className={`text-[9px] font-mono ${line.varianceNominal >= 0 ? 'text-amber-400' : 'text-slate-400'}`}>
+                              <span className={`text-[9px] font-mono ${line.varianceNominal >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--text-secondary)]'}`}>
                                 {line.varianceNominal > 0 ? '+' : ''}{isFitScreen && useCompactNumbers ? formatCompactBRL(line.varianceNominal) : formatBRL(line.varianceNominal)}
                               </span>
                             </div>
@@ -2139,7 +2139,7 @@ export const BudgetPlanningView: React.FC = () => {
                             </div>
                           ) : (
                             <div className="flex flex-col items-end leading-tight">
-                              <span className={`text-xs sm:text-[13px] ${line.varianceNominal >= 0 ? 'text-amber-400' : 'text-slate-400'}`}>
+                              <span className={`text-xs sm:text-[13px] ${line.varianceNominal >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--text-secondary)]'}`}>
                                 {line.varianceNominal > 0 ? '+' : ''}{isFitScreen && useCompactNumbers ? formatCompactBRL(line.varianceNominal) : formatBRL(line.varianceNominal)}
                               </span>
                               <span className="text-[10px] text-[var(--text-secondary)] font-mono">
@@ -2196,7 +2196,7 @@ export const BudgetPlanningView: React.FC = () => {
                                 </div>
                               ) : (
                                 <div className="flex flex-col items-end leading-tight">
-                                  <span className={`font-semibold ${devNom >= 0 ? 'text-amber-400' : 'text-slate-400'}`}>
+                                  <span className={`font-semibold ${devNom >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--text-secondary)]'}`}>
                                     {devNom > 0 ? '+' : ''}{isFitScreen && useCompactNumbers ? formatCompactBRL(devNom) : formatBRL(devNom)}
                                   </span>
                                   <span className="text-[9px] text-[var(--text-secondary)] font-mono">
@@ -2320,7 +2320,7 @@ export const BudgetPlanningView: React.FC = () => {
                       fontStyle = 'font-bold text-[var(--text-primary)]';
                     } else if (isSummary) {
                       rowBg = 'bg-amber-500/10 font-bold text-amber-300 border-t-2 border-b-2 border-amber-500/30';
-                      fontStyle = 'font-bold text-amber-300';
+                      fontStyle = 'font-bold text-[var(--brand-gold)]';
                     }
 
                     return (
@@ -2338,7 +2338,7 @@ export const BudgetPlanningView: React.FC = () => {
                                 {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                               </button>
                             )}
-                            <span className="font-mono text-xs text-amber-400 font-semibold">{line.code}</span>
+                            <span className="font-mono text-xs text-[var(--brand-gold)] font-semibold">{line.code}</span>
                             <span className={fontStyle}>{line.name}</span>
                           </div>
                         </td>
@@ -2352,13 +2352,13 @@ export const BudgetPlanningView: React.FC = () => {
                         </td>
 
                         <td className={`py-2.5 px-3 text-right font-mono font-bold text-xs sm:text-[13px] ${
-                          line.varianceNominal > 0 ? 'text-amber-400' : line.varianceNominal < 0 ? 'text-rose-400' : 'text-[var(--text-secondary)]'
+                          line.varianceNominal > 0 ? 'text-[var(--brand-gold)]' : line.varianceNominal < 0 ? 'text-[var(--status-danger)]' : 'text-[var(--text-secondary)]'
                         }`}>
                           {line.varianceNominal > 0 ? '+' : ''}{formatBRL(line.varianceNominal)}
                         </td>
 
                         <td className={`py-2.5 px-3 text-right font-mono text-xs sm:text-[13px] ${
-                          (line.variancePercent ?? 0) > 0 ? 'text-amber-400' : (line.variancePercent ?? 0) < 0 ? 'text-rose-400' : 'text-[var(--text-secondary)]'
+                          (line.variancePercent ?? 0) > 0 ? 'text-[var(--brand-gold)]' : (line.variancePercent ?? 0) < 0 ? 'text-[var(--status-danger)]' : 'text-[var(--text-secondary)]'
                         }`}>
                           {(line.variancePercent ?? 0) > 0 ? '+' : ''}{(line.variancePercent ?? 0).toFixed(1)}%
                         </td>
@@ -2415,7 +2415,7 @@ export const BudgetPlanningView: React.FC = () => {
           <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] shadow-xs flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center">
-                <History className="w-4 h-4 mr-2 text-amber-400" />
+                <History className="w-4 h-4 mr-2 text-[var(--brand-gold)]" />
                 Histórico de Revisões e Metas Aprovadas ({selectedYear})
               </h2>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
@@ -2464,7 +2464,7 @@ export const BudgetPlanningView: React.FC = () => {
                       </h3>
                     </div>
 
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[var(--surface-elevated)] text-amber-300 border border-[var(--border-subtle)]">
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[var(--surface-elevated)] text-[var(--brand-gold)] border border-[var(--border-subtle)]">
                       {ver.totalChanges} alterações
                     </span>
                   </div>
@@ -2478,7 +2478,7 @@ export const BudgetPlanningView: React.FC = () => {
                   <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
                     <button
                       onClick={() => setViewingVersion(ver)}
-                      className="px-3 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] text-amber-400 text-xs font-semibold rounded-xl border border-[var(--border-subtle)] transition-colors flex items-center"
+                      className="px-3 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] text-[var(--brand-gold)] text-xs font-semibold rounded-xl border border-[var(--border-subtle)] transition-colors flex items-center"
                     >
                       <Eye className="w-3.5 h-3.5 mr-1.5" />
                       Ver Linhas e Colunas Alteradas

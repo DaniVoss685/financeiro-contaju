@@ -178,25 +178,25 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#131316] w-full max-w-3xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[#131316] w-full max-w-3xl rounded-2xl border border-[var(--border-subtle)] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Cabeçalho */}
-        <div className="p-4 sm:p-5 border-b border-slate-700 bg-slate-900 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
               <SlidersHorizontal className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-mono font-bold text-amber-400">{account.code}</span>
-                <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-medium">
+                <span className="text-xs font-mono font-bold text-[var(--brand-gold)]">{account.code}</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-medium">
                   {isRevenue ? 'Conta de Receita' : 'Conta de Custo / Despesa'}
                 </span>
-                <span className="text-[11px] text-slate-400 hidden sm:inline">
-                  Exercício: <strong className="text-slate-200">{year}</strong>
+                <span className="text-[11px] text-[var(--text-secondary)] hidden sm:inline">
+                  Exercício: <strong className="text-[var(--text-primary)]">{year}</strong>
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white mt-0.5">
+              <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mt-0.5">
                 Ajustar Linha: {account.name}
               </h2>
             </div>
@@ -204,7 +204,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-xl transition-colors cursor-pointer"
             title="Fechar"
           >
             <X className="w-5 h-5" />
@@ -216,7 +216,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
           
           {/* Seletor de Tipo de Ajuste */}
           <div>
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            <label className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider block mb-2">
               1. Como deseja ajustar esta linha?
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-semibold">
@@ -226,7 +226,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                 className={`py-2 px-3 rounded-xl border transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ${
                   simType === 'PERCENT'
                     ? 'bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-md'
-                    : 'bg-slate-900/80 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-white'
+                    : 'bg-[var(--surface-card)]/80 text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--text-primary)]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -242,7 +242,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                 className={`py-2 px-3 rounded-xl border transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ${
                   simType === 'DELTA_VALUE'
                     ? 'bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-md'
-                    : 'bg-slate-900/80 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-white'
+                    : 'bg-[var(--surface-card)]/80 text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--text-primary)]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -258,7 +258,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                 className={`py-2 px-3 rounded-xl border transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ${
                   simType === 'SET_VALUE'
                     ? 'bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-md'
-                    : 'bg-slate-900/80 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-white'
+                    : 'bg-[var(--surface-card)]/80 text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--text-primary)]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -274,7 +274,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                 className={`py-2 px-3 rounded-xl border transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ${
                   simType === 'PROGRESSIVE'
                     ? 'bg-amber-500 text-slate-950 font-bold border-amber-500 shadow-md'
-                    : 'bg-slate-900/80 text-slate-300 border-slate-700 hover:border-amber-500/40 hover:text-white'
+                    : 'bg-[var(--surface-card)]/80 text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-amber-500/40 hover:text-[var(--text-primary)]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -287,11 +287,11 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
           </div>
 
           {/* Parâmetros do Tipo Escolhido */}
-          <div className="bg-slate-900 p-4 rounded-xl border border-slate-700">
+          <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)]">
             {simType === 'PERCENT' && (
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-white">
+                  <span className="text-xs font-bold text-[var(--text-primary)]">
                     Defina o percentual de variação (+ para aumentar, - para diminuir):
                   </span>
                   <div className="flex items-center space-x-1.5">
@@ -303,7 +303,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                         className={`px-2 py-1 text-xs rounded-lg font-bold border transition-colors cursor-pointer ${
                           percentValue === pct
                             ? 'bg-amber-500 text-slate-950 border-amber-500'
-                            : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                            : 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
                         }`}
                       >
                         {pct > 0 ? `+${pct}%` : `${pct}%`}
@@ -319,11 +319,11 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                       step="0.5"
                       value={percentValue}
                       onChange={e => setPercentValue(Number(e.target.value))}
-                      className="w-36 px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-center font-bold text-base text-amber-400 focus:border-amber-400 focus:outline-hidden"
+                      className="w-36 px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-center font-bold text-base text-[var(--brand-gold)] focus:border-amber-400 focus:outline-hidden"
                     />
-                    <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">%</span>
+                    <span className="absolute right-3 top-2.5 text-xs text-[var(--text-secondary)] font-bold">%</span>
                   </div>
-                  <span className="text-xs text-slate-300">
+                  <span className="text-xs text-[var(--text-primary)]">
                     {percentValue >= 0 
                       ? `Aumentará os meses selecionados em +${percentValue}%`
                       : `Reduzirá os meses selecionados em ${percentValue}%`}
@@ -335,7 +335,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
             {simType === 'DELTA_VALUE' && (
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-white">
+                  <span className="text-xs font-bold text-[var(--text-primary)]">
                     Informe o valor a somar (+) ou subtrair (-) no orçamento mensal:
                   </span>
                   <div className="flex items-center space-x-1.5">
@@ -347,7 +347,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                         className={`px-2 py-1 text-xs rounded-lg font-bold border transition-colors cursor-pointer ${
                           deltaValue === val
                             ? 'bg-amber-500 text-slate-950 border-amber-500'
-                            : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                            : 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
                         }`}
                       >
                         {val > 0 ? `+${val}` : `${val}`}
@@ -358,16 +358,16 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">R$</span>
+                    <span className="absolute left-3 top-2.5 text-xs text-[var(--text-secondary)] font-bold">R$</span>
                     <input
                       type="number"
                       step="100"
                       value={deltaValue}
                       onChange={e => setDeltaValue(Number(e.target.value))}
-                      className="w-44 pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-right font-mono font-bold text-base text-amber-400 focus:border-amber-400 focus:outline-hidden"
+                      className="w-44 pl-9 pr-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-right font-mono font-bold text-base text-[var(--brand-gold)] focus:border-amber-400 focus:outline-hidden"
                     />
                   </div>
-                  <span className="text-xs text-slate-300">
+                  <span className="text-xs text-[var(--text-primary)]">
                     {deltaValue >= 0 
                       ? `Somará +${formatBRL(deltaValue)} em cada mês selecionado`
                       : `Subtrairá ${formatBRL(Math.abs(deltaValue))} de cada mês selecionado`}
@@ -378,21 +378,21 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
             {simType === 'SET_VALUE' && (
               <div className="space-y-3">
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-[var(--text-primary)] block">
                   Defina o novo valor absoluto a ser orçado em cada mês do período:
                 </span>
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">R$</span>
+                    <span className="absolute left-3 top-2.5 text-xs text-[var(--text-secondary)] font-bold">R$</span>
                     <input
                       type="number"
                       step="500"
                       value={setValue}
                       onChange={e => setSetAmount(Number(e.target.value))}
-                      className="w-48 pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-right font-mono font-bold text-base text-amber-400 focus:border-amber-400 focus:outline-hidden"
+                      className="w-48 pl-9 pr-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-right font-mono font-bold text-base text-[var(--brand-gold)] focus:border-amber-400 focus:outline-hidden"
                     />
                   </div>
-                  <span className="text-xs text-slate-300">
+                  <span className="text-xs text-[var(--text-primary)]">
                     O valor passará a ser exatamente <strong>{formatBRL(setValue)}</strong> nos meses selecionados.
                   </span>
                 </div>
@@ -401,7 +401,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
             {simType === 'PROGRESSIVE' && (
               <div className="space-y-3">
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-[var(--text-primary)] block">
                   Variação progressiva mês a mês (composta a partir do mês base):
                 </span>
                 <div className="flex items-center space-x-3">
@@ -411,11 +411,11 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                       step="0.5"
                       value={progressiveRate}
                       onChange={e => setProgressiveRate(Number(e.target.value))}
-                      className="w-32 px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-center font-bold text-base text-amber-400 focus:border-amber-400 focus:outline-hidden"
+                      className="w-32 px-3 py-2 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-center font-bold text-base text-[var(--brand-gold)] focus:border-amber-400 focus:outline-hidden"
                     />
-                    <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">%</span>
+                    <span className="absolute right-3 top-2.5 text-xs text-[var(--text-secondary)] font-bold">%</span>
                   </div>
-                  <span className="text-xs text-slate-300">
+                  <span className="text-xs text-[var(--text-primary)]">
                     {progressiveRate >= 0
                       ? `Crescerá +${progressiveRate}% mês a mês cumulativamente`
                       : `Decrescerá ${progressiveRate}% mês a mês cumulativamente`}
@@ -426,22 +426,22 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
           </div>
 
           {/* 2. Seleção de Período (A partir de qual mês?) */}
-          <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-3">
+          <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-[var(--border-subtle)] space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-amber-400" />
+              <label className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-[var(--brand-gold)]" />
                 <span>2. Em qual período do ano {year} aplicar a alteração?</span>
               </label>
 
               {/* Escopos */}
-              <div className="flex items-center bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs">
+              <div className="flex items-center bg-[var(--surface-elevated)] p-0.5 rounded-lg border border-[var(--border-subtle)] text-xs">
                 <button
                   type="button"
                   onClick={() => setPeriodScope('FROM_MONTH')}
                   className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
                     periodScope === 'FROM_MONTH'
                       ? 'bg-amber-500 text-slate-950 font-bold'
-                      : 'text-slate-300 hover:text-white'
+                      : 'text-[var(--text-primary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   A partir do mês X
@@ -452,7 +452,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                   className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
                     periodScope === 'CUSTOM_RANGE'
                       ? 'bg-amber-500 text-slate-950 font-bold'
-                      : 'text-slate-300 hover:text-white'
+                      : 'text-[var(--text-primary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   Intervalo Específico
@@ -463,7 +463,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                   className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
                     periodScope === 'ALL_YEAR'
                       ? 'bg-amber-500 text-slate-950 font-bold'
-                      : 'text-slate-300 hover:text-white'
+                      : 'text-[var(--text-primary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   Todos os 12 Meses
@@ -473,11 +473,11 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
             {periodScope === 'FROM_MONTH' && (
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                <span className="text-xs text-slate-300">Aplicar a alteração a partir de:</span>
+                <span className="text-xs text-[var(--text-primary)]">Aplicar a alteração a partir de:</span>
                 <PremiumSelect
                   value={startMonth}
                   onChange={e => setStartMonth(Number(e.target.value))}
-                  className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-amber-400 focus:outline-hidden cursor-pointer"
+                  className="px-3 py-1.5 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden cursor-pointer"
                 >
                   {MONTH_NAMES.map((name, idx) => (
                     <option key={idx} value={idx}>
@@ -485,10 +485,10 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                     </option>
                   ))}
                 </PremiumSelect>
-                <span className="text-xs text-amber-400 font-medium">
+                <span className="text-xs text-[var(--brand-gold)] font-medium">
                   → até Dezembro/{year} ({12 - startMonth} meses serão alterados)
                 </span>
-                <span className="text-[11px] text-slate-400 w-full">
+                <span className="text-[11px] text-[var(--text-secondary)] w-full">
                   ℹ️ Os meses anteriores ({startMonth === 0 ? 'nenhum' : `Janeiro a ${MONTH_NAMES[startMonth - 1]}`}) permanecerão 100% intactos com seus valores originais.
                 </span>
               </div>
@@ -496,22 +496,22 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
             {periodScope === 'CUSTOM_RANGE' && (
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                <span className="text-xs text-slate-300">De:</span>
+                <span className="text-xs text-[var(--text-primary)]">De:</span>
                 <PremiumSelect
                   value={startMonth}
                   onChange={e => setStartMonth(Number(e.target.value))}
-                  className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-amber-400 focus:outline-hidden cursor-pointer"
+                  className="px-3 py-1.5 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden cursor-pointer"
                 >
                   {MONTH_NAMES.map((name, idx) => (
                     <option key={idx} value={idx}>{name}/{year}</option>
                   ))}
                 </PremiumSelect>
 
-                <span className="text-xs text-slate-300">Até:</span>
+                <span className="text-xs text-[var(--text-primary)]">Até:</span>
                 <PremiumSelect
                   value={endMonth}
                   onChange={e => setEndMonth(Number(e.target.value))}
-                  className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-amber-400 focus:outline-hidden cursor-pointer"
+                  className="px-3 py-1.5 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-primary)] focus:border-amber-400 focus:outline-hidden cursor-pointer"
                 >
                   {MONTH_NAMES.map((name, idx) => (
                     <option key={idx} value={idx}>{name}/{year}</option>
@@ -521,7 +521,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
             )}
 
             {periodScope === 'ALL_YEAR' && (
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--text-secondary)]">
                 A alteração incidirá sobre todos os 12 meses do ano de {year} (Janeiro a Dezembro).
               </p>
             )}
@@ -529,35 +529,35 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
           {/* 3. PAINEL DE IMPACTO DA SIMULAÇÃO */}
           <div>
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            <label className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider block mb-2">
               3. Impacto Projetado nos Resultados da Empresa
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Card 1: Impacto na Conta */}
-              <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-700">
-                <span className="text-slate-400 text-[11px] block">Nesta Linha ({account.name})</span>
+              <div className="p-3.5 bg-[var(--surface-card)] rounded-xl border border-[var(--border-subtle)]">
+                <span className="text-[var(--text-secondary)] text-[11px] block">Nesta Linha ({account.name})</span>
                 <div className="flex items-baseline justify-between mt-1">
-                  <span className="text-sm font-mono font-bold text-white">
+                  <span className="text-sm font-mono font-bold text-[var(--text-primary)]">
                     {formatBRL(simulatedTotal)}
                   </span>
                   <span className={`text-xs font-mono font-bold ${
-                    totalDiff > 0 ? 'text-amber-400' : totalDiff < 0 ? 'text-slate-300' : 'text-slate-400'
+                    totalDiff > 0 ? 'text-[var(--brand-gold)]' : totalDiff < 0 ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
                   }`}>
                     {totalDiff > 0 ? `+${formatBRL(totalDiff)}` : formatBRL(totalDiff)}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1 flex justify-between">
+                <div className="text-[10px] text-[var(--text-secondary)] mt-1 flex justify-between">
                   <span>Atual: {formatBRL(currentTotal)}</span>
                   <span>{totalDiffPct > 0 ? `+${totalDiffPct.toFixed(1)}%` : `${totalDiffPct.toFixed(1)}%`}</span>
                 </div>
               </div>
 
               {/* Card 2: Impacto no Lucro Líquido */}
-              <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-700">
-                <span className="text-slate-400 text-[11px] block">Impacto no Lucro Líquido Anual</span>
+              <div className="p-3.5 bg-[var(--surface-card)] rounded-xl border border-[var(--border-subtle)]">
+                <span className="text-[var(--text-secondary)] text-[11px] block">Impacto no Lucro Líquido Anual</span>
                 <div className="flex items-baseline justify-between mt-1">
                   <span className={`text-sm font-mono font-extrabold ${
-                    netIncomeImpact >= 0 ? 'text-amber-400' : 'text-rose-400'
+                    netIncomeImpact >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                   }`}>
                     {netIncomeImpact >= 0 ? `+${formatBRL(netIncomeImpact)}` : formatBRL(netIncomeImpact)}
                   </span>
@@ -567,7 +567,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                     {netIncomeImpact >= 0 ? 'Lucro Aumenta' : 'Lucro Reduz'}
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-[var(--text-secondary)] mt-1">
                   {isRevenue 
                     ? 'Receita adicional soma diretamente no resultado operacional.' 
                     : 'Aumento de custo/despesa subtrai do lucro líquido.'}
@@ -575,19 +575,19 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
               </div>
 
               {/* Card 3: Meses e Caixa */}
-              <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-700">
-                <span className="text-slate-400 text-[11px] block">Impacto no Saldo de Caixa</span>
+              <div className="p-3.5 bg-[var(--surface-card)] rounded-xl border border-[var(--border-subtle)]">
+                <span className="text-[var(--text-secondary)] text-[11px] block">Impacto no Saldo de Caixa</span>
                 <div className="flex items-baseline justify-between mt-1">
                   <span className={`text-sm font-mono font-bold ${
-                    cashImpact >= 0 ? 'text-amber-400' : 'text-rose-400'
+                    cashImpact >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                   }`}>
                     {cashImpact >= 0 ? `+${formatBRL(cashImpact)}` : formatBRL(cashImpact)}
                   </span>
-                  <span className="text-[11px] text-slate-400 font-medium">
+                  <span className="text-[11px] text-[var(--text-secondary)] font-medium">
                     {impactedMonthsCount} {impactedMonthsCount === 1 ? 'mês alterado' : 'meses alterados'}
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-[var(--text-secondary)] mt-1">
                   Reflete na projeção acumulada do fluxo financeiro de caixa.
                 </p>
               </div>
@@ -597,25 +597,25 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
           {/* 4. Tabela de Comparação Mês a Mês (Antes vs Novo) */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                 4. Comparativo Mês a Mês dos 12 Meses ({year})
               </h3>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-[var(--text-secondary)]">
                 Meses com fundo dourado suave indicam alteração ativa
               </span>
             </div>
 
-            <div className="border border-slate-700 rounded-xl overflow-hidden">
+            <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="border-b border-slate-700 bg-slate-900 text-[11px] text-slate-300 font-bold uppercase">
+                    <tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)] text-[11px] text-[var(--text-primary)] font-bold uppercase">
                       <th className="py-2.5 px-3 w-24">Plano</th>
                       {MONTH_SHORT.map((m, idx) => (
                         <th 
                           key={m} 
                           className={`py-2.5 px-2 text-right ${
-                            idx % 2 === 0 ? 'bg-slate-950' : 'bg-slate-900'
+                            idx % 2 === 0 ? 'bg-[var(--surface-elevated)]' : 'bg-[var(--surface-card)]'
                           }`}
                         >
                           {m}
@@ -623,17 +623,17 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800 font-mono text-[11px]">
+                  <tbody className="divide-y divide-[var(--border-subtle)] font-mono text-[11px]">
                     {/* Linha Atual */}
                     <tr>
-                      <td className="py-2 px-3 font-sans font-medium text-slate-400 bg-slate-900">
+                      <td className="py-2 px-3 font-sans font-medium text-[var(--text-secondary)] bg-[var(--surface-card)]">
                         Atual
                       </td>
                       {currentMonthly.map((val, idx) => (
                         <td 
                           key={idx} 
-                          className={`py-2 px-2 text-right text-slate-400 ${
-                            idx % 2 === 0 ? 'bg-slate-950' : 'bg-slate-900'
+                          className={`py-2 px-2 text-right text-[var(--text-secondary)] ${
+                            idx % 2 === 0 ? 'bg-[var(--surface-elevated)]' : 'bg-[var(--surface-card)]'
                           }`}
                         >
                           {formatBRL(val)}
@@ -643,7 +643,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
 
                     {/* Linha Simulada com Destaque */}
                     <tr className="font-bold">
-                      <td className="py-2 px-3 font-sans font-bold text-amber-400 bg-slate-900">
+                      <td className="py-2 px-3 font-sans font-bold text-[var(--brand-gold)] bg-[var(--surface-card)]">
                         Simulado
                       </td>
                       {simulatedMonthly.map((val, idx) => {
@@ -657,12 +657,12 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
                             className={`py-2 px-2 text-right transition-colors ${
                               isChanged 
                                 ? 'bg-amber-500/20 text-amber-300 border-x border-amber-500/40' 
-                                : idx % 2 === 0 ? 'bg-slate-950 text-slate-300' : 'bg-slate-900 text-slate-300'
+                                : idx % 2 === 0 ? 'bg-[var(--surface-elevated)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] text-[var(--text-primary)]'
                             }`}
                           >
-                            <div className="text-white">{formatBRL(val)}</div>
+                            <div className="text-[var(--text-primary)]">{formatBRL(val)}</div>
                             {isChanged && (
-                              <div className={`text-[9px] font-medium ${diff > 0 ? 'text-amber-400' : 'text-slate-400'}`}>
+                              <div className={`text-[9px] font-medium ${diff > 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--text-secondary)]'}`}>
                                 {diff > 0 ? `+${formatBRL(diff)}` : formatBRL(diff)}
                               </div>
                             )}
@@ -679,7 +679,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
         </div>
 
         {/* Rodapé com Ações */}
-        <div className="p-4 border-t border-slate-700 bg-slate-900 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleResetToOriginal}
@@ -693,7 +693,7 @@ export const BudgetRowSimulationModal: React.FC<BudgetRowSimulationModalProps> =
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 rounded-xl border border-slate-700 transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-xl border border-[var(--border-subtle)] transition-colors cursor-pointer"
             >
               Cancelar
             </button>

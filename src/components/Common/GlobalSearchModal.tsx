@@ -323,7 +323,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 sm:pt-16 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 sm:pt-16 bg-[var(--surface-elevated)]/70 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div 
@@ -372,7 +372,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
               onClick={() => setActiveCategory('ALL')}
               className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeCategory === 'ALL'
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
               }`}
             >
@@ -385,7 +385,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('CLIENTES')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'CLIENTES'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >
@@ -399,7 +399,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('CONTRATOS')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'CONTRATOS'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >
@@ -413,7 +413,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('RECEBER')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'RECEBER'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >
@@ -427,7 +427,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('PAGAR')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'PAGAR'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >
@@ -441,7 +441,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('SERVICOS')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'SERVICOS'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >
@@ -455,7 +455,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('VENDAS')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'VENDAS'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >
@@ -469,7 +469,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onClick={() => setActiveCategory('MOVIMENTACOES')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeCategory === 'MOVIMENTACOES'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    ? 'bg-[var(--surface-card)] text-[var(--text-primary)] dark:bg-white dark:text-slate-900 shadow-2xs'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
                 }`}
               >

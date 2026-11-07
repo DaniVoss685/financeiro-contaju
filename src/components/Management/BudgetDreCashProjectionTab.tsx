@@ -218,7 +218,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs">
         <div>
           <div className="flex items-center space-x-2">
-            <Layers className="w-5 h-5 text-amber-400" />
+            <Layers className="w-5 h-5 text-[var(--brand-gold)]" />
             <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
               Demonstrativo DRE & Caixa Projetado ({selectedYear})
             </h2>
@@ -249,11 +249,11 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
         {/* 1. Receita Bruta */}
         <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] to-transparent shadow-xs">
-          <div className="flex items-center justify-between text-xs text-amber-400 font-bold uppercase">
+          <div className="flex items-center justify-between text-xs text-[var(--brand-gold)] font-bold uppercase">
             <span>Receita Bruta Total</span>
-            <ArrowUpRight className="w-4 h-4 text-amber-400" />
+            <ArrowUpRight className="w-4 h-4 text-[var(--brand-gold)]" />
           </div>
-          <div className="mt-2 text-xl font-mono font-bold text-amber-300">
+          <div className="mt-2 text-xl font-mono font-bold text-[var(--brand-gold)]">
             {formatBRL(projectionData.totalRev)}
           </div>
           <span className="text-[11px] text-[var(--text-secondary)]">
@@ -263,11 +263,11 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
         {/* 2. Custos Totais */}
         <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.05] to-transparent shadow-xs">
-          <div className="flex items-center justify-between text-xs text-amber-400 font-bold uppercase">
+          <div className="flex items-center justify-between text-xs text-[var(--brand-gold)] font-bold uppercase">
             <span>Custos dos Serviços</span>
-            <ArrowDownRight className="w-4 h-4 text-amber-400" />
+            <ArrowDownRight className="w-4 h-4 text-[var(--brand-gold)]" />
           </div>
-          <div className="mt-2 text-xl font-mono font-bold text-amber-300">
+          <div className="mt-2 text-xl font-mono font-bold text-[var(--brand-gold)]">
             {formatBRL(projectionData.totalCost)}
           </div>
           <span className="text-[11px] text-[var(--text-secondary)]">
@@ -277,11 +277,11 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
         {/* 3. Despesas Operacionais */}
         <div className="bg-[var(--surface-card)] p-4 rounded-xl border border-rose-500/30 bg-gradient-to-br from-rose-500/[0.05] to-transparent shadow-xs">
-          <div className="flex items-center justify-between text-xs text-rose-400 font-bold uppercase">
+          <div className="flex items-center justify-between text-xs text-[var(--status-danger)] font-bold uppercase">
             <span>Despesas Operacionais</span>
-            <ArrowDownRight className="w-4 h-4 text-rose-400" />
+            <ArrowDownRight className="w-4 h-4 text-[var(--status-danger)]" />
           </div>
-          <div className="mt-2 text-xl font-mono font-bold text-rose-300">
+          <div className="mt-2 text-xl font-mono font-bold text-[var(--status-danger)]">
             {formatBRL(projectionData.totalExp)}
           </div>
           <span className="text-[11px] text-[var(--text-secondary)]">
@@ -293,34 +293,34 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
         <div className={`bg-[var(--surface-card)] p-4 rounded-xl border shadow-xs ${
           projectionData.totalNetIncome >= 0 ? 'border-amber-500/40 bg-amber-500/[0.05]' : 'border-rose-500/40 bg-rose-500/[0.05]'
         }`}>
-          <div className="flex items-center justify-between text-xs font-bold uppercase text-amber-400">
+          <div className="flex items-center justify-between text-xs font-bold uppercase text-[var(--brand-gold)]">
             <span>Lucro Líquido (DRE)</span>
             <Scale className="w-4 h-4" />
           </div>
           <div className={`mt-2 text-xl font-mono font-bold ${
-            projectionData.totalNetIncome >= 0 ? 'text-amber-400' : 'text-rose-400'
+            projectionData.totalNetIncome >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
           }`}>
             {formatBRL(projectionData.totalNetIncome)}
           </div>
-          <span className="text-[11px] font-semibold text-amber-300">
+          <span className="text-[11px] font-semibold text-[var(--brand-gold)]">
             Margem Líquida: {projectionData.totalMargin.toFixed(1)}%
           </span>
         </div>
 
         {/* 5. Saldo Final de Caixa */}
         <div className={`p-4 rounded-xl border shadow-xs ${
-          projectionData.finalYearCash >= 0 ? 'bg-slate-900 border-2 border-amber-500/40 text-amber-300' : 'bg-slate-900 border-2 border-rose-500/40 text-rose-400'
+          projectionData.finalYearCash >= 0 ? 'bg-[var(--surface-card)] border-2 border-amber-500/40 text-[var(--brand-gold)]' : 'bg-[var(--surface-card)] border-2 border-rose-500/40 text-[var(--status-danger)]'
         }`}>
-          <div className="flex items-center justify-between text-xs font-bold uppercase text-amber-400">
+          <div className="flex items-center justify-between text-xs font-bold uppercase text-[var(--brand-gold)]">
             <span>Saldo Final de Caixa</span>
-            <Wallet className="w-4 h-4 text-amber-400" />
+            <Wallet className="w-4 h-4 text-[var(--brand-gold)]" />
           </div>
           <div className={`mt-2 text-xl font-mono font-bold ${
-            projectionData.finalYearCash >= 0 ? 'text-amber-300' : 'text-rose-400'
+            projectionData.finalYearCash >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
           }`}>
             {formatBRL(projectionData.finalYearCash)}
           </div>
-          <span className="text-[11px] text-amber-400">
+          <span className="text-[11px] text-[var(--brand-gold)]">
             Geração Líquida: {projectionData.totalCashNet >= 0 ? '+' : ''}{formatBRL(projectionData.totalCashNet)}
           </span>
         </div>
@@ -333,7 +333,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
             <span className="font-bold text-[var(--text-primary)]">1. Demonstração do Resultado do Exercício (DRE Projetada)</span>
             <span className="text-[11px] text-[var(--text-secondary)]">• Regime de Competência</span>
           </div>
-          <span className="text-[11px] text-amber-400 font-semibold">
+          <span className="text-[11px] text-[var(--brand-gold)] font-semibold">
             Exercício {selectedYear}
           </span>
         </div>
@@ -363,7 +363,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
             <tbody className="divide-y divide-[var(--border-subtle)]">
               {/* Receita Bruta */}
               <tr className="bg-amber-500/[0.08] font-semibold hover:bg-amber-500/[0.14] transition-colors">
-                <td className="py-2.5 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-amber-300 font-bold">
+                <td className="py-2.5 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)] font-bold">
                   (+) Receita Bruta Operacional
                 </td>
                 <td className="py-2 px-3 text-right font-mono font-bold text-amber-300 bg-amber-500/15 border-r border-[var(--border-subtle)]">
@@ -373,7 +373,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
                   100.0%
                 </td>
                 {projectionData.revMonthly.map((v, i) => (
-                  <td key={i} className={`py-2 px-2 text-right font-mono text-amber-300 font-medium border-r border-[var(--border-subtle)]/40 ${
+                  <td key={i} className={`py-2 px-2 text-right font-mono text-[var(--brand-gold)] font-medium border-r border-[var(--border-subtle)]/40 ${
                     i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
                   }`}>
                     {formatBRL(v)}
@@ -394,7 +394,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
                     {projectionData.totalRev > 0 ? `${((projectionData.totalDed / projectionData.totalRev) * 100).toFixed(1)}%` : '-'}
                   </td>
                   {projectionData.dedMonthly.map((v, i) => (
-                    <td key={i} className={`py-2 px-2 text-right font-mono text-rose-400 border-r border-[var(--border-subtle)]/40 ${
+                    <td key={i} className={`py-2 px-2 text-right font-mono text-[var(--status-danger)] border-r border-[var(--border-subtle)]/40 ${
                       i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
                     }`}>
                       {formatBRL(v)}
@@ -425,7 +425,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
               {/* Custos dos Serviços */}
               <tr className="bg-amber-500/[0.04] hover:bg-amber-500/[0.08] transition-colors">
-                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-amber-300 pl-8">
+                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)] pl-8">
                   (-) Custos dos Serviços Prestados (CSP)
                 </td>
                 <td className="py-2 px-3 text-right font-mono text-amber-300 bg-amber-500/10 border-r border-[var(--border-subtle)]">
@@ -435,7 +435,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
                   {projectionData.totalRev > 0 ? `${((projectionData.totalCost / projectionData.totalRev) * 100).toFixed(1)}%` : '-'}
                 </td>
                 {projectionData.costMonthly.map((v, i) => (
-                  <td key={i} className={`py-2 px-2 text-right font-mono text-amber-300 border-r border-[var(--border-subtle)]/40 ${
+                  <td key={i} className={`py-2 px-2 text-right font-mono text-[var(--brand-gold)] border-r border-[var(--border-subtle)]/40 ${
                     i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
                   }`}>
                     {formatBRL(v)}
@@ -465,7 +465,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
               {/* Despesas Operacionais */}
               <tr className="bg-rose-500/[0.04] hover:bg-rose-500/[0.08] transition-colors">
-                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-rose-300 pl-8">
+                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--status-danger)] pl-8">
                   (-) Despesas Operacionais Totais
                 </td>
                 <td className="py-2 px-3 text-right font-mono text-rose-300 bg-amber-500/10 border-r border-[var(--border-subtle)]">
@@ -475,7 +475,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
                   {projectionData.totalRev > 0 ? `${((projectionData.totalExp / projectionData.totalRev) * 100).toFixed(1)}%` : '-'}
                 </td>
                 {projectionData.expMonthly.map((v, i) => (
-                  <td key={i} className={`py-2 px-2 text-right font-mono text-rose-300 border-r border-[var(--border-subtle)]/40 ${
+                  <td key={i} className={`py-2 px-2 text-right font-mono text-[var(--status-danger)] border-r border-[var(--border-subtle)]/40 ${
                     i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
                   }`}>
                     {formatBRL(v)}
@@ -485,18 +485,18 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
               {/* RESULTADO LÍQUIDO DRE */}
               <tr className="bg-amber-500/20 font-bold border-t-2 border-amber-500/40 text-amber-300 text-xs">
-                <td className="py-2.5 px-4 sticky left-0 bg-amber-950/60 z-10 border-r border-amber-500/30 text-amber-300">
+                <td className="py-2.5 px-4 sticky left-0 bg-amber-950/60 z-10 border-r border-amber-500/30 text-[var(--brand-gold)]">
                   (=) RESULTADO LÍQUIDO DO EXERCÍCIO (DRE)
                 </td>
                 <td className="py-2.5 px-3 text-right font-mono font-extrabold text-amber-300 bg-amber-500/20 border-r border-amber-500/30">
                   {formatBRL(projectionData.totalNetIncome)}
                 </td>
-                <td className="py-2.5 px-2 text-right font-mono text-amber-400 border-r border-amber-500/30">
+                <td className="py-2.5 px-2 text-right font-mono text-[var(--brand-gold)] border-r border-amber-500/30">
                   {projectionData.totalMargin.toFixed(1)}%
                 </td>
                 {projectionData.netIncomeMonthly.map((v, i) => (
                   <td key={i} className={`py-2.5 px-2 text-right font-mono font-bold border-r border-amber-500/20 ${
-                    v >= 0 ? 'text-amber-300' : 'text-rose-400'
+                    v >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                   }`}>
                     {formatBRL(v)}
                   </td>
@@ -514,7 +514,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
                 <td className="py-1.5 px-2 text-right font-mono border-r border-[var(--border-subtle)]">-</td>
                 {projectionData.netMarginMonthly.map((m, i) => (
                   <td key={i} className={`py-1.5 px-2 text-right font-mono border-r border-[var(--border-subtle)]/40 ${
-                    m >= 0 ? 'text-amber-300' : 'text-rose-400'
+                    m >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                   }`}>
                     {m.toFixed(1)}%
                   </td>
@@ -532,7 +532,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
             <span className="font-bold text-[var(--text-primary)]">2. Demonstração do Fluxo de Caixa Projetado</span>
             <span className="text-[11px] text-[var(--text-secondary)]">• Regime de Caixa Financeiro</span>
           </div>
-          <span className="text-[11px] text-amber-300 font-semibold">
+          <span className="text-[11px] text-[var(--brand-gold)] font-semibold">
             Saldo Inicial de 01/Jan: {formatBRL(initialCashBalanceYear)}
           </span>
         </div>
@@ -576,14 +576,14 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
               {/* Entradas de Caixa */}
               <tr className="hover:bg-[var(--surface-elevated)]/50 transition-colors">
-                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-amber-300 pl-8">
+                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)] pl-8">
                   (+) Entradas Operacionais de Clientes
                 </td>
                 <td className="py-2 px-3 text-right font-mono font-bold text-amber-300 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                   {formatBRL(projectionData.totalCashIn)}
                 </td>
                 {projectionData.cashInflowsMonthly.map((v, i) => (
-                  <td key={i} className={`py-2 px-2 text-right font-mono text-amber-300/90 border-r border-[var(--border-subtle)]/40 ${
+                  <td key={i} className={`py-2 px-2 text-right font-mono text-[var(--brand-gold)]/90 border-r border-[var(--border-subtle)]/40 ${
                     i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
                   }`}>
                     {formatBRL(v)}
@@ -593,14 +593,14 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
               {/* Saídas de Caixa */}
               <tr className="hover:bg-[var(--surface-elevated)]/50 transition-colors">
-                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-rose-400 pl-8">
+                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-card)] z-10 border-r border-[var(--border-subtle)] text-[var(--status-danger)] pl-8">
                   (-) Desembolsos de Custos e Despesas
                 </td>
                 <td className="py-2 px-3 text-right font-mono font-bold text-rose-400 bg-amber-500/10 border-r border-[var(--border-subtle)]">
                   {formatBRL(projectionData.totalCashOut)}
                 </td>
                 {projectionData.cashOutflowsMonthly.map((v, i) => (
-                  <td key={i} className={`py-2 px-2 text-right font-mono text-rose-400 border-r border-[var(--border-subtle)]/40 ${
+                  <td key={i} className={`py-2 px-2 text-right font-mono text-[var(--status-danger)] border-r border-[var(--border-subtle)]/40 ${
                     i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'
                   }`}>
                     {formatBRL(v)}
@@ -610,17 +610,17 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
               {/* Geração Líquida de Caixa */}
               <tr className="bg-amber-500/10 font-bold border-t border-[var(--border-subtle)]">
-                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-elevated)] z-10 border-r border-[var(--border-subtle)] text-amber-300">
+                <td className="py-2 px-4 sticky left-0 bg-[var(--surface-elevated)] z-10 border-r border-[var(--border-subtle)] text-[var(--brand-gold)]">
                   (=) GERAÇÃO LÍQUIDA DE CAIXA NO MÊS
                 </td>
                 <td className={`py-2 px-3 text-right font-mono font-extrabold bg-amber-500/15 border-r border-[var(--border-subtle)] ${
-                  projectionData.totalCashNet >= 0 ? 'text-amber-300' : 'text-rose-400'
+                  projectionData.totalCashNet >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                 }`}>
                   {projectionData.totalCashNet >= 0 ? '+' : ''}{formatBRL(projectionData.totalCashNet)}
                 </td>
                 {projectionData.cashNetMonthly.map((v, i) => (
                   <td key={i} className={`py-2 px-2 text-right font-mono font-bold border-r border-[var(--border-subtle)]/40 ${
-                    v >= 0 ? 'text-amber-300' : 'text-rose-400'
+                    v >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                   } ${i % 2 === 0 ? 'bg-[var(--surface-card)]' : 'bg-[var(--surface-elevated)]/60'}`}>
                     {v >= 0 ? '+' : ''}{formatBRL(v)}
                   </td>
@@ -628,16 +628,16 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
               </tr>
 
               {/* SALDO FINAL DE CAIXA */}
-              <tr className="bg-slate-950 font-extrabold border-t-2 border-amber-500/50 text-amber-300 text-xs">
-                <td className="py-2.5 px-4 sticky left-0 bg-slate-950 z-10 border-r border-amber-500/40 text-amber-300">
+              <tr className="bg-[var(--surface-elevated)] font-extrabold border-t-2 border-amber-500/50 text-[var(--brand-gold)] text-xs">
+                <td className="py-2.5 px-4 sticky left-0 bg-[var(--surface-elevated)] z-10 border-r border-amber-500/40 text-[var(--brand-gold)]">
                   (=) SALDO FINAL ACUMULADO DE CAIXA
                 </td>
-                <td className="py-2.5 px-3 text-right font-mono font-extrabold text-amber-300 bg-slate-900 border-r border-amber-500/40 text-sm">
+                <td className="py-2.5 px-3 text-right font-mono font-extrabold text-[var(--brand-gold)] bg-[var(--surface-card)] border-r border-amber-500/40 text-sm">
                   {formatBRL(projectionData.finalYearCash)}
                 </td>
                 {projectionData.cashFinalMonthly.map((v, i) => (
                   <td key={i} className={`py-2.5 px-2 text-right font-mono font-bold border-r border-amber-500/30 ${
-                    v >= 0 ? 'text-amber-300' : 'text-rose-400'
+                    v >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'
                   }`}>
                     {formatBRL(v)}
                   </td>
@@ -652,7 +652,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
       <div className="bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Scale className="w-4 h-4 text-amber-400" />
+            <Scale className="w-4 h-4 text-[var(--brand-gold)]" />
             <h3 className="text-sm font-bold text-[var(--text-primary)]">
               Análise de Integração Contábil x Financeira (Lucro DRE vs Caixa)
             </h3>
@@ -677,7 +677,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
 
           <div className="bg-[var(--surface-elevated)] p-3.5 rounded-xl border border-[var(--border-subtle)]">
             <div className="text-xs text-[var(--text-secondary)] font-medium">Ponto de Equilíbrio Operacional</div>
-            <div className="text-lg font-bold font-mono text-amber-400 mt-1">
+            <div className="text-lg font-bold font-mono text-[var(--brand-gold)] mt-1">
               {formatBRL(projectionData.totalExp + projectionData.totalCost)}
             </div>
             <p className="text-[11px] text-[var(--text-secondary)] mt-1">
@@ -698,7 +698,7 @@ export const BudgetDreCashProjectionTab: React.FC<BudgetDreCashProjectionTabProp
               });
               return (
                 <div>
-                  <div className={`text-lg font-bold font-mono mt-1 ${minCash >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+                  <div className={`text-lg font-bold font-mono mt-1 ${minCash >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
                     {MONTH_SHORT[minMonth]}: {formatBRL(minCash)}
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)] mt-1">

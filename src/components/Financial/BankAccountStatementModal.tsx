@@ -280,25 +280,25 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
       <div 
-        className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden text-slate-100"
+        className="bg-[var(--surface-card)] border border-[var(--border-subtle)]/80 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden text-[var(--text-primary)]"
         onClick={e => e.stopPropagation()}
       >
         {/* Cabeçalho do Extrato */}
-        <div className="px-6 py-4 border-b border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)]/80 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-amber-500/15 rounded-xl border border-amber-500/30 text-amber-400">
               <Landmark className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base sm:text-lg font-bold text-slate-100 tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight">
                   {account.name}
                 </h2>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
                   {account.type === 'CORRENTE' ? 'Conta Corrente' : account.type === 'APLICACAO' ? 'Aplicação' : 'Caixa Físico'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+              <p className="text-xs text-[var(--text-secondary)] flex items-center gap-2 mt-0.5">
                 <span>{account.institution}</span>
                 {account.agency && <span>• Ag: {account.agency}</span>}
                 {account.accountNumber && <span>• CC: {account.accountNumber}</span>}
@@ -308,24 +308,24 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
 
           <div className="flex items-center gap-2">
             <div className="text-right mr-3 hidden sm:block">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Saldo Atual Disponível</div>
-              <div className={`text-xl font-mono font-bold ${currentActualBalance >= 0 ? 'text-amber-300' : 'text-rose-400'}`}>
+              <div className="text-[10px] text-[var(--text-secondary)] uppercase font-semibold">Saldo Atual Disponível</div>
+              <div className={`text-xl font-mono font-bold ${currentActualBalance >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
                 {formatBRL(currentActualBalance)}
               </div>
             </div>
 
             <button
               onClick={() => handleExport('EXCEL')}
-              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="p-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-lg border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1.5 transition-colors"
               title="Exportar para Excel"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+              <FileSpreadsheet className="w-4 h-4 text-[var(--status-success)]" />
               <span className="hidden md:inline">Exportar</span>
             </button>
 
             <button
               onClick={onClose}
-              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors"
+              className="p-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg transition-colors"
               title="Fechar (Esc)"
             >
               <X className="w-5 h-5" />
@@ -334,67 +334,67 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
         </div>
 
         {/* Cards de Resumo do Período */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-950/40 border-b border-slate-800">
-          <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-            <div className="flex justify-between items-center text-[11px] text-slate-400">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-[var(--surface-elevated)]/40 border-b border-[var(--border-subtle)]">
+          <div className="p-3 rounded-xl bg-[var(--surface-elevated)]/60 border border-[var(--border-subtle)]/60 space-y-1">
+            <div className="flex justify-between items-center text-[11px] text-[var(--text-secondary)]">
               <span>Saldo Inicial</span>
-              <Wallet className="w-3.5 h-3.5 text-slate-400" />
+              <Wallet className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
             </div>
-            <div className="text-base font-mono font-bold text-slate-200">
+            <div className="text-base font-mono font-bold text-[var(--text-primary)]">
               {formatBRL(account.initialBalance)}
             </div>
-            <div className="text-[10px] text-slate-500">Base cadastrada</div>
+            <div className="text-[10px] text-[var(--text-muted)]">Base cadastrada</div>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-            <div className="flex justify-between items-center text-[11px] text-slate-400">
+          <div className="p-3 rounded-xl bg-[var(--surface-elevated)]/60 border border-[var(--border-subtle)]/60 space-y-1">
+            <div className="flex justify-between items-center text-[11px] text-[var(--text-secondary)]">
               <span>Entradas (Período)</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[var(--status-success)]" />
             </div>
-            <div className="text-base font-mono font-bold text-emerald-400">
+            <div className="text-base font-mono font-bold text-[var(--status-success)]">
               +{formatBRL(totalInflows)}
             </div>
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[10px] text-[var(--text-muted)]">
               {periodFilteredMovements.filter(m => m.direction === 'ENTRADA').length} recebimentos
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-            <div className="flex justify-between items-center text-[11px] text-slate-400">
+          <div className="p-3 rounded-xl bg-[var(--surface-elevated)]/60 border border-[var(--border-subtle)]/60 space-y-1">
+            <div className="flex justify-between items-center text-[11px] text-[var(--text-secondary)]">
               <span>Saídas (Período)</span>
-              <ArrowDownRight className="w-3.5 h-3.5 text-rose-400" />
+              <ArrowDownRight className="w-3.5 h-3.5 text-[var(--status-danger)]" />
             </div>
-            <div className="text-base font-mono font-bold text-rose-400">
+            <div className="text-base font-mono font-bold text-[var(--status-danger)]">
               -{formatBRL(totalOutflows)}
             </div>
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[10px] text-[var(--text-muted)]">
               {periodFilteredMovements.filter(m => m.direction === 'SAIDA').length} pagamentos
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-800/60 border border-amber-500/30 space-y-1">
-            <div className="flex justify-between items-center text-[11px] text-amber-400 font-semibold">
+          <div className="p-3 rounded-xl bg-[var(--surface-elevated)]/60 border border-amber-500/30 space-y-1">
+            <div className="flex justify-between items-center text-[11px] text-[var(--brand-gold)] font-semibold">
               <span>Geração Líquida</span>
-              <Receipt className="w-3.5 h-3.5 text-amber-400" />
+              <Receipt className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
             </div>
-            <div className={`text-base font-mono font-bold ${netPeriod >= 0 ? 'text-amber-300' : 'text-rose-400'}`}>
+            <div className={`text-base font-mono font-bold ${netPeriod >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
               {netPeriod >= 0 ? `+${formatBRL(netPeriod)}` : formatBRL(netPeriod)}
             </div>
-            <div className="text-[10px] text-amber-400/80">Fluxo líquido no período</div>
+            <div className="text-[10px] text-[var(--brand-gold)]/80">Fluxo líquido no período</div>
           </div>
         </div>
 
         {/* Barra de Filtros e Modos de Agrupamento */}
-        <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-4 py-3 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
           {/* Abas de Agrupamento */}
-          <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-            <span className="text-[10px] text-slate-500 font-semibold px-2 uppercase">Agrupar:</span>
+          <div className="flex items-center space-x-1 bg-[var(--surface-elevated)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
+            <span className="text-[10px] text-[var(--text-muted)] font-semibold px-2 uppercase">Agrupar:</span>
             <button
               onClick={() => setGroupingMode('DAY')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
                 groupingMode === 'DAY'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  : 'text-[var(--text-secondary)] hover:text-slate-200 hover:bg-[var(--surface-hover)]'
               }`}
             >
               Por Dia
@@ -404,7 +404,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
                 groupingMode === 'WEEK'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  : 'text-[var(--text-secondary)] hover:text-slate-200 hover:bg-[var(--surface-hover)]'
               }`}
             >
               Por Semana
@@ -414,7 +414,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
                 groupingMode === 'MONTH'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  : 'text-[var(--text-secondary)] hover:text-slate-200 hover:bg-[var(--surface-hover)]'
               }`}
             >
               Por Mês
@@ -424,7 +424,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
                 groupingMode === 'LIST'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  : 'text-[var(--text-secondary)] hover:text-slate-200 hover:bg-[var(--surface-hover)]'
               }`}
             >
               Lista Contínua
@@ -437,7 +437,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
             <PremiumSelect
               value={periodFilter}
               onChange={e => setPeriodFilter(e.target.value as PeriodFilter)}
-              className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-medium"
+              className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-medium"
             >
               <option value="CURRENT_MONTH">Mês Atual ({currentMonth}/{currentYear})</option>
               <option value="LAST_MONTH">Mês Anterior</option>
@@ -450,7 +450,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
             <PremiumSelect
               value={directionFilter}
               onChange={e => setDirectionFilter(e.target.value as DirectionFilter)}
-              className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-medium"
+              className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-medium"
             >
               <option value="ALL">Todas Movimentações</option>
               <option value="ENTRADA">Apenas Entradas (+)</option>
@@ -459,18 +459,18 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
 
             {/* Campo de Busca */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[var(--text-secondary)] absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Buscar no extrato..."
-                className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:border-amber-500 outline-hidden w-40 sm:w-48 placeholder:text-slate-500"
+                className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-lg pl-8 pr-3 py-1.5 text-xs focus:border-amber-500 outline-hidden w-40 sm:w-48 placeholder:text-slate-500"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -482,34 +482,34 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
         {/* Lista Agrupada de Lançamentos */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {groupedData.length === 0 || filteredMovements.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 space-y-2">
+            <div className="p-12 text-center text-[var(--text-muted)] space-y-2">
               <Landmark className="w-10 h-10 mx-auto text-slate-600" />
-              <div className="font-semibold text-slate-400">Nenhuma movimentação encontrada neste banco</div>
+              <div className="font-semibold text-[var(--text-secondary)]">Nenhuma movimentação encontrada neste banco</div>
               <p className="text-xs text-slate-600">Altere o período ou os termos de busca para visualizar outros lançamentos.</p>
             </div>
           ) : (
             groupedData.map(group => (
-              <div key={group.key} className="bg-slate-950/60 rounded-xl border border-slate-800 overflow-hidden shadow-xs">
+              <div key={group.key} className="bg-[var(--surface-elevated)]/60 rounded-xl border border-[var(--border-subtle)] overflow-hidden shadow-xs">
                 {/* Cabeçalho do Grupo (Dia / Semana / Mês) */}
-                <div className="px-4 py-2.5 bg-slate-800/70 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="px-4 py-2.5 bg-[var(--surface-elevated)]/70 border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex items-center space-x-2">
-                    <CalendarDays className="w-4 h-4 text-amber-400" />
-                    <span className="font-bold text-slate-100">{group.title}</span>
+                    <CalendarDays className="w-4 h-4 text-[var(--brand-gold)]" />
+                    <span className="font-bold text-[var(--text-primary)]">{group.title}</span>
                     {group.subtitle && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-700/60 text-slate-300">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--surface-hover)]/60 text-[var(--text-primary)]">
                         {group.subtitle}
                       </span>
                     )}
                   </div>
 
                   <div className="flex items-center space-x-4 text-[11px] font-mono">
-                    <span className="text-emerald-400">
+                    <span className="text-[var(--status-success)]">
                       Entradas: +{formatBRL(group.inflows)}
                     </span>
-                    <span className="text-rose-400">
+                    <span className="text-[var(--status-danger)]">
                       Saídas: -{formatBRL(group.outflows)}
                     </span>
-                    <span className={`font-bold ${group.inflows - group.outflows >= 0 ? 'text-amber-300' : 'text-rose-400'}`}>
+                    <span className={`font-bold ${group.inflows - group.outflows >= 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--status-danger)]'}`}>
                       Líquido: {formatBRL(group.inflows - group.outflows)}
                     </span>
                   </div>
@@ -519,7 +519,7 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-800/80 text-[10px] text-slate-400 uppercase font-semibold bg-slate-900/50">
+                      <tr className="border-b border-[var(--border-subtle)]/80 text-[10px] text-[var(--text-secondary)] uppercase font-semibold bg-[var(--surface-card)]/50">
                         <th className="py-2 px-3">Data</th>
                         <th className="py-2 px-3">Histórico / Descrição</th>
                         <th className="py-2 px-3">Cliente / Fornecedor</th>
@@ -528,15 +528,15 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
                         <th className="py-2 px-3 text-right">Saldo Acumulado</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/50">
+                    <tbody className="divide-y divide-[var(--border-subtle)]/50">
                       {group.movements.map(m => {
                         const isEntry = m.direction === 'ENTRADA';
                         return (
-                          <tr key={m.id} className="hover:bg-slate-800/40 transition-colors">
-                            <td className="py-2.5 px-3 text-slate-400 font-mono whitespace-nowrap">
+                          <tr key={m.id} className="hover:bg-[var(--surface-hover)]/40 transition-colors">
+                            <td className="py-2.5 px-3 text-[var(--text-secondary)] font-mono whitespace-nowrap">
                               {formatDateBR(m.date)}
                             </td>
-                            <td className="py-2.5 px-3 font-medium text-slate-200">
+                            <td className="py-2.5 px-3 font-medium text-[var(--text-primary)]">
                               <div className="flex items-center space-x-1.5">
                                 <span className={`p-1 rounded-full ${isEntry ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
                                   {isEntry ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
@@ -544,18 +544,18 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
                                 <span>{m.description}</span>
                               </div>
                             </td>
-                            <td className="py-2.5 px-3 text-slate-300 truncate max-w-[180px]">
+                            <td className="py-2.5 px-3 text-[var(--text-primary)] truncate max-w-[180px]">
                               {m.counterpartyName || '-'}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-400 truncate max-w-[150px]">
+                            <td className="py-2.5 px-3 text-[var(--text-secondary)] truncate max-w-[150px]">
                               {m.categoryName || '-'}
                             </td>
                             <td className={`py-2.5 px-3 text-right font-mono font-bold whitespace-nowrap ${
-                              isEntry ? 'text-emerald-400' : 'text-rose-400'
+                              isEntry ? 'text-[var(--status-success)]' : 'text-[var(--status-danger)]'
                             }`}>
                               {isEntry ? `+${formatBRL(m.amount)}` : `-${formatBRL(m.amount)}`}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-300 whitespace-nowrap">
+                            <td className="py-2.5 px-3 text-right font-mono font-semibold text-[var(--text-primary)] whitespace-nowrap">
                               {formatBRL(m.runningBalance)}
                             </td>
                           </tr>
@@ -570,13 +570,13 @@ export const BankAccountStatementModal: React.FC<BankAccountStatementModalProps>
         </div>
 
         {/* Rodapé Informativo */}
-        <div className="px-6 py-3 border-t border-slate-800 bg-slate-950/90 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
+        <div className="px-6 py-3 border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)]/90 flex flex-wrap items-center justify-between text-xs text-[var(--text-secondary)] gap-2">
           <span>
             Mostrando <strong>{filteredMovements.length}</strong> lançamentos no período filtrado.
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition-colors"
+            className="px-4 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-lg text-xs font-semibold transition-colors"
           >
             Fechar Extrato
           </button>

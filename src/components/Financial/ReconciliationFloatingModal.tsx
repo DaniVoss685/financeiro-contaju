@@ -487,14 +487,14 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header da Janela Flutuante */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-slate-900 text-white shrink-0 sticky top-0 z-20">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#26262b] bg-[var(--surface-card)] text-[var(--text-primary)] shrink-0 sticky top-0 z-20">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shrink-0 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white tracking-tight">
+                <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">
                   {isMultiSelection ? 'Conciliação em Lote (Multi-Seleção)' : 'Conferência e Conciliação Bancária'}
                 </h2>
                 <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
@@ -505,7 +505,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   {canConfirm ? '✓ 100% Batendo' : '⚠ Exige Correção de Valores'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--text-secondary)]">
                 A conciliação exige 100% de paridade financeira para garantir conformidade e integridade contábil.
               </p>
             </div>
@@ -514,7 +514,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
           <button 
             type="button"
             onClick={onClose} 
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors shrink-0 cursor-pointer"
             title="Fechar janela (Esc)"
           >
             <X className="w-5 h-5" />
@@ -717,7 +717,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                     <div key={s.id} className="p-2.5 bg-white dark:bg-[#131316] rounded-lg border border-slate-200 dark:border-[#26262b] flex items-center justify-between">
                       <div>
                         <span className="font-bold text-slate-900 dark:text-white block">{s.description}</span>
-                        <span className="text-[10px] text-slate-500">{formatDateBR(s.date)} • FITID: {s.fitId}</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">{formatDateBR(s.date)} • FITID: {s.fitId}</span>
                       </div>
                       <span className="font-mono font-bold text-slate-900 dark:text-white">
                         {formatBRL(Math.abs(s.amount))}
@@ -733,11 +733,11 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 <div className="space-y-2.5">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">Descrição Oficial:</span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block">Descrição Oficial:</span>
                       <span className="text-sm font-bold text-slate-900 dark:text-white">{singleStmt.description}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">Valor do Extrato:</span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block">Valor do Extrato:</span>
                       <span className="text-base font-extrabold font-mono text-amber-600 dark:text-amber-400">
                         {singleStmt.amount < 0 ? '-' : '+'} {formatBRL(Math.abs(singleStmt.amount))}
                       </span>
@@ -746,20 +746,20 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
 
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-[#26262b] text-[11px]">
                     <div>
-                      <span className="text-slate-500 block">Data da Transação:</span>
+                      <span className="text-[var(--text-muted)] block">Data da Transação:</span>
                       <strong className="text-slate-800 dark:text-slate-200">{formatDateBR(singleStmt.date)}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">Documento / FITID:</span>
+                      <span className="text-[var(--text-muted)] block">Documento / FITID:</span>
                       <strong className="font-mono text-slate-800 dark:text-slate-200">{singleStmt.fitId}</strong>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="p-8 text-center text-slate-400 bg-white dark:bg-[#131316] rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                <div className="p-8 text-center text-[var(--text-secondary)] bg-white dark:bg-[#131316] rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
                   <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2 opacity-60" />
                   <p className="font-bold text-xs text-slate-800 dark:text-slate-200">Nenhum extrato bancário selecionado</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Marque ou clique em "Conciliar" em uma linha do extrato para confrontar.</p>
+                  <p className="text-[11px] text-[var(--text-muted)] mt-1">Marque ou clique em "Conciliar" em uma linha do extrato para confrontar.</p>
                 </div>
               )}
             </div>
@@ -787,7 +787,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                       <div key={t.id} className="p-2.5 bg-white dark:bg-[#131316] rounded-lg border border-slate-200 dark:border-[#26262b] flex items-center justify-between">
                         <div>
                           <span className="font-bold text-slate-900 dark:text-white block">{t.titleNumber} • {p?.name || t.description}</span>
-                          <span className="text-[10px] text-slate-500">Vencimento: {formatDateBR(t.dueDate)} • {t.type}</span>
+                          <span className="text-[10px] text-[var(--text-muted)]">Vencimento: {formatDateBR(t.dueDate)} • {t.type}</span>
                         </div>
                         <span className="font-mono font-bold text-slate-900 dark:text-white">
                           {formatBRL(val)}
@@ -804,13 +804,13 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 <div className="space-y-2.5">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">Título / Favorecido:</span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block">Título / Favorecido:</span>
                       <span className="text-sm font-bold text-slate-900 dark:text-white">
                         {singleTitle.titleNumber} • {person?.name || singleTitle.description}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">Saldo em Aberto:</span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block">Saldo em Aberto:</span>
                       <span className="text-base font-extrabold font-mono text-slate-900 dark:text-amber-400">
                         {formatBRL(currentTitleBalance)}
                       </span>
@@ -819,11 +819,11 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
 
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-[#26262b] text-[11px]">
                     <div>
-                      <span className="text-slate-500 block">Vencimento Contratual:</span>
+                      <span className="text-[var(--text-muted)] block">Vencimento Contratual:</span>
                       <strong className="text-slate-800 dark:text-slate-200">{formatDateBR(singleTitle.dueDate)}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500 block">Tipo & Status:</span>
+                      <span className="text-[var(--text-muted)] block">Tipo & Status:</span>
                       <strong className="text-slate-800 dark:text-slate-200">
                         {singleTitle.type === 'PAGAR' ? 'Contas a Pagar' : 'Contas a Receber'} ({singleTitle.settlementState})
                       </strong>
@@ -862,7 +862,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
 
                   <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                     {topCandidateTitles.length === 0 ? (
-                      <p className="text-[11px] text-slate-500 py-3 text-center">
+                      <p className="text-[11px] text-[var(--text-muted)] py-3 text-center">
                         Nenhum título {singleStmt.amount < 0 ? 'a pagar' : 'a receber'} em aberto no momento.
                       </p>
                     ) : (
@@ -880,7 +880,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">{t.titleNumber}</span>
-                                <span className="text-[10px] text-slate-500">Venc: {formatDateBR(t.dueDate)}</span>
+                                <span className="text-[10px] text-[var(--text-muted)]">Venc: {formatDateBR(t.dueDate)}</span>
                                 {match.score >= 40 && (
                                   <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                                     {match.score}% compatível
@@ -920,10 +920,10 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   )}
                 </div>
               ) : (
-                <div className="p-8 text-center text-slate-400 bg-white dark:bg-[#131316] rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                <div className="p-8 text-center text-[var(--text-secondary)] bg-white dark:bg-[#131316] rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
                   <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2 opacity-80" />
                   <p className="font-bold text-xs text-slate-800 dark:text-slate-200">Nenhum título contábil selecionado</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Marque ou clique em "Conciliar" em um título na coluna do ERP para confrontar.</p>
+                  <p className="text-[11px] text-[var(--text-muted)] mt-1">Marque ou clique em "Conciliar" em um título na coluna do ERP para confrontar.</p>
                 </div>
               )}
             </div>
@@ -931,15 +931,15 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
 
           {/* Composição e Ajustes da Conciliação (Apenas se unitário e não liquidado) */}
           {!isMultiSelection && singleTitle && singleTitle.settlementState !== 'LIQUIDADO' && (
-            <div className="p-4 rounded-xl bg-slate-900 text-white border border-slate-800 space-y-3">
+            <div className="p-4 rounded-xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-amber-400" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-white">
+                  <Calculator className="w-4 h-4 text-[var(--brand-gold)]" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Composição e Ajustes da Conciliação
                   </span>
                 </div>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-[var(--text-secondary)]">
                   {canPartialSettlement
                     ? 'Selecione Pagamento Parcial ou ajuste Desconto/Acréscimo'
                     : 'Ajuste os campos abaixo até a diferença ser exatamente R$ 0,00'}
@@ -951,7 +951,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 <div className={`p-3.5 rounded-xl border transition-all ${
                   isPartialSettlement
                     ? 'bg-amber-500/20 border-amber-500 text-white ring-2 ring-amber-500/40'
-                    : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-amber-500/40'
+                    : 'bg-[var(--surface-elevated)]/80 border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-amber-500/40'
                 }`}>
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
@@ -974,28 +974,28 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-xs text-amber-400 uppercase tracking-wide">
+                        <span className="font-extrabold text-xs text-[var(--brand-gold)] uppercase tracking-wide">
                           {isReceipt ? 'Recebimento Parcial' : 'Pagamento Parcial'} (Manter Restante em Aberto)
                         </span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
                           Opção Recomendada
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        Dá baixa exclusivamente no valor do extrato (<strong>{formatBRL(stmtAbsAmount)}</strong>). O saldo restante de <strong className="text-amber-400 font-mono font-bold">{formatBRL(currentTitleBalance - stmtAbsAmount)}</strong> continuará <strong>EM ABERTO</strong> no ERP (status PARCIAL) para ser conciliado nos próximos lançamentos.
+                      <p className="text-[11px] text-[var(--text-secondary)] mt-1 leading-relaxed">
+                        Dá baixa exclusivamente no valor do extrato (<strong>{formatBRL(stmtAbsAmount)}</strong>). O saldo restante de <strong className="text-[var(--brand-gold)] font-mono font-bold">{formatBRL(currentTitleBalance - stmtAbsAmount)}</strong> continuará <strong>EM ABERTO</strong> no ERP (status PARCIAL) para ser conciliado nos próximos lançamentos.
                       </p>
-                      <div className="mt-2.5 pt-2 border-t border-slate-800 flex flex-wrap items-center gap-4 text-xs font-mono">
+                      <div className="mt-2.5 pt-2 border-t border-[var(--border-subtle)] flex flex-wrap items-center gap-4 text-xs font-mono">
                         <div>
-                          <span className="text-slate-500">Saldo Atual: </span>
-                          <strong className="text-white">{formatBRL(currentTitleBalance)}</strong>
+                          <span className="text-[var(--text-muted)]">Saldo Atual: </span>
+                          <strong className="text-[var(--text-primary)]">{formatBRL(currentTitleBalance)}</strong>
                         </div>
                         <div>
-                          <span className="text-slate-500">Baixa no Extrato: </span>
-                          <strong className="text-emerald-400">-{formatBRL(stmtAbsAmount)}</strong>
+                          <span className="text-[var(--text-muted)]">Baixa no Extrato: </span>
+                          <strong className="text-[var(--status-success)]">-{formatBRL(stmtAbsAmount)}</strong>
                         </div>
                         <div>
-                          <span className="text-slate-500">Restará em Aberto: </span>
-                          <strong className="text-amber-400 font-bold underline">{formatBRL(currentTitleBalance - stmtAbsAmount)}</strong>
+                          <span className="text-[var(--text-muted)]">Restará em Aberto: </span>
+                          <strong className="text-[var(--brand-gold)] font-bold underline">{formatBRL(currentTitleBalance - stmtAbsAmount)}</strong>
                         </div>
                       </div>
                     </div>
@@ -1005,67 +1005,67 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
                 {/* Principal */}
-                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">
+                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                  <label className="text-[10px] text-[var(--text-secondary)] font-bold uppercase block mb-1">
                     Valor Principal (R$) *
                   </label>
-                  <MoneyField value={Number(adjPrincipal) || 0} onChange={(v: number) => setAdjPrincipal(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white font-mono focus:border-amber-400 focus:outline-hidden" />
-                  <span className="text-[9px] text-slate-500 mt-1 block">Saldo ERP: {formatBRL(currentTitleBalance)}</span>
+                  <MoneyField value={Number(adjPrincipal) || 0} onChange={(v: number) => setAdjPrincipal(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-[var(--text-primary)] font-mono focus:border-amber-400 focus:outline-hidden" />
+                  <span className="text-[9px] text-[var(--text-muted)] mt-1 block">Saldo ERP: {formatBRL(currentTitleBalance)}</span>
                 </div>
 
                 {/* Juros */}
-                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
                   <label className="text-[10px] text-sky-400 font-bold uppercase block mb-1">
                     + Juros (R$)
                   </label>
-                  <MoneyField value={Number(adjInterest) || 0} onChange={(v: number) => setAdjInterest(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-sky-300 font-mono focus:border-sky-400 focus:outline-hidden" />
-                  <span className="text-[9px] text-slate-500 mt-1 block">Acréscimo por atraso</span>
+                  <MoneyField value={Number(adjInterest) || 0} onChange={(v: number) => setAdjInterest(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-sky-300 font-mono focus:border-sky-400 focus:outline-hidden" />
+                  <span className="text-[9px] text-[var(--text-muted)] mt-1 block">Acréscimo por atraso</span>
                 </div>
 
                 {/* Multa */}
-                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                  <label className="text-[10px] text-amber-400 font-bold uppercase block mb-1">
+                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                  <label className="text-[10px] text-[var(--brand-gold)] font-bold uppercase block mb-1">
                     + Multa (R$)
                   </label>
-                  <MoneyField value={Number(adjFine) || 0} onChange={(v: number) => setAdjFine(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:border-amber-400 focus:outline-hidden" />
-                  <span className="text-[9px] text-slate-500 mt-1 block">Penalidade contratual</span>
+                  <MoneyField value={Number(adjFine) || 0} onChange={(v: number) => setAdjFine(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-[var(--brand-gold)] font-mono focus:border-amber-400 focus:outline-hidden" />
+                  <span className="text-[9px] text-[var(--text-muted)] mt-1 block">Penalidade contratual</span>
                 </div>
 
                 {/* Desconto Comercial */}
-                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                  <label className="text-[10px] text-emerald-400 font-bold uppercase block mb-1">
+                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                  <label className="text-[10px] text-[var(--status-success)] font-bold uppercase block mb-1">
                     - Desconto Comercial (R$)
                   </label>
-                  <MoneyField value={Number(adjDiscount) || 0} onChange={(v: number) => setAdjDiscount(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-emerald-300 font-mono focus:border-emerald-400 focus:outline-hidden" />
-                  <span className="text-[9px] text-slate-500 mt-1 block">Abatimento negociado</span>
+                  <MoneyField value={Number(adjDiscount) || 0} onChange={(v: number) => setAdjDiscount(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-[var(--status-success)] font-mono focus:border-emerald-400 focus:outline-hidden" />
+                  <span className="text-[9px] text-[var(--text-muted)] mt-1 block">Abatimento negociado</span>
                 </div>
 
                 {/* Tarifa Bancária */}
-                <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
                   <label className="text-[10px] text-orange-400 font-bold uppercase block mb-1">
                     {isReceipt ? '- Tarifa Bancária (R$)' : '+ Tarifa Bancária (R$)'}
                   </label>
-                  <MoneyField value={Number(adjBankFee) || 0} onChange={(v: number) => setAdjBankFee(Math.max(0, v))} className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-orange-300 font-mono focus:border-orange-400 focus:outline-hidden" />
-                  <span className="text-[9px] text-slate-500 mt-1 block">
+                  <MoneyField value={Number(adjBankFee) || 0} onChange={(v: number) => setAdjBankFee(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-orange-300 font-mono focus:border-orange-400 focus:outline-hidden" />
+                  <span className="text-[9px] text-[var(--text-muted)] mt-1 block">
                     {isReceipt ? 'Taxa boleto/cartão retida' : 'Taxa TED/DOC/emissão'}
                   </span>
                 </div>
               </div>
 
               {/* Resumo da Fórmula em Tempo Real */}
-              <div className="pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
-                <div className="text-slate-300">
+              <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+                <div className="text-[var(--text-primary)]">
                   <span>Cálculo: </span>
-                  <span className="text-white font-semibold">{formatBRL(adjPrincipal)}</span>
-                  {adjInterest > 0 && <span className="text-rose-400"> + {formatBRL(adjInterest)} (Juros)</span>}
-                  {adjFine > 0 && <span className="text-amber-400"> + {formatBRL(adjFine)} (Multa)</span>}
-                  {adjDiscount > 0 && <span className="text-emerald-400"> - {formatBRL(adjDiscount)} (Desc. Comercial)</span>}
+                  <span className="text-[var(--text-primary)] font-semibold">{formatBRL(adjPrincipal)}</span>
+                  {adjInterest > 0 && <span className="text-[var(--status-danger)]"> + {formatBRL(adjInterest)} (Juros)</span>}
+                  {adjFine > 0 && <span className="text-[var(--brand-gold)]"> + {formatBRL(adjFine)} (Multa)</span>}
+                  {adjDiscount > 0 && <span className="text-[var(--status-success)]"> - {formatBRL(adjDiscount)} (Desc. Comercial)</span>}
                   {adjBankFee > 0 && <span className="text-orange-400"> {isReceipt ? '-' : '+'} {formatBRL(adjBankFee)} (Tarifa Bancária)</span>}
-                  <span className="text-white font-bold"> = Total: {formatBRL(totalSettledCalculated)}</span>
+                  <span className="text-[var(--text-primary)] font-bold"> = Total: {formatBRL(totalSettledCalculated)}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-400 text-xs">Diferença para o Extrato:</span>
+                  <span className="text-[var(--text-secondary)] text-xs">Diferença para o Extrato:</span>
                   <span className={`px-2.5 py-1 rounded text-xs font-bold ${
                     isSingleExact
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
@@ -1114,7 +1114,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
               className={`px-6 py-2.5 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2 ${
                 canConfirm && !isSubmitting
                   ? 'bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 text-slate-950 cursor-pointer shadow-amber-500/20 active:scale-95'
-                  : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 border border-slate-300 dark:border-slate-700 cursor-not-allowed opacity-75'
+                  : 'bg-slate-300 dark:bg-slate-800 text-[var(--text-muted)] dark:text-slate-600 border border-slate-300 dark:border-slate-700 cursor-not-allowed opacity-75'
               }`}
             >
               {canConfirm ? (

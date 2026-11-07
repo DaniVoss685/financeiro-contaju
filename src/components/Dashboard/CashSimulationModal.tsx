@@ -236,25 +236,25 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
       <div 
-        className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden text-slate-100"
+        className="bg-[var(--surface-card)] border border-[var(--border-subtle)]/80 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden text-[var(--text-primary)]"
         onClick={e => e.stopPropagation()}
       >
         {/* Topo do Modal */}
-        <div className="px-6 py-4 border-b border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)]/80 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-amber-500/15 rounded-xl border border-amber-500/30 text-amber-400">
               <Sliders className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base sm:text-lg font-bold text-slate-100 tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight">
                   Simulação de Caixa Líquido com Inadimplências Esperadas
                 </h2>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   {currentCompetenceStr}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 Projeção preventiva de liquidez mensal descontando clientes que costumam atrasar pagamentos.
               </p>
             </div>
@@ -262,17 +262,17 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors"
+            className="p-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Barra de Gerenciamento de Cenários Salvos */}
-        <div className="px-6 py-3 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="px-6 py-3 bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center space-x-2">
-            <span className="text-slate-400 font-medium flex items-center">
-              <FolderOpen className="w-3.5 h-3.5 mr-1 text-amber-400" />
+            <span className="text-[var(--text-secondary)] font-medium flex items-center">
+              <FolderOpen className="w-3.5 h-3.5 mr-1 text-[var(--brand-gold)]" />
               Cenários Salvos:
             </span>
             <PremiumSelect
@@ -281,7 +281,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                 const found = scenarios.find(s => s.id === e.target.value);
                 if (found) loadScenario(found);
               }}
-              className="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-semibold"
+              className="bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-lg px-2.5 py-1.5 focus:border-amber-500 outline-hidden font-semibold"
             >
               {scenarios.map(s => (
                 <option key={s.id} value={s.id}>
@@ -294,9 +294,9 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={createNewScenario}
-              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-semibold flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1.5 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-lg border border-[var(--border-subtle)] font-semibold flex items-center gap-1 transition-colors"
             >
-              <Plus className="w-3.5 h-3.5 text-amber-400" />
+              <Plus className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
               Novo Cenário
             </button>
 
@@ -316,9 +316,9 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
         {/* Conteúdo Principal com Scroll */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Identificação do Cenário */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[var(--surface-elevated)]/60 p-4 rounded-xl border border-[var(--border-subtle)]">
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
                 Nome da Visualização Salva
               </label>
               <input
@@ -326,12 +326,12 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                 value={scenarioName}
                 onChange={e => setScenarioName(e.target.value)}
                 placeholder="Ex: Cenário Conservador Médicos e Transportes"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:border-amber-500 outline-hidden font-medium"
+                className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:border-amber-500 outline-hidden font-medium"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
                 Status no Dashboard
               </label>
               <button
@@ -340,70 +340,70 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                 className={`w-full py-2 px-3 rounded-lg border text-xs font-bold flex items-center justify-center space-x-2 transition-all ${
                   isScenarioActive
                     ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
-                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+                    : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-slate-200'
                 }`}
               >
-                <CheckCircle2 className={`w-4 h-4 ${isScenarioActive ? 'text-amber-400' : 'text-slate-500'}`} />
+                <CheckCircle2 className={`w-4 h-4 ${isScenarioActive ? 'text-[var(--brand-gold)]' : 'text-[var(--text-muted)]'}`} />
                 <span>{isScenarioActive ? 'Ativo no Dashboard' : 'Inativo (Apenas Salvo)'}</span>
               </button>
             </div>
           </div>
 
           {/* Painel de Impacto Comparativo em Tempo Real */}
-          <div className="bg-slate-950/80 rounded-xl border border-amber-500/30 p-4 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div className="bg-[var(--surface-elevated)]/80 rounded-xl border border-amber-500/30 p-4 space-y-3 shadow-lg">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                   Comparativo de Caixa: Contratual vs. Caixa Líquido Real Confiável
                 </h3>
               </div>
-              <span className="text-[11px] text-amber-300 font-medium">
+              <span className="text-[11px] text-[var(--brand-gold)] font-medium">
                 {clientSettings.length} clientes em simulação
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Saldo Atual */}
-              <div className="p-3 bg-slate-900/90 rounded-lg border border-slate-800 space-y-1">
-                <div className="text-[10px] text-slate-400 uppercase font-semibold">Disponibilidade Atual</div>
-                <div className="text-base font-mono font-bold text-slate-100">
+              <div className="p-3 bg-[var(--surface-card)]/90 rounded-lg border border-[var(--border-subtle)] space-y-1">
+                <div className="text-[10px] text-[var(--text-secondary)] uppercase font-semibold">Disponibilidade Atual</div>
+                <div className="text-base font-mono font-bold text-[var(--text-primary)]">
                   {formatBRL(nominalCashBalance)}
                 </div>
-                <div className="text-[10px] text-slate-500">Saldo em bancos hoje</div>
+                <div className="text-[10px] text-[var(--text-muted)]">Saldo em bancos hoje</div>
               </div>
 
               {/* Saldo Nominal Projetado */}
-              <div className="p-3 bg-slate-900/90 rounded-lg border border-slate-800 space-y-1">
-                <div className="text-[10px] text-slate-400 uppercase font-semibold">Saldo Projetado Nominal</div>
-                <div className="text-base font-mono font-bold text-slate-300">
+              <div className="p-3 bg-[var(--surface-card)]/90 rounded-lg border border-[var(--border-subtle)] space-y-1">
+                <div className="text-[10px] text-[var(--text-secondary)] uppercase font-semibold">Saldo Projetado Nominal</div>
+                <div className="text-base font-mono font-bold text-[var(--text-primary)]">
                   {formatBRL(nominalProjectedFinal)}
                 </div>
-                <div className="text-[10px] text-slate-500">Receber ({formatBRL(nominalReceivablesThisMonth)}) - Pagar ({formatBRL(nominalPayablesThisMonth)})</div>
+                <div className="text-[10px] text-[var(--text-muted)]">Receber ({formatBRL(nominalReceivablesThisMonth)}) - Pagar ({formatBRL(nominalPayablesThisMonth)})</div>
               </div>
 
               {/* Inadimplência Prevista */}
               <div className="p-3 bg-rose-950/30 rounded-lg border border-rose-500/40 space-y-1">
-                <div className="text-[10px] text-rose-300 uppercase font-semibold flex items-center justify-between">
+                <div className="text-[10px] text-[var(--status-danger)] uppercase font-semibold flex items-center justify-between">
                   <span>(-) Inadimplência Prevista</span>
-                  <TrendingDown className="w-3.5 h-3.5 text-rose-400" />
+                  <TrendingDown className="w-3.5 h-3.5 text-[var(--status-danger)]" />
                 </div>
-                <div className="text-base font-mono font-bold text-rose-400">
+                <div className="text-base font-mono font-bold text-[var(--status-danger)]">
                   -{formatBRL(totalSimulatedDelinquency)}
                 </div>
-                <div className="text-[10px] text-rose-300/80">Retenção de honorários esperada</div>
+                <div className="text-[10px] text-[var(--status-danger)]/80">Retenção de honorários esperada</div>
               </div>
 
               {/* Saldo Previsto Confiável */}
               <div className="p-3 bg-amber-950/30 rounded-lg border border-amber-500/60 space-y-1">
-                <div className="text-[10px] text-amber-300 uppercase font-bold flex items-center justify-between">
+                <div className="text-[10px] text-[var(--brand-gold)] uppercase font-bold flex items-center justify-between">
                   <span>(=) Caixa Líquido Real</span>
-                  <Check className="w-3.5 h-3.5 text-amber-400" />
+                  <Check className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                 </div>
-                <div className="text-lg font-mono font-extrabold text-amber-300">
+                <div className="text-lg font-mono font-extrabold text-[var(--brand-gold)]">
                   {formatBRL(simulatedProjectedFinal)}
                 </div>
-                <div className="text-[10px] text-amber-300/80 font-medium">
+                <div className="text-[10px] text-[var(--brand-gold)]/80 font-medium">
                   Valor que você pode realmente contar
                 </div>
               </div>
@@ -414,11 +414,11 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center">
-                  <Users className="w-4 h-4 mr-1.5 text-amber-400" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] flex items-center">
+                  <Users className="w-4 h-4 mr-1.5 text-[var(--brand-gold)]" />
                   Clientes com Previsão de Inadimplência / Atraso
                 </h3>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-[var(--text-secondary)]">
                   Selecione os clientes que costumam atrasar e escolha se deseja abater o valor total ou uma porcentagem do honorário.
                 </p>
               </div>
@@ -428,7 +428,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                 <PremiumSelect
                   value={selectedClientIdToAdd}
                   onChange={e => setSelectedClientIdToAdd(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-amber-500 outline-hidden max-w-xs"
+                  className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-lg px-3 py-1.5 text-xs focus:border-amber-500 outline-hidden max-w-xs"
                 >
                   <option value="">-- Selecionar cliente para adicionar --</option>
                   {counterparties
@@ -454,10 +454,10 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
 
             {/* Lista dos Clientes Adicionados no Cenário */}
             {clientImpacts.length === 0 ? (
-              <div className="p-8 text-center bg-slate-950/40 rounded-xl border border-dashed border-slate-800 text-slate-400 space-y-2">
+              <div className="p-8 text-center bg-[var(--surface-elevated)]/40 rounded-xl border border-dashed border-[var(--border-subtle)] text-[var(--text-secondary)] space-y-2">
                 <AlertTriangle className="w-8 h-8 mx-auto text-slate-600" />
-                <div className="font-semibold text-slate-300">Nenhum cliente configurado neste cenário</div>
-                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                <div className="font-semibold text-[var(--text-primary)]">Nenhum cliente configurado neste cenário</div>
+                <p className="text-xs text-[var(--text-muted)] max-w-md mx-auto">
                   Selecione um cliente no campo acima para simular o abatimento total ou parcial do honorário mensal.
                 </p>
               </div>
@@ -466,20 +466,20 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                 {clientImpacts.map(item => (
                   <div 
                     key={item.clientId}
-                    className="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 hover:border-slate-700 transition-all space-y-3"
+                    className="p-3.5 bg-[var(--surface-elevated)]/80 rounded-xl border border-[var(--border-subtle)] hover:border-slate-700 transition-all space-y-3"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <div className="text-sm font-bold text-slate-100">{item.clientName}</div>
-                        <div className="text-xs text-slate-400">
-                          Honorário / Faturamento Previsto no Mês: <strong className="text-slate-200 font-mono">{formatBRL(item.baseValue)}</strong>
+                        <div className="text-sm font-bold text-[var(--text-primary)]">{item.clientName}</div>
+                        <div className="text-xs text-[var(--text-secondary)]">
+                          Honorário / Faturamento Previsto no Mês: <strong className="text-[var(--text-primary)] font-mono">{formatBRL(item.baseValue)}</strong>
                         </div>
                       </div>
 
                       <div className="flex items-center space-x-3">
                         <div className="text-right">
-                          <div className="text-[10px] text-rose-300 uppercase font-semibold">Abatimento Simulado</div>
-                          <div className="text-sm font-mono font-bold text-rose-400">
+                          <div className="text-[10px] text-[var(--status-danger)] uppercase font-semibold">Abatimento Simulado</div>
+                          <div className="text-sm font-mono font-bold text-[var(--status-danger)]">
                             -{formatBRL(item.deduction)}
                           </div>
                         </div>
@@ -496,17 +496,17 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                     </div>
 
                     {/* Controles de Modo: Total vs Porcentagem vs Valor Fixo */}
-                    <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-800/80 text-xs">
-                      <span className="text-slate-400 font-semibold">Tipo de Atraso Previsto:</span>
+                    <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-[var(--border-subtle)]/80 text-xs">
+                      <span className="text-[var(--text-secondary)] font-semibold">Tipo de Atraso Previsto:</span>
 
-                      <div className="flex items-center space-x-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+                      <div className="flex items-center space-x-1 bg-[var(--surface-card)] p-0.5 rounded-lg border border-[var(--border-subtle)]">
                         <button
                           type="button"
                           onClick={() => handleUpdateClientSetting(item.clientId, { mode: 'TOTAL' })}
                           className={`px-2.5 py-1 rounded font-semibold transition-colors ${
                             item.mode === 'TOTAL'
                               ? 'bg-amber-500 text-slate-950'
-                              : 'text-slate-400 hover:text-white'
+                              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                           }`}
                         >
                           Valor Total (100%)
@@ -518,7 +518,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                           className={`px-2.5 py-1 rounded font-semibold transition-colors ${
                             item.mode === 'PERCENTAGE'
                               ? 'bg-amber-500 text-slate-950'
-                              : 'text-slate-400 hover:text-white'
+                              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                           }`}
                         >
                           Porcentagem (%)
@@ -530,7 +530,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                           className={`px-2.5 py-1 rounded font-semibold transition-colors ${
                             item.mode === 'FIXED_VALUE'
                               ? 'bg-amber-500 text-slate-950'
-                              : 'text-slate-400 hover:text-white'
+                              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                           }`}
                         >
                           Valor Fixo (R$)
@@ -546,9 +546,9 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                             max={100}
                             value={item.percentage ?? 50}
                             onChange={e => handleUpdateClientSetting(item.clientId, { percentage: Number(e.target.value) })}
-                            className="w-16 bg-slate-900 border border-slate-700 text-slate-100 rounded px-2 py-1 font-mono text-center font-bold focus:border-amber-500 outline-hidden"
+                            className="w-16 bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded px-2 py-1 font-mono text-center font-bold focus:border-amber-500 outline-hidden"
                           />
-                          <span className="text-slate-400 font-bold">%</span>
+                          <span className="text-[var(--text-secondary)] font-bold">%</span>
 
                           <div className="flex items-center space-x-1">
                             {[25, 50, 75].map(pct => (
@@ -556,7 +556,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                                 key={pct}
                                 type="button"
                                 onClick={() => handleUpdateClientSetting(item.clientId, { percentage: pct })}
-                                className="px-1.5 py-0.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-slate-300"
+                                className="px-1.5 py-0.5 bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded text-[10px] font-mono text-[var(--text-primary)]"
                               >
                                 {pct}%
                               </button>
@@ -568,14 +568,14 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                       {/* Configuração de Valor Fixo */}
                       {item.mode === 'FIXED_VALUE' && (
                         <div className="flex items-center space-x-1.5">
-                          <span className="text-slate-400 font-mono text-xs">R$</span>
+                          <span className="text-[var(--text-secondary)] font-mono text-xs">R$</span>
                           <input
                             type="number"
                             min={0}
                             max={item.baseValue}
                             value={item.fixedAmount ?? (item.baseValue / 2)}
                             onChange={e => handleUpdateClientSetting(item.clientId, { fixedAmount: Number(e.target.value) })}
-                            className="w-24 bg-slate-900 border border-slate-700 text-slate-100 rounded px-2 py-1 font-mono font-bold focus:border-amber-500 outline-hidden"
+                            className="w-24 bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded px-2 py-1 font-mono font-bold focus:border-amber-500 outline-hidden"
                           />
                         </div>
                       )}
@@ -586,7 +586,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
                         value={item.notes || ''}
                         onChange={e => handleUpdateClientSetting(item.clientId, { notes: e.target.value })}
                         placeholder="Motivo / previsão de atraso (ex: paga após dia 25)"
-                        className="flex-1 min-w-[200px] bg-slate-900/60 border border-slate-800 rounded px-2.5 py-1 text-slate-300 placeholder:text-slate-600 focus:border-amber-500 outline-hidden text-xs"
+                        className="flex-1 min-w-[200px] bg-[var(--surface-card)]/60 border border-[var(--border-subtle)] rounded px-2.5 py-1 text-[var(--text-primary)] placeholder:text-slate-600 focus:border-amber-500 outline-hidden text-xs"
                       />
                     </div>
                   </div>
@@ -597,9 +597,9 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
         </div>
 
         {/* Rodapé com Ações de Salvamento */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/90 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center text-slate-400 text-xs">
-            <Sparkles className="w-4 h-4 mr-1.5 text-amber-400" />
+        <div className="px-6 py-4 border-t border-[var(--border-subtle)] bg-[var(--surface-elevated)]/90 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center text-[var(--text-secondary)] text-xs">
+            <Sparkles className="w-4 h-4 mr-1.5 text-[var(--brand-gold)]" />
             <span>As simulações são salvas localmente e permanecem sempre disponíveis para você consultar e alterar.</span>
           </div>
 
@@ -607,7 +607,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg transition-colors"
+              className="px-4 py-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-semibold rounded-lg transition-colors"
             >
               Cancelar
             </button>
@@ -615,7 +615,7 @@ export const CashSimulationModal: React.FC<CashSimulationModalProps> = ({
             <button
               type="button"
               onClick={() => handleSaveScenario(false)}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold rounded-lg transition-colors flex items-center space-x-1.5"
+              className="px-4 py-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-hover)] text-[var(--brand-gold)] border border-amber-500/40 font-bold rounded-lg transition-colors flex items-center space-x-1.5"
             >
               <Save className="w-4 h-4" />
               <span>Salvar Visualização</span>
