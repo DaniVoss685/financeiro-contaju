@@ -2012,8 +2012,8 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                   return (
                     <tr 
                       key={t.id}
-                      onDoubleClick={() => handleStartEditTitle(t)}
-                      title="💡 Dê um duplo clique para editar este lançamento"
+                      onClick={() => handleStartEditTitle(t)}
+                      title="💡 Clique para abrir e editar"
                       className={`cursor-pointer select-none ${rowColorClass}`}
                     >
                       <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { formatDateBR } from '../../services/financialEngine';
-import { formatCompetenceShort } from '../../utils/dateUtils';
+import { formatCompetenceShort, formatDateBR as fmtBR } from '../../utils/dateUtils';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { 
   X, 
   Upload, 
@@ -78,6 +79,7 @@ export const CreditCardInvoiceImportModal: React.FC<CreditCardInvoiceImportModal
   chartAccounts,
   onSuccess
 }) => {
+  const simpleMode = useIsSimpleMode();
   const [activeTab, setActiveTab] = useState<'UPLOAD' | 'PASTE'>('UPLOAD');
   const [pastedText, setPastedText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -690,7 +692,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                                   />
                                 </td>
                                 <td className="p-3 font-mono text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                                  {it.formattedDate}
+                                  {fmtBR(it.formattedDate)}
                                 </td>
                                 <td className="p-3">
                                   <input
@@ -708,14 +710,14 @@ Vencimento: 15/${m}/${y} | Período de Compras
                                     className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer"
                                   >
                                     {chartAccounts
-                                      .filter(a => a.type === 'DESPESA' || a.code.startsWith('4.'))
+                                      .filter(a => a.type === 'DESPESA' || (a.code.startsWith('4.') && a.type !== 'RECEITA'))
                                       .map(a => (
                                         <option 
                                           key={a.id} 
                                           value={a.id}
                                           className="bg-white text-slate-900 dark:bg-[#131316] dark:text-white"
                                         >
-                                          {a.code} - {a.name}
+                                          {simpleMode ? a.name : `${a.code} - ${a.name}`}
                                         </option>
                                       ))}
                                   </PremiumSelect>
@@ -770,7 +772,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                         {comparison.matched.map(m => (
                           <tr key={m.id} className="hover:bg-slate-800/40">
                             <td className="p-3 font-mono text-slate-400 whitespace-nowrap">
-                              {m.invoiceItem?.formattedDate}
+                              {fmtBR(m.invoiceItem?.formattedDate)}
                             </td>
                             <td className="p-3 font-medium text-white">
                               {m.invoiceItem?.description}
@@ -826,7 +828,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                           {comparison.onlyInSystem.map(m => (
                             <tr key={m.id} className="hover:bg-slate-800/40">
                               <td className="p-3 font-mono text-slate-400 whitespace-nowrap">
-                                {m.manualItem?.purchaseDate}
+                                {fmtBR(m.manualItem?.purchaseDate)}
                               </td>
                               <td className="p-3 font-medium text-white">
                                 {m.manualItem?.description}

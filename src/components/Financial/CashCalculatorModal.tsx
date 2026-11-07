@@ -26,13 +26,13 @@ interface CashCalculatorModalProps {
 }
 
 const BILL_DENOMINATIONS: Array<{ key: keyof CashDenominations['bills']; value: number; label: string; color: string }> = [
-  { key: '200', value: 200, label: 'R$ 200', color: 'bg-stone-800 text-amber-200 border-amber-700/40' },
-  { key: '100', value: 100, label: 'R$ 100', color: 'bg-slate-800/80 text-slate-200 border-slate-600/50' },
-  { key: '50', value: 50, label: 'R$ 50', color: 'bg-amber-950/60 text-amber-300 border-amber-700/40' },
-  { key: '20', value: 20, label: 'R$ 20', color: 'bg-yellow-950/60 text-yellow-300 border-yellow-700/40' },
-  { key: '10', value: 10, label: 'R$ 10', color: 'bg-red-950/60 text-red-300 border-red-700/40' },
-  { key: '5', value: 5, label: 'R$ 5', color: 'bg-amber-950/60 text-amber-300 border-amber-700/40' },
-  { key: '2', value: 2, label: 'R$ 2', color: 'bg-blue-950/60 text-blue-300 border-blue-700/40' }
+  { key: '200', value: 200, label: 'R$ 200', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' },
+  { key: '100', value: 100, label: 'R$ 100', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' },
+  { key: '50', value: 50, label: 'R$ 50', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' },
+  { key: '20', value: 20, label: 'R$ 20', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' },
+  { key: '10', value: 10, label: 'R$ 10', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' },
+  { key: '5', value: 5, label: 'R$ 5', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' },
+  { key: '2', value: 2, label: 'R$ 2', color: 'bg-[var(--surface-elevated)] text-[var(--text-primary)] border-[var(--border-highlight)]' }
 ];
 
 const COIN_DENOMINATIONS: Array<{ key: keyof CashDenominations['coins']; value: number; label: string }> = [
@@ -208,38 +208,38 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto animate-fadeIn">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-[var(--status-success)]">
               <Calculator className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white tracking-tight">
+                <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
                   Calculadora de Caixa Físico (Cédulas & Moedas)
                 </h3>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-[var(--status-success)] border border-emerald-500/30">
                   {bankAccount.name}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Conte cédulas e moedas em espécie, confronte com o saldo contábil e equalize divergências automaticamente.
+              <p className="text-xs text-[var(--text-secondary)]">
+                Conte o dinheiro do caixa e compare com o saldo do sistema.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {/* View switcher */}
-            <div className="flex items-center bg-slate-800 p-1 rounded-lg border border-slate-700/60 text-xs">
+            <div className="flex items-center bg-[var(--surface-hover)] p-1 rounded-lg border border-[var(--border-subtle)] text-xs">
               <button
                 id="btn-tab-calc"
                 onClick={() => setActiveTab('calculator')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-all ${
                   activeTab === 'calculator' 
-                    ? 'bg-emerald-600 text-white shadow-sm' 
-                    : 'text-slate-400 hover:text-white'
+                    ? 'btn-gold shadow-sm' 
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Calculadora
@@ -249,8 +249,8 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                 onClick={() => setActiveTab('history')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 ${
                   activeTab === 'history' 
-                    ? 'bg-emerald-600 text-white shadow-sm' 
-                    : 'text-slate-400 hover:text-white'
+                    ? 'btn-gold shadow-sm' 
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <History className="w-3.5 h-3.5" />
@@ -261,7 +261,7 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
             <button
               id="btn-close-cash-calc"
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--surface-hover)] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -270,14 +270,14 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
 
         {/* Success Banner */}
         {successMessage && (
-          <div className="mx-6 mt-4 p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl flex items-center justify-between text-sm text-emerald-200 animate-fadeIn">
+          <div className="mx-6 mt-4 p-3 bg-[var(--status-success-bg)] border border-emerald-500/40 rounded-xl flex items-center justify-between text-sm text-[var(--status-success)] animate-fadeIn">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-[var(--status-success)] shrink-0" />
               <span>{successMessage}</span>
             </div>
             <button
               onClick={() => setSuccessMessage(null)}
-              className="text-xs text-emerald-300 underline hover:text-white"
+              className="text-xs text-[var(--status-success)] underline hover:text-[var(--text-primary)]"
             >
               Fechar
             </button>
@@ -289,62 +289,62 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
           {activeTab === 'calculator' ? (
             <>
               {/* Top Confrontation Summary Banner */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-950/60 border border-slate-800 p-4 rounded-xl">
-                <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-4 rounded-xl">
+                <div className="p-3 bg-[var(--surface-card)] rounded-lg border border-[var(--border-subtle)]">
+                  <span className="text-[11px] font-medium text-[var(--text-secondary)] block mb-1">
                     Saldo no Sistema
                   </span>
-                  <div className="text-lg font-bold text-slate-100">
+                  <div className="text-lg font-bold text-[var(--text-primary)]">
                     {formatBRL(systemBalance)}
                   </div>
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
+                  <span className="text-[10px] text-[var(--text-muted)] block mt-0.5">
                     Saldo atual em contas/movimentos
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-                  <span className="text-[11px] font-medium text-slate-400 block mb-1">
+                <div className="p-3 bg-[var(--surface-card)] rounded-lg border border-[var(--border-subtle)]">
+                  <span className="text-[11px] font-medium text-[var(--text-secondary)] block mb-1">
                     Cédulas + Moedas
                   </span>
-                  <div className="text-lg font-bold text-emerald-400">
+                  <div className="text-lg font-bold text-[var(--status-success)]">
                     {formatBRL(totalPhysical)}
                   </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="text-[10px] text-[var(--text-secondary)] block mt-0.5">
                     Cédulas: {formatBRL(totalBills)} | Moedas: {formatBRL(totalCoins)}
                   </span>
                 </div>
 
                 <div className={`p-3 rounded-lg border col-span-1 md:col-span-2 flex flex-col justify-between ${
                   difference === 0 
-                    ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-300' 
+                    ? 'bg-[var(--status-success-bg)] border-[var(--border-subtle)] text-[var(--status-success)]' 
                     : difference > 0 
-                      ? 'bg-amber-500/15 border-amber-500/30 text-amber-300' 
-                      : 'bg-rose-950/30 border-rose-800/40 text-rose-300'
+                      ? 'bg-amber-500/15 border-amber-500/30 text-[var(--brand-gold)]' 
+                      : 'bg-[var(--status-danger-bg)] border-[var(--border-subtle)] text-[var(--status-danger)]'
                 }`}>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                      {difference === 0 && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                      {difference > 0 && <TrendingUp className="w-4 h-4 text-amber-400" />}
-                      {difference < 0 && <TrendingDown className="w-4 h-4 text-rose-400" />}
+                      {difference === 0 && <CheckCircle2 className="w-4 h-4 text-[var(--status-success)]" />}
+                      {difference > 0 && <TrendingUp className="w-4 h-4 text-[var(--brand-gold)]" />}
+                      {difference < 0 && <TrendingDown className="w-4 h-4 text-[var(--status-danger)]" />}
                       Confronto Físico vs. Sistema
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded font-bold ${
                       difference === 0 
-                        ? 'bg-emerald-500/20 text-emerald-300' 
+                        ? 'bg-emerald-500/20 text-[var(--status-success)]' 
                         : difference > 0 
-                          ? 'bg-amber-500/20 text-amber-300' 
-                          : 'bg-rose-500/20 text-rose-300'
+                          ? 'bg-amber-500/20 text-[var(--brand-gold)]' 
+                          : 'bg-rose-500/20 text-[var(--status-danger)]'
                     }`}>
                       {difference === 0 ? 'EQUILIBRADO' : difference > 0 ? 'SOBRA DE CAIXA' : 'FALTA / QUEBRA'}
                     </span>
                   </div>
 
                   <div className="flex items-baseline justify-between mt-2">
-                    <div className="text-2xl font-black">
+                    <div className="text-2xl font-bold">
                       {difference > 0 && '+'}
                       {formatBRL(difference)}
                     </div>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-[var(--text-secondary)]">
                       {difference === 0 
                         ? 'Contagem física coincide com o sistema.' 
                         : difference > 0 
@@ -358,15 +358,15 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
               {/* Denominations Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Bills Column (7 cols) */}
-                <div className="lg:col-span-7 bg-slate-900/50 border border-slate-800 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                <div className="lg:col-span-7 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--border-subtle)]">
                     <div className="flex items-center gap-2">
-                      <Banknote className="w-4 h-4 text-emerald-400" />
-                      <h4 className="font-semibold text-sm text-slate-200">
+                      <Banknote className="w-4 h-4 text-[var(--status-success)]" />
+                      <h4 className="font-semibold text-sm text-[var(--text-primary)]">
                         Cédulas de Papel-Moeda
                       </h4>
                     </div>
-                    <span className="text-xs font-mono font-bold text-emerald-400">
+                    <span className="text-xs font-mono font-bold text-[var(--status-success)]">
                       Subtotal: {formatBRL(totalBills)}
                     </span>
                   </div>
@@ -379,7 +379,7 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                       return (
                         <div 
                           key={item.key}
-                          className="flex items-center justify-between bg-slate-950/40 hover:bg-slate-950/70 border border-slate-800/80 rounded-lg p-2.5 transition-colors"
+                          className="flex items-center justify-between bg-[var(--surface-elevated)] hover:bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-lg p-2.5 transition-colors"
                         >
                           <div className="flex items-center gap-2.5 min-w-[120px]">
                             <span className={`px-2.5 py-1 text-xs font-bold font-mono rounded border ${item.color}`}>
@@ -391,7 +391,7 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleAddBill(item.key, -1)}
-                              className="w-7 h-7 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold active:scale-95"
+                              className="w-7 h-7 flex items-center justify-center rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-primary)] text-sm font-bold active:scale-95"
                             >
                               -
                             </button>
@@ -402,33 +402,33 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                               placeholder="0"
                               onWheel={(e) => (e.target as HTMLElement).blur()}
                               onChange={(e) => handleBillChange(item.key, e.target.value)}
-                              className="w-16 text-center font-mono text-sm font-semibold bg-slate-900 border border-slate-700 rounded py-1 text-white focus:outline-none focus:border-emerald-500"
+                              className="w-16 text-center font-mono text-sm font-semibold bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded py-1 text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
                             />
                             <button
                               type="button"
                               onClick={() => handleAddBill(item.key, 1)}
-                              className="w-7 h-7 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold active:scale-95"
+                              className="w-7 h-7 flex items-center justify-center rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-primary)] text-sm font-bold active:scale-95"
                             >
                               +
                             </button>
                             <button
                               type="button"
                               onClick={() => handleAddBill(item.key, 5)}
-                              className="px-1.5 h-7 text-[10px] rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                              className="px-1.5 h-7 text-[10px] rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                             >
                               +5
                             </button>
                             <button
                               type="button"
                               onClick={() => handleAddBill(item.key, 10)}
-                              className="px-1.5 h-7 text-[10px] rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                              className="px-1.5 h-7 text-[10px] rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                             >
                               +10
                             </button>
                           </div>
 
                           <div className="w-24 text-right">
-                            <span className={`font-mono text-xs font-semibold ${count > 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+                            <span className={`font-mono text-xs font-semibold ${count > 0 ? 'text-[var(--status-success)]' : 'text-[var(--text-muted)]'}`}>
                               {formatBRL(subtotal)}
                             </span>
                           </div>
@@ -439,15 +439,15 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                 </div>
 
                 {/* Coins Column (5 cols) */}
-                <div className="lg:col-span-5 bg-slate-900/50 border border-slate-800 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                <div className="lg:col-span-5 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--border-subtle)]">
                     <div className="flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-amber-400" />
-                      <h4 className="font-semibold text-sm text-slate-200">
+                      <Coins className="w-4 h-4 text-[var(--brand-gold)]" />
+                      <h4 className="font-semibold text-sm text-[var(--text-primary)]">
                         Moedas Metálicas
                       </h4>
                     </div>
-                    <span className="text-xs font-mono font-bold text-amber-400">
+                    <span className="text-xs font-mono font-bold text-[var(--brand-gold)]">
                       Subtotal: {formatBRL(totalCoins)}
                     </span>
                   </div>
@@ -460,10 +460,10 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                       return (
                         <div 
                           key={item.key}
-                          className="flex items-center justify-between bg-slate-950/40 hover:bg-slate-950/70 border border-slate-800/80 rounded-lg p-2.5 transition-colors"
+                          className="flex items-center justify-between bg-[var(--surface-elevated)] hover:bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-lg p-2.5 transition-colors"
                         >
                           <div className="flex items-center gap-2 min-w-[90px]">
-                            <span className="px-2 py-0.5 text-xs font-bold font-mono rounded bg-amber-950/40 border border-amber-800/30 text-amber-200">
+                            <span className="px-2 py-0.5 text-xs font-bold font-mono rounded bg-[var(--brand-gold-soft)] border border-[var(--gold-edge)] text-[var(--brand-gold)]">
                               {item.label}
                             </span>
                           </div>
@@ -472,7 +472,7 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleAddCoin(item.key, -1)}
-                              className="w-7 h-7 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold active:scale-95"
+                              className="w-7 h-7 flex items-center justify-center rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-primary)] text-sm font-bold active:scale-95"
                             >
                               -
                             </button>
@@ -483,26 +483,26 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                               placeholder="0"
                               onWheel={(e) => (e.target as HTMLElement).blur()}
                               onChange={(e) => handleCoinChange(item.key, e.target.value)}
-                              className="w-14 text-center font-mono text-sm font-semibold bg-slate-900 border border-slate-700 rounded py-1 text-white focus:outline-none focus:border-amber-500"
+                              className="w-14 text-center font-mono text-sm font-semibold bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded py-1 text-[var(--text-primary)] focus:outline-none focus:border-amber-500"
                             />
                             <button
                               type="button"
                               onClick={() => handleAddCoin(item.key, 1)}
-                              className="w-7 h-7 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold active:scale-95"
+                              className="w-7 h-7 flex items-center justify-center rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-primary)] text-sm font-bold active:scale-95"
                             >
                               +
                             </button>
                             <button
                               type="button"
                               onClick={() => handleAddCoin(item.key, 5)}
-                              className="px-1.5 h-7 text-[10px] rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                              className="px-1.5 h-7 text-[10px] rounded bg-[var(--surface-hover)] bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                             >
                               +5
                             </button>
                           </div>
 
                           <div className="w-20 text-right">
-                            <span className={`font-mono text-xs font-semibold ${count > 0 ? 'text-amber-400' : 'text-slate-500'}`}>
+                            <span className={`font-mono text-xs font-semibold ${count > 0 ? 'text-[var(--brand-gold)]' : 'text-[var(--text-muted)]'}`}>
                               {formatBRL(subtotal)}
                             </span>
                           </div>
@@ -514,16 +514,16 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
               </div>
 
               {/* Justification & Adjustment Section */}
-              <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+              <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <label className="text-xs font-semibold text-[var(--text-primary)] flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[var(--status-success)]" />
                     Observação ou Motivo da Conferência:
                   </label>
                   <button
                     type="button"
                     onClick={handleResetAll}
-                    className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 self-start sm:self-auto"
+                    className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 self-start sm:self-auto"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Zerar contagem
@@ -534,7 +534,7 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
                   placeholder="Ex: Conferência do turno da tarde, fechamento de gaveta, auditoria quinzenal..."
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)]  focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </>
@@ -542,23 +542,23 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
             /* History Tab */
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-sm text-slate-200 flex items-center gap-2">
-                  <History className="w-4 h-4 text-emerald-400" />
+                <h4 className="font-semibold text-sm text-[var(--text-primary)] flex items-center gap-2">
+                  <History className="w-4 h-4 text-[var(--status-success)]" />
                   Histórico de Contagens Físicas Realizadas
                 </h4>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-[var(--text-secondary)]">
                   Total de {historyRecords.length} contagens registradas
                 </span>
               </div>
 
               {historyRecords.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 bg-slate-950/40 rounded-xl border border-slate-800">
+                <div className="p-8 text-center text-[var(--text-muted)] bg-[var(--surface-elevated)] rounded-xl border border-[var(--border-subtle)]">
                   Nenhuma contagem física registrada para este caixa físico ainda.
                 </div>
               ) : (
-                <div className="border border-slate-800 rounded-xl overflow-hidden">
+                <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                    <thead className="bg-[var(--surface-elevated)] text-[var(--text-secondary)] font-semibold border-b border-[var(--border-subtle)]">
                       <tr>
                         <th className="p-3">Data / Hora</th>
                         <th className="p-3">Responsável</th>
@@ -571,33 +571,33 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                         <th className="p-3">Observações</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                    <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-primary)]">
                       {historyRecords.map(rec => (
-                        <tr key={rec.id} className="hover:bg-slate-800/30 transition-colors">
-                          <td className="p-3 font-mono font-medium text-slate-300">
-                            {rec.date} <span className="text-slate-500">{rec.time}</span>
+                        <tr key={rec.id} className="bg-[var(--surface-hover)] transition-colors">
+                          <td className="p-3 font-mono font-medium text-[var(--text-primary)]">
+                            {rec.date.includes("-") ? rec.date.split("-").reverse().join("/") : rec.date} <span className="text-[var(--text-muted)]">{rec.time}</span>
                           </td>
-                          <td className="p-3 text-slate-300 font-medium">
+                          <td className="p-3 text-[var(--text-primary)] font-medium">
                             {rec.countedBy}
                           </td>
-                          <td className="p-3 text-right font-mono text-slate-400">
+                          <td className="p-3 text-right font-mono text-[var(--text-secondary)]">
                             {formatBRL(rec.totalBills)}
                           </td>
-                          <td className="p-3 text-right font-mono text-slate-400">
+                          <td className="p-3 text-right font-mono text-[var(--text-secondary)]">
                             {formatBRL(rec.totalCoins)}
                           </td>
-                          <td className="p-3 text-right font-mono font-bold text-white">
+                          <td className="p-3 text-right font-mono font-bold text-[var(--text-primary)]">
                             {formatBRL(rec.totalPhysical)}
                           </td>
-                          <td className="p-3 text-right font-mono text-slate-400">
+                          <td className="p-3 text-right font-mono text-[var(--text-secondary)]">
                             {formatBRL(rec.systemBalance)}
                           </td>
                           <td className={`p-3 text-right font-mono font-bold ${
                             rec.difference === 0 
-                              ? 'text-emerald-400' 
+                              ? 'text-[var(--status-success)]' 
                               : rec.difference > 0 
-                                ? 'text-amber-400' 
-                                : 'text-rose-400'
+                                ? 'text-[var(--brand-gold)]' 
+                                : 'text-[var(--status-danger)]'
                           }`}>
                             {rec.difference > 0 && '+'}
                             {formatBRL(rec.difference)}
@@ -605,15 +605,15 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
                           <td className="p-3 text-center">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               rec.status === 'EQUILIBRADO'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                ? 'bg-emerald-500/20 text-[var(--status-success)] border border-emerald-500/30'
                                 : rec.status === 'SOBRA'
-                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                                  ? 'bg-amber-500/20 text-[var(--brand-gold)] border border-amber-500/30'
+                                  : 'bg-rose-500/20 text-[var(--status-danger)] border border-rose-500/30'
                             }`}>
                               {rec.status}
                             </span>
                           </td>
-                          <td className="p-3 text-slate-400 max-w-xs truncate" title={rec.notes}>
+                          <td className="p-3 text-[var(--text-secondary)] max-w-xs truncate" title={rec.notes}>
                             {rec.notes || '—'}
                           </td>
                         </tr>
@@ -627,11 +627,11 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--surface-hover)] rounded-lg transition-colors"
           >
             Fechar
           </button>

@@ -499,8 +499,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {formatBRL(consolidatedCash)}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Badge tone="gold">{simple ? 'Receita fixa' : 'MRR'} {formatBRL(mrr)}</Badge>
-                <Badge tone="info">{activeContractsCount} contratos ativos</Badge>
+                {!simple && <Badge tone="gold">MRR {formatBRL(mrr)}</Badge>}
+                {!simple && <Badge tone="info">{activeContractsCount} contratos ativos</Badge>}
                 <Badge tone={delinquency.rate > 0 ? 'danger' : 'success'}>{simple ? 'Em atraso' : 'Inadimplência'} {delinquency.rate}%</Badge>
               </div>
             </div>

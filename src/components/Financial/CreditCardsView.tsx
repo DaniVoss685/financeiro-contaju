@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { describeCardInvoice } from '../../utils/cardInvoice';
 import { formatDateBR } from '../../services/financialEngine';
-import { formatCompetenceShort } from '../../utils/dateUtils';
+import { formatCompetenceShort, formatDateBR as fmtBR } from '../../utils/dateUtils';
 import { 
   CreditCard as CardIcon, 
   Plus, 
@@ -547,7 +547,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                       {currentInvoiceItems.map((item) => (
                         <tr key={`${item.purchaseId}-${item.installmentNumber}`} className="hover:bg-slate-50 dark:hover:bg-[#1b1b20]/60 transition-colors">
                           <td className="p-3 font-mono text-slate-500 dark:text-slate-400">
-                            {item.purchaseDate}
+                            {fmtBR(item.purchaseDate)}
                           </td>
                           <td className="p-3 font-semibold text-slate-900 dark:text-white">
                             {item.description}

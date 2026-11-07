@@ -1387,7 +1387,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
         <span className="text-emerald-900 dark:text-emerald-200 flex items-center flex-wrap gap-1">
           <span>Listando <strong>{sortedTitles.length}</strong> lançamentos correspondentes aos filtros.</span>
           <span className="hidden sm:inline ml-2 text-[11px] text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-800 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-700">
-            💡 Dica: Duplo clique em qualquer linha para editar o título
+            💡 Dica: Clique em qualquer linha para abrir e editar
           </span>
           <span className="sm:hidden text-[10px] text-emerald-700 dark:text-emerald-300 font-medium">
             👆 Toque para detalhes • ↔ Deslize para a direita para Receber ou esquerda para Editar
@@ -2139,8 +2139,8 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                   return (
                     <tr 
                       key={t.id}
-                      onDoubleClick={() => handleStartEditTitle(t)}
-                      title="💡 Dê um duplo clique para editar este lançamento"
+                      onClick={() => handleStartEditTitle(t)}
+                      title="💡 Clique para abrir e editar"
                       className={`${rowColorClass} transition-colors cursor-pointer select-none ${
                         isSelected ? 'bg-amber-500/15 ring-1 ring-inset ring-amber-400' : ''
                       }`}
