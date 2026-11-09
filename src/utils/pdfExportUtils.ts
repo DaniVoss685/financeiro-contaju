@@ -36,7 +36,7 @@ export function exportDREToPDF(
     ? { companyName: optionsOrCompanyName, theme: 'auto' }
     : (optionsOrCompanyName || { theme: 'auto' });
 
-  const companyName = opts.companyName || company.companyName || company.tradeName || 'ContaJu Gestão Financeira';
+  const companyName = opts.companyName || company.companyName || company.tradeName || 'Contaju Gestão Financeira';
   const isDark = (opts.theme === 'dark') || (opts.theme !== 'light' && currentTheme === 'dark');
 
   const doc = new jsPDF({
@@ -216,7 +216,7 @@ export function exportDREToPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   doc.setTextColor(148, 163, 184);
-  doc.text(`Relatório contábil emitido pelo ContaJu Gestão Financeira • Página 1 de 1`, 148.5, pageHeight - 4, { align: 'center' });
+  doc.text(`Relatório contábil emitido pelo Contaju Gestão Financeira • Página 1 de 1`, 148.5, pageHeight - 4, { align: 'center' });
 
   doc.save(`Contaju-DRE-Gerencial-${year}.pdf`);
 }
@@ -249,7 +249,7 @@ export function exportCashFlowToPDF(
     : (modeOrOptions || { theme: 'auto' });
 
   const mode = opts.mode || 'CONSOLIDADO';
-  const companyName = opts.companyName || company.companyName || company.tradeName || 'ContaJu Gestão Financeira';
+  const companyName = opts.companyName || company.companyName || company.tradeName || 'Contaju Gestão Financeira';
   const isDark = (opts.theme === 'dark') || (opts.theme !== 'light' && currentTheme === 'dark');
 
   const doc = new jsPDF({
@@ -444,7 +444,7 @@ export function exportCashFlowToPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   doc.setTextColor(148, 163, 184);
-  doc.text(`Demonstração de Fluxo de Caixa emitida via ContaJu • Página 1 de 1`, 148.5, pageHeight - 4, { align: 'center' });
+  doc.text(`Demonstração de Fluxo de Caixa emitida via Contaju • Página 1 de 1`, 148.5, pageHeight - 4, { align: 'center' });
 
   doc.save(`Contaju-Fluxo-Caixa-${year}-${mode}.pdf`);
 }
@@ -499,7 +499,7 @@ export function exportOnePageDRESummaryPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(203, 213, 225);
-  doc.text(`Empresa: ${companyName || company.companyName || company.tradeName || 'ContaJu Gestão'} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Exercício: ${year}`, 14, 17);
+  doc.text(`Empresa: ${companyName || company.companyName || company.tradeName || 'Contaju Gestão'} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Exercício: ${year}`, 14, 17);
   doc.text(`Emissão: ${nowStr} • Relatório Sintético para Diretoria & Conselho`, 200, 17);
 
   // 2. Quatro Cards de Destaque Executivo (Y: 28 to 48)
@@ -694,7 +694,7 @@ export function exportOnePageDRESummaryPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
-  doc.text('Documento estritamente confidencial elaborado para fins decisórios • ContaJu Gestão Financeira Inteligente', 14, 202);
+  doc.text('Documento estritamente confidencial elaborado para fins decisórios • Contaju Gestão Financeira Inteligente', 14, 202);
   doc.text('Página 1 de 1 (Sumário Executivo Consolidado)', 235, 202);
 
   doc.save(`Contaju-Sumario-Executivo-DRE-${year}.pdf`);
@@ -788,7 +788,7 @@ export function exportPeriodClosureToPDF(closure: PeriodClosure, customCompany?:
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(203, 213, 225);
-  const compName = company.companyName || company.tradeName || 'ContaJu Gestão Contábil';
+  const compName = company.companyName || company.tradeName || 'Contaju Gestão Contábil';
   doc.text(`Empresa: ${compName} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Regime: ${company.fiscalRegime || 'Simples Nacional'}`, 14, 18);
   doc.text(`Competência: ${competence} • Auditoria de Saldos e Travas Operacionais`, 14, 23);
   doc.text(`Emissão: ${nowStr}`, 155, 23);
@@ -976,7 +976,7 @@ export function exportPeriodClosureToPDF(closure: PeriodClosure, customCompany?:
   // Rodapé da Página
   doc.setFontSize(6.5);
   doc.setTextColor(148, 163, 184);
-  doc.text('Documento gerado automaticamente pelo Sistema ContaJu • Governança, Conciliação e Fechamento Contábil Perfeito', 14, 290);
+  doc.text('Documento gerado automaticamente pelo Sistema Contaju • Governança, Conciliação e Fechamento Contábil Perfeito', 14, 290);
   doc.text(`ID: ${closure.id}`, 165, 290);
 
   doc.save(`Contaju-Termo-Fechamento-${competence}.pdf`);

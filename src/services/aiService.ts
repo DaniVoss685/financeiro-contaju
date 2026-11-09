@@ -132,7 +132,7 @@ export class AiService {
     const messages = [
       {
         role: 'system' as const,
-        content: 'Você é o consultor de inteligência artificial financeira do ERP ContaJu. Responda de forma clara, profissional, prática e concisa em português do Brasil.'
+        content: 'Você é o consultor de inteligência artificial financeira do ERP Contaju. Responda de forma clara, profissional, prática e concisa em português do Brasil.'
       },
       {
         role: 'user' as const,
@@ -450,7 +450,7 @@ export class AiService {
   ): Promise<AiReconciliationSuggestion & { success: boolean; error?: string }> {
     const parties = counterparties && counterparties.length > 0 ? counterparties : storage.getPersons();
 
-    const prompt = `Você é o auditor e assistente contábil do sistema ERP financeiro ContaJu.
+    const prompt = `Você é o auditor e assistente contábil do sistema ERP financeiro Contaju.
 Analise a seguinte transação bancária e recomende a conciliação exata com os lançamentos do sistema.
 
 TRANSAÇÃO DO EXTRATO BANCÁRIO:

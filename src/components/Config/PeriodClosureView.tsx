@@ -1267,7 +1267,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                 <strong className="block text-rose-900 dark:text-rose-300 mb-1">
                   2. Se estiver "Faltando no Banco" (- Falta de Saldo no Extrato):
                 </strong>
-                Verifique se o banco debitou tarifas mensais de manutenção de conta, taxas de emissão de boletos, IOF ou se houve pagamento de títulos realizado diretamente pelo internet banking sem a devida baixa no ContaJu.
+                Verifique se o banco debitou tarifas mensais de manutenção de conta, taxas de emissão de boletos, IOF ou se houve pagamento de títulos realizado diretamente pelo internet banking sem a devida baixa no Contaju.
               </div>
             </div>
           </div>
@@ -1946,7 +1946,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                     TERMO EXECUTIVO DE FECHAMENTO CONTÁBIL
                   </h1>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-                    {storage.getCompany().companyName || storage.getCompany().tradeName || 'ContaJu Gestão Contábil'} • CNPJ: {storage.getCompany().cnpj || '00.000.000/0001-00'} • Regime: {storage.getCompany().fiscalRegime || 'Simples Nacional'}
+                    {storage.getCompany().companyName || storage.getCompany().tradeName || 'Contaju Gestão Contábil'} • CNPJ: {storage.getCompany().cnpj || '00.000.000/0001-00'} • Regime: {storage.getCompany().fiscalRegime || 'Simples Nacional'}
                   </p>
                 </div>
 
@@ -2220,7 +2220,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
 
               {/* Rodapé do Documento */}
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-                <span>ContaJu • Sistema Integrado de Gestão Contábil, Conciliação e Fechamento Perfeito</span>
+                <span>Contaju • Sistema Integrado de Gestão Contábil, Conciliação e Fechamento Perfeito</span>
                 <span className="font-mono">Chave de Validação: {printTermClosure.id}</span>
               </div>
             </div>

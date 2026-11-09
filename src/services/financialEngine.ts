@@ -3303,7 +3303,7 @@ export const buildWhatsAppMessageForTitle = (
 
   if (title.type === 'RECEBER') {
     if (isTB) {
-      return `Olá, ${party}! Tudo bem?\n\nPassando para lembrar sobre a *Taxa de Balanço Anual / Encerramento do Exercício* (*${desc}*).\n\n📌 *Valor:* ${val}\n📅 *Vencimento:* ${due}\n\nEsta cobrança refere-se aos trabalhos de fechamento das demonstrações contábeis, conciliações anuais e encerramento do Balanço Patrimonial do exercício.\n\nCaso já tenha efetuado o pagamento ou precise de 2ª via ou chave PIX, estamos à total disposição!\n\nAtenciosamente,\n*Equipe Financeira ContaJu*`;
+      return `Olá, ${party}! Tudo bem?\n\nPassando para lembrar sobre a *Taxa de Balanço Anual / Encerramento do Exercício* (*${desc}*).\n\n📌 *Valor:* ${val}\n📅 *Vencimento:* ${due}\n\nEsta cobrança refere-se aos trabalhos de fechamento das demonstrações contábeis, conciliações anuais e encerramento do Balanço Patrimonial do exercício.\n\nCaso já tenha efetuado o pagamento ou precise de 2ª via ou chave PIX, estamos à total disposição!\n\nAtenciosamente,\n*Equipe Financeira Contaju*`;
     }
 
     return `Olá, ${party}! Tudo bem?\n\nPassando para lembrar sobre a sua fatura/honorário referente a *${desc}* no valor de *${val}*, com vencimento em *${due}*.\n\nCaso já tenha efetuado o pagamento, por gentileza desconsidere este aviso. Estamos à disposição!`;

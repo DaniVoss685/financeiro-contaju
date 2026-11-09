@@ -801,6 +801,74 @@ function mapAuditLogFromDb(row: any): AuditLogEntry {
   };
 }
 
+const mapCashCountToDb = (c: CashCountRecord) => ({
+  id: c.id,
+  bank_account_id: c.bankAccountId,
+  count_date: c.date,
+  count_time: c.time || null,
+  counted_by: c.countedBy || null,
+  bills: c.bills || {},
+  coins: c.coins || {},
+  total_bills: c.totalBills,
+  total_coins: c.totalCoins,
+  total_physical: c.totalPhysical,
+  system_balance: c.systemBalance,
+  difference: c.difference,
+  status: c.status,
+  notes: c.notes || null,
+  adjusted_in_system: Boolean(c.adjustedInSystem),
+  created_at: c.createdAt || new Date().toISOString()
+});
+
+const mapCashCountFromDb = (r: any): CashCountRecord => ({
+  id: r.id,
+  bankAccountId: r.bank_account_id,
+  date: String(r.count_date || '').substring(0, 10),
+  time: r.count_time || '',
+  countedBy: r.counted_by || '',
+  bills: r.bills || {},
+  coins: r.coins || {},
+  totalBills: Number(r.total_bills) || 0,
+  totalCoins: Number(r.total_coins) || 0,
+  totalPhysical: Number(r.total_physical) || 0,
+  systemBalance: Number(r.system_balance) || 0,
+  difference: Number(r.difference) || 0,
+  status: r.status,
+  notes: r.notes || undefined,
+  adjustedInSystem: Boolean(r.adjusted_in_system),
+  createdAt: r.created_at || new Date().toISOString()
+});
+
+const mapBankClosingToDb = (bc: BankBalanceClosingRecord) => ({
+  id: bc.id,
+  bank_account_id: bc.bankAccountId,
+  closing_date: bc.closingDate,
+  closing_time: bc.closingTime,
+  closed_by: bc.closedBy,
+  system_balance: bc.systemBalance,
+  real_balance: bc.realBalance,
+  difference: bc.difference,
+  status: bc.status,
+  notes: bc.notes || null,
+  created_at: bc.createdAt || new Date().toISOString()
+});
+
+const mapBankClosingFromDb = (r: any): BankBalanceClosingRecord => ({
+  id: r.id,
+  bankAccountId: r.bank_account_id,
+  closingDate: String(r.closing_date || '').substring(0, 10),
+  closingTime: r.closing_time || '',
+  closedBy: r.closed_by || '',
+  systemBalance: Number(r.system_balance) || 0,
+  realBalance: Number(r.real_balance) || 0,
+  difference: Number(r.difference) || 0,
+  status: r.status,
+  notes: r.notes || undefined,
+  pendingStatementsCount: 0,
+  pendingTitlesCount: 0,
+  createdAt: r.created_at || new Date().toISOString()
+} as BankBalanceClosingRecord);
+
 export const CONTAJU_TABLES = {
   COMPANIES: 'contaju_companies',
   USERS: 'contaju_users',
@@ -819,6 +887,7 @@ export const CONTAJU_TABLES = {
   PERIOD_CLOSURES: 'contaju_period_closures',
   RECONCILIATION_RULES: 'contaju_reconciliation_rules',
   BANK_CLOSINGS: 'contaju_bank_balance_closings',
+  CASH_COUNTS: 'contaju_cash_counts',
   BUDGET_PLANS: 'contaju_budget_plans',
   AUDIT_LOGS: 'contaju_audit_logs'
 } as const;
@@ -1170,6 +1239,13 @@ class SupabaseSyncService {
         else stats.bankClosings = bankClosings.length;
       }
 
+      // 17b. Contagens do caixa em dinheiro
+      const cashCounts = storage.getCashCounts();
+      if (cashCounts.length > 0) {
+        const { error } = await client.from(CONTAJU_TABLES.CASH_COUNTS).upsert(cashCounts.map(mapCashCountToDb), { onConflict: 'id' });
+        if (error) errors.push(`Contagens do caixa: ${error.message}`);
+      }
+
       // 18. Orçamentos Anuais
       const budgetPlans = storage.getBudgetPlans();
       if (budgetPlans.length > 0) {
@@ -1457,6 +1533,14 @@ class SupabaseSyncService {
 
         // Limpeza remota de compras "mock" desativada: apagava dados do Supabase ao abrir o app.
       }
+
+      // 14b. Conferências com o banco e contagens do caixa (resposta vazia nunca apaga o que já existe no aparelho)
+      const { data: closingsData, error: closingsErr } = await client.from(CONTAJU_TABLES.BANK_CLOSINGS).select('*');
+      if (closingsErr) errors.push(`Conferências com o banco: ${closingsErr.message}`);
+      else if (closingsData && closingsData.length > 0) storage.saveBankClosingRecords(closingsData.map(mapBankClosingFromDb));
+      const { data: countsData, error: countsErr } = await client.from(CONTAJU_TABLES.CASH_COUNTS).select('*');
+      if (countsErr) errors.push(`Contagens do caixa: ${countsErr.message}`);
+      else if (countsData && countsData.length > 0) storage.saveCashCounts(countsData.map(mapCashCountFromDb));
 
       // 15. Fechamentos de Período
       const { data: closuresData, error: clsErr } = await client.from(CONTAJU_TABLES.PERIOD_CLOSURES).select('*');
@@ -1925,6 +2009,36 @@ class SupabaseSyncService {
       const payload = mapSaleToDb(sale);
       const { error } = await client.from(CONTAJU_TABLES.SALES).upsert([payload], { onConflict: 'id' });
       if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  public async saveCashCountsDirectly(counts: CashCountRecord[]): Promise<{ success: boolean; error?: string }> {
+    const client = getSupabaseClient();
+    if (!client || counts.length === 0) return { success: false };
+    try {
+      const { error } = await client.from(CONTAJU_TABLES.CASH_COUNTS).upsert(counts.map(mapCashCountToDb), { onConflict: 'id' });
+      if (error) {
+        console.error('[SupabaseDirect] Erro nas contagens do caixa:', error);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  public async saveBankClosingsDirectly(records: BankBalanceClosingRecord[]): Promise<{ success: boolean; error?: string }> {
+    const client = getSupabaseClient();
+    if (!client || records.length === 0) return { success: false };
+    try {
+      const { error } = await client.from(CONTAJU_TABLES.BANK_CLOSINGS).upsert(records.map(mapBankClosingToDb), { onConflict: 'id' });
+      if (error) {
+        console.error('[SupabaseDirect] Erro nas conferências com o banco:', error);
+        return { success: false, error: error.message };
+      }
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };

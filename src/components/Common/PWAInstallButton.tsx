@@ -79,7 +79,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
           type="button"
           onClick={handleInstallClick}
           className={`h-10 inline-flex items-center gap-2 px-3 text-sm rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer shrink-0 ${className}`}
-          title="Instalar o ContaJu como aplicativo (Windows, Mac ou Linux)"
+          title="Instalar o Contaju como aplicativo (Windows, Mac ou Linux)"
         >
           <MonitorDown className="w-[18px] h-[18px]" strokeWidth={1.75} />
           <span className="hidden 2xl:inline">Instalar app</span>
@@ -103,7 +103,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
               </div>
 
               <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
-                Para adicionar o <strong>ContaJu</strong> como aplicativo nativo no Dock do seu Mac:
+                Para adicionar o <strong>Contaju</strong> como aplicativo nativo no Dock do seu Mac:
               </p>
 
               <ol className="text-xs text-slate-700 dark:text-slate-300 space-y-2 list-decimal list-inside bg-[var(--surface-elevated)] p-3 rounded-xl border border-[var(--border-subtle)]">

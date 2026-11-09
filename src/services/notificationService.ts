@@ -49,7 +49,7 @@ export class NotificationService {
         this.setEnabledByUser(true);
         // Exibe notificação de boas-vindas / teste
         await this.showNotification('Notificações Ativadas!', {
-          body: 'O ContaJu agora enviará alertas matinais sobre contas vencendo no dia.',
+          body: 'O Contaju agora enviará alertas matinais sobre contas vencendo no dia.',
           tag: 'contaju-welcome'
         });
       }
@@ -132,17 +132,17 @@ export class NotificationService {
       const payTotal = duePayables.reduce((acc, t) => acc + t.balancePrincipal, 0);
       const recTotal = dueReceivables.reduce((acc, t) => acc + t.balancePrincipal, 0);
 
-      let title = 'ContaJu: Alerta Financeiro do Dia';
+      let title = 'Contaju: Alerta Financeiro do Dia';
       let body = '';
 
       if (payCount > 0 && recCount > 0) {
-        title = `ContaJu: ${payCount} conta(s) a pagar e ${recCount} a receber hoje!`;
+        title = `Contaju: ${payCount} conta(s) a pagar e ${recCount} a receber hoje!`;
         body = `A pagar: ${formatBRL(payTotal)} • A receber: ${formatBRL(recTotal)}. Clique para acessar.`;
       } else if (payCount > 0) {
-        title = `ContaJu: ${payCount} conta(s) a pagar vencem hoje!`;
+        title = `Contaju: ${payCount} conta(s) a pagar vencem hoje!`;
         body = `Total a pagar hoje: ${formatBRL(payTotal)}. Evite juros e multas de atraso.`;
       } else {
-        title = `ContaJu: ${recCount} recebimento(s) previstos para hoje!`;
+        title = `Contaju: ${recCount} recebimento(s) previstos para hoje!`;
         body = `Total previsto: ${formatBRL(recTotal)}. Acompanhe suas cobranças.`;
       }
 

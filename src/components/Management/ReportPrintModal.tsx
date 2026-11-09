@@ -231,7 +231,7 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
               <div className={`text-left sm:text-right text-xs space-y-0.5 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200 dark:border-slate-700 ${
                 isDark ? 'text-slate-300' : 'text-slate-700'
               }`}>
-                <div><strong>Empresa:</strong> {company.companyName || company.tradeName || 'ContaJu Gestão Financeira'}</div>
+                <div><strong>Empresa:</strong> {company.companyName || company.tradeName || 'Contaju Gestão Financeira'}</div>
                 <div><strong>CNPJ:</strong> {company.cnpj || '00.000.000/0001-00'}</div>
                 <div><strong>Regime:</strong> {reportType === 'DRE' ? 'Competência' : `Caixa (${modeLabel || 'Consolidado'})`}</div>
                 <div className="text-[11px] opacity-80">Emissão: {emissionDate}</div>
@@ -362,14 +362,14 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
                 <div className="border-t border-slate-400 dark:border-slate-600 w-3/4 mx-auto pt-2">
                   <div className="font-bold text-sm">Diretoria Financeira / Administração</div>
                   <div className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                    {company.companyName || company.tradeName || 'ContaJu Gestão'}
+                    {company.companyName || company.tradeName || 'Contaju Gestão'}
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-5 text-center text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-center gap-3">
-              <span>Relatório executivo oficial emitido via <strong>ContaJu Gestão Financeira</strong></span>
+              <span>Relatório executivo oficial emitido via <strong>Contaju Gestão Financeira</strong></span>
               <span>•</span>
               <span>Chave de integridade: <code className="font-mono">{`REP-${reportType}-${year}-${Date.now().toString(36).toUpperCase()}`}</code></span>
               <span>•</span>

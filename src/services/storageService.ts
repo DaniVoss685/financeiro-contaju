@@ -519,7 +519,7 @@ class StorageService {
     }
   }
 
-  /** A empresa da própria consultoria (ContaJu) mantém o plano completo; as demais usam o modelo genérico. */
+  /** A empresa da própria consultoria (Contaju) mantém o plano completo; as demais usam o modelo genérico. */
   private isOwnerFirmSession(): boolean {
     try {
       const orgs = JSON.parse(localStorage.getItem('contaju_orgs') || '[]');
@@ -651,6 +651,11 @@ class StorageService {
         case STORAGE_KEYS.SALES:
           if (Array.isArray(value)) {
             await supabaseSync.saveSalesDirectly(value);
+          }
+          break;
+        case STORAGE_KEYS.CASH_COUNTS:
+          if (Array.isArray(value)) {
+            await supabaseSync.saveCashCountsDirectly(value);
           }
           break;
         case STORAGE_KEYS.STATEMENT_ENTRIES:
@@ -3289,6 +3294,10 @@ class StorageService {
   // ==========================================
   public getReconciliationRules(): ReconciliationRule[] {
     const stored = this.get<ReconciliationRule[]>(STORAGE_KEYS.RECONCILIATION_RULES, []);
+    // Cada empresa começa sem regras. Só a própria consultoria (Contaju) recebe o modelo de regras contábeis.
+    if (this.isTenantSession() && !this.isOwnerFirmSession()) {
+      return (stored || []).filter(r => !INITIAL_RECONCILIATION_RULES.some(i => i.id === r.id));
+    }
     if (!stored || stored.length === 0) {
       this.saveReconciliationRules(INITIAL_RECONCILIATION_RULES);
       return INITIAL_RECONCILIATION_RULES;
@@ -3362,6 +3371,9 @@ class StorageService {
     const updated = [record, ...records.filter(r => r.id !== record.id)];
     localStorage.setItem(STORAGE_KEYS.BANK_CLOSINGS, JSON.stringify(updated));
     this.notify();
+    if (!this.isPullingFromCloud) {
+      import('./supabaseSyncService').then(m => m.supabaseSync.saveBankClosingsDirectly([record])).catch(() => {});
+    }
   }
 
   public saveBankClosingRecords(records: BankBalanceClosingRecord[]): void {
@@ -3487,7 +3499,7 @@ class StorageService {
 
       return false;
     } catch (e) {
-      console.warn('[ContaJu Cloud Sync] Aviso ao carregar do Supabase:', e);
+      console.warn('[Contaju Cloud Sync] Aviso ao carregar do Supabase:', e);
       return false;
     }
   }

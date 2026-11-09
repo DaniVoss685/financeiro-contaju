@@ -403,11 +403,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       <div aria-hidden="true" className="login-bg-glow pointer-events-none absolute inset-0" />
       
       {/* Barra superior: marca e tema */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex justify-center items-center">
         <div className="flex items-center gap-3">
           <GoldenLionLogo size="md" />
           <span className="leading-tight">
-            <span className="block text-[17px] font-semibold tracking-tight">ContaJu</span>
+            <span className="block text-[17px] font-semibold tracking-tight">Contaju</span>
             <span className="block text-xs text-[var(--text-muted)]">Gestão financeira</span>
           </span>
         </div>
@@ -416,7 +416,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           onClick={handleToggleTheme}
           type="button"
           title={`Alternar para o modo ${currentTheme === 'dark' ? 'claro' : 'escuro'}`}
-          className="h-10 flex items-center gap-2 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm cursor-pointer"
+          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 h-10 flex items-center gap-2 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm cursor-pointer"
         >
           {currentTheme === 'dark' ? (
             <>

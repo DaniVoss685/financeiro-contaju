@@ -26,7 +26,7 @@ function lazyWithRetry<T extends React.ComponentType<any>>(
     try {
       return await componentImport();
     } catch (error) {
-      console.warn('[ContaJu Lazy] Recarregando módulo após falha transitória...', error);
+      console.warn('[Contaju Lazy] Recarregando módulo após falha transitória...', error);
       return await componentImport();
     }
   });

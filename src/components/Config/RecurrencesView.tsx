@@ -350,7 +350,7 @@ export const RecurrencesView: React.FC<RecurrencesViewProps> = ({ onOpenBillingM
     if (title.type === 'RECEBER') {
       return `Olá, ${partyName}! Tudo bem?\n\nPassando para lembrar sobre a sua fatura/honorário referente a *${title.description}* no valor de *${valFormatted}*, com vencimento em *${dateFormatted}*.\n\nCaso já tenha efetuado o pagamento, por gentileza desconsidere este aviso. Estamos à disposição!`;
     } else {
-      return `⚠️ *Aviso de Pagamento - ContaJu*\n\nInformamos que a despesa recorrente *${title.description}* de *${partyName}* no valor de *${valFormatted}* tem vencimento programado para *${dateFormatted}*.\n${title.barcode ? `Linha Digitável: ${title.barcode}\n` : ''}Favor providenciar a quitação na tesouraria.`;
+      return `⚠️ *Aviso de Pagamento - Contaju*\n\nInformamos que a despesa recorrente *${title.description}* de *${partyName}* no valor de *${valFormatted}* tem vencimento programado para *${dateFormatted}*.\n${title.barcode ? `Linha Digitável: ${title.barcode}\n` : ''}Favor providenciar a quitação na tesouraria.`;
     }
   };
 

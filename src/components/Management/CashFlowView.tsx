@@ -263,7 +263,7 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({ isFocusMode, onToggl
   const handleExportPDF = () => {
     try {
       const company = storage.getCompany();
-      const companyName = company.companyName || company.tradeName || 'ContaJu Gestão Financeira';
+      const companyName = company.companyName || company.tradeName || 'Contaju Gestão Financeira';
 
       exportCashFlowToPDF(
         {

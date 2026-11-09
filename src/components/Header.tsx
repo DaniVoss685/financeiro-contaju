@@ -21,6 +21,7 @@ import {
   Bot,
   Eye
 } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { isConsultant } from '../services/authService';
 import { useIsSimpleMode, setViewMode, getIsSimpleMode } from '../hooks/useViewMode';
 import { NotificationsModal } from './Common/NotificationsModal';
@@ -110,6 +111,51 @@ export const Header: React.FC<HeaderProps> = ({
   const [theme, setTheme] = useState<'dark' | 'light'>(storage.getTheme());
   const newMenu = usePopover();
   const userMenu = usePopover();
+  // Foto do perfil: guardada neste aparelho e, quando possível, no cadastro do usuário
+  const avatarKey = 'contaju_avatar_' + (currentUser.email || currentUser.id);
+  const [avatar, setAvatar] = useState<string>(() => {
+    try { return localStorage.getItem(avatarKey) || ''; } catch { return ''; }
+  });
+  const avatarInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    try { setAvatar(localStorage.getItem(avatarKey) || ''); } catch { /* sem foto salva */ }
+    (async () => {
+      try {
+        const { getSupabaseClient } = await import('../services/supabaseClient');
+        const cl = getSupabaseClient();
+        const { data } = (await cl?.auth.getUser()) || { data: null as any };
+        const remote = data?.user?.user_metadata?.avatar;
+        if (remote) { setAvatar(remote); try { localStorage.setItem(avatarKey, remote); } catch { /* ok */ } }
+      } catch { /* segue sem foto da nuvem */ }
+    })();
+  }, [avatarKey]);
+  const handleAvatarFile = (file?: File | null) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const size = 160;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const side = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+        const url = canvas.toDataURL('image/jpeg', 0.85);
+        setAvatar(url);
+        try { localStorage.setItem(avatarKey, url); } catch { /* ok */ }
+        (async () => {
+          try {
+            const { getSupabaseClient } = await import('../services/supabaseClient');
+            await getSupabaseClient()?.auth.updateUser({ data: { avatar: url } });
+          } catch { /* a foto fica ao menos neste aparelho */ }
+        })();
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const payablesPeriod = useModulePeriod('PAYABLES');
   const receivablesPeriod = useModulePeriod('RECEIVABLES');
@@ -230,7 +276,7 @@ export const Header: React.FC<HeaderProps> = ({
         showSuccess('Backup restaurado com sucesso. O sistema vai recarregar.', 'Restauração concluída');
         setTimeout(() => window.location.reload(), 1200);
       } else {
-        showError('O arquivo selecionado não é um backup válido do ContaJu.', 'Arquivo inválido');
+        showError('O arquivo selecionado não é um backup válido do Contaju.', 'Arquivo inválido');
       }
     };
     reader.readAsText(file);
@@ -393,8 +439,8 @@ export const Header: React.FC<HeaderProps> = ({
             aria-expanded={userMenu.open}
             title="Perfil e conta"
           >
-            <span className="w-8 h-8 rounded-full bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex items-center justify-center text-sm font-semibold text-[var(--text-primary)]">
-              {currentUser.name.charAt(0).toUpperCase()}
+            <span className="w-8 h-8 rounded-full overflow-hidden bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex items-center justify-center text-sm font-semibold text-[var(--text-primary)]">
+              {avatar ? <img src={avatar} alt="" className="w-full h-full object-cover" /> : currentUser.name.charAt(0).toUpperCase()}
             </span>
             <span className="hidden 2xl:block text-left leading-tight">
               <span className="block text-sm font-medium text-[var(--text-primary)] truncate max-w-[130px]">{currentUser.name}</span>
@@ -404,10 +450,26 @@ export const Header: React.FC<HeaderProps> = ({
 
           {userMenu.open && (
             <div role="menu" className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-24px)] p-1.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-xl z-50 animate-[modalIn_0.16s_ease-out]">
-              <div className="px-3 pt-2.5 pb-3 border-b border-[var(--border-subtle)] mb-1.5">
-                <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{currentUser.name}</p>
-                <p className="text-xs text-[var(--text-muted)] truncate">{currentUser.email}</p>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">{company.tradeName}</p>
+              <div className="px-3 pt-2.5 pb-3 border-b border-[var(--border-subtle)] mb-1.5 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => avatarInput.current?.click()}
+                  className="relative w-12 h-12 shrink-0 rounded-full overflow-hidden bg-[var(--surface-elevated)] border border-[var(--border-highlight)] flex items-center justify-center text-base font-semibold text-[var(--text-primary)] cursor-pointer group"
+                  title={avatar ? 'Trocar foto' : 'Adicionar foto'}
+                >
+                  {avatar ? <img src={avatar} alt="" className="w-full h-full object-cover" /> : currentUser.name.charAt(0).toUpperCase()}
+                  <span className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <Camera className="w-4 h-4" />
+                  </span>
+                </button>
+                <input ref={avatarInput} type="file" accept="image/*" className="hidden" onChange={e => { handleAvatarFile(e.target.files?.[0]); e.target.value = ''; }} />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{currentUser.name}</p>
+                  <p className="text-xs text-[var(--text-muted)] truncate">{currentUser.email}</p>
+                  <button type="button" onClick={() => avatarInput.current?.click()} className="mt-0.5 text-xs text-[var(--brand-gold)] hover:underline cursor-pointer">
+                    {avatar ? 'Trocar foto' : 'Adicionar foto'}
+                  </button>
+                </div>
               </div>
 
               {users.length > 1 && (

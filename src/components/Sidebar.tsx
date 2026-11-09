@@ -94,7 +94,7 @@ export const SCREEN_TITLES: Partial<Record<NavigationScreen, { title: string; gr
 
 export function getScreenTitle(screen: NavigationScreen): { title: string; group: string } {
   if (CONFIG_SCREENS.includes(screen)) return { title: 'Configurações', group: 'Sistema' };
-  return SCREEN_TITLES[screen] || { title: 'ContaJu', group: '' };
+  return SCREEN_TITLES[screen] || { title: 'Contaju', group: '' };
 }
 
 const SHORT_LABELS: Partial<Record<NavigationScreen, string>> = {
@@ -331,7 +331,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <GoldenLionLogo size="md" />
             {!collapsed && (
               <span className="min-w-0 text-left leading-tight">
-                <span className="block text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">ContaJu</span>
+                <span className="block text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Contaju</span>
                 <span className="block text-xs text-[var(--text-muted)] truncate">Gestão financeira</span>
               </span>
             )}

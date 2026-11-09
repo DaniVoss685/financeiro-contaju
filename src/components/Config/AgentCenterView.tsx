@@ -142,7 +142,7 @@ export const AgentCenterView: React.FC = () => {
   const [testPlaygroundModelB, setTestPlaygroundModelB] = useState<string>('gpt-5.6-luna');
   const [isComparisonMode, setIsComparisonMode] = useState(false);
   const [testPlaygroundPrompt, setTestPlaygroundPrompt] = useState<string>(
-    'Analise rapidamente a saúde do caixa da ContaJu e dê uma recomendação financeira executiva.'
+    'Analise rapidamente a saúde do caixa da Contaju e dê uma recomendação financeira executiva.'
   );
   const [isRunningPlaygroundTest, setIsRunningPlaygroundTest] = useState(false);
   const [playgroundResult, setPlaygroundResult] = useState<{
@@ -1284,14 +1284,14 @@ export const AgentCenterView: React.FC = () => {
               </span>
               <button
                 type="button"
-                onClick={() => setTestPlaygroundPrompt("Responda apenas: 'IA ContaJu Conectada com Sucesso!' e informe a data/hora e o seu modelo.")}
+                onClick={() => setTestPlaygroundPrompt("Responda apenas: 'IA Contaju Conectada com Sucesso!' e informe a data/hora e o seu modelo.")}
                 className="px-2.5 py-1 rounded-lg bg-[var(--surface-elevated)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] text-xs border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
                 ⚡ Ping de Conexão
               </button>
               <button
                 type="button"
-                onClick={() => setTestPlaygroundPrompt("Analise rapidamente a saúde do caixa da ContaJu e dê uma recomendação financeira executiva.")}
+                onClick={() => setTestPlaygroundPrompt("Analise rapidamente a saúde do caixa da Contaju e dê uma recomendação financeira executiva.")}
                 className="px-2.5 py-1 rounded-lg bg-[var(--surface-elevated)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] text-xs border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
                 📊 Parecer de Caixa

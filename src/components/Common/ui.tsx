@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, MoreHorizontal } from 'lucide-react';
 
 /**
- * Peças de interface do ContaJu Elite. Usadas por todas as telas para manter o
+ * Peças de interface do Contaju Elite. Usadas por todas as telas para manter o
  * mesmo respiro, a mesma tipografia e cor apenas onde ela informa algo.
  */
 

@@ -35,7 +35,7 @@ export const INITIAL_RECONCILIATION_RULES: ReconciliationRule[] = [
   },
   {
     id: 'rule-energia-eletrica',
-    name: 'Energia Elétrica Sede ContaJu',
+    name: 'Energia Elétrica Sede Contaju',
     pattern: 'ENEL',
     matchType: 'CONTAINS',
     transactionType: 'DEBIT',

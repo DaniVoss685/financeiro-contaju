@@ -234,7 +234,7 @@ export async function testSupabaseConnection(): Promise<ConnectionTestResult> {
           latencyMs,
           tablesFound: [],
           missingTables: targetTables,
-          message: 'Conectado ao Supabase com sucesso! Porém as tabelas do ContaJu ainda não foram criadas. Execute o script schema.sql no SQL Editor do Supabase.'
+          message: 'Conectado ao Supabase com sucesso! Porém as tabelas do Contaju ainda não foram criadas. Execute o script schema.sql no SQL Editor do Supabase.'
         };
       }
 
