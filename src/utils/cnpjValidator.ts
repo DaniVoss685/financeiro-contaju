@@ -1,6 +1,6 @@
 /**
  * Utilitário de máscara e validação de CNPJ e CPF
- * Garante a integridade dos dados fiscais registrados no sistema Contaju.
+ * Garante a integridade dos dados fiscais registrados no sistema ContaJu.
  */
 
 // Limpa caracteres não numéricos

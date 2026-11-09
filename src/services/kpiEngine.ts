@@ -286,7 +286,7 @@ export class KpiEngine {
       consolidateRow(
         'mrr',
         'MRR (Receita Mensal Recorrente)',
-        'Valor mensal recorrente contratado da carteira de clientes ativos da Contaju.',
+        'Valor mensal recorrente contratado da carteira de clientes ativos da ContaJu.',
         'Comercial',
         'CURRENCY',
         mrrByMonth,
@@ -306,7 +306,7 @@ export class KpiEngine {
       consolidateRow(
         'crescimento_clientes',
         'Novos Clientes (Novos Contratos)',
-        'Quantidade de novos clientes que ativaram seu primeiro contrato na Contaju no período.',
+        'Quantidade de novos clientes que ativaram seu primeiro contrato na ContaJu no período.',
         'Comercial',
         'INTEGER',
         newClientsByMonth,

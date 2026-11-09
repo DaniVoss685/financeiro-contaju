@@ -216,7 +216,7 @@ export const CompleteCounterpartyModal: React.FC<CompleteCounterpartyModalProps>
                 type="text"
                 value={formData.tradeName || ''}
                 onChange={(e) => setFormData({ ...formData, tradeName: e.target.value })}
-                placeholder="Ex: Contaju Softwares"
+                placeholder="Ex: ContaJu Softwares"
                 className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#1b1b20] text-slate-900 dark:text-slate-100 px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
             </div>

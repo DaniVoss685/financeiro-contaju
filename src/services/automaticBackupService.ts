@@ -118,7 +118,7 @@ class AutomaticBackupService {
       const consolidatedCash = FinancialEngine.getConsolidatedCashBalance();
 
       const stats: BackupEmailStats = {
-        companyName: company?.tradeName || company?.companyName || 'Contaju Gestão Contábil & Financeira',
+        companyName: company?.tradeName || company?.companyName || 'ContaJu Gestão Contábil & Financeira',
         consolidatedBalanceFormatted: formatBRL(consolidatedCash),
         totalTitles: titles.length,
         totalContracts: contracts.length,
@@ -139,7 +139,7 @@ class AutomaticBackupService {
       let sentRecipients = [...recipients];
 
       // Se falhar devido a restrição de sandbox da conta Resend ("only send testing emails to your own email address")
-      // faz fallback automático para o e-mail verificado da conta Contaju
+      // faz fallback automático para o e-mail verificado da conta ContaJu
       if (!sendResult.success && sendResult.error?.includes('econtajuridico@gmail.com')) {
         console.warn('[AutoBackup] Redirecionando envio para o e-mail verificado da conta Resend (econtajuridico@gmail.com)...');
         sentRecipients = ['econtajuridico@gmail.com'];
@@ -166,7 +166,7 @@ class AutomaticBackupService {
 
         // Registrar auditoria
         storage.addAuditLog({
-          userName: currentUser?.name || 'Sistema Automático Contaju',
+          userName: currentUser?.name || 'Sistema Automático ContaJu',
           userRole: currentUser?.role || 'SUPER_ADMIN',
           action: triggerType === 'AUTOMATICO_SEMANAL' ? 'BACKUP_SEMANAL_EMAIL_AUTOMATICO' : 'BACKUP_SEMANAL_EMAIL_MANUAL',
           module: 'Segurança e Backup',
@@ -191,7 +191,7 @@ class AutomaticBackupService {
         });
 
         storage.addAuditLog({
-          userName: currentUser?.name || 'Sistema Automático Contaju',
+          userName: currentUser?.name || 'Sistema Automático ContaJu',
           userRole: currentUser?.role || 'SUPER_ADMIN',
           action: 'FALHA_ENVIO_BACKUP_EMAIL',
           module: 'Segurança e Backup',

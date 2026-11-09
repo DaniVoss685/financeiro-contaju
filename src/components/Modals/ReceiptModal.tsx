@@ -189,7 +189,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
           {/* Rodapé do Recibo */}
           <div className="pt-6 border-t border-slate-200 text-[10px] text-slate-600 flex justify-between items-center">
-            <span>Sistema Financeiro Contaju • Documento emitido eletronicamente</span>
+            <span>Sistema Financeiro ContaJu • Documento emitido eletronicamente</span>
             <span className="font-mono">ID: {title.id}</span>
           </div>
         </div>

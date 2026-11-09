@@ -83,7 +83,7 @@ export const DREOnePageSummaryModal: React.FC<DREOnePageSummaryModalProps> = ({
   const handleCopyText = () => {
     const text = `
 CONTAJU • SUMÁRIO EXECUTIVO DRE (${effectiveYear})
-Empresa: ${company.companyName || company.tradeName || 'Contaju Gestão'} (CNPJ: ${company.cnpj || '00.000.000/0001-00'})
+Empresa: ${company.companyName || company.tradeName || 'ContaJu Gestão'} (CNPJ: ${company.cnpj || '00.000.000/0001-00'})
 --------------------------------------------------
 • Receita Líquida: ${formatBRL(kpis.netRev)}
 • Lucro Bruto: ${formatBRL(kpis.grossProfit)} (Margem: ${grossMargin.toFixed(1)}%)
@@ -96,7 +96,7 @@ CONCILIAÇÃO CAIXA X COMPETÊNCIA:
 • Geração Operacional de Caixa: ${formatBRL(reconciliation.netOperatingCashGenerated)}
 • Diagnóstico: ${reconciliation.riskTitle} (${reconciliation.riskLevel})
 --------------------------------------------------
-Gerado em ${new Date().toLocaleDateString('pt-BR')} via Contaju.
+Gerado em ${new Date().toLocaleDateString('pt-BR')} via ContaJu.
     `.trim();
 
     navigator.clipboard.writeText(text);
@@ -180,7 +180,7 @@ Gerado em ${new Date().toLocaleDateString('pt-BR')} via Contaju.
                 <span className="text-[10px] text-[var(--text-secondary)] font-mono">CONFIDENCIAL</span>
               </div>
               <h1 className="text-xl font-black text-[var(--text-primary)] mt-1">
-                {company.companyName || company.tradeName || 'Contaju Soluções e Gestão'}
+                {company.companyName || company.tradeName || 'ContaJu Soluções e Gestão'}
               </h1>
               <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                 CNPJ: {company.cnpj || '00.000.000/0001-00'} • Regime Contábil: <strong>Competência</strong>
@@ -398,7 +398,7 @@ Gerado em ${new Date().toLocaleDateString('pt-BR')} via Contaju.
 
           {/* Rodapé Interno da Página */}
           <div className="border-t border-[var(--border-subtle)] pt-3 flex flex-col sm:flex-row justify-between items-center text-[10px] text-[var(--text-secondary)]">
-            <span>Documento Sintético Oficial • Contaju Intelligence v2.6 • Exercício {effectiveYear}</span>
+            <span>Documento Sintético Oficial • ContaJu Intelligence v2.6 • Exercício {effectiveYear}</span>
             <span>Página 1 de 1 • Gerado em {new Date().toLocaleTimeString('pt-BR')}</span>
           </div>
 

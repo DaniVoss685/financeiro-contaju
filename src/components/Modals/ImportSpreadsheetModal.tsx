@@ -124,7 +124,7 @@ function saveMappingTemplate(mapping: ColumnMapping, headers?: string[], extraCo
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
   try {
     const template: SavedMappingTemplate = {
-      name: 'Modelo de Colunas Padrão Contaju',
+      name: 'Modelo de Colunas Padrão ContaJu',
       updatedAt: new Date().toISOString(),
       mapping,
       headersSignature: headers && headers.length > 0 ? headers.slice().sort().join('|') : undefined,
@@ -2755,7 +2755,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                   {[
                     { id: 'CONTA_AZUL', name: 'Conta Azul', desc: 'Mapeamento automático de receitas e despesas' },
                     { id: 'PLANILHA_BASE', name: 'Planilha-Base Anual', desc: 'Modelo operacional unificado' },
-                    { id: 'CONTAJU', name: 'Modelo Contaju', desc: 'Template com plano de contas integrado' },
+                    { id: 'CONTAJU', name: 'Modelo ContaJu', desc: 'Template com plano de contas integrado' },
                     { id: 'CUSTOM', name: 'Personalizado', desc: 'Mapeamento flexível de qualquer layout' }
                   ].map(p => (
                     <button
@@ -2906,7 +2906,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
                     <optgroup label="Modelos Padrão do Sistema">
                       <option value="CONTA_AZUL">Conta Azul (Recomendado)</option>
                       <option value="PLANILHA_BASE">Planilha-Base Anual</option>
-                      <option value="CONTAJU">Modelo Contaju</option>
+                      <option value="CONTAJU">Modelo ContaJu</option>
                       <option value="CUSTOM">Personalizado (Manual)</option>
                     </optgroup>
 

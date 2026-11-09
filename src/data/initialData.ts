@@ -17,8 +17,8 @@ import {
 
 export const INITIAL_COMPANY: CompanyProfile = {
   id: 'comp-1',
-  companyName: 'Contaju Assessoria Contábil e Financeira Ltda',
-  tradeName: 'Contaju Contabilidade & Gestão',
+  companyName: 'ContaJu Assessoria Contábil e Financeira Ltda',
+  tradeName: 'ContaJu Contabilidade & Gestão',
   cnpj: '18.942.503/0001-88',
   email: 'financeiro@contaju.com.br',
   phone: '(11) 3450-8900',
@@ -268,7 +268,7 @@ export const INITIAL_COUNTERPARTIES: Counterparty[] = [
     phone: '(11) 3100-2200',
     address: 'Rua Barão de Itapetininga, 200 - Centro, São Paulo/SP',
     status: 'ATIVO',
-    notes: 'Locação do conjunto comercial da sede Contaju.',
+    notes: 'Locação do conjunto comercial da sede ContaJu.',
     createdAt: '2026-01-05'
   },
   {

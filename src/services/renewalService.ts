@@ -146,6 +146,7 @@ export function renewContractDueMonths(): number {
           documentState: 'CONFIRMADO',
           settlementState: 'ABERTO',
           saleId: undefined,
+          saleNumber: undefined,
           createdAt: now,
           updatedAt: now
         });

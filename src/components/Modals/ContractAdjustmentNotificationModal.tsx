@@ -72,7 +72,7 @@ ${adjustment.notes ? `• *Observações:* ${adjustment.notes}\n` : ''}
 Qualquer dúvida, nossa equipe financeira está à inteira disposição!
 
 Atenciosamente,
-*Contaju Contabilidade & Gestão*`;
+*ContaJu Contabilidade & Gestão*`;
 
   const [whatsAppText, setWhatsAppText] = useState(defaultWhatsAppMessage);
 
@@ -331,10 +331,10 @@ Atenciosamente,
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#17171b] border border-slate-200 dark:border-[#26262b] space-y-2 text-slate-600 dark:text-slate-300">
                 <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 font-bold text-[11px]">
                   <Sparkles className="w-4 h-4" />
-                  <span>Template Formal com Identidade Visual Contaju</span>
+                  <span>Template Formal com Identidade Visual ContaJu</span>
                 </div>
                 <p className="text-[11px] leading-relaxed">
-                  O e-mail será disparado com o cabeçalho dourado da Contaju, tabela com os valores antigo e novo em destaque, data de vigência e dia de vencimento, de forma 100% profissional.
+                  O e-mail será disparado com o cabeçalho dourado da ContaJu, tabela com os valores antigo e novo em destaque, data de vigência e dia de vencimento, de forma 100% profissional.
                 </p>
                 {emailSent && (
                   <div className="p-2 bg-emerald-500/15 border border-emerald-500/30 rounded-lg text-emerald-600 dark:text-emerald-400 text-xs flex items-center">

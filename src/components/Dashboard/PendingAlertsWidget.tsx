@@ -186,7 +186,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
           <div className={`mt-2 text-[22px] leading-7 font-semibold tracking-tight tabular-nums ${totalPayableAmount > 0 ? 'text-[var(--status-danger)]' : ''}`}>
             {formatBRL(totalPayableAmount)}
           </div>
-          <div className="mt-1 text-xs text-[var(--text-muted)]">Compromissos a liquidar</div>
+          <div className="mt-1 text-xs text-[var(--text-muted)]">Vence nos próximos dias</div>
         </div>
 
         <div className="p-5 rounded-2xl border border-[var(--border-subtle)]">
@@ -205,7 +205,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
 
       {/* Listagem detalhada das contas com foco maior no tamanho de cliente e descrição */}
       {sortedUpcoming.length > 0 ? (
-        <div className="space-y-2 pt-1">
+        <div className="adv-only space-y-2 pt-1">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
               Detalhamento das Contas a Liquidar nos Próximos 3 Dias
@@ -248,7 +248,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
                         <span className="text-sm font-extrabold text-slate-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
                           {cpName}
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        <span className="adv-only text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                           {t.titleNumber}
                         </span>
                       </div>

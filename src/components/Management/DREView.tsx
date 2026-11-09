@@ -850,7 +850,7 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
     try {
       const company = storage.getCompany();
       exportDREToPDF(dreData, effectiveYear, {
-        companyName: company.companyName || company.tradeName || 'Contaju Gestão Financeira',
+        companyName: company.companyName || company.tradeName || 'ContaJu Gestão Financeira',
         timeHorizonLabel: horizonLabel,
         activeMonthIndices,
         totalColLabel

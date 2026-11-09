@@ -593,7 +593,7 @@ export const ImportClientsModal: React.FC<ImportClientsModalProps> = ({
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2 text-amber-400 font-bold text-sm">
                     <Sparkles className="w-4 h-4" />
-                    <span>Planilha Modelo Oficial Contaju</span>
+                    <span>Planilha Modelo Oficial ContaJu</span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)] max-w-xl">
                     Baixe o modelo pré-formatado em Excel (.xlsx) com colunas prontas, exemplos didáticos (PJ e PF) e aba de instruções para acelerar seu preenchimento.

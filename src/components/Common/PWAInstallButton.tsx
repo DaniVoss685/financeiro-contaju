@@ -103,7 +103,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
               </div>
 
               <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
-                Para adicionar o <strong>Contaju</strong> como aplicativo nativo no Dock do seu Mac:
+                Para adicionar o <strong>ContaJu</strong> como aplicativo nativo no Dock do seu Mac:
               </p>
 
               <ol className="text-xs text-slate-700 dark:text-slate-300 space-y-2 list-decimal list-inside bg-[var(--surface-elevated)] p-3 rounded-xl border border-[var(--border-subtle)]">

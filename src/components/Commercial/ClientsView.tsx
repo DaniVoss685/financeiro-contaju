@@ -662,7 +662,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
           <div className="bg-[var(--surface-card)] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-[var(--border-subtle)] text-[var(--text-primary)]">
             <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)]">
               <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">
-                {editingClient ? 'Editar cliente' : (simple ? 'Novo cliente' : 'Novo Cliente Contaju')}
+                {editingClient ? 'Editar cliente' : (simple ? 'Novo cliente' : 'Novo Cliente ContaJu')}
               </h2>
               <button 
                 onClick={() => setIsFormOpen(false)} 

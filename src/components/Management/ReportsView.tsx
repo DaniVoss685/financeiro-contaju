@@ -114,7 +114,7 @@ export const ReportsView: React.FC = () => {
   const handleExportDRE_PDF = () => {
     try {
       setIsExporting(true);
-      exportDREToPDF(dreData, selectedYear, 'Contaju Gestão Financeira');
+      exportDREToPDF(dreData, selectedYear, 'ContaJu Gestão Financeira');
       showFeedback(`DRE Exercício ${selectedYear} exportada com sucesso em PDF executivo!`);
     } catch (err) {
       console.error(err);
@@ -137,7 +137,7 @@ export const ReportsView: React.FC = () => {
   const handleExportCashFlow_PDF = () => {
     try {
       setIsExporting(true);
-      exportCashFlowToPDF(cashFlowData, selectedYear, cashFlowMode, 'Contaju Gestão Financeira');
+      exportCashFlowToPDF(cashFlowData, selectedYear, cashFlowMode, 'ContaJu Gestão Financeira');
       showFeedback(`Fluxo de Caixa (${cashFlowMode}) exportado com sucesso em PDF executivo!`);
     } catch (err) {
       console.error(err);

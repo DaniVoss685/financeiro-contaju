@@ -40,7 +40,7 @@ export const resendService = {
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const payload: any = {
-        from: 'Contaju Sistema <onboarding@resend.dev>',
+        from: 'ContaJu Sistema <onboarding@resend.dev>',
         to: Array.isArray(to) ? to : [to],
         subject,
         html
@@ -129,7 +129,7 @@ export const resendService = {
     const appOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://financeiro-contaju.vercel.app';
     const approvalLink = `${appOrigin}/?approve_user=${params.userId}`;
 
-    const emailSubject = `🔔 Nova Solicitação de Cadastro no Contaju: ${params.name}`;
+    const emailSubject = `🔔 Nova Solicitação de Cadastro no ContaJu: ${params.name}`;
     
     const emailHtml = `
       <!DOCTYPE html>
@@ -189,7 +189,7 @@ export const resendService = {
             </table>
 
             <div class="btn-container">
-              <a href="${approvalLink}" class="btn-approve" target="_blank">Aprovar Acesso no Contaju</a>
+              <a href="${approvalLink}" class="btn-approve" target="_blank">Aprovar Acesso no ContaJu</a>
             </div>
 
             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px;">
@@ -197,7 +197,7 @@ export const resendService = {
             </p>
           </div>
           <div class="footer">
-            Contaju Contabilidade & Gestão © ${new Date().getFullYear()} • Notificação de Segurança Interna
+            ContaJu Contabilidade & Gestão © ${new Date().getFullYear()} • Notificação de Segurança Interna
           </div>
         </div>
       </body>
@@ -238,7 +238,7 @@ export const resendService = {
           <div class="body">
             <span class="badge">Redefinição de Credencial</span>
             <h2 style="color: #ffffff; margin-top: 14px; font-size: 18px;">Olá, ${name}!</h2>
-            <p>Recebemos uma solicitação para redefinir a senha da sua conta de acesso ao Sistema Financeiro Contaju.</p>
+            <p>Recebemos uma solicitação para redefinir a senha da sua conta de acesso ao Sistema Financeiro ContaJu.</p>
             
             <p>Utilize o código de verificação abaixo na tela de login para cadastrar sua nova senha:</p>
 
@@ -253,7 +253,7 @@ export const resendService = {
             </div>
           </div>
           <div class="footer">
-            Contaju Contabilidade & Gestão © ${new Date().getFullYear()} • Mensagem Automática de Segurança
+            ContaJu Contabilidade & Gestão © ${new Date().getFullYear()} • Mensagem Automática de Segurança
           </div>
         </div>
       </body>
@@ -264,7 +264,7 @@ export const resendService = {
   },
 
   async sendTwoFactorCodeEmail(email: string, name: string, code: string): Promise<{ success: boolean; error?: string }> {
-    const emailSubject = `🛡️ Código 2FA de Acesso ao Contaju: ${code}`;
+    const emailSubject = `🛡️ Código 2FA de Acesso ao ContaJu: ${code}`;
     
     const emailHtml = `
       <!DOCTYPE html>
@@ -293,7 +293,7 @@ export const resendService = {
           <div class="body">
             <span class="badge">Verificação de Identidade</span>
             <h2 style="color: #ffffff; margin-top: 14px; font-size: 18px;">Olá, ${name}!</h2>
-            <p>Uma tentativa de acesso à sua conta no Sistema Financeiro Contaju foi identificada. Para confirmar sua identidade, digite o código de 6 dígitos:</p>
+            <p>Uma tentativa de acesso à sua conta no Sistema Financeiro ContaJu foi identificada. Para confirmar sua identidade, digite o código de 6 dígitos:</p>
 
             <div class="code-box">
               <div style="font-size: 11px; text-transform: uppercase; color: #10b981; letter-spacing: 2px; font-weight: bold; margin-bottom: 6px;">Código de Autenticação</div>
@@ -302,11 +302,11 @@ export const resendService = {
             </div>
 
             <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-              Se você não está tentando entrar no sistema, altere sua senha imediatamente e contate a gerência da Contaju.
+              Se você não está tentando entrar no sistema, altere sua senha imediatamente e contate a gerência da ContaJu.
             </p>
           </div>
           <div class="footer">
-            Contaju Contabilidade & Gestão © ${new Date().getFullYear()} • Notificação de Segurança 2FA
+            ContaJu Contabilidade & Gestão © ${new Date().getFullYear()} • Notificação de Segurança 2FA
           </div>
         </div>
       </body>
@@ -409,7 +409,7 @@ export const resendService = {
             </p>
           </div>
           <div class="footer">
-            Contaju Contabilidade & Gestão © ${new Date().getFullYear()} • Departamento Financeiro
+            ContaJu Contabilidade & Gestão © ${new Date().getFullYear()} • Departamento Financeiro
           </div>
         </div>
       </body>
@@ -421,7 +421,7 @@ export const resendService = {
 
   async sendBackupEmail(params: BackupEmailParams): Promise<{ success: boolean; error?: string }> {
     const isAutomatic = params.triggerType !== 'MANUAL';
-    const emailSubject = `📦 Backup Semanal Contaju (.JSON): ${params.stats.companyName || 'Base Financeira'} • ${new Date().toLocaleDateString('pt-BR')}`;
+    const emailSubject = `📦 Backup Semanal ContaJu (.JSON): ${params.stats.companyName || 'Base Financeira'} • ${new Date().toLocaleDateString('pt-BR')}`;
     
     // Converte conteúdo JSON para base64 com suporte total a UTF-8 / acentuação
     const base64Content = typeof Buffer !== 'undefined'
@@ -461,7 +461,7 @@ export const resendService = {
             <span class="badge">${isAutomatic ? 'Rotina Automática Semanal' : 'Exportação de Backup Sob Demanda'}</span>
             <h2 style="color: #ffffff; margin-top: 14px; font-size: 18px;">Exportação da Base de Dados Concluída</h2>
             <p>
-              Segue em anexo o arquivo de segurança em formato <strong>.JSON</strong> contendo o snapshot estruturado e integral da base de dados do sistema Contaju.
+              Segue em anexo o arquivo de segurança em formato <strong>.JSON</strong> contendo o snapshot estruturado e integral da base de dados do sistema ContaJu.
             </p>
             
             <table class="info-table">
@@ -501,11 +501,11 @@ export const resendService = {
 
             <div class="warning">
               <strong>🔒 Procedimento de Restauração:</strong><br/>
-              O arquivo <code>${params.backupFilename}</code> anexado a este e-mail pode ser utilizado para restauração total a qualquer momento. Basta acessar o sistema Contaju, navegar até <strong>Configurações &gt; Segurança e Backup</strong> e enviar o arquivo .JSON na área de Restauração.
+              O arquivo <code>${params.backupFilename}</code> anexado a este e-mail pode ser utilizado para restauração total a qualquer momento. Basta acessar o sistema ContaJu, navegar até <strong>Configurações &gt; Segurança e Backup</strong> e enviar o arquivo .JSON na área de Restauração.
             </div>
           </div>
           <div class="footer">
-            Contaju Contabilidade & Gestão © ${new Date().getFullYear()} • Rotina Automática de Continuidade e Segurança de Dados
+            ContaJu Contabilidade & Gestão © ${new Date().getFullYear()} • Rotina Automática de Continuidade e Segurança de Dados
           </div>
         </div>
       </body>

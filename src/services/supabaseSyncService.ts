@@ -1554,8 +1554,19 @@ class SupabaseSyncService {
     try {
       const chunks = this.chunkArray(titles, 100);
       for (const chunk of chunks) {
-        const payload = chunk.map(mapTitleToDb);
-        const { error } = await client.from(CONTAJU_TABLES.TITLES).upsert(payload, { onConflict: 'id' });
+        let payload = chunk.map(mapTitleToDb);
+        let { error } = await client.from(CONTAJU_TABLES.TITLES).upsert(payload, { onConflict: 'id' });
+        if (error && (error as any).code === '23503') {
+          // Alguma venda ligada ao título ainda não existe na nuvem: salva o título sem o vínculo em vez de perder o lote inteiro
+          const saleIds = Array.from(new Set(payload.map((p: any) => p.sale_id).filter(Boolean)));
+          let known = new Set<string>();
+          if (saleIds.length > 0) {
+            const { data: sales } = await client.from(CONTAJU_TABLES.SALES).select('id').in('id', saleIds as string[]);
+            known = new Set((sales || []).map((x: any) => x.id));
+          }
+          payload = payload.map((p: any) => (p.sale_id && !known.has(p.sale_id) ? { ...p, sale_id: null } : p));
+          ({ error } = await client.from(CONTAJU_TABLES.TITLES).upsert(payload, { onConflict: 'id' }));
+        }
         if (error) {
           console.error('[SupabaseDirect] Erro no lote de títulos:', error);
           return { success: false, error: error.message };

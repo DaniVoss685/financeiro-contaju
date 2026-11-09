@@ -70,7 +70,7 @@ export const IntegrationsView: React.FC = () => {
               </span>
               <span className="text-xs font-mono text-[var(--text-secondary)]">REST API</span>
             </div>
-            <h3 className="font-bold text-[var(--text-primary)] text-sm mt-2.5">API Pública Contaju</h3>
+            <h3 className="font-bold text-[var(--text-primary)] text-sm mt-2.5">API Pública ContaJu</h3>
             <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
               Endpoints para emissão de títulos, consulta de saldos e integração com ERPs externos de clientes.
             </p>

@@ -31,7 +31,7 @@ export class AppErrorBoundary extends React.Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[Contaju ErrorBoundary] Falha capturada com sucesso:', error, errorInfo);
+    console.error('[ContaJu ErrorBoundary] Falha capturada com sucesso:', error, errorInfo);
   }
 
   private handleReset = () => {
@@ -78,7 +78,7 @@ export class AppErrorBoundary extends React.Component<Props, State> {
                 {this.props.fallbackTitle || 'Ops! Ocorreu uma instabilidade neste módulo'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
-                O Contaju protegeu seus dados para evitar qualquer perda. Você pode recarregar a visualização ou limpar o cache temporário.
+                O ContaJu protegeu seus dados para evitar qualquer perda. Você pode recarregar a visualização ou limpar o cache temporário.
               </p>
             </div>
 

@@ -519,7 +519,7 @@ class StorageService {
     }
   }
 
-  /** A empresa da própria consultoria (Contaju) mantém o plano completo; as demais usam o modelo genérico. */
+  /** A empresa da própria consultoria (ContaJu) mantém o plano completo; as demais usam o modelo genérico. */
   private isOwnerFirmSession(): boolean {
     try {
       const orgs = JSON.parse(localStorage.getItem('contaju_orgs') || '[]');
@@ -3487,7 +3487,7 @@ class StorageService {
 
       return false;
     } catch (e) {
-      console.warn('[Contaju Cloud Sync] Aviso ao carregar do Supabase:', e);
+      console.warn('[ContaJu Cloud Sync] Aviso ao carregar do Supabase:', e);
       return false;
     }
   }

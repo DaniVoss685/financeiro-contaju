@@ -81,7 +81,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
       setTestNotificationFeedback(`Notificação enviada com sucesso! (${res.payablesCount} a pagar, ${res.receivablesCount} a receber hoje)`);
     } else {
       // Se não houver contas hoje, envia notificação de exemplo
-      await NotificationService.showNotification('Contaju: Teste de Notificação Nativa', {
+      await NotificationService.showNotification('ContaJu: Teste de Notificação Nativa', {
         body: 'Seu sistema está pronto para alertar sobre contas a pagar e receber vencendo no dia!',
         tag: 'contaju-test-manual'
       });
