@@ -333,7 +333,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
 
     // 3. Conta Recorrente
     if (launchMode === 'RECORRENTE') {
-      const months = Math.max(1, Math.min(120, recurringMonths || 12));
+      const months = recurringMonths === 999 ? 24 : Math.max(1, Math.min(120, recurringMonths || 12));
       const items = [];
 
       for (let i = 0; i < months; i++) {
@@ -503,7 +503,10 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
       installmentIndex: launchMode === 'PARCELADO' ? item.index : undefined,
       totalInstallments: launchMode === 'PARCELADO' ? calculatedItems.length : undefined,
       expectedBankAccountId: settlementBankAccountId || expectedBankAccountId || undefined,
-      notes: notes ? `${notes} ${launchMode !== 'UNICO' ? `(${launchMode})` : ''}` : (launchMode !== 'UNICO' ? `Gerado via lançamento ${launchMode.toLowerCase()}` : undefined),
+      notes: (() => {
+        const mode = launchMode === 'RECORRENTE' && recurringMonths === 999 ? 'RECORRENTE SEMPRE' : launchMode;
+        return notes ? `${notes} ${launchMode !== 'UNICO' ? `(${mode})` : ''}` : (launchMode !== 'UNICO' ? `Gerado via lançamento ${mode.toLowerCase()}` : undefined);
+      })(),
       createdAt: now,
       updatedAt: now
     }));
@@ -650,7 +653,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 onClick={() => setLaunchMode('UNICO')}
                 className={`min-h-[40px] py-2 px-1 sm:px-3 rounded-lg font-semibold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   launchMode === 'UNICO'
-                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    ? 'bg-amber-500 text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
@@ -663,7 +666,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 onClick={() => setLaunchMode('PARCELADO')}
                 className={`min-h-[40px] py-2 px-1 sm:px-3 rounded-lg font-semibold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   launchMode === 'PARCELADO'
-                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    ? 'bg-amber-500 text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
@@ -676,7 +679,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                 onClick={() => setLaunchMode('RECORRENTE')}
                 className={`min-h-[40px] py-2 px-1 sm:px-3 rounded-lg font-semibold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   launchMode === 'RECORRENTE'
-                    ? 'bg-amber-500 text-slate-950 shadow-sm'
+                    ? 'bg-amber-500 text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
@@ -699,7 +702,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       onClick={() => handleTypeChange(val)}
                       className={`min-h-[38px] px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                         type === val
-                          ? 'bg-amber-500 text-slate-950 shadow-sm'
+                          ? 'bg-amber-500 text-[var(--text-primary)] shadow-sm'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                       }`}
                     >
@@ -733,7 +736,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('TODOS')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'TODOS' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                            counterpartyFilter === 'TODOS' ? 'bg-amber-500 text-[var(--text-primary)] shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
                           }`}
                           title="Exibir todos os fornecedores e clientes cadastrados"
                         >
@@ -743,7 +746,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('FORNECEDORES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'FORNECEDORES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                            counterpartyFilter === 'FORNECEDORES' ? 'bg-amber-500 text-[var(--text-primary)] shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
                           }`}
                         >
                           Fornecedores
@@ -752,7 +755,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('CLIENTES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'CLIENTES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                            counterpartyFilter === 'CLIENTES' ? 'bg-amber-500 text-[var(--text-primary)] shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
                           }`}
                           title="Permite selecionar clientes cadastrados dos quais você comprou produtos ou serviços"
                         >
@@ -1037,7 +1040,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                             inputMode="numeric"
                             value={installmentsCount}
                             onChange={(e) => setInstallmentsCount(Math.max(2, Math.min(120, parseInt(e.target.value, 10) || 2)))}
-                            className="w-full rounded-xl border border-amber-400 px-2.5 py-1.5 text-sm sm:text-xs bg-amber-500/10 font-bold text-center text-slate-950 focus:ring-2 focus:ring-amber-500"
+                            className="w-full rounded-xl border border-amber-400 px-2.5 py-1.5 text-sm sm:text-xs bg-amber-500/10 font-bold text-center text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500"
                             placeholder="Qtd (ex: 7, 14, 25...)"
                           />
                           <button
@@ -1059,7 +1062,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                         Serão geradas <strong>{installmentsCount} parcelas</strong> {isCustomInstallments ? '(quantidade personalizada)' : ''}. Ajuste de centavos automático.
                       </span>
                     </div>
-                    <span className="font-bold text-slate-950">
+                    <span className="font-bold text-[var(--text-primary)]">
                       Total: {formatBRL(totalCalculatedAmount)}
                     </span>
                   </div>
@@ -1098,7 +1101,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="block font-semibold text-slate-700 text-xs">
-                          Projetar Meses *
+                          {simple ? 'Por quanto tempo *' : 'Projetar Meses *'}
                         </label>
                         <button
                           type="button"
@@ -1122,6 +1125,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                           }}
                           className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-semibold"
                         >
+                          <option value={999}>Sempre (todo mês, sem data para acabar)</option>
                           <option value={1}>1 mês</option>
                           <option value={2}>2 meses</option>
                           <option value={3}>3 meses</option>
@@ -1155,7 +1159,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                             inputMode="numeric"
                             value={recurringMonths}
                             onChange={(e) => setRecurringMonths(Math.max(1, Math.min(120, parseInt(e.target.value, 10) || 1)))}
-                            className="w-full rounded-xl border border-amber-400 px-2.5 py-1.5 text-sm sm:text-xs bg-amber-500/10 font-bold text-center text-slate-950 focus:ring-2 focus:ring-amber-500"
+                            className="w-full rounded-xl border border-amber-400 px-2.5 py-1.5 text-sm sm:text-xs bg-amber-500/10 font-bold text-center text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500"
                             placeholder="Qtd de meses (ex: 7, 15...)"
                           />
                           <button
@@ -1174,11 +1178,11 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                     <div className="flex items-center space-x-2">
                       <Repeat className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>
-                        Recorrência programada: <strong>{recurringMonths} lançamentos</strong> {isCustomRecurring ? '(personalizado)' : ''} mensais com vencimento todo dia {recurringDay}.
+                        {recurringMonths === 999 ? <>Repete <strong>todo mês, sem data para acabar</strong>, com vencimento todo dia {recurringDay}. Os meses novos aparecem sozinhos.</> : <>Recorrência programada: <strong>{recurringMonths} lançamentos</strong> {isCustomRecurring ? '(personalizado)' : ''} mensais com vencimento todo dia {recurringDay}.</>}
                       </span>
                     </div>
-                    <span className="font-bold text-emerald-950">
-                      Total Projetado: {formatBRL(totalCalculatedAmount)}
+                    <span className="font-bold text-[var(--text-primary)]">
+                      {recurringMonths === 999 ? 'Valor por mês: ' + formatBRL(Number(originalAmount) || 0) : 'Total Projetado: ' + formatBRL(totalCalculatedAmount)}
                     </span>
                   </div>
                 </div>

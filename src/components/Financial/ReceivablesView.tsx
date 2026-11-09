@@ -75,6 +75,7 @@ import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
 import { RecurringSeriesService } from '../../services/recurringSeriesService';
+import { stopForeverSeries } from '../../services/renewalService';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -94,7 +95,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
   const [minAmount, setMinAmount] = usePersistentState<number>('receber_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('receber_max', 0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[] } | null>(null);
+  const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[]; allIds: string[] } | null>(null);
   const [statusFilter, setStatusFilter] = usePersistentState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>('receber_status', initialSearch ? 'TODOS' : 'ABERTO');
 
   React.useEffect(() => {
@@ -688,7 +689,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       const series = RecurringSeriesService.detectSeries(t);
       const nextIds = series.subsequentOpenTitles.filter(x => x.id !== t.id).map(x => x.id);
       if (series.isSeries && (series.seriesType === 'RECORRENCIA' || series.seriesType === 'CONTRATO') && nextIds.length > 0) {
-        setSeriesDelete({ title: t, nextIds });
+        setSeriesDelete({ title: t, nextIds, allIds: series.allSeriesTitles.map(x => x.id) });
         return;
       }
     } catch {
@@ -2214,16 +2215,8 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                           <span className="font-medium text-slate-800">{client?.name || 'Cliente'}</span>
                           {portfolioRisk.customerProfiles[t.counterpartyId] && (
                             <span
-                              title={`${portfolioRisk.customerProfiles[t.counterpartyId].recommendedAction} (Clique para copiar mensagem de cobrança WhatsApp)`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const p = portfolioRisk.customerProfiles[t.counterpartyId];
-                                if (p?.suggestedWhatsAppMessage) {
-                                  navigator.clipboard.writeText(p.suggestedWhatsAppMessage);
-                                  setToastMessage({ text: 'Mensagem WhatsApp copiada com sucesso!', type: 'success' });
-                                }
-                              }}
-                              className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.2 rounded-full border cursor-pointer hover:opacity-80 transition-opacity ${portfolioRisk.customerProfiles[t.counterpartyId].riskColorClasses.badge}`}
+                              title={`${portfolioRisk.customerProfiles[t.counterpartyId].recommendedAction} `}
+                              className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${portfolioRisk.customerProfiles[t.counterpartyId].riskColorClasses.badge}`}
                             >
                               <span>{portfolioRisk.customerProfiles[t.counterpartyId].riskBadgeLabel}</span>
                             </span>
@@ -2560,6 +2553,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
               <button
                 type="button"
                 onClick={() => {
+                  stopForeverSeries(seriesDelete.allIds);
                   storage.batchDeleteTitles([seriesDelete.title.id, ...seriesDelete.nextIds]);
                   setSeriesDelete(null);
                   setRefreshKey(k => k + 1);

@@ -1433,7 +1433,8 @@ class SupabaseSyncService {
       // 13. Cartões de Crédito (Higienizando dados mockados legados)
       const { data: cardsData, error: cardsErr } = await client.from(CONTAJU_TABLES.CREDIT_CARDS).select('*');
       if (cardsErr) errors.push(`Cartões: ${cardsErr.message}`);
-      else if (cardsData) {
+      else if (cardsData && cardsData.length > 0) {
+        // Resposta vazia da nuvem (sessão vencida, por exemplo) nunca apaga os cartões que já estão no aparelho
         const sanitizedCards = cardsData
           .filter(c => c.id !== 'card-1' && c.id !== 'card-2')
           .map(mapCreditCardFromDb);
@@ -1446,7 +1447,7 @@ class SupabaseSyncService {
       // 14. Compras de Cartão (Higienizando dados mockados legados)
       const { data: purchasesData, error: purErr } = await client.from(CONTAJU_TABLES.CARD_PURCHASES).select('*');
       if (purErr) errors.push(`Compras Cartão: ${purErr.message}`);
-      else if (purchasesData) {
+      else if (purchasesData && purchasesData.length > 0) {
         const isMockPur = (id: string) => Boolean(id && /^pur-(?:[1-9]|1[0-9]|20)$/.test(id));
         const sanitizedPurchases = purchasesData
           .filter(p => !isMockPur(p.id) && p.card_id !== 'card-1' && p.card_id !== 'card-2')

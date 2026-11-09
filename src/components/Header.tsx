@@ -330,8 +330,8 @@ export const Header: React.FC<HeaderProps> = ({
                 <ArrowLeftRight className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
                 Transferência entre contas
               </button>
-              <div className="my-1.5 h-px bg-[var(--border-subtle)]" />
-              <button type="button" role="menuitem" className={menuItem} onClick={() => { newMenu.setOpen(false); onOpenBillingModal(); }}>
+              <div className="adv-only my-1.5 h-px bg-[var(--border-subtle)]" />
+              <button type="button" role="menuitem" className={`${menuItem} adv-only`} onClick={() => { newMenu.setOpen(false); onOpenBillingModal(); }}>
                 <FileText className="w-4 h-4 text-[var(--text-muted)]" strokeWidth={1.75} />
                 Gerar faturamento do mês
               </button>

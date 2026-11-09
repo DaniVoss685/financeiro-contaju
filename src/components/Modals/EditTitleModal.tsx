@@ -681,7 +681,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('TODOS')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'TODOS' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
+                            counterpartyFilter === 'TODOS' ? 'bg-amber-500 text-[var(--text-primary)] shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
                           }`}
                         >
                           Todos
@@ -690,7 +690,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('FORNECEDORES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'FORNECEDORES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
+                            counterpartyFilter === 'FORNECEDORES' ? 'bg-amber-500 text-[var(--text-primary)] shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
                           }`}
                         >
                           Forn.
@@ -699,7 +699,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                           type="button"
                           onClick={() => setCounterpartyFilter('CLIENTES')}
                           className={`px-1.5 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                            counterpartyFilter === 'CLIENTES' ? 'bg-amber-500 text-slate-950 shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
+                            counterpartyFilter === 'CLIENTES' ? 'bg-amber-500 text-[var(--text-primary)] shadow-2xs font-bold' : 'text-slate-600 dark:text-slate-400'
                           }`}
                           title="Permite selecionar clientes cadastrados dos quais você comprou"
                         >
@@ -1204,7 +1204,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 className={`min-h-[42px] px-6 py-2.5 text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center ${
                   isReconciled
                     ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700'
-                    : 'text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 cursor-pointer shadow-amber-500/10'
+                    : 'text-[var(--text-primary)] bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:brightness-105 cursor-pointer shadow-amber-500/10'
                 }`}
                 title={isReconciled ? 'Este título está conciliado via banco e não pode ser alterado diretamente.' : undefined}
               >

@@ -4,6 +4,7 @@ import { Sidebar, NavigationScreen } from './components/Sidebar';
 import { isConsultant, getOrgs, getActiveOrgId, switchOrg } from './services/authService';
 import { useIsSimpleMode } from './hooks/useViewMode';
 import { FinancialEngine } from './services/financialEngine';
+import { renewContractInvoices, renewForeverRecurrences } from './services/renewalService';
 import { BottomNavBar } from './components/Common/BottomNavBar';
 import { storage } from './services/storageService';
 import { User } from './types';
@@ -89,13 +90,12 @@ function AppContent() {
     const timer = setTimeout(() => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const key = 'contaju_renovacao_contratos';
+        const key = 'contaju_renovacao_v2';
         const org = localStorage.getItem('contaju_active_org') || 'local';
         if (localStorage.getItem(key) === org + ':' + today) return;
-        const month = today.substring(0, 7);
-        storage.getContracts()
-          .filter(c => c.status === 'ATIVO' && c.contractType !== 'AVULSO' && c.isRecurring !== false && !c.endDate && c.autoGenerateFutureMonths === true)
-          .forEach(c => FinancialEngine.generateContractFutureInstallments(c, 12, month));
+        renewContractInvoices();
+        renewForeverRecurrences();
+        setDataVersion(v => v + 1);
         localStorage.setItem(key, org + ':' + today);
       } catch {
         // a renovação roda de novo no próximo acesso

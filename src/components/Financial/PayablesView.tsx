@@ -60,6 +60,7 @@ import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
 import { RecurringSeriesService } from '../../services/recurringSeriesService';
+import { stopForeverSeries } from '../../services/renewalService';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { FilterChipSelect, FilterChipAmount } from '../Common/FilterChip';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -78,7 +79,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   const [minAmount, setMinAmount] = usePersistentState<number>('pagar_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('pagar_max', 0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[] } | null>(null);
+  const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[]; allIds: string[] } | null>(null);
   const [statusFilter, setStatusFilter] = usePersistentState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>('pagar_status', initialSearch ? 'TODOS' : 'ABERTO');
 
   React.useEffect(() => {
@@ -660,7 +661,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       const series = RecurringSeriesService.detectSeries(t);
       const nextIds = series.subsequentOpenTitles.filter(x => x.id !== t.id).map(x => x.id);
       if (series.isSeries && (series.seriesType === 'RECORRENCIA' || series.seriesType === 'CONTRATO') && nextIds.length > 0) {
-        setSeriesDelete({ title: t, nextIds });
+        setSeriesDelete({ title: t, nextIds, allIds: series.allSeriesTitles.map(x => x.id) });
         return;
       }
     } catch {
@@ -2413,6 +2414,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
               <button
                 type="button"
                 onClick={() => {
+                  stopForeverSeries(seriesDelete.allIds);
                   storage.batchDeleteTitles([seriesDelete.title.id, ...seriesDelete.nextIds]);
                   setSeriesDelete(null);
                   setRefreshKey(k => k + 1);
