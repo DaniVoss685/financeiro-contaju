@@ -51,6 +51,7 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [successToast, setSuccessToast] = useState<string>('');
   const [errorToast, setErrorToast] = useState<string>('');
+  const [savedSummary, setSavedSummary] = useState<{ date: string; time: string; items: { name: string; status: string; difference: number }[] } | null>(null);
 
   const accounts = storage.getBankAccounts();
   const allStatements = storage.getStatementEntries();
@@ -188,11 +189,11 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
         }`
       });
 
-      setSuccessToast(
-        consolidated.isAllPerfect 
-          ? '🎉 Fechamento Perfeito gravado com sucesso! Todos os saldos batem 100% com o banco.' 
-          : 'Conferência de saldos gravada com sucesso no histórico de auditoria!'
-      );
+      setSavedSummary({
+        date: closingDate,
+        time: timeStr,
+        items: accountsData.map(item => ({ name: item.account.name, status: item.status, difference: item.difference }))
+      });
 
       if (onSuccess) {
         onSuccess();
@@ -332,7 +333,21 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
                       <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
                         <Landmark className="w-4 h-4" />
                       </div>
-                      <span className="font-semibold text-slate-900 dark:text-white">{item.account.name}</span>
+                      <div>
+                        <span className="block font-semibold text-slate-900 dark:text-white">{item.account.name}</span>
+                        {(() => {
+                          const last = closingHistory
+                            .filter(r => r.bankAccountId === item.account.id)
+                            .sort((a, b) => (b.closingDate + b.closingTime).localeCompare(a.closingDate + a.closingTime))[0];
+                          return (
+                            <span className="block text-xs text-[var(--text-muted)]">
+                              {last
+                                ? `Última conferência: ${formatDateBR(last.closingDate)} — ${Math.abs(last.difference) < 0.005 ? 'bateu certinho' : last.difference > 0 ? `sobravam ${formatBRL(last.difference)}` : `faltavam ${formatBRL(Math.abs(last.difference))}`}`
+                                : 'Ainda não foi conferida'}
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                       <div>
@@ -475,6 +490,38 @@ export const BankBalanceClosingModal: React.FC<BankBalanceClosingModalProps> = (
           )}
 
         </div>
+
+        {/* Modal de sucesso: o que foi conferido */}
+        {savedSummary && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] p-8 shadow-2xl">
+              <div className="mx-auto w-14 h-14 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-[var(--status-success)]" />
+              </div>
+              <h3 className="mt-5 text-center text-lg font-semibold text-[var(--text-primary)]">Conferência salva</h3>
+              <p className="mt-1 text-center text-sm text-[var(--text-secondary)]">
+                {formatDateBR(savedSummary.date)} às {savedSummary.time}
+              </p>
+              <ul className="mt-5 divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)]">
+                {savedSummary.items.map(it => (
+                  <li key={it.name} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                    <span className="font-medium text-[var(--text-primary)]">{it.name}</span>
+                    <span className={it.status === 'PERFEITO' ? 'text-[var(--status-success)]' : 'text-[var(--status-danger)]'}>
+                      {it.status === 'PERFEITO' ? 'Bateu certinho' : (it.difference > 0 ? 'Sobra ' : 'Falta ') + formatBRL(Math.abs(it.difference))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => { setSavedSummary(null); onClose(); }}
+                className="mt-6 w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
+              >
+                Entendi
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Rodapé Fixo de Ações */}
         <div className="p-4 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex items-center justify-between shrink-0">

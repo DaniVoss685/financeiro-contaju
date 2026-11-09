@@ -91,7 +91,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Tab: 'DASHBOARD' | 'ANNUAL_KPIS' | 'COHORT' | 'CHURN_RISK' | 'STRESS_TEST' | 'KPIS_CONFIG'
   const [openSec, setOpenSec] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ANNUAL_KPIS' | 'COHORT' | 'CHURN_RISK' | 'STRESS_TEST' | 'KPIS_CONFIG'>('DASHBOARD');
+  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ANALISES' | 'ANNUAL_KPIS' | 'COHORT' | 'CHURN_RISK' | 'STRESS_TEST' | 'KPIS_CONFIG'>('DASHBOARD');
   // Modo de exibição no bloco de KPIs: 'MONTH_CARDS' | 'ANNUAL_TABLE'
   const [kpiDisplayMode, setKpiDisplayMode] = useState<'MONTH_CARDS' | 'ANNUAL_TABLE'>('MONTH_CARDS');
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
@@ -461,6 +461,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <TabPills
           tabs={[
             { id: 'DASHBOARD', label: 'Visão geral' },
+            { id: 'ANALISES', label: 'Análises' },
             { id: 'ANNUAL_KPIS', label: 'Evolução anual' },
             { id: 'CARTEIRA', label: 'Clientes' },
             { id: 'STRESS_TEST', label: 'Estresse de caixa' }
@@ -526,6 +527,43 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </Card>
+
+          {/* Últimas conferências: banco e caixa */}
+          {(() => {
+            const fmt = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
+            const bankRecs = [...storage.getBankClosingRecords()].sort((a, b) => (b.closingDate + b.closingTime).localeCompare(a.closingDate + a.closingTime));
+            const cashRecs = [...storage.getCashCounts()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+            const lastBankDay = bankRecs[0]?.closingDate;
+            const bankDay = lastBankDay ? bankRecs.filter(r => r.closingDate === lastBankDay) : [];
+            const bankDiff = bankDay.reduce((sum, r) => sum + Math.abs(r.difference || 0), 0);
+            const lastCash = cashRecs[0];
+            const cell = (title: string, ok: boolean | null, line1: string, line2: string) => (
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-[var(--text-secondary)]">{title}</p>
+                  <Badge tone={ok === null ? 'neutral' : ok ? 'success' : 'danger'}>{ok === null ? 'Sem conferência' : ok ? 'Tudo certo' : 'Com diferença'}</Badge>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{line1}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)]">{line2}</p>
+              </div>
+            );
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {cell(
+                  'Conferência com o banco',
+                  lastBankDay ? bankDiff < 0.005 : null,
+                  lastBankDay ? `Última em ${fmt(lastBankDay)}` : 'Ainda não foi feita',
+                  lastBankDay ? (bankDiff < 0.005 ? 'Os saldos bateram com o banco' : `Diferença de ${formatBRL(bankDiff)} naquele dia`) : 'Vá em Bancos e clique em "Conferir com o banco"'
+                )}
+                {cell(
+                  'Contagem do caixa em dinheiro',
+                  lastCash ? lastCash.difference === 0 : null,
+                  lastCash ? `Última em ${fmt(lastCash.date)}` : 'Ainda não foi feita',
+                  lastCash ? (lastCash.difference === 0 ? 'O dinheiro bateu com o sistema' : lastCash.difference > 0 ? `Sobraram ${formatBRL(lastCash.difference)}` : `Faltaram ${formatBRL(Math.abs(lastCash.difference))}`) : 'Vá em Bancos e clique em "Contar dinheiro do caixa"'
+                )}
+              </div>
+            );
+          })()}
 
           {/* WIDGET SOLICITADO: AVISOS PENDENTES (PRÓXIMOS 3 DIAS) */}
           {safeVisibleWidgets.includes('widget_avisos_pendentes') && (
@@ -682,7 +720,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
-          <p className="pt-2 text-sm font-medium text-[var(--text-muted)]">Análises detalhadas</p>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB: ANÁLISES DETALHADAS (cada uma abre sob demanda)                      */}
+      {/* ========================================================================= */}
+      {activeTab === 'ANALISES' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <p className="text-sm text-[var(--text-muted)]">Abra cada análise para ver os detalhes.</p>
 
           <Disclosure
             icon={<TWallet />}

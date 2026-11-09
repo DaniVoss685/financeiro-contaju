@@ -268,19 +268,24 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
           </div>
         </div>
 
-        {/* Success Banner */}
+        {/* Modal de sucesso */}
         {successMessage && (
-          <div className="mx-6 mt-4 p-3 bg-[var(--status-success-bg)] border border-emerald-500/40 rounded-xl flex items-center justify-between text-sm text-[var(--status-success)] animate-fadeIn">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-[var(--status-success)] shrink-0" />
-              <span>{successMessage}</span>
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] p-8 text-center shadow-2xl">
+              <div className="mx-auto w-14 h-14 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-[var(--status-success)]" />
+              </div>
+              <h3 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">Caixa atualizado</h3>
+              <p className="mt-2 text-sm text-[var(--text-secondary)]">{successMessage}</p>
+              <p className="mt-3 text-xs text-[var(--text-muted)]">Contagem de {new Date().toLocaleDateString('pt-BR')} às {new Date().toTimeString().slice(0, 5)}</p>
+              <button
+                type="button"
+                onClick={() => { setSuccessMessage(null); handleResetAll(); onClose(); }}
+                className="mt-6 w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
+              >
+                Entendi
+              </button>
             </div>
-            <button
-              onClick={() => setSuccessMessage(null)}
-              className="text-xs text-[var(--status-success)] underline hover:text-[var(--text-primary)]"
-            >
-              Fechar
-            </button>
           </div>
         )}
 
@@ -288,6 +293,25 @@ export const CashCalculatorModal: React.FC<CashCalculatorModalProps> = ({
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {activeTab === 'calculator' ? (
             <>
+              {/* Última contagem */}
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+                {historyRecords[0] ? (
+                  <span>
+                    <strong className="text-[var(--text-primary)]">Última contagem:</strong>{' '}
+                    {historyRecords[0].date.split('-').reverse().join('/')} às {historyRecords[0].time}
+                    {' — '}
+                    {historyRecords[0].difference === 0
+                      ? 'o dinheiro bateu com o sistema.'
+                      : historyRecords[0].difference > 0
+                        ? `sobraram ${formatBRL(historyRecords[0].difference)}.`
+                        : `faltaram ${formatBRL(Math.abs(historyRecords[0].difference))}.`}
+                    {historyRecords[0].countedBy ? ` (por ${historyRecords[0].countedBy})` : ''}
+                  </span>
+                ) : (
+                  <span>Ainda não houve nenhuma contagem neste caixa.</span>
+                )}
+              </div>
+
               {/* Top Confrontation Summary Banner */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-4 rounded-xl">
                 <div className="p-3 bg-[var(--surface-card)] rounded-lg border border-[var(--border-subtle)]">
