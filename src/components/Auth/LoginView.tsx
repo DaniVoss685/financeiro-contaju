@@ -398,12 +398,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const pendingUsers = users.filter(u => u.status === 'PENDENTE');
 
   return (
-    <div className="login-bg relative min-h-screen w-full bg-[var(--surface-canvas)] flex flex-col justify-between text-[var(--text-primary)] transition-colors duration-200 overflow-hidden">
+    <div className="login-bg relative min-h-screen md:h-[100dvh] md:overflow-hidden w-full bg-[var(--surface-canvas)] flex flex-col justify-between text-[var(--text-primary)] transition-colors duration-200 overflow-hidden">
       <div aria-hidden="true" className="login-bg-grid pointer-events-none absolute inset-0" />
       <div aria-hidden="true" className="login-bg-glow pointer-events-none absolute inset-0" />
       
       {/* Barra superior: marca e tema */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 flex justify-end items-center min-h-[4.5rem]">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 flex justify-end items-center min-h-[3.5rem]">
 
         <button
           onClick={handleToggleTheme}
@@ -426,16 +426,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </header>
 
       {/* Conteúdo Central */}
-      <main className="login-main relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex items-center justify-center my-auto">
+      <main className="login-main relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-center my-auto">
 
         <div className="w-full max-w-lg mx-auto space-y-5">
 
         {/* Marca do sistema, logo acima do cartão de entrada */}
-        <div className="flex flex-col items-center text-center gap-3 pb-1">
-          <GoldenLionLogo size="xl" className="[&>div]:w-20 [&>div]:h-20 [&>div]:rounded-2xl [&_svg]:w-11 [&_svg]:h-11" />
+        <div className="flex flex-col items-center text-center gap-2 pb-0.5">
+          <GoldenLionLogo size="xl" className="[&>div]:w-[clamp(2.75rem,7vh,4rem)] [&>div]:h-[clamp(2.75rem,7vh,4rem)] [&>div]:rounded-2xl [&_svg]:w-[60%] [&_svg]:h-[60%]" />
           <div className="leading-tight">
-            <span className="block text-[34px] font-semibold tracking-tight">Contaju</span>
-            <span className="block mt-1 text-sm tracking-wide text-[var(--text-muted)]">Gestão financeira</span>
+            <span className="block text-[clamp(1.5rem,3.8vh,1.875rem)] font-semibold tracking-tight">Contaju</span>
+            <span className="block mt-0.5 text-sm tracking-wide text-[var(--text-muted)]">Gestão financeira</span>
           </div>
         </div>
 
@@ -840,7 +840,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </main>
 
       {/* Rodapé */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto mt-10 px-6 pt-5 pb-8 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-subtle)]">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto mt-4 px-6 pt-4 pb-5 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-subtle)]">
         <p>© {new Date().getFullYear()} ESCRITORIO CONTAJU LTDA</p>
         <p className="mt-0.5">CNPJ 66.281.288/0001-28</p>
       </footer>
