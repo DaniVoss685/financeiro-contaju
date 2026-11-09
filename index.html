@@ -46,6 +46,25 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Contaju" />
+    <script>
+      // Limpeza única por empresa neste aparelho: descarta a cópia local antiga (dados de exemplo) ANTES do sistema carregar.
+      (function () {
+        try {
+          var active = localStorage.getItem('contaju_active_org');
+          if (!active || localStorage.getItem('contaju_limpeza_mock_v1') === active) return;
+          var keep = ['contaju_auth_session','contaju_current_user_id','contaju_theme','contaju_orgs','contaju_active_org','contaju_is_consultant','contaju_view_mode','contaju_cache_org','contaju_limpeza_mock_v1','contaju_supabase_url','contaju_supabase_anon_key','contaju_supabase_auto_sync','contaju_sidebar_minimized','contaju_calc_open','contaju_calc_minimized'];
+          var rm = [];
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('contaju_') === 0 && keep.indexOf(k) === -1) rm.push(k);
+          }
+          rm.forEach(function (k) { localStorage.removeItem(k); });
+          try { indexedDB.deleteDatabase('contaju_db'); } catch (e) {}
+          localStorage.setItem('contaju_cache_org', active);
+          localStorage.setItem('contaju_limpeza_mock_v1', active);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
