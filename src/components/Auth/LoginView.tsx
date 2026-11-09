@@ -398,10 +398,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const pendingUsers = users.filter(u => u.status === 'PENDENTE');
 
   return (
-    <div className="min-h-screen w-full bg-[var(--surface-canvas)] flex flex-col justify-between text-[var(--text-primary)] transition-colors duration-200">
+    <div className="login-bg relative min-h-screen w-full bg-[var(--surface-canvas)] flex flex-col justify-between text-[var(--text-primary)] transition-colors duration-200 overflow-hidden">
+      <div aria-hidden="true" className="login-bg-grid pointer-events-none absolute inset-0" />
+      <div aria-hidden="true" className="login-bg-glow pointer-events-none absolute inset-0" />
       
       {/* Barra superior: marca e tema */}
-      <header className="w-full max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <GoldenLionLogo size="md" />
           <span className="leading-tight">
@@ -431,35 +433,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </header>
 
       {/* Conteúdo Central */}
-      <main className="login-main w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] gap-8 xl:gap-16 items-center my-auto">
-
-        {/* Painel de marca (somente telas grandes) */}
-        <section className="hidden lg:flex flex-col justify-between gap-12 relative overflow-hidden rounded-3xl border border-[var(--gold-edge)] hero-glow bg-[var(--surface-card)] p-10 xl:p-12 min-h-[520px]">
-          <div>
-            <IconTile className="w-14 h-14 rounded-2xl [&>svg]:w-7 [&>svg]:h-7"><TWallet /></IconTile>
-            <h2 className="mt-10 text-[34px] leading-[42px] xl:text-[40px] xl:leading-[48px] font-semibold tracking-tight max-w-lg">
-              Tesouraria, contratos e resultado num só lugar.
-            </h2>
-            <p className="mt-5 text-[15px] leading-relaxed text-[var(--text-secondary)] max-w-md">
-              Acompanhe contas a receber e a pagar, concilie o extrato do banco e veja o DRE por competência e por caixa.
-            </p>
-          </div>
-
-          <ul className="space-y-5">
-            <li className="flex items-center gap-4">
-              <IconBadge tone="success"><TBank /></IconBadge>
-              <span className="text-sm text-[var(--text-secondary)]">Conciliação bancária com sugestões automáticas</span>
-            </li>
-            <li className="flex items-center gap-4">
-              <IconBadge tone="gold"><TChart /></IconBadge>
-              <span className="text-sm text-[var(--text-secondary)]">DRE gerencial e fluxo de caixa em tempo real</span>
-            </li>
-            <li className="flex items-center gap-4">
-              <IconBadge tone="info"><TFile /></IconBadge>
-              <span className="text-sm text-[var(--text-secondary)]">Contratos recorrentes e faturamento em lote</span>
-            </li>
-          </ul>
-        </section>
+      <main className="login-main relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex items-center justify-center my-auto">
 
         <div className="w-full max-w-lg mx-auto space-y-5">
 
@@ -864,10 +838,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </main>
 
       {/* Rodapé */}
-      <footer className="w-full max-w-7xl mx-auto px-6 py-4 text-center text-xs text-[var(--text-secondary)] border-t border-[var(--border-subtle)]">
-        <p>
-          Contaju Contabilidade & Gestão © {new Date().getFullYear()} — Sistema Financeiro Corporativo.
-        </p>
+      <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-subtle)]">
+        <p>© {new Date().getFullYear()} ESCRITORIO CONTAJU LTDA</p>
+        <p className="mt-0.5">CNPJ 66.281.288/0001-28</p>
       </footer>
 
     </div>

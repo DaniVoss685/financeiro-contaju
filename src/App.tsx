@@ -4,7 +4,7 @@ import { Sidebar, NavigationScreen } from './components/Sidebar';
 import { isConsultant, getOrgs, getActiveOrgId, switchOrg } from './services/authService';
 import { useIsSimpleMode } from './hooks/useViewMode';
 import { FinancialEngine } from './services/financialEngine';
-import { renewContractInvoices, renewForeverRecurrences } from './services/renewalService';
+import { renewContractInvoices, renewContractDueMonths, renewForeverRecurrences } from './services/renewalService';
 import { BottomNavBar } from './components/Common/BottomNavBar';
 import { storage } from './services/storageService';
 import { User } from './types';
@@ -90,10 +90,11 @@ function AppContent() {
     const timer = setTimeout(() => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const key = 'contaju_renovacao_v2';
+        const key = 'contaju_renovacao_v3';
         const org = localStorage.getItem('contaju_active_org') || 'local';
         if (localStorage.getItem(key) === org + ':' + today) return;
         renewContractInvoices();
+        renewContractDueMonths();
         renewForeverRecurrences();
         setDataVersion(v => v + 1);
         localStorage.setItem(key, org + ':' + today);

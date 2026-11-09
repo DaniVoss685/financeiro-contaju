@@ -1116,3 +1116,28 @@ html.light .text-slate-400:not([class*="dark:text-"]),
 html.light .text-gray-400:not([class*="dark:text-"]) {
   color: var(--text-muted);
 }
+
+/* Fundo premium da tela de entrada: grade fina em degradê + brilho dourado */
+.login-bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(201, 162, 75, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(201, 162, 75, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 85%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 85%);
+}
+.login-bg-glow {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 38%, rgba(201, 162, 75, 0.16), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 85% 100%, rgba(201, 162, 75, 0.08), transparent 70%);
+}
+html.light .login-bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(140, 105, 30, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(140, 105, 30, 0.08) 1px, transparent 1px);
+}
+html.light .login-bg-glow {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 38%, rgba(201, 162, 75, 0.20), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 85% 100%, rgba(201, 162, 75, 0.10), transparent 70%);
+}

@@ -1089,7 +1089,17 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                       </label>
                       <PremiumSelect
                         value={recurringDay}
-                        onChange={(e) => setRecurringDay(parseInt(e.target.value, 10))}
+                        onChange={(e) => {
+                          const d = parseInt(e.target.value, 10);
+                          setRecurringDay(d);
+                          // ajusta a data de vencimento para o mesmo dia, no mês que já estava escolhido
+                          const [yy, mm] = String(dueDate || today).split('-').map(Number);
+                          if (yy && mm) {
+                            const nd = `${yy}-${String(mm).padStart(2, '0')}-${String(Math.min(d, getDaysInMonth(yy, mm))).padStart(2, '0')}`;
+                            setDueDate(nd);
+                            setExpectedCashDate(nd);
+                          }
+                        }}
                         className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-semibold"
                       >
                         {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
@@ -1240,6 +1250,9 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                     onChange={(e) => {
                       setDueDate(e.target.value);
                       setExpectedCashDate(e.target.value);
+                      // o dia do vencimento "todo mês" acompanha a data escolhida
+                      const dayPicked = parseInt(String(e.target.value || '').split('-')[2], 10);
+                      if (!isNaN(dayPicked)) setRecurringDay(dayPicked);
                     }}
                     className="w-full rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-900 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                     required
