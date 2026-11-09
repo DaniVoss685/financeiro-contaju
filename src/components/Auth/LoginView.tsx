@@ -403,20 +403,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       <div aria-hidden="true" className="login-bg-glow pointer-events-none absolute inset-0" />
       
       {/* Barra superior: marca e tema */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex justify-center items-center">
-        <div className="flex items-center gap-3">
-          <GoldenLionLogo size="md" />
-          <span className="leading-tight">
-            <span className="block text-[17px] font-semibold tracking-tight">Contaju</span>
-            <span className="block text-xs text-[var(--text-muted)]">Gestão financeira</span>
-          </span>
-        </div>
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 flex justify-end items-center min-h-[4.5rem]">
 
         <button
           onClick={handleToggleTheme}
           type="button"
           title={`Alternar para o modo ${currentTheme === 'dark' ? 'claro' : 'escuro'}`}
-          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 h-10 flex items-center gap-2 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm cursor-pointer"
+          className="h-10 flex items-center gap-2 px-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm cursor-pointer"
         >
           {currentTheme === 'dark' ? (
             <>
@@ -436,6 +429,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       <main className="login-main relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex items-center justify-center my-auto">
 
         <div className="w-full max-w-lg mx-auto space-y-5">
+
+        {/* Marca do sistema, logo acima do cartão de entrada */}
+        <div className="flex flex-col items-center text-center gap-3 pb-1">
+          <GoldenLionLogo size="xl" className="[&>div]:w-20 [&>div]:h-20 [&>div]:rounded-2xl [&_svg]:w-11 [&_svg]:h-11" />
+          <div className="leading-tight">
+            <span className="block text-[34px] font-semibold tracking-tight">Contaju</span>
+            <span className="block mt-1 text-sm tracking-wide text-[var(--text-muted)]">Gestão financeira</span>
+          </div>
+        </div>
 
         
         {/* Formulário Principal: Login ou Cadastro */}
@@ -838,7 +840,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </main>
 
       {/* Rodapé */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-subtle)]">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto mt-10 px-6 pt-5 pb-8 text-center text-xs text-[var(--text-muted)] border-t border-[var(--border-subtle)]">
         <p>© {new Date().getFullYear()} ESCRITORIO CONTAJU LTDA</p>
         <p className="mt-0.5">CNPJ 66.281.288/0001-28</p>
       </footer>

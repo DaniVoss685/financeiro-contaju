@@ -1,5 +1,6 @@
 import { formatCompetenceShort } from '../../utils/dateUtils';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   BellRing, 
   ArrowUpRight, 
@@ -31,6 +32,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
   onNavigate,
   onSelectTitle
 }) => {
+  const [listKind, setListKind] = useState<'RECEBER' | 'PAGAR' | null>(null);
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
 
@@ -162,7 +164,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div
-          onClick={() => onNavigate('CONTAS_RECEBER')}
+          onClick={() => setListKind('RECEBER')}
           className="p-5 rounded-2xl border border-[var(--border-subtle)] cursor-pointer hover:border-[var(--border-highlight)] transition-colors"
         >
           <div className="flex justify-between items-center text-sm text-[var(--text-secondary)]">
@@ -176,7 +178,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
         </div>
 
         <div
-          onClick={() => onNavigate('CONTAS_PAGAR')}
+          onClick={() => setListKind('PAGAR')}
           className="p-5 rounded-2xl border border-[var(--border-subtle)] cursor-pointer hover:border-[var(--border-highlight)] transition-colors"
         >
           <div className="flex justify-between items-center text-sm text-[var(--text-secondary)]">
@@ -297,6 +299,59 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
         </div>
       )}
 
+      {listKind && createPortal(
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setListKind(null)}>
+          <div className="w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">{listKind === 'RECEBER' ? 'A receber nos próximos 3 dias' : 'A pagar nos próximos 3 dias'}</h3>
+                <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+                  {(listKind === 'RECEBER' ? pendingReceivables : pendingPayables).length} lançamento(s) • total {formatBRL(listKind === 'RECEBER' ? totalReceivableAmount : totalPayableAmount)}
+                </p>
+              </div>
+              <button type="button" onClick={() => setListKind(null)} aria-label="Fechar" className="w-9 h-9 -mr-2 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer text-lg leading-none">×</button>
+            </div>
+            <div className="overflow-y-auto divide-y divide-[var(--border-subtle)]">
+              {(listKind === 'RECEBER' ? pendingReceivables : pendingPayables).length === 0 && (
+                <p className="px-6 py-10 text-center text-sm text-[var(--text-muted)]">Nada vencendo nos próximos 3 dias.</p>
+              )}
+              {[...(listKind === 'RECEBER' ? pendingReceivables : pendingPayables)]
+                .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''))
+                .map(t => {
+                  const cp = counterpartyMap.get(t.counterpartyId);
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        setListKind(null);
+                        if (onSelectTitle) onSelectTitle(t); else onNavigate(t.type === 'RECEBER' ? 'CONTAS_RECEBER' : 'CONTAS_PAGAR');
+                      }}
+                      className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-[var(--text-primary)] truncate">{cp?.name || t.counterpartyName || (listKind === 'RECEBER' ? 'Cliente' : 'Fornecedor')}</span>
+                        <span className="block text-xs text-[var(--text-muted)] truncate">{t.description || 'Sem descrição'}</span>
+                        <span className="block mt-1">{getDueBadge(t.dueDate)}</span>
+                      </span>
+                      <span className="text-right shrink-0">
+                        <span className={`block text-sm font-semibold tabular-nums ${listKind === 'RECEBER' ? 'text-[var(--status-success)]' : 'text-[var(--status-danger)]'}`}>{formatBRL(t.balancePrincipal || 0)}</span>
+                        <span className="block text-xs text-[var(--text-muted)] tabular-nums">{formatDateBR(t.dueDate)}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+            </div>
+            <div className="px-6 py-4 border-t border-[var(--border-subtle)] flex items-center justify-between gap-3">
+              <button type="button" onClick={() => { const k = listKind; setListKind(null); onNavigate(k === 'RECEBER' ? 'CONTAS_RECEBER' : 'CONTAS_PAGAR'); }} className="text-sm text-[var(--brand-gold)] hover:underline cursor-pointer">
+                {listKind === 'RECEBER' ? 'Ver todas as contas a receber' : 'Ver todas as contas a pagar'}
+              </button>
+              <button type="button" onClick={() => setListKind(null)} className="h-10 px-5 rounded-xl btn-gold text-sm font-semibold cursor-pointer">Fechar</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </Card>
   );
 };
