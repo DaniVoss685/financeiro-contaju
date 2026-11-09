@@ -137,17 +137,27 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
 
   // Modal para criar nova venda avulsa
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customerId, setCustomerId] = useState(counterparties[0]?.id || '');
-  const [description, setDescription] = useState('Consultoria Tributária Especial');
+  const [customerId, setCustomerId] = useState('');
+  const [description, setDescription] = useState('');
   const [competence, setCompetence] = useState(currentMonth);
-  const [totalAmount, setTotalAmount] = useState<number>(6000);
-  const [installmentsCount, setInstallmentsCount] = useState<number>(3);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [installmentsCount, setInstallmentsCount] = useState<number>(1);
   const [firstDueDate, setFirstDueDate] = useState(today);
   // Versão simples: a competência acompanha o mês do vencimento
   useEffect(() => {
     if (simple && firstDueDate) setCompetence(firstDueDate.substring(0, 7));
   }, [simple, firstDueDate]);
-  const [accountId, setAccountId] = useState(chartAccounts[0]?.id || '');
+  const [accountId, setAccountId] = useState('');
+  const [saleSuccess, setSaleSuccess] = useState<{ number: string; count: number; each: number; total: number } | null>(null);
+  const openNewSale = () => {
+    setCustomerId('');
+    setDescription('');
+    setTotalAmount(0);
+    setInstallmentsCount(1);
+    setFirstDueDate(today);
+    setAccountId('');
+    setIsModalOpen(true);
+  };
   const [isGeneratingSale, setIsGeneratingSale] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -311,7 +321,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
     setSuccessMessage('');
 
     if (isGeneratingSale) return;
-    if (!customerId || totalAmount <= 0 || installmentsCount <= 0) return;
+    if (!customerId || !description.trim() || !accountId || totalAmount <= 0 || installmentsCount <= 0) return;
 
     if (FinancialEngine.isPeriodClosed(competence)) {
       alert(`O período ${competence} está fechado.`);
@@ -422,7 +432,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
         details: `Venda ${baseNumber} de ${formatBRL(totalAmount)} em ${installmentsCount}x para ${client?.name}. Competência econômica DRE: ${competence}.`
       });
 
-      setSuccessMessage(`✓ Venda ${baseNumber} gerada com sucesso! ${installmentsCount} parcelas de ${formatBRL(installmentValue)} criadas com competência econômica única em ${competence}.`);
+      setSaleSuccess({ number: baseNumber, count: installmentsCount, each: installmentValue, total: totalAmount });
       setIsModalOpen(false);
     } finally {
       setIsGeneratingSale(false);
@@ -650,10 +660,27 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
     <div className="space-y-6">
 
       <PageToolbar description="Vendas geradas por contratos recorrentes e faturamento de serviços avulsos. O contrato gera a venda (receita no DRE) e a venda gera as parcelas a receber (caixa).">
-        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={() => setIsModalOpen(true)}>
+        <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={openNewSale}>
           {simple ? 'Nova venda' : 'Faturar venda avulsa'}
         </Button>
       </PageToolbar>
+
+      {saleSuccess && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] p-8 text-center shadow-2xl">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-[var(--status-success)]" />
+            </div>
+            <h3 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">Venda salva</h3>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              {saleSuccess.count > 1
+                ? <>{saleSuccess.count} parcelas de <strong className="text-[var(--text-primary)]">{formatBRL(saleSuccess.each)}</strong> foram criadas em Contas a receber.</>
+                : <>Cobrança de <strong className="text-[var(--text-primary)]">{formatBRL(saleSuccess.total)}</strong> criada em Contas a receber.</>}
+            </p>
+            <button type="button" onClick={() => setSaleSuccess(null)} className="mt-6 w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer">Entendi</button>
+          </div>
+        </div>
+      )}
 
       {successMessage && (
         <div className="px-4 py-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center gap-3 text-sm">
@@ -720,7 +747,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="adv-only space-y-1.5">
               <p className="text-sm font-medium text-[var(--text-secondary)]">Período</p>
               <TabPills
                 tabs={[
@@ -741,7 +768,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
               />
             </div>
 
-            <div className="space-y-1.5 w-full sm:w-64">
+            <div className="adv-only space-y-1.5 w-full sm:w-64">
               <p className="text-sm font-medium text-[var(--text-secondary)]">Mês específico</p>
               <PremiumSelect
                 value={periodPreset}
@@ -798,13 +825,13 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
             <span className="text-sm text-[var(--text-muted)]">
               {filteredSales.length} de {sales.length} vendas
             </span>
-            {(periodPreset !== 'ALL' || searchTerm) && (
+            {(searchTerm || (!simple && periodPreset !== 'ALL')) && (
               <Button
                 variant="ghost"
                 className="h-9"
                 icon={<RotateCcw className="w-4 h-4" />}
                 onClick={() => {
-                  setPeriodPreset('ALL');
+                  if (!simple) setPeriodPreset('ALL');
                   setSearchTerm('');
                   setCustomStartDate('');
                   setCustomEndDate('');
@@ -1304,6 +1331,7 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)]"
                   required
                 >
+                  <option value=""></option>
                   {counterparties.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
@@ -1339,7 +1367,6 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)]"
-                  placeholder="Ex: Abertura e Legalização Societária"
                 />
               </div>
 
@@ -1397,7 +1424,9 @@ export const SalesView: React.FC<SalesViewProps> = ({ onOpenBillingModal, initia
                   value={accountId}
                   onChange={e => setAccountId(e.target.value)}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-3 py-2 font-semibold text-[var(--text-primary)]"
+                  required
                 >
+                  <option value=""></option>
                   {chartAccounts.map(a => (
                     <option key={a.id} value={a.id}>{simple ? a.name : `${a.code} - ${a.name}`}</option>
                   ))}

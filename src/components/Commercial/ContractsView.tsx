@@ -93,7 +93,9 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isBalanceFeeBatchModalOpen, setIsBalanceFeeBatchModalOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
-  const [successToast, setSuccessToast] = useState<string>('');
+  const [successToast, setSuccessToastRaw] = useState<string>('');
+  // O aviso de sucesso é um modal: só fecha quando a pessoa clica em "Entendi" (pedidos de limpar por tempo são ignorados)
+  const setSuccessToast = (v: string) => { if (v) setSuccessToastRaw(v.replace(/^✓s*/, '')); };
 
   // Atalho Rápido para Edição/Criação de Clientes
   const [clientsRefreshTrigger, setClientsRefreshTrigger] = useState(0);
@@ -836,12 +838,15 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       </PageToolbar>
 
       {successToast && (
-        <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] flex items-center gap-3 text-sm text-[var(--text-primary)]">
-          <CheckCircle className="w-4 h-4 text-[var(--status-success)] shrink-0" />
-          <span className="flex-1">{successToast}</span>
-          <button onClick={() => setSuccessToast('')} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer" aria-label="Fechar aviso">
-            ✕
-          </button>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] p-8 text-center shadow-2xl">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-[var(--status-success)]" />
+            </div>
+            <h3 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">Tudo certo</h3>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">{successToast}</p>
+            <button type="button" onClick={() => setSuccessToastRaw('')} className="mt-6 w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer">Entendi</button>
+          </div>
         </div>
       )}
 
