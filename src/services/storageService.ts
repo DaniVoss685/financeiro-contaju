@@ -3294,8 +3294,8 @@ class StorageService {
   // ==========================================
   public getReconciliationRules(): ReconciliationRule[] {
     const stored = this.get<ReconciliationRule[]>(STORAGE_KEYS.RECONCILIATION_RULES, []);
-    // Cada empresa começa sem regras. Só a própria consultoria (Contaju) recebe o modelo de regras contábeis.
-    if (this.isTenantSession() && !this.isOwnerFirmSession()) {
+    // Nenhuma empresa recebe regras de exemplo: cada login cria as suas.
+    if (this.isTenantSession()) {
       return (stored || []).filter(r => !INITIAL_RECONCILIATION_RULES.some(i => i.id === r.id));
     }
     if (!stored || stored.length === 0) {
