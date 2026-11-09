@@ -1446,7 +1446,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
                   {/* Resumo do Valor Efetivamente Movimentado */}
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-100/90 border border-slate-200 text-xs">
                     <span className="text-slate-700 font-medium">
-                      Valor líquido a movimentar na conta bancária:
+                      {simple ? (type === 'PAGAR' ? 'Valor que você vai pagar:' : 'Valor que você vai receber:') : 'Valor líquido a movimentar na conta bancária:'}
                     </span>
                     <span className={`font-bold text-sm ${type === 'PAGAR' ? 'text-rose-700' : 'text-emerald-700'}`}>
                       {formatBRL(

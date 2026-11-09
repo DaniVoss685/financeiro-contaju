@@ -1078,7 +1078,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
                       <div>
                         <label className="block text-slate-700 text-[11px] font-semibold mb-1">
-                          {isReceber ? 'Conta de Crédito *' : 'Conta de Débito *'}
+                          {simple ? (isReceber ? 'Em qual conta caiu? *' : 'De qual conta saiu? *') : (isReceber ? 'Conta de Crédito *' : 'Conta de Débito *')}
                         </label>
                         <PremiumSelect
                           value={settlementBankAccountId}
@@ -1154,7 +1154,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between p-2 rounded-lg bg-slate-100 border border-slate-200 text-xs font-medium">
-                      <span className="text-slate-600">Líquido a movimentar na conta:</span>
+                      <span className="text-slate-600">{simple ? (isReceber ? 'Valor que você vai receber:' : 'Valor que você vai pagar:') : 'Líquido a movimentar na conta:'}</span>
                       <span className={`font-bold ${isReceber ? 'text-emerald-700' : 'text-rose-700'}`}>
                         {formatBRL(
                           Math.max(

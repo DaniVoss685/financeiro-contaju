@@ -1546,12 +1546,12 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                             <span>Taxa Balanço {t.installmentIndex && t.totalInstallments ? `(${t.installmentIndex}/${t.totalInstallments})` : ''}</span>
                           </span>
                         ) : (t.originType === 'CONTRATO' || (t.titleNumber && t.titleNumber.startsWith('FAT-')) || t.contractNumber) ? (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                          <span className="adv-only text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                             🏷️ Contrato {t.contractNumber || ''}
                           </span>
                         ) : null}
                         {(t.originType === 'VENDA' || (t.titleNumber && t.titleNumber.startsWith('VEN-')) || t.saleNumber) && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
+                          <span className="adv-only text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30">
                             🏷️ Venda {t.saleNumber || ''}
                           </span>
                         )}
@@ -2192,7 +2192,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                               ) : (t.originType === 'CONTRATO' || (t.titleNumber && t.titleNumber.startsWith('FAT-')) || t.contractNumber) ? (
                                 <span 
                                   title={`Título originado de Contrato Recorrente${t.contractNumber ? `: ${t.contractNumber}` : ''}`}
-                                  className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                  className="adv-only inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
                                 >
                                   🏷️ Contrato {t.contractNumber || ''}
                                 </span>
@@ -2200,7 +2200,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                               {(t.originType === 'VENDA' || (t.titleNumber && t.titleNumber.startsWith('VEN-')) || t.saleNumber) && (
                                 <span 
                                   title={`Título originado de Venda Avulsa / Parcelada${t.saleNumber ? `: ${t.saleNumber}` : ''}`}
-                                  className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30"
+                                  className="adv-only inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/30"
                                 >
                                   🏷️ Venda {t.saleNumber || ''}
                                 </span>

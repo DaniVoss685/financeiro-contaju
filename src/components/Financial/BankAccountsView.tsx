@@ -52,7 +52,7 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
 
   const [formData, setFormData] = useState<Partial<BankAccount>>({
     name: '',
-    bankCode: '000',
+    bankCode: '',
     agency: '',
     accountNumber: '',
     type: 'CORRENTE',
@@ -64,9 +64,9 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
     setEditingAccount(null);
     setFormData({
       name: '',
-      bankCode: '341',
-      agency: '1234',
-      accountNumber: '56789-0',
+      bankCode: '',
+      agency: '',
+      accountNumber: '',
       type: 'CORRENTE',
       initialBalance: 0,
       status: 'ATIVO'
@@ -133,25 +133,12 @@ export const BankAccountsView: React.FC<BankAccountsViewProps> = ({ onOpenTransf
     <div className="space-y-6">
       
       <PageToolbar description="Contas correntes, aplicações de liquidez imediata e caixas físicos.">
-        <MoreMenu
-          items={[
-            {
-              label: 'Conferência de saldos (fechamento)',
-              icon: <Scale className="w-4 h-4" />,
-              onClick: () => {
-                setClosingAccount(null);
-                setIsClosingModalOpen(true);
-              },
-              hint: 'Compara o saldo do sistema com o saldo real do banco'
-            },
-            {
-              label: 'Calculadora de caixa físico',
-              icon: <Calculator className="w-4 h-4" />,
-              onClick: () => handleOpenCashCalculator(),
-              hint: 'Contagem de cédulas e moedas'
-            }
-          ]}
-        />
+        <Button variant="secondary" icon={<Scale className="w-4 h-4" />} onClick={() => { setClosingAccount(null); setIsClosingModalOpen(true); }}>
+          Conferir com o banco
+        </Button>
+        <Button variant="secondary" icon={<Calculator className="w-4 h-4" />} onClick={() => handleOpenCashCalculator()}>
+          Contar dinheiro do caixa
+        </Button>
         <Button variant="secondary" icon={<ArrowLeftRight className="w-4 h-4" />} onClick={onOpenTransferModal}>
           Nova transferência
         </Button>
