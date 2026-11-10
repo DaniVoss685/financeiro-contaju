@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileSpreadsheet, 
   Download, 
@@ -11,7 +11,9 @@ import {
   Wallet,
   Calendar,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
@@ -32,6 +34,16 @@ export const ReportsView: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [cashFlowMode, setCashFlowMode] = useState<'REALIZADO' | 'PROJETADO' | 'CONSOLIDADO'>('CONSOLIDADO');
   const [isExporting, setIsExporting] = useState(false);
+  // Tela cheia das tabelas e análises em % (da receita e contra o mês anterior)
+  const [fullCard, setFullCard] = useState<'DRE' | 'FLUXO' | null>(null);
+  const [showAnalysis, setShowAnalysis] = useState(true);
+  useEffect(() => {
+    if (!fullCard) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setFullCard(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fullCard]);
+  const fmtPct = (n: number) => `${n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
@@ -263,6 +275,11 @@ export const ReportsView: React.FC = () => {
               </div>
             </div>
 
+            <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer select-none">
+              <input type="checkbox" checked={showAnalysis} onChange={e => setShowAnalysis(e.target.checked)} className="w-4 h-4 rounded" />
+              Mostrar % da receita e variação contra o mês anterior
+            </label>
+
             <div className="flex items-center space-x-2 text-[11px] text-slate-500">
               <span className="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
               <span>Regime de Competência Econômica (CPC 26)</span>
@@ -284,7 +301,7 @@ export const ReportsView: React.FC = () => {
               <p className="text-xl font-bold text-amber-800 mt-1">
                 {formatBRL(dreData.lines.find(l => l.id === 's-gross')?.totalYear || 0)}
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">Após Deduções e Custos</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Após deduções e custos • {(() => { const r = (dreData.lines.find(l => l.id === 'h-1')?.totalYear || 0); const v = (dreData.lines.find(l => l.id === 's-gross')?.totalYear || 0); return r ? fmtPct(v / r * 100) : '0,0%'; })()} da receita</p>
             </div>
 
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
@@ -294,7 +311,7 @@ export const ReportsView: React.FC = () => {
               }`}>
                 {formatBRL(dreData.lines.find(l => l.id === 's-op-result')?.totalYear || 0)}
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">LAJIR / EBITDA</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">LAJIR / EBITDA • {(() => { const r = (dreData.lines.find(l => l.id === 'h-1')?.totalYear || 0); const v = (dreData.lines.find(l => l.id === 's-op-result')?.totalYear || 0); return r ? fmtPct(v / r * 100) : '0,0%'; })()} da receita</p>
             </div>
 
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
@@ -302,12 +319,12 @@ export const ReportsView: React.FC = () => {
               <p className={`text-xl font-bold mt-1 ${dreData.totalNetResult >= 0 ? 'text-amber-800' : 'text-rose-700'}`}>
                 {formatBRL(dreData.totalNetResult)}
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">Margem do Período</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Margem do período • {(() => { const r = (dreData.lines.find(l => l.id === 'h-1')?.totalYear || 0); return r ? fmtPct(dreData.totalNetResult / r * 100) : '0,0%'; })()} da receita</p>
             </div>
           </div>
 
           {/* DRE Preview Table */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div className={`bg-white border border-slate-200 shadow-2xs overflow-hidden ${fullCard === 'DRE' ? 'fixed inset-0 z-[60] flex flex-col rounded-none' : 'rounded-xl'}`}>
             <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -318,23 +335,31 @@ export const ReportsView: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={handleExportDRE_PDF}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium flex items-center shadow-2xs"
+                  type="button"
+                  onClick={() => setFullCard(fullCard === 'DRE' ? null : 'DRE')}
+                  className="px-3 h-9 border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg text-xs font-semibold flex items-center cursor-pointer"
                 >
-                  <FileText className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  {fullCard === 'DRE' ? <Minimize2 className="w-3.5 h-3.5 mr-1.5" /> : <Maximize2 className="w-3.5 h-3.5 mr-1.5" />}
+                  {fullCard === 'DRE' ? 'Sair da tela cheia' : 'Tela cheia'}
+                </button>
+                <button
+                  onClick={handleExportDRE_PDF}
+                  className="px-3 h-9 btn-gold rounded-lg text-xs font-semibold flex items-center cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5 mr-1.5" />
                   Baixar PDF
                 </button>
                 <button
                   onClick={handleExportDRE_CSV}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium flex items-center shadow-2xs"
+                  className="px-3 h-9 border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg text-xs font-semibold flex items-center cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  <Download className="w-3.5 h-3.5 mr-1.5 text-[var(--brand-gold)]" />
                   Baixar CSV
                 </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto max-h-[500px]">
+            <div className={fullCard === 'DRE' ? 'flex-1 overflow-auto' : 'overflow-x-auto max-h-[500px]'}>
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-slate-100 dark:bg-slate-800 sticky top-0 z-20 border-b border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[11px]">
                   <tr>
@@ -371,17 +396,32 @@ export const ReportsView: React.FC = () => {
                           {line.code && <span className="text-[10px] font-mono text-slate-500 mr-1.5">{line.code}</span>}
                           <span>{line.name}</span>
                         </td>
-                        {line.valuesByMonth.map((val, idx) => (
-                          <td key={idx} className={`py-2 px-3 text-right font-mono text-[11px] ${
-                            val < 0 ? 'text-rose-600 font-semibold' : val > 0 && isSummary ? 'text-amber-800 font-semibold' : 'text-slate-700'
-                          }`}>
-                            {val !== 0 ? formatBRL(val) : '-'}
-                          </td>
-                        ))}
+                        {line.valuesByMonth.map((val, idx) => {
+                          const revMonth = dreData.lines.find(l => l.id === 'h-1')?.valuesByMonth[idx] || 0;
+                          const prev = idx > 0 ? line.valuesByMonth[idx - 1] : 0;
+                          const av = revMonth ? (val / revMonth) * 100 : null;
+                          const ah = idx > 0 && prev !== 0 ? ((val - prev) / Math.abs(prev)) * 100 : null;
+                          return (
+                            <td key={idx} className={`py-2 px-3 text-right font-mono text-[11px] ${
+                              val < 0 ? 'text-rose-600 font-semibold' : val > 0 && isSummary ? 'text-amber-800 font-semibold' : 'text-slate-700'
+                            }`}>
+                              {val !== 0 ? formatBRL(val) : '-'}
+                              {showAnalysis && val !== 0 && (
+                                <div className="mt-0.5 font-sans font-normal text-[10px] leading-tight text-slate-500 whitespace-nowrap">
+                                  {av !== null && <div>{fmtPct(av)} da receita</div>}
+                                  {ah !== null && <div className={ah >= 0 ? 'text-emerald-700' : 'text-rose-600'}>{ah >= 0 ? '▲' : '▼'} {fmtPct(Math.abs(ah))} vs mês ant.</div>}
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
                         <td className={`py-2 px-4 text-right font-mono font-bold text-[11px] bg-slate-50/50 ${
                           line.totalYear < 0 ? 'text-rose-600' : 'text-slate-900'
                         }`}>
                           {formatBRL(line.totalYear)}
+                          {showAnalysis && line.totalYear !== 0 && (dreData.lines.find(l => l.id === 'h-1')?.totalYear || 0) !== 0 && (
+                            <div className="mt-0.5 font-sans font-normal text-[10px] leading-tight text-slate-500 whitespace-nowrap">{fmtPct((line.totalYear / (dreData.lines.find(l => l.id === 'h-1')?.totalYear || 1)) * 100)} da receita</div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -477,7 +517,7 @@ export const ReportsView: React.FC = () => {
           </div>
 
           {/* Cash Flow Preview Table */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div className={`bg-white border border-slate-200 shadow-2xs overflow-hidden ${fullCard === 'FLUXO' ? 'fixed inset-0 z-[60] flex flex-col rounded-none' : 'rounded-xl'}`}>
             <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -488,23 +528,31 @@ export const ReportsView: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={handleExportCashFlow_PDF}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium flex items-center shadow-2xs"
+                  type="button"
+                  onClick={() => setFullCard(fullCard === 'FLUXO' ? null : 'FLUXO')}
+                  className="px-3 h-9 border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg text-xs font-semibold flex items-center cursor-pointer"
                 >
-                  <FileText className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  {fullCard === 'FLUXO' ? <Minimize2 className="w-3.5 h-3.5 mr-1.5" /> : <Maximize2 className="w-3.5 h-3.5 mr-1.5" />}
+                  {fullCard === 'FLUXO' ? 'Sair da tela cheia' : 'Tela cheia'}
+                </button>
+                <button
+                  onClick={handleExportCashFlow_PDF}
+                  className="px-3 h-9 btn-gold rounded-lg text-xs font-semibold flex items-center cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5 mr-1.5" />
                   Baixar PDF
                 </button>
                 <button
                   onClick={handleExportCashFlow_CSV}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium flex items-center shadow-2xs"
+                  className="px-3 h-9 border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg text-xs font-semibold flex items-center cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5 mr-1 text-amber-400" />
+                  <Download className="w-3.5 h-3.5 mr-1.5 text-[var(--brand-gold)]" />
                   Baixar CSV
                 </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto max-h-[500px]">
+            <div className={fullCard === 'FLUXO' ? 'flex-1 overflow-auto' : 'overflow-x-auto max-h-[500px]'}>
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-slate-100 dark:bg-slate-800 sticky top-0 z-20 border-b border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[11px]">
                   <tr>

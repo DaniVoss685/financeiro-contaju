@@ -275,7 +275,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'CARTAO_CREDITO', label: 'Cartões de crédito', icon: CreditCard },
         { id: 'MOVIMENTACOES', label: 'Movimentações', icon: ArrowLeftRight },
         { id: 'BANCOS_CONTAS', label: 'Bancos e contas', icon: Landmark },
-        { id: 'CONCILIACAO', advanced: true, label: 'Conciliação bancária', icon: CheckCheck, badge: pendingReconciliation || undefined, badgeTone: 'neutral' }
+        { id: 'CONCILIACAO', label: 'Conciliação bancária', icon: CheckCheck, badge: pendingReconciliation || undefined, badgeTone: 'neutral' }
       ]
     },
     {
