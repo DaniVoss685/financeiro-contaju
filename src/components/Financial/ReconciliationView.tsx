@@ -90,18 +90,15 @@ export const ReconciliationView: React.FC = () => {
     try {
       const data = storage.getBankAccounts();
       const list = Array.isArray(data) ? data.filter(Boolean) : [];
-      if (list.length === 0) {
-        storage.saveBankAccounts([BANCO_INTER_ACCOUNT]);
-        return [BANCO_INTER_ACCOUNT];
-      }
+      // Nunca cria conta de exemplo: quem não cadastrou banco vê a tela vazia
       return list;
     } catch (err) {
       console.error('Erro ao ler contas bancárias:', err);
-      return [BANCO_INTER_ACCOUNT];
+      return [];
     }
   }, [refreshKey]);
 
-  const [selectedAccountId, setSelectedAccountId] = useState<string>(accounts[0]?.id || BANCO_INTER_ACCOUNT.id);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>(accounts[0]?.id || '');
 
   // Atualiza a conta selecionada se a lista mudar ou se a conta atual não existir mais
   useEffect(() => {
@@ -2608,8 +2605,7 @@ export const ReconciliationView: React.FC = () => {
             { label: 'Aplicar regras agora', icon: <Settings2 className="w-4 h-4" />, onClick: handleRunRules },
             { label: 'Assistente de IA', icon: <Bot className="w-4 h-4" />, onClick: () => setIsAiModalOpen(true) },
             { label: 'Diagnóstico e logs', icon: <FileText className="w-4 h-4" />, onClick: () => setIsDiagnosticsModalOpen(true), hint: 'Motivos de não conciliação' },
-            { label: 'Nova conta bancária', icon: <Plus className="w-4 h-4" />, onClick: () => setIsNewAccountModalOpen(true) },
-            { label: 'Gerar extrato de exemplo', icon: <RefreshCw className="w-4 h-4" />, onClick: handleSimulateOFX, hint: 'Dados de demonstração' }
+            { label: 'Nova conta bancária', icon: <Plus className="w-4 h-4" />, onClick: () => setIsNewAccountModalOpen(true) }
           ]}
         />
         <Button

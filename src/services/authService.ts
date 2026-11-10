@@ -38,7 +38,7 @@ export function setActiveOrgId(id: string): void {
 
 const KEEP_KEYS = new Set([
   'contaju_auth_session', 'contaju_current_user_id', 'contaju_theme', 'contaju_orgs', 'contaju_active_org',
-  'contaju_is_consultant', 'contaju_view_mode', 'contaju_cache_org', 'contaju_limpeza_mock_v1', 'contaju_supabase_url', 'contaju_supabase_anon_key',
+  'contaju_is_consultant', 'contaju_view_mode', 'contaju_cache_org', 'contaju_limpeza_mock_v2', 'contaju_supabase_url', 'contaju_supabase_anon_key',
   'contaju_supabase_auto_sync', 'contaju_sidebar_minimized', 'contaju_calc_open', 'contaju_calc_minimized'
 ]);
 
@@ -141,10 +141,10 @@ async function finishLogin(): Promise<{ success: boolean; user?: User; error?: s
     localStorage.setItem('contaju_cache_org', active);
   }
   // Uma vez por empresa neste aparelho: descarta qualquer cópia local antiga (dados de exemplo) e baixa só o que está na nuvem
-  if (localStorage.getItem('contaju_limpeza_mock_v1') !== active) {
+  if (localStorage.getItem('contaju_limpeza_mock_v2') !== active) {
     purgeLocalData();
     localStorage.setItem('contaju_cache_org', active);
-    localStorage.setItem('contaju_limpeza_mock_v1', active);
+    localStorage.setItem('contaju_limpeza_mock_v2', active);
   }
   storage.startSession(user);
   return { success: true, user };
