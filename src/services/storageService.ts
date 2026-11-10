@@ -520,6 +520,11 @@ class StorageService {
   }
 
   /** A empresa da própria consultoria (Contaju) mantém o plano completo; as demais usam o modelo genérico. */
+  /** Verdadeiro só no acesso da própria consultoria (empresa Contaju): libera os recursos contábeis mesmo na versão simples. */
+  public isOwnerFirm(): boolean {
+    return this.isOwnerFirmSession();
+  }
+
   private isOwnerFirmSession(): boolean {
     try {
       const orgs = JSON.parse(localStorage.getItem('contaju_orgs') || '[]');

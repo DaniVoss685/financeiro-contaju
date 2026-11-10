@@ -79,6 +79,8 @@ const MONTH_NAMES = [
 
 export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal, initialSearch = '' }) => {
   const simple = useIsSimpleMode();
+  // Só a empresa Contaju (a própria contabilidade) vê reajustes e taxa de balanço (13º) também na versão simples
+  const ownerFirm = storage.isOwnerFirm();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   useEffect(() => {
@@ -821,7 +823,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               onClick: () => setIsImportModalOpen(true),
               hint: 'Vários contratos de uma vez, pelo modelo oficial'
             },
-            ...(simple ? [] : [{
+            ...(simple && !ownerFirm ? [] : [{
               label: 'Faturar taxa de balanço (13º)',
               icon: <Scale className="w-4 h-4" />,
               onClick: () => setIsBalanceFeeBatchModalOpen(true),
@@ -2465,7 +2467,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 </div>
 
                 {/* Bloco 5: Histórico & Registro de Reajustes de Valor */}
-                <div className="adv-only p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] space-y-3">
+                <div className={`${ownerFirm ? '' : 'adv-only '}p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] space-y-3`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider block flex items-center gap-1.5">
@@ -2696,7 +2698,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                 </div>
 
                 {/* Bloco 6: Taxa de Balanço Anual (13º Honorário Contábil) */}
-                <div className="adv-only p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/30 space-y-3">
+                <div className={`${ownerFirm ? '' : 'adv-only '}p-4 rounded-xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/30 space-y-3`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[11px] font-bold text-amber-900 dark:text-amber-400 uppercase tracking-wider block flex items-center gap-1.5">
