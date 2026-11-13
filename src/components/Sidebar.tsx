@@ -11,6 +11,7 @@ import {
   ArrowLeftRight,
   Landmark,
   CheckCheck,
+  Barcode,
   BarChart3,
   LineChart,
   FileSpreadsheet,
@@ -45,6 +46,7 @@ export type NavigationScreen =
   | 'MOVIMENTACOES'
   | 'BANCOS_CONTAS'
   | 'CONCILIACAO'
+  | 'COBRANCAS'
   | 'DRE'
   | 'FLUXO_CAIXA'
   | 'PLANEJAMENTO_ORCAMENTARIO'
@@ -86,6 +88,7 @@ export const SCREEN_TITLES: Partial<Record<NavigationScreen, { title: string; gr
   MOVIMENTACOES: { title: 'Movimentações', group: 'Financeiro' },
   BANCOS_CONTAS: { title: 'Bancos e contas', group: 'Financeiro' },
   CONCILIACAO: { title: 'Conciliação bancária', group: 'Financeiro' },
+  COBRANCAS: { title: 'Cobranças (boleto e Pix)', group: 'Financeiro' },
   DRE: { title: 'DRE gerencial', group: 'Gestão' },
   FLUXO_CAIXA: { title: 'Fluxo de caixa', group: 'Gestão' },
   PLANEJAMENTO_ORCAMENTARIO: { title: 'Orçamento: previsto x realizado', group: 'Gestão' },
@@ -113,6 +116,7 @@ const SHORT_LABELS: Partial<Record<NavigationScreen, string>> = {
   MOVIMENTACOES: 'Caixa',
   BANCOS_CONTAS: 'Bancos',
   CONCILIACAO: 'Conciliar',
+  COBRANCAS: 'Cobranças',
   DRE: 'DRE',
   FLUXO_CAIXA: 'Fluxo',
   PLANEJAMENTO_ORCAMENTARIO: 'Orçamento',
@@ -276,6 +280,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       title: 'Financeiro',
       items: [
         { id: 'CONTAS_RECEBER', label: 'Contas a receber', icon: TrendingUp, badge: overdueReceivables || undefined, badgeTone: 'alert' },
+        { id: 'COBRANCAS', label: 'Cobranças (boleto e Pix)', icon: Barcode },
         { id: 'CONTAS_PAGAR', label: 'Contas a pagar', icon: TrendingDown, badge: overduePayables || undefined, badgeTone: 'alert' },
         { id: 'CARTAO_CREDITO', label: 'Cartões de crédito', icon: CreditCard },
         { id: 'MOVIMENTACOES', label: 'Movimentações', icon: ArrowLeftRight },

@@ -93,3 +93,20 @@ CMD ["nginx", "-g", "daemon off;"]
 | `VITE_SUPABASE_ANON_KEY` | Chave pública anônima | `eyJhbGciOiJIUzI1Ni...` |
 
 *(O aplicativo possui fallback gracioso e funciona offline via LocalStorage mesmo se o banco estiver temporariamente indisponível).*
+
+---
+
+## 6. COBRANÇA PELO ASAAS (boleto e Pix dos honorários)
+
+Servidor (Vercel `/api`): `asaas.js` (telas), `asaas-webhook.js` (avisos de pagamento), `asaas-cron.js` (robô diário, 07:00 de Brasília, ver `crons` em `vercel.json`).
+Banco: `supabase/migrations/20261113180000_cobranca_asaas.sql` (aditiva; o robô nasce **desligado** e o ambiente padrão é **testes**).
+
+| Variável (somente servidor) | Para quê |
+| :--- | :--- |
+| `SUPABASE_SERVICE_ROLE_KEY` | Já usada pela NFS-e. |
+| `NFSE_CERT_SECRET` (ou `ASAAS_KEY_SECRET`) | Segredo de 32+ caracteres que cifra a chave do Asaas de cada empresa. |
+| `CRON_SECRET` | Segredo de 16+ caracteres; a Vercel o envia ao rodar o robô. Sem ele o robô não roda. |
+| `APP_BASE_URL` (opcional) | Endereço público do site, usado para cadastrar o webhook no Asaas. |
+
+A chave do Asaas de cada empresa **não** é variável de ambiente: é informada na tela *Cobranças > Configurar* e fica cifrada no banco.
+O servidor nunca dá baixa em título; a baixa é feita pelo próprio sistema, no navegador, assim que há alguém com o Financeiro aberto.

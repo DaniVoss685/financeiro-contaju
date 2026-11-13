@@ -90,12 +90,13 @@ function devApiServerlessPlugin(): Plugin {
           }
         }
 
-        if (url.pathname === '/api/nfse') {
+        const rotaServidor: Record<string, string> = { '/api/nfse': './api/nfse.js', '/api/asaas': './api/asaas.js', '/api/asaas-webhook': './api/asaas-webhook.js', '/api/asaas-cron': './api/asaas-cron.js' };
+        if (rotaServidor[url.pathname]) {
           try {
             decorateRes(res);
             // As funções de servidor leem process.env; no ambiente local os valores vêm do .env / .env.local
             const localEnv = loadEnv('development', process.cwd(), '');
-            for (const k of ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'NFSE_CERT_SECRET', 'NFSE_SIGN_ALG', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']) {
+            for (const k of ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'NFSE_CERT_SECRET', 'NFSE_SIGN_ALG', 'ASAAS_KEY_SECRET', 'APP_BASE_URL', 'CRON_SECRET', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']) {
               if (!process.env[k] && localEnv[k]) process.env[k] = localEnv[k];
             }
             const buffers: Buffer[] = [];
@@ -108,7 +109,10 @@ function devApiServerlessPlugin(): Plugin {
             } catch {
               (req as any).body = {};
             }
-            const mod = await import('./api/nfse.js');
+            const consulta: Record<string, string> = {};
+            url.searchParams.forEach((v, k) => { consulta[k] = v; });
+            (req as any).query = consulta;
+            const mod = await import(/* @vite-ignore */ rotaServidor[url.pathname]);
             return await mod.default(req, res);
           } catch (err: any) {
             res.statusCode = 500;

@@ -7,6 +7,8 @@ import { FinancialEngine } from './services/financialEngine';
 import { renewContractInvoices, renewContractDueMonths, renewForeverRecurrences } from './services/renewalService';
 import { BottomNavBar } from './components/Common/BottomNavBar';
 import { storage } from './services/storageService';
+import { ASAAS_CHANGED_EVENT } from './services/asaasService';
+import { processarRecebimentos } from './services/asaasBaixaService';
 import { User } from './types';
 import { AppErrorBoundary } from './components/Common/AppErrorBoundary';
 
@@ -40,6 +42,7 @@ const ClientsView = lazyWithRetry(() => import('./components/Commercial/ClientsV
 const ServicesView = lazyWithRetry(() => import('./components/Commercial/ServicesView').then(m => ({ default: m.ServicesView })));
 const ContractsView = lazyWithRetry(() => import('./components/Commercial/ContractsView').then(m => ({ default: m.ContractsView })));
 const SalesView = lazyWithRetry(() => import('./components/Commercial/SalesView').then(m => ({ default: m.SalesView })));
+const CobrancasView = lazyWithRetry(() => import('./components/Cobranca/CobrancasView').then(m => ({ default: m.CobrancasView })));
 const NfseView = lazyWithRetry(() => import('./components/Fiscal/NfseView').then(m => ({ default: m.NfseView })));
 
 const ReceivablesView = lazyWithRetry(() => import('./components/Financial/ReceivablesView').then(m => ({ default: m.ReceivablesView })));
@@ -104,6 +107,27 @@ function AppContent() {
       }
     }, 6000);
     return () => clearTimeout(timer);
+  }, [isAuthenticated]);
+
+  // Baixa automática do que o Asaas recebeu: confere ao entrar e a cada minuto com a aba visível.
+  // (O servidor só guarda o aviso de pagamento; quem baixa é o sistema, pelo mesmo caminho da baixa manual.)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let ativo = true;
+    const rodar = () => {
+      if (!ativo || document.visibilityState !== 'visible') return;
+      void processarRecebimentos();
+    };
+    const primeira = setTimeout(rodar, 8000);
+    const timer = setInterval(rodar, 60_000);
+    const aoMudar = () => setDataVersion(v => v + 1);
+    window.addEventListener(ASAAS_CHANGED_EVENT, aoMudar);
+    return () => {
+      ativo = false;
+      clearTimeout(primeira);
+      clearInterval(timer);
+      window.removeEventListener(ASAAS_CHANGED_EVENT, aoMudar);
+    };
   }, [isAuthenticated]);
 
   // Mantém a classe da versão simples/contábil no <html> (esconde campos técnicos para empresas clientes)
@@ -330,6 +354,8 @@ function AppContent() {
         return <BankAccountsView onOpenTransferModal={() => setIsTransferModalOpen(true)} />;
       case 'CONCILIACAO':
         return <ReconciliationView />;
+      case 'COBRANCAS':
+        return <CobrancasView />;
 
       // Management & Reports
       case 'DRE':

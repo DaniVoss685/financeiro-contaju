@@ -73,6 +73,10 @@ import { toast } from '../../hooks/useToast';
 import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, Disclosure, FieldLabel, MoreMenu } from '../Common/ui';
+import { useAsaasCobrancas } from '../../hooks/useAsaasCobrancas';
+import { CobrancaChip } from '../Cobranca/CobrancaChip';
+import { GerarCobrancaModal } from '../Cobranca/GerarCobrancaModal';
+import { Barcode as BarcodeIcon } from 'lucide-react';
 import { MoneyField } from '../Common/MoneyField';
 import { cleanTitleDescription } from '../../utils/titleText';
 import { RecurringSeriesService } from '../../services/recurringSeriesService';
@@ -126,9 +130,13 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isDedupModalOpen, setIsDedupModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // Cobrança pelo Asaas (boleto/Pix): só aparece se a conexão estiver ligada
+  const asaas = useAsaasCobrancas();
+  const [idsParaCobrar, setIdsParaCobrar] = useState<string[] | null>(null);
   const [expandedMobileIds, setExpandedMobileIds] = useState<Record<string, boolean>>({});
   const [historyTitle, setHistoryTitle] = useState<FinancialTitle | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const nomesClientes = useMemo(() => new Map(storage.getCounterparties().map(p => [p.id, p.name])), [refreshKey]);
 
   const duplicateCandidates = useMemo(() => {
     try {
@@ -1282,6 +1290,18 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                 Baixar em Lote
               </button>
 
+              {asaas.ativo && (
+                <button
+                  type="button"
+                  onClick={() => setIdsParaCobrar(selectedIds)}
+                  className="min-h-[44px] px-4 py-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center cursor-pointer shrink-0"
+                  title="Gerar boleto ou Pix dos títulos selecionados pelo Asaas"
+                >
+                  <BarcodeIcon className="w-4 h-4 mr-1.5" />
+                  Gerar boleto / Pix
+                </button>
+              )}
+
               {/* Voltar para Em Aberto em Lote */}
               {settledCountInSelection > 0 && (
                 <button
@@ -1599,6 +1619,9 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                             <span className="adv-only font-mono text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-800">
                               #{t.titleNumber}
                             </span>
+                            {asaas.ativo && asaas.porTitulo.get(t.id) && (
+                              <CobrancaChip cobranca={asaas.porTitulo.get(t.id)!} cliente={nomesClientes.get(t.counterpartyId) || 'Cliente'} titulo={`Título ${t.titleNumber}`} podeCancelar={true} onMudou={() => void asaas.recarregar()} />
+                            )}
                           </div>
                         );
                       })()}
@@ -2217,6 +2240,9 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                                   🏷️ Venda {t.saleNumber || ''}
                                 </span>
                               )}
+                              {asaas.ativo && asaas.porTitulo.get(t.id) && (
+                                <CobrancaChip cobranca={asaas.porTitulo.get(t.id)!} cliente={nomesClientes.get(t.counterpartyId) || 'Cliente'} titulo={`Título ${t.titleNumber}`} podeCancelar={true} onMudou={() => void asaas.recarregar()} />
+                              )}
                             </div>
                           );
                         })()}
@@ -2510,6 +2536,17 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
             setQuickDateFilter('ALL');
             setSearchTerm('');
             setRefreshKey(k => k + 1);
+          }}
+        />
+      )}
+
+      {idsParaCobrar && (
+        <GerarCobrancaModal
+          titleIds={idsParaCobrar}
+          onClose={() => setIdsParaCobrar(null)}
+          onDone={() => {
+            setSelectedIds([]);
+            void asaas.recarregar();
           }}
         />
       )}

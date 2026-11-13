@@ -14,6 +14,18 @@
   "functions": {
     "api/nfse.js": {
       "maxDuration": 60
+    },
+    "api/asaas.js": {
+      "maxDuration": 60
+    },
+    "api/asaas-cron.js": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/asaas-cron",
+      "schedule": "0 10 * * *"
+    }
+  ]
 }
