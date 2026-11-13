@@ -88,7 +88,7 @@ export const SCREEN_TITLES: Partial<Record<NavigationScreen, { title: string; gr
   CONCILIACAO: { title: 'Conciliação bancária', group: 'Financeiro' },
   DRE: { title: 'DRE gerencial', group: 'Gestão' },
   FLUXO_CAIXA: { title: 'Fluxo de caixa', group: 'Gestão' },
-  PLANEJAMENTO_ORCAMENTARIO: { title: 'Planejamento orçamentário', group: 'Gestão' },
+  PLANEJAMENTO_ORCAMENTARIO: { title: 'Orçamento: previsto x realizado', group: 'Gestão' },
   COMPARE_DRE_CAIXA: { title: 'Comparar DRE x caixa', group: 'Gestão' },
   RELATORIOS: { title: 'Relatórios gerenciais', group: 'Gestão' },
   IA: { title: 'Central de IA', group: 'Inteligência artificial' },
@@ -288,7 +288,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'DRE', label: 'DRE gerencial', icon: BarChart3, advanced: true },
         { id: 'FLUXO_CAIXA', label: 'Fluxo de caixa', icon: LineChart },
-        { id: 'PLANEJAMENTO_ORCAMENTARIO', label: 'Planejamento orçamentário', icon: Target, secondary: true, advanced: true },
+        { id: 'PLANEJAMENTO_ORCAMENTARIO', label: 'Orçamento (previsto x realizado)', icon: Target },
         { id: 'COMPARE_DRE_CAIXA', label: 'Comparar DRE x caixa', icon: Scale, secondary: true, advanced: true },
         { id: 'RELATORIOS', label: 'Relatórios gerenciais', icon: FileSpreadsheet }
       ]

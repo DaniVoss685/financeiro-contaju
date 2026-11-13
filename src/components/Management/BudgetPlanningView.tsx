@@ -42,6 +42,7 @@ import { BudgetVersionDetailsModal } from './BudgetVersionDetailsModal';
 import { BudgetDreCashProjectionTab } from './BudgetDreCashProjectionTab';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { PageToolbar, Button, TabPills } from '../Common/ui';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -60,7 +61,8 @@ export const BudgetPlanningView: React.FC = () => {
   const currentMonthIndex = new Date().getMonth(); // 0..11
 
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
-  const [activeTab, setActiveTab] = useState<'ANNUAL_12M' | 'COMPARISON' | 'PLANNING' | 'DRE_CASH_PROJECTION' | 'VERSIONS'>('PLANNING');
+  const simple = useIsSimpleMode();
+  const [activeTab, setActiveTab] = useState<'ANNUAL_12M' | 'COMPARISON' | 'PLANNING' | 'DRE_CASH_PROJECTION' | 'VERSIONS'>(simple ? 'ANNUAL_12M' : 'PLANNING');
   const [annualMetricMode, setAnnualMetricMode] = useState<AnnualMetricMode>('ORC_VS_REAL');
   const [selectedMonth, setSelectedMonth] = useState<number | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -764,11 +766,11 @@ export const BudgetPlanningView: React.FC = () => {
 
       <TabPills
         tabs={[
-          { id: 'PLANNING', label: 'Elaboração e simulação', count: changesList.length > 0 ? changesList.length : undefined },
-          { id: 'DRE_CASH_PROJECTION', label: 'DRE x caixa simulado' },
-          { id: 'ANNUAL_12M', label: 'Visão anual (orçado x realizado)' },
-          { id: 'COMPARISON', label: 'Acompanhamento e desvios' },
-          { id: 'VERSIONS', label: 'Histórico de versões', count: versionsList.length > 0 ? versionsList.length : undefined }
+          { id: 'PLANNING', label: simple ? 'Montar o orçamento' : 'Elaboração e simulação', count: changesList.length > 0 ? changesList.length : undefined },
+          ...(simple ? [] : [{ id: 'DRE_CASH_PROJECTION', label: 'DRE x caixa simulado' }]),
+          { id: 'ANNUAL_12M', label: simple ? 'Previsto x realizado (ano)' : 'Visão anual (orçado x realizado)' },
+          { id: 'COMPARISON', label: simple ? 'Acompanhamento do mês' : 'Acompanhamento e desvios' },
+          ...(simple ? [] : [{ id: 'VERSIONS', label: 'Histórico de versões', count: versionsList.length > 0 ? versionsList.length : undefined }])
         ]}
         value={activeTab}
         onChange={id => setActiveTab(id as any)}
