@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { defineConfig, loadEnv, Plugin } from 'vite';
 
 function devApiServerlessPlugin(): Plugin {
@@ -112,7 +113,8 @@ function devApiServerlessPlugin(): Plugin {
             const consulta: Record<string, string> = {};
             url.searchParams.forEach((v, k) => { consulta[k] = v; });
             (req as any).query = consulta;
-            const mod = await import(/* @vite-ignore */ rotaServidor[url.pathname]);
+            // Caminho absoluto: o arquivo de configuração é compilado numa pasta temporária, então um caminho relativo não acharia a rota
+            const mod = await import(/* @vite-ignore */ pathToFileURL(path.resolve(process.cwd(), rotaServidor[url.pathname])).href);
             return await mod.default(req, res);
           } catch (err: any) {
             res.statusCode = 500;
