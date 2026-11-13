@@ -169,6 +169,14 @@ export const PreviaRoboModal: React.FC<{ onClose: () => void }> = ({ onClose }) 
             Honorários de contratos com boleto ou Pix que vencem até <strong>{formatDateBR(previa.ate)}</strong> e ainda não têm cobrança:{' '}
             <strong>{previa.total}</strong>. Na próxima execução o robô gera {previa.cabeNaProximaExecucao}.
           </p>
+          {(previa.duplicados ?? 0) > 0 && (
+            <Aviso tipo="aviso">
+              <strong>{previa.duplicados} título(s) duplicados não serão cobrados.</strong> São títulos idênticos (mesmo cliente, competência, vencimento e valor), provavelmente de importação repetida. Cobrar todos mandaria 2 ou 3 boletos do mesmo honorário. Use a "Limpeza de duplicidades" em Contas a receber (botão com três pontinhos) e a prévia se atualiza.
+              {previa.amostraDuplicados && previa.amostraDuplicados.length > 0 && (
+                <span className="block mt-1.5 text-xs opacity-90">Exemplos: {[...new Set(previa.amostraDuplicados.map(d => d.cliente || d.titulo))].join('; ')}</span>
+              )}
+            </Aviso>
+          )}
           {previa.itens.length > 0 && (
             <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
               <table className="w-full text-sm">

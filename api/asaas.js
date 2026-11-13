@@ -14,9 +14,10 @@
 // ==============================================================================
 import { createHash, randomBytes } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { PDFDocument } from 'pdf-lib';
 import { asaas, baseDoAmbiente, GatewayError, hojeBrasil, somarDias } from './_asaas/gateway.js';
 import {
-  ApiError, abrirContexto, carregarConfig, cifrarChave, COLUNAS_TITULO,
+  ApiError, abrirContexto, agruparDuplicados, carregarConfig, chaveDuplicidade, cifrarChave, COLUNAS_TITULO, MOTIVO_DUPLICADO,
   gerarLote, rodarRobo, segredoDeCifra, selecionarParaRobo, sincronizarAbertas
 } from './_asaas/servico.js';
 
@@ -169,8 +170,11 @@ async function acaoTestar({ admin, env, ctx, orgId }) {
   return { ok: true, ambiente: cx.config.ambiente };
 }
 
-async function acaoAtivarAvisos({ admin, env, ctx, orgId, req }) {
+async function acaoAtivarAvisos({ admin, env, ctx, orgId, req, body }) {
   await exigirGestor(admin, ctx, orgId);
+  // O Asaas exige um e-mail para avisar se o aviso automático falhar. Só usamos o que a pessoa digitou aqui.
+  const email = String(body.email || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) throw new ApiError(422, 'Informe um e-mail válido. O Asaas avisa nele caso os avisos automáticos parem de funcionar.', 'EMAIL_OBRIGATORIO');
   const cx = await abrirContexto(admin, orgId, env.segredo);
   const url = linkWebhook(req, orgId);
   if (!url || /localhost|127\.0\.0\.1/.test(url)) {
@@ -180,7 +184,7 @@ async function acaoAtivarAvisos({ admin, env, ctx, orgId, req }) {
   try {
     await asaas(cx, '/webhooks', {
       method: 'POST',
-      body: JSON.stringify({ name: 'Financeiro Contaju', url, enabled: true, interrupted: false, apiVersion: 3, authToken: token, sendType: 'SEQUENTIALLY', events: EVENTOS_WEBHOOK })
+      body: JSON.stringify({ name: 'Financeiro Contaju', url, email, enabled: true, interrupted: false, apiVersion: 3, authToken: token, sendType: 'SEQUENTIALLY', events: EVENTOS_WEBHOOK })
     });
   } catch (e) {
     if (e instanceof GatewayError && e.recusado) {
@@ -201,7 +205,9 @@ async function acaoPrevia({ admin, env, orgId }) {
   return {
     ate: sel.ate, total: sel.cobrar.length, cabeNaProximaExecucao: cabe,
     itens: sel.cobrar.slice(0, 100).map(i => ({ titleId: i.titulo.id, titulo: i.titulo.title_number, descricao: i.titulo.description, cliente: i.parte.name, vencimento: i.titulo.due_date, valor: Number(i.titulo.balance_principal), forma: i.forma })),
-    pulados: sel.pulados.slice(0, 100)
+    duplicados: sel.pulados.filter(p => p.duplicado).length,
+    pulados: sel.pulados.filter(p => !p.duplicado).slice(0, 100),
+    amostraDuplicados: sel.pulados.filter(p => p.duplicado).slice(0, 8)
   };
 }
 
@@ -220,6 +226,15 @@ async function acaoGerar({ admin, env, ctx, orgId, body }) {
   const { data: partes } = partesIds.length ? await admin.from('contaju_counterparties').select('id, name, document, email, phone').eq('org_id', orgId).in('id', partesIds) : { data: [] };
   const porParte = new Map((partes || []).map(p => [p.id, p]));
 
+  // Títulos idênticos (duplicados de importação) não são cobrados: procura os "gêmeos" de cada título escolhido
+  const datas = [...new Set((titulos || []).map(t => t.due_date))];
+  const { data: parentes } = partesIds.length && datas.length
+    ? await admin.from('contaju_financial_titles').select(COLUNAS_TITULO)
+        .eq('org_id', orgId).eq('type', 'RECEBER').eq('document_state', 'CONFIRMADO').in('settlement_state', ['ABERTO', 'PARCIAL'])
+        .in('counterparty_id', partesIds).in('due_date', datas).limit(1000)
+    : { data: [] };
+  const grupos = agruparDuplicados(parentes || []);
+
   const forcada = body.forma === 'PIX' ? 'PIX' : body.forma === 'BOLETO' ? 'BOLETO' : null;
   const itens = [];
   const pulados = [];
@@ -232,6 +247,10 @@ async function acaoGerar({ admin, env, ctx, orgId, body }) {
     }
     const parte = porParte.get(t.counterparty_id);
     if (!parte) { pulados.push({ titleId: id, titulo: t.title_number, motivo: 'Título sem cliente.' }); continue; }
+    if ((grupos.get(chaveDuplicidade(t)) || []).length > 1) {
+      pulados.push({ titleId: id, titulo: t.title_number, cliente: parte.name, motivo: MOTIVO_DUPLICADO });
+      continue;
+    }
     const f = forcada || (formaContrato.get(t.contract_id) === 'PIX' ? 'PIX' : 'BOLETO');
     // Título já vencido: a cobrança sai com um novo vencimento (o Asaas não aceita data no passado)
     const venc = t.due_date >= hoje ? t.due_date : (/^\d{4}-\d{2}-\d{2}$/.test(String(body.vencimento || '')) && body.vencimento >= hoje ? body.vencimento : somarDias(hoje, 3));
@@ -264,6 +283,61 @@ async function acaoDetalhes({ admin, env, orgId, body }) {
   return { pix, linhaDigitavel: linha, linkFatura: c.invoice_url, linkBoleto: c.bank_slip_url };
 }
 
+// Junta os PDFs dos boletos em um arquivo só, para imprimir de uma vez. Só baixa de endereços do próprio Asaas.
+const HOST_ASAAS = /^([a-z0-9-]+\.)*asaas\.com$/i;
+async function acaoBoletosPdf({ admin, orgId, body }) {
+  const ids = [...new Set((Array.isArray(body.chargeIds) ? body.chargeIds : []).map(String))].slice(0, 30);
+  if (!ids.length) throw new ApiError(422, 'Escolha pelo menos um boleto.');
+  const { data: cobrancas, error } = await admin.from('contaju_asaas_charges')
+    .select('id, billing_type, status, bank_slip_url, due_date').eq('org_id', orgId).in('id', ids);
+  if (error) throw new ApiError(500, 'Não foi possível ler as cobranças.');
+  const falhas = [];
+  const prontos = [];
+  for (const id of ids) {
+    const c = (cobrancas || []).find(x => x.id === id);
+    if (!c) { falhas.push({ id, motivo: 'Cobrança não encontrada.' }); continue; }
+    if (c.billing_type === 'PIX' || !c.bank_slip_url) { falhas.push({ id, motivo: 'Esta cobrança não tem boleto em PDF.' }); continue; }
+    if (!['PENDING', 'OVERDUE'].includes(c.status)) { falhas.push({ id, motivo: 'Boleto já pago ou cancelado.' }); continue; }
+    let u;
+    try { u = new URL(c.bank_slip_url); } catch { u = null; }
+    const dosTestes = Boolean(process.env.ASAAS_API_URL_OVERRIDE) && u && u.origin === new URL(process.env.ASAAS_API_URL_OVERRIDE).origin; // só nos testes automatizados
+    if (!u || (!dosTestes && (u.protocol !== 'https:' || !HOST_ASAAS.test(u.hostname)))) { falhas.push({ id, motivo: 'Endereço do boleto não reconhecido.' }); continue; }
+    prontos.push({ id, url: u.href, vencimento: c.due_date });
+  }
+  prontos.sort((a, b) => a.vencimento.localeCompare(b.vencimento));
+  const baixados = new Map();
+  const fila = prontos.slice();
+  const trabalhar = async () => {
+    while (fila.length) {
+      const it = fila.shift();
+      try {
+        const r = await fetch(it.url, { signal: AbortSignal.timeout(15_000), redirect: 'follow' });
+        const bytes = new Uint8Array(await r.arrayBuffer());
+        if (!r.ok || bytes.length < 100 || String.fromCharCode(...bytes.slice(0, 4)) !== '%PDF') throw new Error('não é PDF');
+        baixados.set(it.id, bytes);
+      } catch {
+        falhas.push({ id: it.id, motivo: 'Não foi possível baixar o PDF deste boleto agora.' });
+      }
+    }
+  };
+  await Promise.all([trabalhar(), trabalhar(), trabalhar(), trabalhar()]);
+  const saida = await PDFDocument.create();
+  let incluidos = 0;
+  for (const it of prontos) {
+    const bytes = baixados.get(it.id);
+    if (!bytes) continue;
+    try {
+      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+      for (const pag of await saida.copyPages(doc, doc.getPageIndices())) saida.addPage(pag);
+      incluidos++;
+    } catch {
+      falhas.push({ id: it.id, motivo: 'O PDF deste boleto veio com defeito.' });
+    }
+  }
+  if (!incluidos) throw new ApiError(502, 'Não foi possível baixar nenhum boleto agora. Tente de novo em instantes.');
+  return { pdf: Buffer.from(await saida.save()).toString('base64'), paginas: saida.getPageCount(), incluidos, falhas };
+}
+
 async function acaoCancelar({ admin, env, ctx, orgId, body }) {
   await exigirGestor(admin, ctx, orgId);
   const cx = await abrirContexto(admin, orgId, env.segredo, { exigirAtivo: false });
@@ -292,7 +366,7 @@ async function acaoRodarAgora({ admin, env, ctx, orgId }) {
 
 const ACOES = {
   status: acaoStatus, salvar_config: acaoSalvarConfig, testar: acaoTestar, ativar_avisos: acaoAtivarAvisos, previa: acaoPrevia,
-  gerar: acaoGerar, detalhes: acaoDetalhes, cancelar: acaoCancelar, sincronizar: acaoSincronizar, rodar_agora: acaoRodarAgora
+  gerar: acaoGerar, boletos_pdf: acaoBoletosPdf, detalhes: acaoDetalhes, cancelar: acaoCancelar, sincronizar: acaoSincronizar, rodar_agora: acaoRodarAgora
 };
 
 export default async function handler(req, res) {

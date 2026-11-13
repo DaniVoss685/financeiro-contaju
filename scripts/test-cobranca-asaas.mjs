@@ -3,6 +3,9 @@
 import http from 'node:http';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { PDFDocument } from 'pdf-lib';
+
+const umPdf = async texto => { const d = await PDFDocument.create(); d.addPage([300, 200]).drawText(texto); return Buffer.from(await d.save()); };
 
 // ------------------------------------------------------------------ Asaas de mentira
 const chamadas = [];
@@ -17,6 +20,10 @@ const mock = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://x');
     chamadas.push({ metodo: req.method, caminho: url.pathname, consulta: url.search, chave: req.headers.access_token, corpo: json });
     const r = (s, d) => { res.writeHead(s, { 'content-type': 'application/json' }); res.end(JSON.stringify(d)); };
+    if (url.pathname.startsWith('/pdf/')) {
+      if (url.pathname === '/pdf/quebrado') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('<html>nao e pdf</html>'); }
+      return umPdf(url.pathname).then(b => { res.writeHead(200, { 'content-type': 'application/pdf' }); res.end(b); });
+    }
     if (modoForaDoAr) return r(500, { errors: [{ description: 'indisponível' }] });
     if (url.pathname === '/finance/balance') return req.headers.access_token === 'chave-ruim-0000000000000' ? r(401, { errors: [{ description: 'invalid_access_token' }] }) : r(200, { balance: 10 });
     if (url.pathname === '/customers' && req.method === 'GET') {
@@ -283,6 +290,40 @@ await teste('Asaas fora do ar: o robô para, registra o erro e não cria cobran�
   assert.equal(db.tabelas.contaju_asaas_charges.length, 0);
 });
 
+console.log('Duplicidade (títulos idênticos de importação)');
+const comGemeos = () => cenario({
+  contaju_financial_titles: [titulo('a1', 3, { description: 'Mensalidade Comp. 10/2026' }), titulo('a2', 3, { description: 'Mensalidade Comp. 10/2026' }), titulo('a3', 3, { description: 'Mensalidade Comp. 10/2026' }), titulo('b', 4, { contract_id: 'ct3', description: 'Outro honorário' }), titulo('c1', 5, { contract_id: 'ct3', balance_principal: 700, description: 'Mensalidade Comp. 10/2026' }), titulo('c2', 5, { contract_id: 'ct3', balance_principal: 750, description: 'Mensalidade Comp. 10/2026' })]
+});
+await teste('robô: grupo de títulos idênticos NÃO é cobrado (nem 1, nem 3); os diferentes seguem normalmente', async () => {
+  const cx = await sv.abrirContexto(comGemeos(), ORG, segredo);
+  const sel = await sv.selecionarParaRobo(cx, { hoje });
+  assert.deepEqual(sel.cobrar.map(i => i.titulo.id).sort(), ['b', 'c1', 'c2']); // valor diferente = não é duplicado
+  assert.equal(sel.pulados.filter(p => p.duplicado).length, 3);
+  assert.match(sel.pulados[0].motivo, /duplicados/);
+});
+await teste('robô de ponta a ponta: com 3 títulos iguais não gera nenhum boleto deles', async () => {
+  chamadas.length = 0; pagamentos.clear();
+  const db = comGemeos();
+  const r = await sv.rodarRobo(db, ORG, segredo);
+  assert.equal(r.gerados, 3);
+  assert.equal(db.tabelas.contaju_asaas_charges.some(c => c.title_id.startsWith('a')), false);
+  assert.equal(r.pulados, 3);
+});
+await teste('gerar manual: título que tem gêmeos é recusado com motivo claro; o diferente é gerado', async () => {
+  chamadas.length = 0; pagamentos.clear();
+  const db = comGemeos();
+  const r = await ACOES.gerar({ admin: db, env: envSrv, ctx: dono, orgId: ORG, body: { titleIds: ['a1', 'b'] } });
+  assert.deepEqual(r.gerados.map(g => g.titleId), ['b']);
+  assert.equal(r.pulados.length, 1);
+  assert.match(r.pulados[0].motivo, /duplicados/);
+});
+await teste('prévia separa duplicados dos demais e conta quantos são', async () => {
+  const p = await ACOES.previa({ admin: comGemeos(), env: envSrv, orgId: ORG });
+  assert.equal(p.duplicados, 3);
+  assert.equal(p.total, 3);
+  assert.equal(p.pulados.length, 0);
+});
+
 console.log('Ações da tela');
 await teste('gerar manual: título vencido sai com novo vencimento (hoje + 3) e a forma escolhida', async () => {
   chamadas.length = 0; pagamentos.clear();
@@ -331,6 +372,40 @@ await teste('sincronizar: pega o que o Asaas já sabe (pago, vencido) e manda pa
   const eventos = db.rpcs.filter(x => x.nome === 'contaju_asaas_apply_event').map(x => x.args.event_in.event).sort();
   assert.deepEqual(eventos, ['PAYMENT_OVERDUE', 'PAYMENT_RECEIVED']);
   assert.ok(db.tabelas.contaju_asaas_charges.every(c => c.synced_at));
+});
+
+console.log('Imprimir boletos (PDF único)');
+const urlPdf = n => `${process.env.ASAAS_API_URL_OVERRIDE}/pdf/${n}`;
+await teste('junta os boletos em um PDF só, só os em aberto com PDF', async () => {
+  const db = cenario({ contaju_asaas_charges: [
+    { id: 'c3', org_id: ORG, status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: urlPdf('terceiro'), due_date: '2026-12-20' },
+    { id: 'c1', org_id: ORG, status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: urlPdf('primeiro'), due_date: '2026-12-01' },
+    { id: 'c2', org_id: ORG, status: 'OVERDUE', billing_type: 'BOLETO', bank_slip_url: urlPdf('segundo'), due_date: '2026-12-10' },
+    { id: 'cp', org_id: ORG, status: 'PENDING', billing_type: 'PIX', bank_slip_url: null, due_date: '2026-12-02' },
+    { id: 'cr', org_id: ORG, status: 'RECEIVED', billing_type: 'BOLETO', bank_slip_url: urlPdf('pago'), due_date: '2026-11-01' },
+    { id: 'cq', org_id: ORG, status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: urlPdf('quebrado'), due_date: '2026-12-03' }
+  ] });
+  const r = await ACOES.boletos_pdf({ admin: db, orgId: ORG, body: { chargeIds: ['c3', 'c1', 'c2', 'cp', 'cr', 'cq', 'nao-existe'] } });
+  assert.equal(r.incluidos, 3);
+  assert.equal(r.paginas, 3);
+  assert.equal(r.falhas.length, 4); // pix, pago, html no lugar do pdf, inexistente
+  const doc = await PDFDocument.load(Buffer.from(r.pdf, 'base64'));
+  assert.equal(doc.getPageCount(), 3);
+});
+await teste('só baixa PDF de endereço do próprio Asaas (nada de endereços de fora)', async () => {
+  const db = cenario({ contaju_asaas_charges: [
+    { id: 'x1', org_id: ORG, status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: 'https://site-malicioso.example.com/boleto.pdf', due_date: '2026-12-01' },
+    { id: 'x2', org_id: ORG, status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: 'http://sandbox.asaas.com/b/pdf/1', due_date: '2026-12-01' },
+    { id: 'x3', org_id: ORG, status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: 'https://asaas.com.evil.example/b.pdf', due_date: '2026-12-01' }
+  ] });
+  chamadas.length = 0;
+  await rejeita(ACOES.boletos_pdf({ admin: db, orgId: ORG, body: { chargeIds: ['x1', 'x2', 'x3'] } }), /nenhum boleto/);
+  assert.equal(chamadas.length, 0);
+  await rejeita(ACOES.boletos_pdf({ admin: db, orgId: ORG, body: { chargeIds: [] } }), /pelo menos um/);
+});
+await teste('boleto de outra empresa não entra no PDF', async () => {
+  const db = cenario({ contaju_asaas_charges: [{ id: 'o1', org_id: '99999999-9999-4999-8999-999999999999', status: 'PENDING', billing_type: 'BOLETO', bank_slip_url: urlPdf('alheio'), due_date: '2026-12-01' }] });
+  await rejeita(ACOES.boletos_pdf({ admin: db, orgId: ORG, body: { chargeIds: ['o1'] } }), /nenhum boleto/);
 });
 
 console.log('Configuração');
@@ -385,18 +460,22 @@ await teste('status nunca devolve chave nem o segredo do webhook', async () => {
   assert.equal(s.temChave, true);
   assert.equal(s.webhookUrl, `https://financeiro.exemplo.com/api/asaas-webhook?org=${ORG}`);
 });
-await teste('ativar avisos: cria no Asaas com token novo e guarda só o hash; local/sem endereço público é recusado', async () => {
+await teste('ativar avisos: exige e-mail válido (o Asaas exige); cria com token novo e guarda só o hash; sem endereço público é recusado', async () => {
   chamadas.length = 0;
   const db = cenario();
-  const r = await ACOES.ativar_avisos({ admin: db, env: envSrv, ctx: dono, orgId: ORG, req });
+  await rejeita(ACOES.ativar_avisos({ admin: db, env: envSrv, ctx: dono, orgId: ORG, req, body: {} }), /e-mail válido/);
+  await rejeita(ACOES.ativar_avisos({ admin: db, env: envSrv, ctx: dono, orgId: ORG, req, body: { email: 'sem-arroba' } }), /e-mail válido/);
+  assert.equal(chamadas.filter(c => c.caminho === '/webhooks').length, 0);
+  const r = await ACOES.ativar_avisos({ admin: db, env: envSrv, ctx: dono, orgId: ORG, req, body: { email: 'responsavel@empresa.com' } });
   assert.equal(r.ok, true);
   const wh = chamadas.find(c => c.caminho === '/webhooks').corpo;
   assert.equal(wh.url, `https://financeiro.exemplo.com/api/asaas-webhook?org=${ORG}`);
+  assert.equal(wh.email, 'responsavel@empresa.com');
   assert.ok(wh.authToken.length >= 32);
   assert.ok(wh.events.includes('PAYMENT_RECEIVED'));
   assert.equal(db.tabelas.contaju_asaas_config[0].webhook_token_hash, createHash('sha256').update(wh.authToken).digest('hex'));
   assert.ok(!JSON.stringify(r).includes(wh.authToken));
-  await rejeita(ACOES.ativar_avisos({ admin: db, env: envSrv, ctx: dono, orgId: ORG, req: { headers: {} } }), /endereço público/);
+  await rejeita(ACOES.ativar_avisos({ admin: db, env: envSrv, ctx: dono, orgId: ORG, req: { headers: {} }, body: { email: 'responsavel@empresa.com' } }), /endereço público/);
 });
 
 console.log('Webhook (banco simulado por HTTP)');

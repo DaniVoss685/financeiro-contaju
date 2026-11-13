@@ -164,6 +164,25 @@ async function lerPorIds(admin, tabela, colunas, orgId, ids, campo = 'id') {
   return saida;
 }
 
+/**
+ * Títulos idênticos (mesmo cliente, contrato, competência, vencimento, valor e descrição) são duplicados de importação:
+ * cobrar todos mandaria 2 ou 3 boletos do mesmo honorário. Eles NÃO são cobrados até alguém limpar a duplicidade.
+ */
+export const chaveDuplicidade = t =>
+  [t.counterparty_id, t.contract_id || '', t.competence || '', t.due_date, Number(t.balance_principal).toFixed(2), String(t.description || '').trim().toLowerCase()].join('|');
+
+export function agruparDuplicados(titulos) {
+  const grupos = new Map();
+  for (const t of titulos) {
+    const k = chaveDuplicidade(t);
+    if (!grupos.has(k)) grupos.set(k, []);
+    grupos.get(k).push(t);
+  }
+  return grupos;
+}
+
+export const MOTIVO_DUPLICADO = 'Há títulos idênticos para este cliente (duplicados). Use a Limpeza de duplicidades em Contas a receber antes de cobrar.';
+
 /** Títulos que o robô cobraria agora (e os que ele pula, com o motivo). */
 export async function selecionarParaRobo(cx, { hoje = hojeBrasil() } = {}) {
   const ate = somarDias(hoje, cx.config.antecedencia_dias);
@@ -185,8 +204,19 @@ export async function selecionarParaRobo(cx, { hoje = hojeBrasil() } = {}) {
 
   const cobrar = [];
   const pulados = [];
+  const grupos = agruparDuplicados(lista);
   for (const t of lista) {
     if (comCobranca.has(t.id)) continue;
+    const irmaos = grupos.get(chaveDuplicidade(t)) || [];
+    if (irmaos.length > 1) {
+      // só aponta quando o honorário seria cobrado (contrato com boleto/Pix); o resto nem entra na conta
+      const f0 = forma.get(t.contract_id);
+      if (f0 === 'BOLETO' || f0 === 'PIX') {
+        const p0 = porParte.get(t.counterparty_id);
+        pulados.push({ titleId: t.id, titulo: t.title_number, cliente: p0 ? p0.name : '(sem cliente)', motivo: MOTIVO_DUPLICADO, duplicado: true });
+      }
+      continue;
+    }
     const f = forma.get(t.contract_id);
     if (f !== 'BOLETO' && f !== 'PIX') continue; // só honorário de contrato com boleto ou Pix
     const parte = porParte.get(t.counterparty_id);

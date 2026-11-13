@@ -107,6 +107,8 @@ export interface AsaasPrevia {
   cabeNaProximaExecucao: number;
   itens: { titleId: string; titulo: string; descricao: string; cliente: string; vencimento: string; valor: number; forma: 'BOLETO' | 'PIX' }[];
   pulados: { titleId: string; titulo?: string; cliente?: string; motivo: string }[];
+  duplicados?: number;
+  amostraDuplicados?: { titleId: string; titulo?: string; cliente?: string; motivo: string }[];
 }
 
 export interface AsaasGerarResultado {
@@ -177,10 +179,11 @@ export const asaasApi = {
   status: () => chamar<AsaasStatusInfo>('status'),
   salvarConfig: (config: Partial<AsaasConfigInput>) => chamar<{ ok: true }>('salvar_config', { config }),
   testar: () => chamar<{ ok: true; ambiente: AsaasAmbiente }>('testar'),
-  ativarAvisos: () => chamar<{ ok: boolean; manual?: boolean; url?: string; token?: string; motivo?: string }>('ativar_avisos'),
+  ativarAvisos: (email: string) => chamar<{ ok: boolean; manual?: boolean; url?: string; token?: string; motivo?: string }>('ativar_avisos', { email }),
   previa: () => chamar<AsaasPrevia>('previa'),
   gerar: (titleIds: string[], extra: { forma?: 'BOLETO' | 'PIX'; vencimento?: string } = {}) => chamar<AsaasGerarResultado>('gerar', { titleIds, ...extra }),
   detalhes: (chargeId: string) => chamar<AsaasDetalhes>('detalhes', { chargeId }),
+  boletosPdf: (chargeIds: string[]) => chamar<{ pdf: string; paginas: number; incluidos: number; falhas: { id: string; motivo: string }[] }>('boletos_pdf', { chargeIds }),
   cancelar: (chargeId: string) => chamar<{ ok: true }>('cancelar', { chargeId }),
   sincronizar: () => chamar<{ verificadas: number; atualizadas: number }>('sincronizar'),
   rodarAgora: () => chamar<NonNullable<AsaasConfig['ultimo_resumo_robo']>>('rodar_agora')

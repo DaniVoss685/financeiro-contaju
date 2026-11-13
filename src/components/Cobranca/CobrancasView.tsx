@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, Bot, CheckCircle2, Clock, Eye, Loader2, PlugZap, RefreshCw, Search, Settings2, WalletCards } from 'lucide-react';
+import { AlertTriangle, Bot, CheckCircle2, Clock, Eye, Loader2, PlugZap, Printer, RefreshCw, Search, Settings2, WalletCards } from 'lucide-react';
 import { Badge, Button, Card, IconTile, StatTile } from '../Common/ui';
 import { Aviso, ResultadoModal } from '../Fiscal/nfseUi';
 import { storage } from '../../services/storageService';
@@ -33,6 +33,7 @@ export const CobrancasView: React.FC = () => {
   const [detalhe, setDetalhe] = useState<AsaasCharge | null>(null);
   const [resultado, setResultado] = useState<{ tipo: 'sucesso' | 'erro'; titulo: string; texto: string } | null>(null);
   const [rodando, setRodando] = useState(false);
+  const [imprimindo, setImprimindo] = useState(false);
 
   const carregar = useCallback(async () => {
     try {
@@ -108,6 +109,44 @@ export const CobrancasView: React.FC = () => {
     }),
     [cobrancas, receitas]
   );
+
+  // Boletos (em aberto, com PDF) do filtro atual: viram um arquivo só para imprimir
+  const imprimiveis = useMemo(
+    () => lista.filter(c => c.billing_type !== 'PIX' && ['PENDING', 'OVERDUE'].includes(c.status) && c.bank_slip_url).sort((a, b) => a.due_date.localeCompare(b.due_date)),
+    [lista]
+  );
+  const imprimir = async () => {
+    setImprimindo(true);
+    try {
+      const partes: string[][] = [];
+      for (let i = 0; i < imprimiveis.length; i += 30) partes.push(imprimiveis.slice(i, i + 30).map(c => c.id));
+      let boletos = 0;
+      let falhas = 0;
+      for (let i = 0; i < partes.length; i++) {
+        const r = await asaasApi.boletosPdf(partes[i]);
+        boletos += r.incluidos;
+        falhas += r.falhas.length;
+        const bytes = Uint8Array.from(atob(r.pdf), ch => ch.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = partes.length > 1 ? `Boletos - parte ${i + 1} de ${partes.length}.pdf` : 'Boletos.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      }
+      setResultado({
+        tipo: falhas && !boletos ? 'erro' : 'sucesso',
+        titulo: 'Boletos prontos para imprimir',
+        texto: `${boletos} boleto(s) em ${partes.length} arquivo(s) PDF, na ordem do vencimento. Abra o arquivo baixado e imprima.${falhas ? ` ${falhas} boleto(s) não puderam ser incluídos; tente de novo mais tarde.` : ''}`
+      });
+    } catch (e: any) {
+      setResultado({ tipo: 'erro', titulo: 'Não foi possível gerar o PDF', texto: e?.message || 'Tente de novo em instantes.' });
+    } finally {
+      setImprimindo(false);
+    }
+  };
 
   const rodarRobo = async () => {
     setRodando(true);
@@ -328,9 +367,14 @@ export const CobrancasView: React.FC = () => {
               </button>
             ))}
           </div>
+          <div className="flex flex-col sm:flex-row gap-3 lg:items-center w-full lg:w-auto">
+          <Button onClick={() => void imprimir()} disabled={imprimindo || imprimiveis.length === 0} title="Junta os boletos desta lista em um PDF só, na ordem do vencimento" icon={imprimindo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}>
+            Imprimir boletos ({imprimiveis.length})
+          </Button>
           <div className="relative w-full lg:w-72">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <input className="w-full h-10 pl-10 pr-3 rounded-xl border border-[var(--border-highlight)] bg-[var(--surface-input)] text-sm focus:outline-hidden focus:border-[var(--brand-gold-fill)]" placeholder="Buscar cliente ou título" value={busca} onChange={e => setBusca(e.target.value)} />
+          </div>
           </div>
         </div>
         {lista.length === 0 ? (

@@ -55,6 +55,7 @@ export const AsaasConfigModal: React.FC<Props> = ({ status, onClose, onSaved }) 
   const [testando, setTestando] = useState(false);
   const [teste, setTeste] = useState<{ ok: boolean; texto: string } | null>(null);
   const [avisos, setAvisos] = useState<{ carregando: boolean; manual?: { url: string; token: string; motivo?: string }; ok?: boolean; erro?: string }>({ carregando: false });
+  const [emailAvisos, setEmailAvisos] = useState('');
   const [resultado, setResultado] = useState(false);
   const [copiado, setCopiado] = useState('');
 
@@ -101,7 +102,7 @@ export const AsaasConfigModal: React.FC<Props> = ({ status, onClose, onSaved }) 
   const ativarAvisos = async () => {
     setAvisos({ carregando: true });
     try {
-      const r = await asaasApi.ativarAvisos();
+      const r = await asaasApi.ativarAvisos(emailAvisos.trim());
       if (r.ok) setAvisos({ carregando: false, ok: true });
       else setAvisos({ carregando: false, manual: { url: r.url || '', token: r.token || '', motivo: r.motivo } });
       onSaved();
@@ -184,18 +185,18 @@ export const AsaasConfigModal: React.FC<Props> = ({ status, onClose, onSaved }) 
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Cobrança automática dos honorários</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Gerar os boletos sozinho</h3>
             <Interruptor
               ligado={f.roboAtivo}
               onChange={v => set('roboAtivo', v)}
-              titulo="Robô diário"
-              texto="Todo dia, gera o boleto ou Pix (conforme o contrato) dos honorários que estão perto de vencer e ainda não têm cobrança."
+              titulo="Gerar boleto ou Pix automaticamente, todo dia de manhã"
+              texto="Desligado, nada é gerado sozinho: você gera pela tela Contas a receber (selecione e clique em Gerar boleto / Pix). Ligado, o sistema gera os honorários que vencem dentro do prazo abaixo e ainda não têm cobrança."
             />
             <div className="grid sm:grid-cols-2 gap-4">
-              <Campo label="Gerar quantos dias antes do vencimento" hint="De 1 a 60 dias.">
+              <Campo label="Gerar quantos dias antes do vencimento" hint="De 1 a 60 dias. Para ter os boletos do mês todo prontos na virada do mês (para imprimir), use 30.">
                 <input className={CAMPO} inputMode="numeric" value={f.antecedenciaDias} onChange={e => set('antecedenciaDias', Number(e.target.value.replace(/\D/g, '')) || 0)} />
               </Campo>
-              <Campo label="Máximo de cobranças por dia" hint="O que passar disso fica para o dia seguinte.">
+              <Campo label="Máximo de boletos gerados por dia" hint="De 1 a 200. O que passar disso fica para o dia seguinte. Com muitos clientes, use 150.">
                 <input className={CAMPO} inputMode="numeric" value={f.limitePorExecucao} onChange={e => set('limitePorExecucao', Number(e.target.value.replace(/\D/g, '')) || 0)} />
               </Campo>
               <Campo label="Multa por atraso (%)" hint="Opcional. Cobrada pelo Asaas se o cliente pagar depois do vencimento.">
@@ -231,16 +232,19 @@ export const AsaasConfigModal: React.FC<Props> = ({ status, onClose, onSaved }) 
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ligar a conexão</h3>
-            <Interruptor ligado={f.ativo} onChange={v => set('ativo', v)} titulo="Conexão com o Asaas ligada" texto="Desligada, nada é gerado nem baixado. Os dados já criados continuam guardados." />
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Usar o Asaas no sistema</h3>
+            <Interruptor ligado={f.ativo} onChange={v => set('ativo', v)} titulo="Asaas ligado" texto="É o interruptor geral. Ligado: dá para gerar boleto/Pix e o sistema dá baixa nos pagamentos que o Asaas recebe. Desligado: o sistema para de gerar e de dar baixa (nada que já foi criado se perde). Precisa ficar ligado para funcionar." />
           </section>
 
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-[var(--text-primary)]">Avisos automáticos de pagamento</h3>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              O Asaas avisa o sistema assim que um cliente paga, para dar a baixa na hora. {status.config?.webhook_ativado_em ? 'Já está ativado.' : 'Salve a configuração, depois ative aqui.'}
+              O Asaas avisa o sistema assim que um cliente paga, e o sistema dá a baixa. {status.config?.webhook_ativado_em ? 'Já está ativado.' : 'Salve a configuração com o Asaas ligado, depois ative aqui.'}
             </p>
-            <Button onClick={() => void ativarAvisos()} disabled={avisos.carregando || !status.config?.ativo} icon={avisos.carregando ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}>
+            <Campo label="Seu e-mail" hint="O Asaas exige um e-mail para avisar se os avisos automáticos pararem de funcionar. Ele só é usado para isso e não fica guardado aqui.">
+              <input className={CAMPO} type="email" autoComplete="off" value={emailAvisos} onChange={e => setEmailAvisos(e.target.value)} />
+            </Campo>
+            <Button onClick={() => void ativarAvisos()} disabled={avisos.carregando || !status.config?.ativo || !emailAvisos.includes('@')} icon={avisos.carregando ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}>
               {status.config?.webhook_ativado_em ? 'Ativar de novo (novo segredo)' : 'Ativar avisos automáticos'}
             </Button>
             {avisos.ok && <Aviso tipo="info">Avisos ativados no Asaas.</Aviso>}
