@@ -62,6 +62,13 @@ export const BudgetPlanningView: React.FC = () => {
 
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const simple = useIsSimpleMode();
+  const [fullView, setFullView] = useState(false);
+  useEffect(() => {
+    if (!fullView) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setFullView(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fullView]);
   const [activeTab, setActiveTab] = useState<'ANNUAL_12M' | 'COMPARISON' | 'PLANNING' | 'DRE_CASH_PROJECTION' | 'VERSIONS'>(simple ? 'ANNUAL_12M' : 'PLANNING');
   const [annualMetricMode, setAnnualMetricMode] = useState<AnnualMetricMode>('ORC_VS_REAL');
   const [selectedMonth, setSelectedMonth] = useState<number | 'ALL'>('ALL');
@@ -734,7 +741,7 @@ export const BudgetPlanningView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12 w-full text-[var(--text-primary)]">
+    <div className={`${fullView ? 'fixed inset-0 z-[60] overflow-auto bg-[var(--bg-app)] p-4 sm:p-8 ' : 'pb-12 '}space-y-6 w-full text-[var(--text-primary)]`}>
       {/* Toast Notification */}
       {saveSuccessMessage && (
         <div className="fixed top-4 right-4 z-50 bg-amber-500 text-[#18181b] px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 border border-amber-400 font-semibold animate-in fade-in slide-in-from-top-2">
@@ -749,6 +756,9 @@ export const BudgetPlanningView: React.FC = () => {
           value={String(selectedYear)}
           onChange={id => handleYearChange(Number(id))}
         />
+        <Button variant="secondary" icon={fullView ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullView(v => !v)}>
+          {fullView ? 'Sair da tela cheia' : 'Tela cheia'}
+        </Button>
         <Button
           variant="secondary"
           icon={<Download className="w-4 h-4" />}
@@ -1121,7 +1131,7 @@ export const BudgetPlanningView: React.FC = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto max-h-[680px]">
+            <div className={`overflow-x-auto ${fullView ? '' : 'max-h-[680px]'}`}>
               <table className="w-full text-left border-collapse text-xs min-w-[1150px]">
                 <thead className="sticky top-0 z-20 bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] shadow-xs">
                   <tr className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
@@ -2013,7 +2023,7 @@ export const BudgetPlanningView: React.FC = () => {
 
           {/* Full 12-Month Matrix Table with Alternate Column Colors */}
           <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xs overflow-hidden">
-            <div className="overflow-x-auto max-h-[750px] overflow-y-auto pb-2">
+            <div className={`overflow-x-auto overflow-y-auto pb-2 ${fullView ? '' : 'max-h-[750px]'}`}>
               <table className={`w-full text-left border-collapse text-xs ${isFitScreen ? 'min-w-[1150px]' : 'min-w-[1380px]'}`}>
                 <thead className="sticky top-0 z-20 bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] shadow-xs">
                   <tr className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
