@@ -385,7 +385,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         title={collapsed ? `${item.label}${item.badge ? ` (${item.badge})` : ''}` : undefined}
                         aria-current={isActive ? 'page' : undefined}
                         className={`
-                          group relative w-full flex rounded-lg text-sm transition-colors cursor-pointer ${item.advanced ? 'adv-only' : ''}
+                          group relative w-full flex rounded-lg text-sm transition-colors cursor-pointer ${item.advanced && !storage.isOwnerFirm() ? 'adv-only' : ''}
                           ${collapsed ? 'flex-col items-center justify-center gap-1 py-2 min-h-[56px]' : 'h-10 items-center gap-3 px-3'}
                           ${isActive
                             ? 'bg-[linear-gradient(90deg,rgba(201,162,74,0.18),rgba(201,162,74,0.04))] ring-1 ring-[var(--gold-edge)] text-[var(--text-primary)] font-medium'

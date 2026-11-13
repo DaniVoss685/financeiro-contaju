@@ -890,7 +890,18 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       </PageToolbar>
 
       {/* Indicadores (também funcionam como filtros rápidos) */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+        <StatTile
+          label="Total do período" icon={<TWallet />} accent="gold"
+          value={formatBRL(stats.openTotal + stats.liquidadosTotal)}
+          hint="Em aberto + já pagos"
+          count={stats.openCount + stats.liquidadosCount}
+          active={quickDateFilter === 'ALL' && statusFilter === 'TODOS'}
+          onClick={() => {
+            setQuickDateFilter('ALL');
+            setStatusFilter('TODOS');
+          }}
+        />
         <StatTile
           label="Em aberto" icon={<TWallet />} accent="info"
           value={formatBRL(stats.openTotal)}

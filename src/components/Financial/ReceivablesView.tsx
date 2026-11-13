@@ -959,7 +959,18 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
       </Disclosure>
 
       {/* Indicadores (também funcionam como filtros rápidos) */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+        <StatTile
+          label="Total do período" icon={<TWallet />} accent="gold"
+          value={formatBRL(stats.openTotal + stats.liquidadosTotal)}
+          hint="Em aberto + já recebidos"
+          count={stats.openCount + stats.liquidadosCount}
+          active={quickDateFilter === 'ALL' && statusFilter === 'TODOS'}
+          onClick={() => {
+            setQuickDateFilter('ALL');
+            setStatusFilter('TODOS');
+          }}
+        />
         <StatTile
           label="Em aberto" icon={<TWallet />} accent="info"
           value={formatBRL(stats.openTotal)}
@@ -2222,7 +2233,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] text-slate-700">{client?.document}</div>
+                        <div className="text-[10px] leading-tight text-[var(--text-muted)] mt-0.5">{client?.document}</div>
                       </td>
 
                       <td className="adv-only hidden xl:table-cell py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">

@@ -16,6 +16,7 @@ import {
 import { FinancialTitle, Counterparty } from '../../types';
 import { formatBRL, formatDateBR } from '../../services/financialEngine';
 import { storage } from '../../services/storageService';
+import { useIsSimpleMode } from '../../hooks/useViewMode';
 import { Card, IconTile, IconBadge } from '../Common/ui';
 import { NavigationScreen } from '../Sidebar';
 
@@ -32,6 +33,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
   onNavigate,
   onSelectTitle
 }) => {
+  const simple = useIsSimpleMode();
   const [listKind, setListKind] = useState<'RECEBER' | 'PAGAR' | null>(null);
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
@@ -207,10 +209,10 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
 
       {/* Listagem detalhada das contas com foco maior no tamanho de cliente e descrição */}
       {sortedUpcoming.length > 0 ? (
-        <div className="adv-only space-y-2 pt-1">
+        <div className="space-y-2 pt-1">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-              Detalhamento das Contas a Liquidar nos Próximos 3 Dias
+              {simple ? 'Contas dos próximos 3 dias' : 'Detalhamento das Contas a Liquidar nos Próximos 3 Dias'}
             </span>
             <span className="text-[10px] text-slate-400 font-medium">
               Clique em qualquer linha para abrir diretamente os detalhes
