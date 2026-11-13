@@ -4,6 +4,7 @@ import {
   Users,
   Briefcase,
   FileText,
+  FileCheck2,
   Receipt,
   TrendingUp,
   TrendingDown,
@@ -37,6 +38,7 @@ export type NavigationScreen =
   | 'SERVICOS'
   | 'CONTRATOS'
   | 'VENDAS_FATURAMENTO'
+  | 'NOTAS_FISCAIS'
   | 'CONTAS_RECEBER'
   | 'CONTAS_PAGAR'
   | 'CARTAO_CREDITO'
@@ -77,6 +79,7 @@ export const SCREEN_TITLES: Partial<Record<NavigationScreen, { title: string; gr
   SERVICOS: { title: 'Serviços', group: 'Comercial' },
   CONTRATOS: { title: 'Contratos recorrentes', group: 'Comercial' },
   VENDAS_FATURAMENTO: { title: 'Vendas e faturamento', group: 'Comercial' },
+  NOTAS_FISCAIS: { title: 'Notas fiscais', group: 'Comercial' },
   CONTAS_RECEBER: { title: 'Contas a receber', group: 'Financeiro' },
   CONTAS_PAGAR: { title: 'Contas a pagar', group: 'Financeiro' },
   CARTAO_CREDITO: { title: 'Cartões de crédito', group: 'Financeiro' },
@@ -103,6 +106,7 @@ const SHORT_LABELS: Partial<Record<NavigationScreen, string>> = {
   SERVICOS: 'Serviços',
   CONTRATOS: 'Contratos',
   VENDAS_FATURAMENTO: 'Vendas',
+  NOTAS_FISCAIS: 'Notas',
   CONTAS_RECEBER: 'Receber',
   CONTAS_PAGAR: 'Pagar',
   CARTAO_CREDITO: 'Cartões',
@@ -264,7 +268,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'CLIENTES', label: 'Clientes', icon: Users },
         { id: 'SERVICOS', label: 'Serviços', icon: Briefcase, secondary: true },
         { id: 'CONTRATOS', label: 'Contratos recorrentes', icon: FileText },
-        { id: 'VENDAS_FATURAMENTO', label: 'Vendas e faturamento', icon: Receipt }
+        { id: 'VENDAS_FATURAMENTO', label: 'Vendas e faturamento', icon: Receipt },
+        { id: 'NOTAS_FISCAIS', label: 'Notas fiscais', icon: FileCheck2 }
       ]
     },
     {

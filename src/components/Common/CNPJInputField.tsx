@@ -34,7 +34,13 @@ export const CNPJInputField: React.FC<CNPJInputFieldProps> = ({
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<string | null>(null);
   const [situacaoAlert, setSituacaoAlert] = useState<string | null>(null);
-  const [lastSearchedDigits, setLastSearchedDigits] = useState<string>('');
+  // Ao abrir um cadastro que já tem CNPJ, não busca de novo sozinho (isso apagava o endereço, o telefone e o
+  // e-mail que a pessoa tinha corrigido). A busca automática só roda quando o CNPJ é digitado ou colado.
+  // O botão "Auto-Preencher Receita" continua disponível para buscar de propósito.
+  const [lastSearchedDigits, setLastSearchedDigits] = useState<string>(() => {
+    const d = (value || '').replace(/\D/g, '');
+    return d.length === 14 ? d : '';
+  });
 
   const validation = validateFiscalDocument(value || '');
 

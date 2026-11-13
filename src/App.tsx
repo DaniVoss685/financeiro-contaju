@@ -40,6 +40,7 @@ const ClientsView = lazyWithRetry(() => import('./components/Commercial/ClientsV
 const ServicesView = lazyWithRetry(() => import('./components/Commercial/ServicesView').then(m => ({ default: m.ServicesView })));
 const ContractsView = lazyWithRetry(() => import('./components/Commercial/ContractsView').then(m => ({ default: m.ContractsView })));
 const SalesView = lazyWithRetry(() => import('./components/Commercial/SalesView').then(m => ({ default: m.SalesView })));
+const NfseView = lazyWithRetry(() => import('./components/Fiscal/NfseView').then(m => ({ default: m.NfseView })));
 
 const ReceivablesView = lazyWithRetry(() => import('./components/Financial/ReceivablesView').then(m => ({ default: m.ReceivablesView })));
 const PayablesView = lazyWithRetry(() => import('./components/Financial/PayablesView').then(m => ({ default: m.PayablesView })));
@@ -303,6 +304,8 @@ function AppContent() {
             onNavigate={(screen) => handleNavigate(screen as any)}
           />
         );
+      case 'NOTAS_FISCAIS':
+        return <NfseView initialSearch={currentSearchTerm} />;
 
       // Financial
       case 'CONTAS_RECEBER':

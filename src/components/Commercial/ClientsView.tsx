@@ -704,9 +704,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                       name: receita.razaoSocial || prev.name,
                       tradeName: receita.nomeFantasia || prev.tradeName,
                       document: receita.formattedCnpj,
-                      address: receita.enderecoCompleto || prev.address,
-                      phone: receita.telefone || prev.phone,
-                      email: receita.email || prev.email,
+                      // A Receita não divulga a rua de alguns CNPJs (empresário individual): nesse caso
+                      // não troca um endereço que já tem rua e número por um incompleto.
+                      address: receita.logradouro || !prev.address ? receita.enderecoCompleto || prev.address : prev.address,
+                      phone: prev.phone || receita.telefone,
+                      email: prev.email || receita.email,
                       notes: prev.notes ? `${prev.notes}\n[CNAE: ${receita.cnaeCodigo} - ${receita.cnaeDescricao}]` : `CNAE: ${receita.cnaeCodigo} - ${receita.cnaeDescricao}. Situação: ${receita.situacaoCadastral}.`
                     }));
                   }}
@@ -766,6 +768,13 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
                   className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 focus:outline-none focus:border-amber-400"
                 />
+                {(formData.address || '').trim() && !(formData.address || '').includes(',') ? (
+                  <p className="mt-1.5 text-xs text-[var(--status-warning)] leading-relaxed">
+                    Falta a rua e o número. A Receita não divulga o endereço completo de alguns CNPJs (empresário individual). Digite assim: RUA TAL, 310 - BAIRRO - CIDADE/UF - CEP: 00000-000
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-xs text-[var(--text-muted)]">Modelo: RUA TAL, 310 - BAIRRO - CIDADE/UF - CEP: 00000-000. É usado nas notas fiscais.</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">

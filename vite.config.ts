@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { defineConfig, Plugin } from 'vite';
+import { defineConfig, loadEnv, Plugin } from 'vite';
 
 function devApiServerlessPlugin(): Plugin {
   return {
@@ -81,6 +81,34 @@ function devApiServerlessPlugin(): Plugin {
               (req as any).body = {};
             }
             const mod = await import('./api/send-approval.js');
+            return await mod.default(req, res);
+          } catch (err: any) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: err.message }));
+            return;
+          }
+        }
+
+        if (url.pathname === '/api/nfse') {
+          try {
+            decorateRes(res);
+            // As funções de servidor leem process.env; no ambiente local os valores vêm do .env / .env.local
+            const localEnv = loadEnv('development', process.cwd(), '');
+            for (const k of ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'NFSE_CERT_SECRET', 'NFSE_SIGN_ALG', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']) {
+              if (!process.env[k] && localEnv[k]) process.env[k] = localEnv[k];
+            }
+            const buffers: Buffer[] = [];
+            for await (const chunk of req) {
+              buffers.push(chunk);
+            }
+            const rawBody = Buffer.concat(buffers).toString();
+            try {
+              (req as any).body = rawBody ? JSON.parse(rawBody) : {};
+            } catch {
+              (req as any).body = {};
+            }
+            const mod = await import('./api/nfse.js');
             return await mod.default(req, res);
           } catch (err: any) {
             res.statusCode = 500;

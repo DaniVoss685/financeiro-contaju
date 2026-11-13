@@ -20,6 +20,8 @@ export interface CNPJCompanyData {
   email: string;
   cnaeCodigo: string;
   cnaeDescricao: string;
+  /** Código IBGE do município (7 dígitos), quando o provedor informa. */
+  codigoMunicipioIbge?: string;
   enderecoCompleto: string;
 }
 
@@ -132,6 +134,7 @@ export async function lookupCNPJ(rawCnpj: string): Promise<CNPJCompanyData | nul
         email: data.email || '',
         cnaeCodigo: String(data.cnae_fiscal || ''),
         cnaeDescricao: data.cnae_fiscal_descricao || '',
+        codigoMunicipioIbge: String(data.codigo_municipio_ibge || ''),
         enderecoCompleto: enderecoParts.join(' - ')
       };
 
@@ -193,6 +196,7 @@ export async function lookupCNPJ(rawCnpj: string): Promise<CNPJCompanyData | nul
         email: data.email || '',
         cnaeCodigo: String(data.cnae_fiscal || ''),
         cnaeDescricao: data.cnae_fiscal_descricao || '',
+        codigoMunicipioIbge: String(data.codigo_municipio_ibge || ''),
         enderecoCompleto: enderecoParts.join(' - ')
       };
 

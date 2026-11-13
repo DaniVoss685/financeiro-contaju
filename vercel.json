@@ -7,5 +7,13 @@
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "regions": [
+    "gru1"
+  ],
+  "functions": {
+    "api/nfse.js": {
+      "maxDuration": 60
+    }
+  }
 }
