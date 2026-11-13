@@ -59,6 +59,7 @@ import { exportToExcel, exportToCSV } from '../../utils/exportUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { Card, PageToolbar, Button, FilterPanel, FilterGroup, StatTile, TabPills, FieldLabel, MoreMenu } from '../Common/ui';
 import { MoneyField } from '../Common/MoneyField';
+import { cleanTitleDescription } from '../../utils/titleText';
 import { RecurringSeriesService } from '../../services/recurringSeriesService';
 import { stopForeverSeries } from '../../services/renewalService';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
@@ -2040,7 +2041,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                       <td className="py-3 px-4 min-w-[250px] max-w-[420px]">
                         {/* Descrição em Destaque: maior, legível e quebrando linha naturalmente */}
                         <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words whitespace-normal">
-                          {t.description || 'Sem descrição'}
+                          {cleanTitleDescription(t.description) || 'Sem descrição'}
                         </div>
 
                         {/* Categoria do Plano de Contas (com cores temáticas) e Código de Operação Minimizados */}

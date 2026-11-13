@@ -81,6 +81,8 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
   const simple = useIsSimpleMode();
   // Só a empresa Contaju (a própria contabilidade) vê reajustes e taxa de balanço (13º) também na versão simples
   const ownerFirm = storage.isOwnerFirm();
+  const [historyDate, setHistoryDate] = useState(new Date().toISOString().split('T')[0]);
+  const [historyText, setHistoryText] = useState('');
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   useEffect(() => {
@@ -662,7 +664,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
       }
 
       if (editingContract) {
-        let updatedStatusHistory = editingContract.statusHistory || [];
+        let updatedStatusHistory = formData.statusHistory || editingContract.statusHistory || [];
         if (formData.status && formData.status !== editingContract.status) {
           const historyEntry: ContractStatusHistoryEntry = {
             id: `csh-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -1194,7 +1196,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                                   setSelectedContractForSchedule(c);
                                   setIsScheduleModalOpen(true);
                                 }}
-                                className="p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1b1b20] rounded-lg transition-colors cursor-pointer"
+                                className="adv-only p-1.5 text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-[#1b1b20] rounded-lg transition-colors cursor-pointer"
                                 title="Ver Cronograma / Gerar Próximos Meses"
                               >
                                 <CalendarClock className="w-4 h-4" />
@@ -1313,7 +1315,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               <button
                 type="button"
                 onClick={() => setContractModalTab('SCHEDULE')}
-                className={`pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                className={`${simple && formData.contractType !== 'AVULSO' && formData.isRecurring !== false && !formData.endDate ? 'hidden ' : ''}pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   contractModalTab === 'SCHEDULE'
                     ? 'border-amber-500 text-amber-600 dark:text-amber-400'
                     : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -1333,14 +1335,14 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               <button
                 type="button"
                 onClick={() => setContractModalTab('AUDIT_LOG')}
-                className={`adv-only pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                className={`pb-2.5 px-3 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   contractModalTab === 'AUDIT_LOG'
                     ? 'border-amber-500 text-amber-600 dark:text-amber-400'
                     : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
                 <History className="w-3.5 h-3.5" />
-                <span>Log de Auditoria & Status</span>
+                <span>{simple ? 'Histórico' : 'Log de Auditoria & Status'}</span>
                 {(editingContract?.statusHistory?.length || 0) > 0 && (
                   <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                     {editingContract?.statusHistory?.length}
@@ -1352,7 +1354,116 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             {/* Formulário com Container Interno com Scroll Seguro */}
             <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
               
-              {contractModalTab === 'AUDIT_LOG' ? (
+              {contractModalTab === 'AUDIT_LOG' && simple ? (
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 text-sm">
+                  {/* Situação de hoje */}
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <span className="block text-xs text-[var(--text-muted)]">Honorário atual</span>
+                      <span className="block mt-0.5 font-semibold text-[var(--text-primary)] tabular-nums">{formatBRL(formData.monthlyTotal || 0)}/mês</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[var(--text-muted)]">Taxa de balanço</span>
+                      <span className="block mt-0.5 font-semibold text-[var(--text-primary)]">
+                        {formData.annualBalanceFee?.enabled ? 'Cobrada todo ano' : 'Não cobra'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-[var(--text-muted)]">Situação</span>
+                      <span className="block mt-0.5 font-semibold text-[var(--text-primary)]">{formData.status === 'ATIVO' || !formData.status ? 'Ativo' : formData.status === 'INATIVO' ? 'Pausado' : formData.status === 'CANCELADO' ? 'Cancelado' : formData.status === 'SUSPENSO' ? 'Suspenso' : 'Encerrado'}</span>
+                    </div>
+                  </div>
+
+                  {/* Registrar o que foi combinado */}
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-[var(--text-primary)]">Registrar uma alteração ou conversa</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-[11rem_1fr_auto] gap-3 items-end">
+                      <div>
+                        <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Data</label>
+                        <DateField value={historyDate} onChange={e => setHistoryDate(e.target.value)} className="w-full h-11 px-3 rounded-xl border border-[var(--border-highlight)] text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--text-secondary)] mb-1.5">O que foi combinado com o cliente</label>
+                        <input value={historyText} onChange={e => setHistoryText(e.target.value)} className="w-full h-11 px-3 rounded-xl border border-[var(--border-highlight)] text-sm" />
+                      </div>
+                      <button
+                        type="button"
+                        disabled={!historyText.trim()}
+                        onClick={() => {
+                          const user = storage.getCurrentUser();
+                          const entry = {
+                            id: `csh-${Date.now()}`,
+                            contractId: editingContract?.id || '',
+                            previousStatus: (formData.status || 'ATIVO') as any,
+                            newStatus: (formData.status || 'ATIVO') as any,
+                            changedAt: new Date().toISOString(),
+                            changedBy: user.name,
+                            reason: 'ANOTACAO',
+                            notes: historyText.trim(),
+                            effectiveDate: historyDate
+                          };
+                          setFormData({ ...formData, statusHistory: [entry, ...(formData.statusHistory || [])] });
+                          setHistoryText('');
+                          setSuccessToast('Anotação adicionada ao histórico. Clique em "Salvar Contrato" para gravar.');
+                        }}
+                        className="h-11 px-5 rounded-xl btn-gold text-sm font-semibold disabled:opacity-50 cursor-pointer"
+                      >
+                        Adicionar
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Linha do tempo */}
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-[var(--text-primary)]">Histórico do contrato</h4>
+                    {(() => {
+                      const events: { date: string; title: string; note?: string; who?: string }[] = [];
+                      (formData.adjustments || []).forEach(a => events.push({
+                        date: a.date,
+                        title: `Honorário reajustado de ${formatBRL(a.previousAmount)} para ${formatBRL(a.newAmount)} (${a.percentage >= 0 ? '+' : ''}${a.percentage}%)`,
+                        note: a.notes,
+                        who: a.appliedBy
+                      }));
+                      (formData.statusHistory || []).forEach(h => {
+                        const label: Record<string, string> = { ATIVO: 'Ativo', INATIVO: 'Pausado', CANCELADO: 'Cancelado', SUSPENSO: 'Suspenso', ENCERRADO: 'Encerrado' };
+                        events.push(h.reason === 'ANOTACAO'
+                          ? { date: h.effectiveDate || h.changedAt.substring(0, 10), title: 'Anotação', note: h.notes, who: h.changedBy }
+                          : (h.previousStatus as any) === 'RASCUNHO'
+                          ? { date: h.effectiveDate || h.changedAt.substring(0, 10), title: 'Contrato cadastrado', who: h.changedBy }
+                          : { date: h.effectiveDate || h.changedAt.substring(0, 10), title: `Contrato passou de ${label[h.previousStatus] || h.previousStatus} para ${label[h.newStatus] || h.newStatus}`, note: [h.reason, h.notes].filter(Boolean).join(' — ') || undefined, who: h.changedBy });
+                      });
+                      events.sort((a, b) => b.date.localeCompare(a.date));
+                      if (events.length === 0) {
+                        return <p className="rounded-xl border border-[var(--border-subtle)] px-4 py-8 text-center text-[var(--text-muted)]">Nenhuma alteração registrada ainda. Reajustes de valor e conversas com o cliente aparecem aqui.</p>;
+                      }
+                      return (
+                        <ul className="rounded-xl border border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
+                          {events.map((ev, i) => (
+                            <li key={i} className="px-4 py-3 flex items-start justify-between gap-4">
+                              <div className="min-w-0">
+                                <p className="font-medium text-[var(--text-primary)]">{ev.title}</p>
+                                {ev.note && <p className="mt-0.5 text-[var(--text-secondary)]">{ev.note}</p>}
+                                {ev.who && <p className="mt-0.5 text-xs text-[var(--text-muted)]">por {ev.who}</p>}
+                              </div>
+                              <span className="shrink-0 text-xs text-[var(--text-muted)] tabular-nums">{formatDateBR(ev.date)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    })()}
+                  </div>
+
+                  {editingContract && formData.status === 'ATIVO' && (
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedContractForCancel(editingContract); setIsCancelModalOpen(true); }}
+                      className="text-sm text-[var(--status-danger)] hover:underline cursor-pointer"
+                    >
+                      Cancelar ou pausar este contrato
+                    </button>
+                  )}
+                </div>
+              ) :               contractModalTab === 'AUDIT_LOG' ? (
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-xs">
                   {/* Card do Status Atual do Contrato */}
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#1b1b20]/60 border border-slate-200 dark:border-[#26262b] space-y-3">
@@ -3030,7 +3141,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
               <div className="px-6 py-3.5 border-t border-slate-200 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] flex items-center justify-between gap-3 shrink-0 sticky bottom-0 z-20">
                 {contractModalTab === 'AUDIT_LOG' ? (
                   <>
-                    <span className="text-[11px] text-slate-500 hidden sm:inline">
+                    <span className="adv-only text-[11px] text-slate-500 hidden sm:inline">
                       Trilha de auditoria e conformidade contábil com histórico auditado de mudanças de status.
                     </span>
                     <div className="flex items-center gap-2 ml-auto">
@@ -3086,7 +3197,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <button
                         type="button"
                         onClick={() => setContractModalTab('SCHEDULE')}
-                        className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                        className={`${simple && formData.contractType !== 'AVULSO' && formData.isRecurring !== false && !formData.endDate ? 'hidden ' : ''}text-[11px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer`}
                       >
                         <CalendarClock className="w-3.5 h-3.5" />
                         <span>{simple ? 'Ver parcelas (' : 'Ver Cronograma & Faturas ('}{editingContractTitles.length})</span>
@@ -3094,10 +3205,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <button
                         type="button"
                         onClick={() => setContractModalTab('AUDIT_LOG')}
-                        className="adv-only text-[11px] text-slate-500 dark:text-slate-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer hidden sm:flex"
+                        className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer hidden sm:flex"
                       >
                         <History className="w-3.5 h-3.5" />
-                        <span>Auditoria ({editingContract?.statusHistory?.length || 0})</span>
+                        <span>{simple ? 'Histórico' : 'Auditoria'} ({editingContract?.statusHistory?.length || 0})</span>
                       </button>
                     </div>
                     <div className="flex items-center gap-2">

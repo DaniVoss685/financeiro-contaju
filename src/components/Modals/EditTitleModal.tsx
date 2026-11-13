@@ -15,6 +15,7 @@ import { toast } from '../../hooks/useToast';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField, MonthField } from '../Common/DateField';
 import { useIsSimpleMode } from '../../hooks/useViewMode';
+import { cleanTitleDescription } from '../../utils/titleText';
 
 interface EditTitleModalProps {
   isOpen: boolean;
@@ -102,7 +103,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
   useEffect(() => {
     if (title) {
-      setDescription(title.description || '');
+      setDescription(cleanTitleDescription(title.description));
       setCounterpartyId(title.counterpartyId || '');
       setAccountId(title.accountId || '');
       setCompetence(title.competence || '');
