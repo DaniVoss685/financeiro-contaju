@@ -83,6 +83,15 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
   const ownerFirm = storage.isOwnerFirm();
   const [historyDate, setHistoryDate] = useState(new Date().toISOString().split('T')[0]);
   const [historyText, setHistoryText] = useState('');
+  const [adjPct, setAdjPct] = useState('');
+  const [balancePct, setBalancePct] = useState('');
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  // Versão simples: a taxa vence no mesmo dia do honorário e, sendo única, é sempre de dezembro
+  const normalizeBalanceFee = (fee: any) => {
+    if (!fee || !simple) return fee;
+    const single = fee.installmentType === 'UNICA_DEZEMBRO' || !fee.installmentType;
+    return { ...fee, dueRule: 'SAME_MONTH', dueDay: formData.dueDay || fee.dueDay || 10, ...(single ? { competenceMonth: 12, billingMonths: [12] } : {}) };
+  };
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   useEffect(() => {
@@ -99,7 +108,12 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [successToast, setSuccessToastRaw] = useState<string>('');
   // O aviso de sucesso é um modal: só fecha quando a pessoa clica em "Entendi" (pedidos de limpar por tempo são ignorados)
-  const setSuccessToast = (v: string) => { if (v) setSuccessToastRaw(v.replace(/^✓s*/, '')); };
+  const setSuccessToast = (v: string) => {
+    if (!v) return;
+    let t = v.replace(/^✓s*/, '');
+    if (simple) t = t.replace(/Contratos+[A-Z]{2,5}-[w-]+s+/g, 'Contrato ').replace(/s*•s*([^)]*)/g, '');
+    setSuccessToastRaw(t);
+  };
 
   // Atalho Rápido para Edição/Criação de Clientes
   const [clientsRefreshTrigger, setClientsRefreshTrigger] = useState(0);
@@ -772,7 +786,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
             }
           ],
           adjustments: formData.adjustments || [],
-          annualBalanceFee: formData.annualBalanceFee,
+          annualBalanceFee: normalizeBalanceFee(formData.annualBalanceFee),
           notes: formData.notes || '',
           createdAt: new Date().toISOString()
         };
@@ -1373,6 +1387,42 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                       <span className="block mt-0.5 font-semibold text-[var(--text-primary)]">{formData.status === 'ATIVO' || !formData.status ? 'Ativo' : formData.status === 'INATIVO' ? 'Pausado' : formData.status === 'CANCELADO' ? 'Cancelado' : formData.status === 'SUSPENSO' ? 'Suspenso' : 'Encerrado'}</span>
                     </div>
                   </div>
+
+                  {/* Taxa de balanço: quem pagou em cada ano */}
+                  {(() => {
+                    if (!editingContract) return null;
+                    const tb = storage.getTitles().filter(t =>
+                      t.documentState !== 'CANCELADO' &&
+                      (t.originId === editingContract.id || t.contractId === editingContract.id || t.contractNumber === editingContract.contractNumber) &&
+                      (String(t.titleNumber || '').startsWith('TB-') || /Taxa de Balanço/i.test(t.description || ''))
+                    );
+                    if (tb.length === 0) return null;
+                    const byYear: Record<string, typeof tb> = {};
+                    tb.forEach(t => { const y = String(t.competence || t.dueDate || '').substring(0, 4); (byYear[y] = byYear[y] || []).push(t); });
+                    const todayYmd = new Date().toISOString().split('T')[0];
+                    return (
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-[var(--text-primary)]">Taxa de balanço por ano</h4>
+                        <ul className="rounded-xl border border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
+                          {Object.keys(byYear).sort().reverse().map(y => {
+                            const list = byYear[y];
+                            const total = list.reduce((a, t) => a + (Number(t.originalAmount) || 0), 0);
+                            const open = list.filter(t => (Number(t.balancePrincipal) || 0) > 0);
+                            const late = open.some(t => String(t.dueDate || '') < todayYmd);
+                            const label = open.length === 0 ? 'Paga' : late ? 'Não paga (em atraso)' : open.length < list.length ? 'Paga em parte' : 'A receber';
+                            const tone = open.length === 0 ? 'text-[var(--status-success)]' : late ? 'text-[var(--status-danger)]' : 'text-[var(--text-secondary)]';
+                            return (
+                              <li key={y} className="px-4 py-3 flex items-center justify-between gap-4">
+                                <span className="font-medium text-[var(--text-primary)]">{y}</span>
+                                <span className="tabular-nums text-[var(--text-secondary)]">{formatBRL(total)}</span>
+                                <span className={`font-semibold ${tone}`}>{label}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    );
+                  })()}
 
                   {/* Registrar o que foi combinado */}
                   <div className="space-y-3">
@@ -2600,6 +2650,7 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                             reason: 'REAJUSTE_ANUAL',
                             notes: ''
                           });
+                          setAdjPct('');
                           setShowAdjustmentForm(true);
                         }}
                         className="h-8 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1 shadow-xs transition-colors shrink-0 cursor-pointer"
@@ -2610,8 +2661,96 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                     )}
                   </div>
 
+                  {/* Reajuste simples: percentual ou novo valor, motivo anual ou outro */}
+                  {showAdjustmentForm && simple && (
+                    <div className="p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-highlight)] space-y-5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-sm text-[var(--text-primary)]">Novo reajuste</span>
+                        <button type="button" onClick={() => setShowAdjustmentForm(false)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">Cancelar</button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Reajuste (%)</label>
+                          <input
+                            inputMode="decimal"
+                            value={adjPct}
+                            onChange={e => {
+                              const v = e.target.value.replace(/[^0-9,.-]/g, '');
+                              setAdjPct(v);
+                              const p = parseFloat(v.replace(',', '.'));
+                              const base = formData.monthlyTotal || 0;
+                              if (!isNaN(p)) setNewAdjustmentData({ ...newAdjustmentData, newAmount: round2(base * (1 + p / 100)) });
+                            }}
+                            className="w-full h-11 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Novo valor mensal (R$)</label>
+                          <MoneyField
+                            value={Number(newAdjustmentData.newAmount) || 0}
+                            onChange={(v: number) => {
+                              setNewAdjustmentData({ ...newAdjustmentData, newAmount: v });
+                              const base = formData.monthlyTotal || 0;
+                              setAdjPct(base > 0 && v > 0 ? String(round2(((v - base) / base) * 100)).replace('.', ',') : '');
+                            }}
+                            className="w-full h-11 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Vale a partir de</label>
+                          <DateField
+                            value={newAdjustmentData.date}
+                            onChange={e => setNewAdjustmentData({ ...newAdjustmentData, date: e.target.value })}
+                            className="w-full h-11 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Motivo</label>
+                          <PremiumSelect
+                            value={newAdjustmentData.reason === 'OUTRO' ? 'OUTRO' : 'REAJUSTE_ANUAL'}
+                            onChange={e => setNewAdjustmentData({ ...newAdjustmentData, reason: e.target.value as ContractAdjustmentReason })}
+                            className="w-full h-11 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm"
+                          >
+                            <option value="REAJUSTE_ANUAL">Reajuste anual</option>
+                            <option value="OUTRO">Outro motivo</option>
+                          </PremiumSelect>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-[var(--text-secondary)] mb-1.5">{newAdjustmentData.reason === 'OUTRO' ? 'Qual foi o motivo? *' : 'Observação (opcional)'}</label>
+                          <input
+                            value={newAdjustmentData.notes}
+                            onChange={e => setNewAdjustmentData({ ...newAdjustmentData, notes: e.target.value })}
+                            className="w-full h-11 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[var(--surface-elevated)] px-4 py-3">
+                        <div className="text-sm text-[var(--text-secondary)]">
+                          <span className="tabular-nums">{formatBRL(formData.monthlyTotal || 0)}</span>
+                          <span className="mx-2">→</span>
+                          <strong className="text-[var(--text-primary)] tabular-nums">{formatBRL(Number(newAdjustmentData.newAmount) || 0)}</strong>
+                          {(formData.monthlyTotal || 0) > 0 && (
+                            <span className="ml-2 text-xs font-semibold text-[var(--brand-gold)]">
+                              {Number(newAdjustmentData.newAmount) >= (formData.monthlyTotal || 0) ? '+' : ''}{round2(((Number(newAdjustmentData.newAmount) - (formData.monthlyTotal || 0)) / (formData.monthlyTotal || 1)) * 100).toLocaleString('pt-BR')}%
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          disabled={!(Number(newAdjustmentData.newAmount) > 0) || (newAdjustmentData.reason === 'OUTRO' && !newAdjustmentData.notes.trim())}
+                          onClick={handleApplyAdjustment}
+                          className="h-11 px-6 rounded-xl btn-gold text-sm font-semibold disabled:opacity-50 cursor-pointer"
+                        >
+                          Gravar reajuste
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Formulário em Linha para Registrar Novo Reajuste */}
-                  {showAdjustmentForm && (
+                  {showAdjustmentForm && !simple && (
                     <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-sm space-y-3 animate-in fade-in">
                       <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
                         <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
@@ -2814,10 +2953,10 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                     <div>
                       <span className="text-[11px] font-bold text-amber-900 dark:text-amber-400 uppercase tracking-wider block flex items-center gap-1.5">
                         <Scale className="w-3.5 h-3.5 text-amber-500" />
-                        6. Taxa de Balanço Anual (Fechamento / 13º Honorário Contábil)
+                        {simple ? 'Taxa de balanço anual' : '6. Taxa de Balanço Anual (Fechamento / 13º Honorário Contábil)'}
                       </span>
                       <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
-                        Cobrança anual complementar referente ao encerramento do balanço patrimonial e demonstrações contábeis.
+                        {simple ? 'Cobrada uma vez por ano, em dezembro. Pode ser dividida em até 3 vezes.' : 'Cobrança anual complementar referente ao encerramento do balanço patrimonial e demonstrações contábeis.'}
                       </p>
                     </div>
 
@@ -2908,7 +3047,25 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                           </span>
                         </div>
 
-                        {formData.annualBalanceFee.installmentType === 'UNICA_DEZEMBRO' ? (
+                        {simple ? (
+                          <div>
+                            <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs">Ou % da mensalidade</label>
+                            <input
+                              inputMode="decimal"
+                              value={balancePct}
+                              onChange={e => {
+                                const v = e.target.value.replace(/[^0-9,.]/g, '');
+                                setBalancePct(v);
+                                const p = parseFloat(v.replace(',', '.'));
+                                if (!isNaN(p) && formData.monthlyTotal) {
+                                  setFormData({ ...formData, annualBalanceFee: { ...formData.annualBalanceFee!, amount: round2(formData.monthlyTotal * p / 100) } });
+                                }
+                              }}
+                              className="w-full rounded-lg border border-slate-300 dark:border-[#26262b] bg-white dark:bg-[#131316] px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100"
+                            />
+                            <span className="text-[10px] text-slate-500 mt-1 block">Ex.: 30 cobra 30% do honorário mensal</span>
+                          </div>
+                        ) : formData.annualBalanceFee.installmentType === 'UNICA_DEZEMBRO' ? (
                           <div>
                             <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs flex items-center justify-between">
                               <span>Mês da Competência *</span>
@@ -2975,8 +3132,8 @@ export const ContractsView: React.FC<ContractsViewProps> = ({ onOpenBillingModal
                         </div>
                       )}
 
-                      {/* Linha 2: Regra de Vencimento e Data de Vencimento */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start p-3 bg-amber-500/5 dark:bg-amber-500/10 rounded-xl border border-amber-500/20">
+                      {/* Linha 2: Regra de Vencimento e Data de Vencimento (só na versão contábil; na simples vence no mesmo dia do honorário) */}
+                      <div className="adv-only grid grid-cols-1 sm:grid-cols-2 gap-4 items-start p-3 bg-amber-500/5 dark:bg-amber-500/10 rounded-xl border border-amber-500/20">
                         <div>
                           <label className="block font-semibold text-slate-800 dark:text-slate-200 mb-1.5 text-xs flex items-center gap-1.5">
                             <CalendarClock className="w-3.5 h-3.5 text-amber-500" />
