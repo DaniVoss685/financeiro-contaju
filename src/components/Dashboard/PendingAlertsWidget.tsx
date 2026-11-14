@@ -82,7 +82,7 @@ export const PendingAlertsWidget: React.FC<PendingAlertsWidgetProps> = ({
 
     if (dueDate === todayStr) {
       return (
-        <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-500/15 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-400 dark:border-rose-800 animate-pulse">
+        <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-500/15 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-400 dark:border-rose-800">
           Vence Hoje
         </span>
       );

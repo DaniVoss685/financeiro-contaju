@@ -78,6 +78,40 @@ export class ReportingEngine {
 
     const allSales = storage.getSales().filter(s => s.status !== 'CANCELADA');
 
+    // Índices montados uma vez (antes, cada conta × mês varria a lista inteira de títulos e de vendas)
+    const titleById = new Map<string, FinancialTitle>();
+    const titleIdSet = new Set<string>();
+    const titleSaleIdSet = new Set<string>();
+    const contractCompSet = new Set<string>();
+    titles.forEach(t => {
+      titleById.set(t.id, t);
+      titleIdSet.add(t.id);
+      if (t.saleId) titleSaleIdSet.add(t.saleId);
+      const c = t.competence?.substring(0, 7);
+      if (c) {
+        if (t.originId) contractCompSet.add(`${t.originId}|${c}`);
+        if (t.contractId) contractCompSet.add(`${t.contractId}|${c}`);
+      }
+    });
+    const hasLinkedTitles = (sale: any, compStr: string): boolean =>
+      titleSaleIdSet.has(sale.id) ||
+      Boolean(sale.titleIds && sale.titleIds.some((id: string) => titleIdSet.has(id))) ||
+      Boolean(sale.contractId && contractCompSet.has(`${sale.contractId}|${compStr}`));
+    const salesByComp = new Map<string, any[]>();
+    allSales.forEach(sale => {
+      const k = (sale.competence || sale.date || '').substring(0, 7);
+      const list = salesByComp.get(k) || [];
+      list.push(sale);
+      salesByComp.set(k, list);
+    });
+    const accountById = new Map(accounts.map(a => [a.id, a]));
+    const settlementsByTitle = new Map<string, typeof allSettlements>();
+    allSettlements.forEach(st => {
+      const list = settlementsByTitle.get(st.titleId) || [];
+      list.push(st);
+      settlementsByTitle.set(st.titleId, list);
+    });
+
     // Helper para apurar competência e caixa de cada conta analítica
     const getValuesForAccount = (accId: string): {
       monthlyComp: number[];
@@ -90,7 +124,7 @@ export class ReportingEngine {
       const monthlyCash = new Array(12).fill(0);
       const titleIds: string[] = [];
 
-      const targetAcc = accounts.find(a => a.id === accId);
+      const targetAcc = accountById.get(accId);
       const isExpenseNature = Boolean(targetAcc && (
         targetAcc.nature?.includes('DESPESA') || 
         targetAcc.nature?.includes('CUSTO') || 
@@ -109,11 +143,13 @@ export class ReportingEngine {
         return false;
       };
 
+      // Só os títulos desta conta (filtrados uma vez, não a cada mês)
+      const accTitles = titles.filter(isTargetAccount);
+
       // 1. Competência (conforme competence YYYY-MM ou corte de mês)
       for (let m = 0; m < 12; m++) {
         const compStr = `${year}-${(m + 1).toString().padStart(2, '0')}`;
-        const matchingTitles = titles.filter(t => {
-          if (!isTargetAccount(t)) return false;
+        const matchingTitles = accTitles.filter(t => {
           const tComp = (t.competence ? t.competence.substring(0, 7) : (t.dueDate ? t.dueDate.substring(0, 7) : ''));
           return tComp === compStr;
         });
@@ -126,18 +162,9 @@ export class ReportingEngine {
 
         // Conciliação de Vendas Confirmadas da competência:
         // Se uma venda confirmada existir para o mês, mas não tiver títulos no array de títulos somados, computar o faturamento
-        for (const sale of allSales) {
-          const saleComp = (sale.competence || sale.date || '').substring(0, 7);
-          if (saleComp !== compStr) continue;
-
-          const saleLinkedTitles = titles.filter(t => 
-            t.saleId === sale.id || 
-            (sale.titleIds && sale.titleIds.includes(t.id)) ||
-            (sale.contractId && (t.originId === sale.contractId || t.contractId === sale.contractId) && (t.competence?.substring(0, 7) === compStr))
-          );
-
+        for (const sale of (salesByComp.get(compStr) || [])) {
           // Se nenhum título da venda estiver registrado em titles, computar pelos itens da venda
-          if (saleLinkedTitles.length === 0) {
+          if (!hasLinkedTitles(sale, compStr)) {
             const saleItems = sale.items && sale.items.length > 0 ? sale.items : [
               {
                 id: `item-${sale.id}`,
@@ -166,42 +193,42 @@ export class ReportingEngine {
           }
         } else if (accId === 'acc-4.2.03') { // Descontos Financeiros Concedidos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'RECEBER' && s.settlementDate?.startsWith(compStr) && (s.components?.discount || 0) > 0) {
               monthlyComp[m] += s.components.discount;
             }
           }
         } else if (accId === 'acc-4.1.03') { // Descontos Financeiros Obtidos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'PAGAR' && s.settlementDate?.startsWith(compStr) && (s.components?.discount || 0) > 0) {
               monthlyComp[m] += s.components.discount;
             }
           }
         } else if (accId === 'acc-4.2.01') { // Juros Pagos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'PAGAR' && s.settlementDate?.startsWith(compStr) && (s.components?.interest || 0) > 0) {
               monthlyComp[m] += s.components.interest;
             }
           }
         } else if (accId === 'acc-4.1.01') { // Juros Recebidos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'RECEBER' && s.settlementDate?.startsWith(compStr) && (s.components?.interest || 0) > 0) {
               monthlyComp[m] += s.components.interest;
             }
           }
         } else if (accId === 'acc-4.2.02') { // Multas Pagas
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'PAGAR' && s.settlementDate?.startsWith(compStr) && (s.components?.fine || 0) > 0) {
               monthlyComp[m] += s.components.fine;
             }
           }
         } else if (accId === 'acc-4.1.02') { // Multas Recebidas
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'RECEBER' && s.settlementDate?.startsWith(compStr) && (s.components?.fine || 0) > 0) {
               monthlyComp[m] += s.components.fine;
             }
@@ -215,11 +242,9 @@ export class ReportingEngine {
       for (let m = 0; m < 12; m++) {
         const monthStr = `${year}-${(m + 1).toString().padStart(2, '0')}`;
 
-        for (const title of titles) {
-          if (!isTargetAccount(title)) continue;
-
+        for (const title of accTitles) {
           let monthSettled = 0;
-          const matchingSettlements = allSettlements.filter(s => s.titleId === title.id);
+          const matchingSettlements = settlementsByTitle.get(title.id) || [];
 
           if (matchingSettlements.length > 0) {
             for (const s of matchingSettlements) {
@@ -267,42 +292,42 @@ export class ReportingEngine {
           }
         } else if (accId === 'acc-4.2.03') { // Descontos Financeiros Concedidos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'RECEBER' && s.settlementDate?.startsWith(monthStr) && (s.components?.discount || 0) > 0) {
               monthlyCash[m] += s.components.discount;
             }
           }
         } else if (accId === 'acc-4.1.03') { // Descontos Financeiros Obtidos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'PAGAR' && s.settlementDate?.startsWith(monthStr) && (s.components?.discount || 0) > 0) {
               monthlyCash[m] += s.components.discount;
             }
           }
         } else if (accId === 'acc-4.2.01') { // Juros Pagos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'PAGAR' && s.settlementDate?.startsWith(monthStr) && (s.components?.interest || 0) > 0) {
               monthlyCash[m] += s.components.interest;
             }
           }
         } else if (accId === 'acc-4.1.01') { // Juros Recebidos
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'RECEBER' && s.settlementDate?.startsWith(monthStr) && (s.components?.interest || 0) > 0) {
               monthlyCash[m] += s.components.interest;
             }
           }
         } else if (accId === 'acc-4.2.02') { // Multas Pagas
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'PAGAR' && s.settlementDate?.startsWith(monthStr) && (s.components?.fine || 0) > 0) {
               monthlyCash[m] += s.components.fine;
             }
           }
         } else if (accId === 'acc-4.1.02') { // Multas Recebidas
           for (const s of allSettlements) {
-            const title = titles.find(t => t.id === s.titleId);
+            const title = titleById.get(s.titleId);
             if (title?.type === 'RECEBER' && s.settlementDate?.startsWith(monthStr) && (s.components?.fine || 0) > 0) {
               monthlyCash[m] += s.components.fine;
             }

@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-    <header className="sticky top-0 z-30 w-full border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-30 w-full border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
       <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center gap-3 sm:gap-5">
 
         {/* Menu (celular) + título da tela */}
