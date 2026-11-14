@@ -101,6 +101,9 @@ function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<NavigationScreen>('DASHBOARD');
   const [isPendingScreen, startScreenTransition] = useTransition();
   const [dataVersion, setDataVersion] = useState(0);
+  // Sobe de 0 para 1 quando os dados da nuvem terminam de chegar: a tela aberta é refeita com os dados novos
+  const [hydrationKey, setHydrationKey] = useState(0);
+  const hydratedSeenRef = React.useRef<boolean>(storage.isHydratedFromCloud());
   const [currentUser, setCurrentUser] = useState<User>(() => storage.getCurrentUser());
   // Contratos "todo mês" (sem data final) sempre têm os próximos 12 meses prontos: renova uma vez por dia
   useEffect(() => {
@@ -206,7 +209,16 @@ function AppContent() {
       setTimeout(prewarmModules, 800);
     }
 
+    // Se os dados da nuvem ainda não chegaram depois de um tempo (rede lenta ou sessão atrasada), tenta de novo uma vez
+    const retryTimer = setTimeout(() => {
+      if (!storage.isHydratedFromCloud()) storage.ensureCloudSync();
+    }, 10000);
+
     const unsubscribe = storage.subscribe(() => {
+      if (!hydratedSeenRef.current && storage.isHydratedFromCloud()) {
+        hydratedSeenRef.current = true;
+        setHydrationKey(k => k + 1);
+      }
       const updatedTheme = storage.getTheme();
       document.documentElement.classList.toggle('light', updatedTheme === 'light');
       document.documentElement.classList.toggle('dark', updatedTheme === 'dark');
@@ -214,7 +226,10 @@ function AppContent() {
       setIsAuthenticated(storage.isAuthenticated());
       setDataVersion(v => v + 1);
     });
-    return unsubscribe;
+    return () => {
+      clearTimeout(retryTimer);
+      unsubscribe();
+    };
   }, []);
 
   // Global transactional modals
@@ -521,7 +536,7 @@ function AppContent() {
               </div>
             )}
             {/* key: ao trocar de tela o aviso de erro some e a nova tela é tentada */}
-            <React.Fragment key={currentScreen}>
+            <React.Fragment key={`${currentScreen}-${hydrationKey}`}>
               <AppErrorBoundary fallbackTitle="Falha na exibição desta tela">
                 <Suspense fallback={<ScreenLoadingFallback />}>
                   {renderActiveScreen()}

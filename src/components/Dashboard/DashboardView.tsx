@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -88,6 +88,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Trigger para recálculo instantâneo ao salvar alterações de títulos
   const [dashboardRefreshTrigger, setDashboardRefreshTrigger] = useState(0);
+  // Quando os dados chegam da nuvem (ou mudam em outra parte do sistema), o painel recalcula sozinho
+  useEffect(() => storage.subscribe(() => setDashboardRefreshTrigger(p => p + 1)), []);
 
   // Tab: 'DASHBOARD' | 'ANNUAL_KPIS' | 'COHORT' | 'CHURN_RISK' | 'STRESS_TEST' | 'KPIS_CONFIG'
   const [openSec, setOpenSec] = useState<Record<string, boolean>>({});
