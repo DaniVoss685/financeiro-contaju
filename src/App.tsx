@@ -56,7 +56,7 @@ const ClientsView = lazyWithRetry(() => import('./components/Commercial/ClientsV
 const ServicesView = lazyWithRetry(() => import('./components/Commercial/ServicesView').then(m => ({ default: m.ServicesView })));
 const ContractsView = lazyWithRetry(() => import('./components/Commercial/ContractsView').then(m => ({ default: m.ContractsView })));
 const SalesView = lazyWithRetry(() => import('./components/Commercial/SalesView').then(m => ({ default: m.SalesView })));
-const CobrancasView = lazyWithRetry(() => import('./components/Cobranca/CobrancasView').then(m => ({ default: m.CobrancasView })));
+const CobrancasView = lazyWithRetry(() => import('./components/Cobranca/CobrancasGate').then(m => ({ default: m.CobrancasView })));
 const NfseView = lazyWithRetry(() => import('./components/Fiscal/NfseView').then(m => ({ default: m.NfseView })));
 
 const ReceivablesView = lazyWithRetry(() => import('./components/Financial/ReceivablesView').then(m => ({ default: m.ReceivablesView })));

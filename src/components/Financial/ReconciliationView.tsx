@@ -4418,36 +4418,36 @@ export const ReconciliationView: React.FC = () => {
 
       {/* BARRA FIXA FLUTUANTE INFERIOR DE CONCILIAÇÃO (SEMPRE VISÍVEL MESMO COM ROLAGEM) */}
       {selectedStmtIds.length > 0 && selectedTitleIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-950/95 border-2 border-amber-500/60 shadow-2xl rounded-2xl px-5 py-3 backdrop-blur-md flex items-center gap-4 text-white max-w-[94vw] animate-in slide-in-from-bottom duration-200">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[var(--surface-card)] border border-[var(--border-highlight)] shadow-2xl rounded-2xl px-5 py-3 flex items-center gap-4 text-[var(--text-primary)] max-w-[94vw] animate-in slide-in-from-bottom duration-200">
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-[10px] text-sky-400 font-bold uppercase tracking-wider">
+              <div className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">
                 Extrato ({selectedStmtIds.length}):
               </div>
-              <div className="text-sm font-black font-mono text-sky-300">
+              <div className="text-sm font-bold tabular-nums text-[var(--text-primary)]">
                 {formatBRL(totalStmtsAmount)}
               </div>
             </div>
 
             <div className={`w-8 h-8 rounded-full flex items-center justify-center border font-bold text-xs ${
               isMultiExact 
-                ? 'bg-emerald-950 border-emerald-500 text-emerald-400' 
-                : 'bg-amber-950 border-amber-500 text-amber-400'
+                ? 'bg-[var(--status-success-bg)] border-[var(--status-success)] text-[var(--status-success)]' 
+                : 'bg-[var(--brand-gold-soft)] border-[var(--gold-edge)] text-[var(--brand-gold)]'
             }`}>
               {isMultiExact ? '✓' : '≠'}
             </div>
 
             <div>
-              <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+              <div className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">
                 ERP ({selectedTitleIds.length}):
               </div>
-              <div className="text-sm font-black font-mono text-amber-300">
+              <div className="text-sm font-bold tabular-nums text-[var(--text-primary)]">
                 {formatBRL(totalTitlesAmount)}
               </div>
             </div>
           </div>
 
-          <div className="h-7 w-px bg-slate-800 hidden sm:block" />
+          <div className="h-7 w-px bg-[var(--border-subtle)] hidden sm:block" />
 
           <div className="flex items-center gap-2">
             <button
@@ -4479,7 +4479,7 @@ export const ReconciliationView: React.FC = () => {
                 setSelectedStmtIds([]);
                 setSelectedTitleIds([]);
               }}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
               title="Cancelar seleções"
             >
               <X className="w-4 h-4" />

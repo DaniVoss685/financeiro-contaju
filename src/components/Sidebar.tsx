@@ -142,6 +142,8 @@ interface NavItem {
   badge?: number;
   /** "alert" = atraso (vermelho). Qualquer outro valor fica neutro. */
   badgeTone?: 'alert' | 'neutral';
+  /** Tela ainda em finalização: mostra o aviso ao lado do nome. */
+  soon?: boolean;
   /** Item pouco usado: fica atrás de "Mais opções" no grupo. */
   secondary?: boolean;
   /** Técnico/contábil: some na versão simples (empresas clientes). */
@@ -280,8 +282,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       title: 'Financeiro',
       items: [
         { id: 'CONTAS_RECEBER', label: 'Contas a receber', icon: TrendingUp, badge: overdueReceivables || undefined, badgeTone: 'alert' },
-        { id: 'COBRANCAS', label: 'Cobranças (boleto e Pix)', icon: Barcode },
         { id: 'CONTAS_PAGAR', label: 'Contas a pagar', icon: TrendingDown, badge: overduePayables || undefined, badgeTone: 'alert' },
+        { id: 'COBRANCAS', label: 'Cobranças (boleto e Pix)', icon: Barcode, soon: true },
         { id: 'CARTAO_CREDITO', label: 'Cartões de crédito', icon: CreditCard },
         { id: 'MOVIMENTACOES', label: 'Movimentações', icon: ArrowLeftRight },
         { id: 'BANCOS_CONTAS', label: 'Bancos e contas', icon: Landmark },
@@ -392,7 +394,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           onNavigate(item.id);
                           onCloseMobile();
                         }}
-                        title={collapsed ? `${item.label}${item.badge ? ` (${item.badge})` : ''}` : undefined}
+                        title={collapsed ? `${item.label}${item.soon ? ' (em finalização)' : ''}${item.badge ? ` (${item.badge})` : ''}` : undefined}
                         aria-current={isActive ? 'page' : undefined}
                         className={`
                           group relative w-full flex rounded-lg text-sm transition-colors cursor-pointer ${item.advanced && !storage.isOwnerFirm() ? 'adv-only' : ''}
@@ -415,6 +417,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           )}
                         </span>
                         {!collapsed && <span className="truncate">{item.label}</span>}
+                        {!collapsed && item.soon && (
+                          <span className="ml-auto shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] text-[var(--text-muted)] border border-[var(--border-subtle)]">Em finalização</span>
+                        )}
                         {collapsed && <span className="text-xs leading-tight text-center max-w-[76px] truncate">{SHORT_LABELS[item.id] || item.label}</span>}
                         {!collapsed && item.badge !== undefined && (
                           <span className={`ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-medium flex items-center justify-center tabular-nums ${badgeClass}`}>
