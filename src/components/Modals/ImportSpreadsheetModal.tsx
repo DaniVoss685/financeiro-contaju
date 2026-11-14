@@ -2281,7 +2281,7 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
             const newPartyId = `cp-imp-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
             const validatedDocStr = row.documentValidation?.isValid 
               ? row.documentValidation.formatted 
-              : (row.normalized.documento || '00.000.000/0000-00');
+              : (/^[0D]*$/.test(row.normalized.documento || '') ? '' : (row.normalized.documento || ''));
 
             const newParty: Counterparty = {
               id: newPartyId,
@@ -2289,8 +2289,8 @@ const ImportSpreadsheetModalInner: React.FC<ImportSpreadsheetModalProps> = ({
               name: normName,
               tradeName: normName,
               document: validatedDocStr,
-              email: `contato@${normName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'empresa'}.com.br`,
-              phone: '(11) 99999-0000',
+              email: '',
+              phone: '',
               status: 'ATIVO',
               notes: `Cadastrado na importação de planilha (${fileName}) como ${isRevenue ? 'Cliente' : 'Fornecedor'}.`,
               createdAt: nowIso

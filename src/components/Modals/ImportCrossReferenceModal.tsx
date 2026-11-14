@@ -155,9 +155,9 @@ export const ImportCrossReferenceModal: React.FC<ImportCrossReferenceModalProps>
 
       let finalName = item.name;
       let finalTradeName = item.name;
-      let finalDoc = item.document ? maskCNPJOnly(item.document) : '00.000.000/0000-00';
-      let finalEmail = 'financeiro@empresa.com.br';
-      let finalPhone = '(11) 99999-0000';
+      let finalDoc = item.document && !/^[0D]*$/.test(item.document) ? maskCNPJOnly(item.document) : '';
+      let finalEmail = '';
+      let finalPhone = '';
       let finalAddress: string | undefined = undefined;
       let finalNotes = `Criado automaticamente no cruzamento da importação de planilha.`;
 

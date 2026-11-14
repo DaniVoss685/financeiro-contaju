@@ -31,6 +31,19 @@ export class AppErrorBoundary extends React.Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Arquivo de tela que não existe mais (versão nova publicada): recarrega sozinho uma vez
+    try {
+      const msg = String(error?.message || '');
+      if (/dynamically imported module|Importing a module script failed|Loading chunk/i.test(msg)) {
+        const key = 'contaju_chunk_reload';
+        const last = Number(sessionStorage.getItem(key) || 0);
+        if (Date.now() - last > 15000) {
+          sessionStorage.setItem(key, String(Date.now()));
+          window.location.reload();
+          return;
+        }
+      }
+    } catch { /* ignora */ }
     console.error('[Contaju ErrorBoundary] Falha capturada com sucesso:', error, errorInfo);
   }
 

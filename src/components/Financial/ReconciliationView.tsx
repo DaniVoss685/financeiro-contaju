@@ -48,6 +48,7 @@ import { BankStatementEntry, FinancialTitle, Counterparty, ReconciliationMatchRe
 import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL, formatDateBR, getFilteredChartAccounts, formatChartAccountSelectOptions } from '../../services/financialEngine';
 import { parseOFX, parseOFXFull } from '../../utils/ofxParser';
+import { parseBankStatementPdf } from '../../utils/bankStatementPdfParser';
 import { calculateReconciliationSimilarity } from '../../services/reconciliationMatchingEngine';
 import { normalizeForSearch, matchesSearch } from '../../utils/searchUtils';
 import { SearchableSelect, SelectOption } from '../Common/SearchableSelect';
@@ -144,7 +145,7 @@ export const ReconciliationView: React.FC = () => {
   const [isTitleMultiMode, setIsTitleMultiMode] = useState<boolean>(false);
 
   // Filtro de títulos: 'ALL' (inclui já baixados/pagos), 'PENDING' (em aberto), 'LIQUIDADO' (já pagos)
-  const [titleSettlementFilter, setTitleSettlementFilter] = useState<'ALL' | 'PENDING' | 'LIQUIDADO'>('ALL');
+  const [titleSettlementFilter, setTitleSettlementFilter] = useState<'ALL' | 'PENDING' | 'LIQUIDADO'>('PENDING');
 
   // Filtro de Período / Mês dos Títulos do ERP (Padrão: Mês Atual)
   const [titleYearMonth, setTitleYearMonth] = useState<string>(() => {
@@ -2034,6 +2035,47 @@ export const ReconciliationView: React.FC = () => {
     setErrorMsg('');
     setSuccessMsg('');
 
+    // Extrato em PDF (bancos que não liberam OFX): vai para a conta que está selecionada
+    if (/.pdf$/i.test(file.name)) {
+      const acc = storage.getBankAccounts().find(a => a.id === selectedAccountId);
+      if (!acc) {
+        setErrorMsg('Escolha primeiro a conta do extrato (ou cadastre uma em "Nova conta bancária") e importe o PDF de novo.');
+        setIsImportingOfx(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+      file.arrayBuffer()
+        .then(buf => parseBankStatementPdf(buf))
+        .then(lines => {
+          if (lines.length === 0) {
+            setErrorMsg('Não consegui reconhecer lançamentos nesse PDF. Tente o OFX do banco ou outro modelo de extrato.');
+            return;
+          }
+          const current = storage.getStatementEntries();
+          const have = new Set(current.filter(s => s.bankAccountId === acc.id && s.fitId).map(s => s.fitId));
+          const batchId = `batch-pdf-${Date.now()}`;
+          const fresh = lines.filter(l => !have.has(l.fitId)).map((l, idx) => ({
+            id: `stmt-pdf-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+            importBatchId: batchId,
+            bankAccountId: acc.id,
+            fitId: l.fitId,
+            date: l.date,
+            amount: l.amount,
+            description: l.description,
+            reconciliationStatus: 'PENDENTE' as const
+          }));
+          if (fresh.length > 0) storage.saveStatementEntries([...fresh, ...current]);
+          setSuccessMsg(`Extrato em PDF lido na conta ${acc.name}: ${fresh.length} lançamentos novos (${lines.length - fresh.length} já existiam). Confira os valores antes de conciliar.`);
+          setRefreshKey(k => k + 1);
+        })
+        .catch(err => setErrorMsg(`Falha ao ler o PDF: ${err?.message || 'arquivo inválido'}`))
+        .finally(() => {
+          setIsImportingOfx(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -2114,8 +2156,8 @@ export const ReconciliationView: React.FC = () => {
             institution: bankName,
             name: `${bankName} (Cta ${parsedResult.accountId || 'Principal'})`,
             bankCode: rawOfxBank || '077',
-            agency: parsedResult.branchId || '0001-9',
-            accountNumber: parsedResult.accountId || '437267326',
+            agency: parsedResult.branchId || '',
+            accountNumber: parsedResult.accountId || '',
             type: 'CORRENTE',
             currency: 'BRL',
             initialBalance: parsedResult.ledgerBalance !== undefined ? parsedResult.ledgerBalance : 0,
@@ -2593,7 +2635,7 @@ export const ReconciliationView: React.FC = () => {
         type="file" 
         ref={fileInputRef} 
         onChange={handleFileUpload} 
-        accept=".ofx,.OFX,.csv,.CSV,.txt,.TXT" 
+        accept=".ofx,.OFX,.csv,.CSV,.txt,.TXT,.pdf,.PDF" 
         className="hidden" 
       />
 
@@ -2613,9 +2655,9 @@ export const ReconciliationView: React.FC = () => {
           icon={isImportingOfx ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
           onClick={() => !isImportingOfx && fileInputRef.current?.click()}
           disabled={isImportingOfx}
-          title="Importar extrato OFX ou CSV do banco"
+          title="Importar extrato do banco em OFX, CSV ou PDF"
         >
-          {isImportingOfx ? 'Processando OFX...' : 'Importar OFX'}
+          {isImportingOfx ? 'Lendo extrato...' : 'Importar extrato (OFX ou PDF)'}
         </Button>
         <Button
           variant={suggestionCount > 0 ? 'secondary' : 'primary'}
@@ -3339,20 +3381,9 @@ export const ReconciliationView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Filtro de Estado: Todos, Em Aberto, Já Baixados */}
+                {/* Filtro de Estado: Em Aberto ou Já Baixados */}
                 <div className="flex items-center gap-1 text-[11px]">
                   <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider mr-1">Status:</span>
-                  <button
-                    type="button"
-                    onClick={() => setTitleSettlementFilter('ALL')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
-                      titleSettlementFilter === 'ALL'
-                        ? 'bg-amber-500 text-black shadow-2xs'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    Todos
-                  </button>
                   <button
                     type="button"
                     onClick={() => setTitleSettlementFilter('PENDING')}
@@ -3458,7 +3489,7 @@ export const ReconciliationView: React.FC = () => {
                       <div
                         key={t.id}
                         onClick={(e) => handleCardClickTitle(t.id, e)}
-                        className={`p-3.5 transition-all cursor-pointer relative min-h-[148px] flex flex-col justify-between ${highlight.borderClass} ${highlight.bgClass}`}
+                        className={`p-3.5 transition-all cursor-pointer relative min-h-[148px] flex flex-col justify-between ${highlight.borderClass} ${highlight.bgClass} ${isLiquidado && !isSelected ? '!bg-emerald-500/[0.07] border-l-4 !border-l-emerald-500' : ''}`}
                       >
                         <div className="flex-1 min-w-0">
                           {/* Badge Dourada de Destaque Premium na Linha Selecionada */}
@@ -3523,11 +3554,11 @@ export const ReconciliationView: React.FC = () => {
                                 </span>
                               ) : isLiquidado ? (
                                 <span 
-                                  className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-400/60 dark:border-amber-500/40 flex items-center gap-1 shadow-2xs"
+                                  className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/50 flex items-center gap-1 shadow-2xs"
                                   title="Título baixado manualmente no ERP (caixa/dinheiro/transferência). Pendente de conciliação com o extrato bancário."
                                 >
-                                  <HandCoins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 stroke-[2.2]" />
-                                  <span>BAIXADO MANUAL (PENDENTE BANCO)</span>
+                                  <HandCoins className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 stroke-[2.2]" />
+                                  <span>PAGO / RECEBIDO (FALTA CONCILIAR)</span>
                                 </span>
                               ) : t.settlementState === 'PARCIAL' ? (
                                 <span 

@@ -954,7 +954,7 @@ export class FinancialEngine {
       } else {
         const saleId = `sale-${contract.id}-${competence}`;
         const saleNumber = `VEN-${competence}-${contract.contractNumber.replace('CTR-', '').replace('CT-', '')}`;
-        const newTitleId = `tit-fat-${Date.now()}-${contract.id}`;
+        const newTitleId = `tit-fat-${contract.id}-${competence}`;
 
         const newTitle: FinancialTitle = {
           id: newTitleId,
@@ -1302,7 +1302,7 @@ export class FinancialEngine {
       } else {
         const saleId = `sale-${contract.id}-${competence}`;
         const saleNumber = `VEN-${competence}-${contract.contractNumber.replace('CTR-', '').replace('CT-', '')}`;
-        const newTitleId = `tit-fat-${Date.now()}-${contract.id}-${competence}`;
+        const newTitleId = `tit-fat-${contract.id}-${competence}`;
 
         const newTitle: FinancialTitle = {
           id: newTitleId,
@@ -1689,7 +1689,7 @@ export class FinancialEngine {
       } else {
         const saleId = `sale-${contract.id}-${competence}`;
         const saleNumber = `VEN-${competence}-${contract.contractNumber.replace('CTR-', '').replace('CT-', '')}`;
-        const newTitleId = `tit-fat-${Date.now()}-${contract.id}-${competence}`;
+        const newTitleId = `tit-fat-${contract.id}-${competence}`;
 
         const newTitle: FinancialTitle = {
           id: newTitleId,

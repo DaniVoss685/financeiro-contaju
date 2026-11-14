@@ -80,6 +80,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   const [minAmount, setMinAmount] = usePersistentState<number>('pagar_min', 0);
   const [maxAmount, setMaxAmount] = usePersistentState<number>('pagar_max', 0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [dupOnly, setDupOnly] = useState(false);
   const [seriesDelete, setSeriesDelete] = useState<{ title: FinancialTitle; nextIds: string[]; allIds: string[] } | null>(null);
   const [statusFilter, setStatusFilter] = usePersistentState<'TODOS' | 'ABERTO' | 'VENCIDO' | 'LIQUIDADO' | 'CANCELADO' | 'CONCILIADO'>('pagar_status', initialSearch ? 'TODOS' : 'ABERTO');
 
@@ -382,10 +383,26 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   }, [periodTitles, chartAccounts]);
 
   // Filtering
+  // Possíveis duplicados: mesmo cliente/fornecedor e mesmo valor no período (a descrição pode até mudar)
+  const dupIds = useMemo(() => {
+    const groups = new Map<string, string[]>();
+    periodTitles.forEach(t => {
+      if (!t || t.documentState === 'CANCELADO' || !t.counterpartyId) return;
+      const k = `${t.counterpartyId}|${Number(t.originalAmount || 0).toFixed(2)}`;
+      const list = groups.get(k) || [];
+      list.push(t.id);
+      groups.set(k, list);
+    });
+    const ids = new Set<string>();
+    groups.forEach(list => { if (list.length > 1) list.forEach(i => ids.add(i)); });
+    return ids;
+  }, [periodTitles]);
+
   const filteredTitles = useMemo(() => {
     try {
       return periodTitles.filter(t => {
         if (!t) return false;
+        if (dupOnly && !dupIds.has(t.id)) return false;
         const supplier = counterparties.find(c => c && c.id === t.counterpartyId);
         const chartAcc = chartAccounts.find(a => a && (a.id === t.accountId || a.id === t.chartAccountId));
         const matchSearch = matchesSearch([
@@ -470,7 +487,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
       console.error('Erro ao filtrar títulos a pagar:', err);
       return [];
     }
-  }, [periodTitles, minAmount, maxAmount, searchTerm, categoryFilter, counterpartyFilter, bankFilter, originFilter, quickDateFilter, statusFilter, today, weekRange, counterparties, chartAccounts]);
+  }, [periodTitles, dupOnly, dupIds, minAmount, maxAmount, searchTerm, categoryFilter, counterpartyFilter, bankFilter, originFilter, quickDateFilter, statusFilter, today, weekRange, counterparties, chartAccounts]);
 
   // Sorting
   const sortedTitles = useMemo(() => {
@@ -999,6 +1016,14 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
             className="adv-only h-10 px-3.5 rounded-xl border border-[var(--border-highlight)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer"
           >
             {showMoreFilters ? 'Menos filtros' : 'Mais filtros'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDupOnly(v => !v)}
+            className={`h-10 px-3.5 rounded-xl border text-sm cursor-pointer transition-colors ${dupOnly ? 'border-[var(--brand-gold)] bg-[var(--brand-gold-soft)] text-[var(--brand-gold)] font-semibold' : 'border-[var(--border-highlight)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'}`}
+            title="Mostra só o que tem o mesmo cliente e o mesmo valor mais de uma vez no período"
+          >
+            Ver duplicados{dupIds.size > 0 ? ` (${dupIds.size})` : ''}
           </button>
           <div className="relative w-full sm:w-72 sm:ml-auto">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
@@ -2043,6 +2068,9 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         {/* Descrição em Destaque: maior, legível e quebrando linha naturalmente */}
                         <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words whitespace-normal">
                           {cleanTitleDescription(t.description) || 'Sem descrição'}
+                          {dupIds.has(t.id) && (
+                            <span className="ml-2 align-middle text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-[var(--status-danger)] text-[var(--status-danger)]" title="Mesmo cliente e mesmo valor aparecem mais de uma vez neste período">Possível duplicado</span>
+                          )}
                         </div>
 
                         {/* Categoria do Plano de Contas (com cores temáticas) e Código de Operação Minimizados */}

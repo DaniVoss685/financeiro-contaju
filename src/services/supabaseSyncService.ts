@@ -1341,6 +1341,19 @@ class SupabaseSyncService {
   /**
    * Baixa dados do Supabase e atualiza o armazenamento local (Pull)
    */
+  /** Lê a tabela inteira em páginas de 1000 linhas (o Supabase corta em 1000 por consulta). */
+  private async fetchAllRows(client: any, table: string): Promise<{ data: any[] | null; error: any }> {
+    const pageSize = 1000;
+    const all: any[] = [];
+    for (let from = 0; from < 200000; from += pageSize) {
+      const { data, error } = await client.from(table).select('*').order('id', { ascending: true }).range(from, from + pageSize - 1);
+      if (error) return { data: null, error };
+      all.push(...(data || []));
+      if (!data || data.length < pageSize) break;
+    }
+    return { data: all, error: null };
+  }
+
   public async pullAllFromSupabase(): Promise<SyncResult> {
     if (!isSupabaseConfigured()) {
       return {
@@ -1397,7 +1410,7 @@ class SupabaseSyncService {
       }
 
       // 2. Usuários
-      const { data: usersData, error: usersErr } = await client.from(CONTAJU_TABLES.USERS).select('*');
+      const { data: usersData, error: usersErr } = await this.fetchAllRows(client, CONTAJU_TABLES.USERS);
       if (usersErr) errors.push(`Usuários: ${usersErr.message}`);
       else if (usersData && usersData.length > 0) {
         storage.saveUsers(usersData.map(mapUserFromDb));
@@ -1405,7 +1418,7 @@ class SupabaseSyncService {
       }
 
       // 3. Plano de Contas
-      const { data: accountsData, error: accErr } = await client.from(CONTAJU_TABLES.CHART_ACCOUNTS).select('*');
+      const { data: accountsData, error: accErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CHART_ACCOUNTS);
       if (accErr) errors.push(`Plano de Contas: ${accErr.message}`);
       else if (accountsData && accountsData.length > 0) {
         storage.saveChartAccounts(accountsData.map(mapChartAccountFromDb));
@@ -1413,7 +1426,7 @@ class SupabaseSyncService {
       }
 
       // 4. Contas Bancárias
-      const { data: banksData, error: banksErr } = await client.from(CONTAJU_TABLES.BANK_ACCOUNTS).select('*');
+      const { data: banksData, error: banksErr } = await this.fetchAllRows(client, CONTAJU_TABLES.BANK_ACCOUNTS);
       if (banksErr) errors.push(`Contas Bancárias: ${banksErr.message}`);
       else if (banksData && banksData.length > 0) {
         storage.saveBankAccounts(banksData.map(mapBankAccountFromDb));
@@ -1421,7 +1434,7 @@ class SupabaseSyncService {
       }
 
       // 5. Contrapartes
-      const { data: cpData, error: cpErr } = await client.from(CONTAJU_TABLES.COUNTERPARTIES).select('*');
+      const { data: cpData, error: cpErr } = await this.fetchAllRows(client, CONTAJU_TABLES.COUNTERPARTIES);
       if (cpErr) errors.push(`Contrapartes: ${cpErr.message}`);
       else if (cpData && cpData.length > 0) {
         storage.saveCounterparties(cpData.map(mapCounterpartyFromDb));
@@ -1429,7 +1442,7 @@ class SupabaseSyncService {
       }
 
       // 6. Serviços
-      const { data: srvData, error: srvErr } = await client.from(CONTAJU_TABLES.SERVICES).select('*');
+      const { data: srvData, error: srvErr } = await this.fetchAllRows(client, CONTAJU_TABLES.SERVICES);
       if (srvErr) errors.push(`Serviços: ${srvErr.message}`);
       else if (srvData && srvData.length > 0) {
         storage.saveServices(srvData.map(mapServiceFromDb));
@@ -1437,7 +1450,7 @@ class SupabaseSyncService {
       }
 
       // 7. Contratos
-      const { data: ctrData, error: ctrErr } = await client.from(CONTAJU_TABLES.CONTRACTS).select('*');
+      const { data: ctrData, error: ctrErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CONTRACTS);
       if (ctrErr) errors.push(`Contratos: ${ctrErr.message}`);
       else if (ctrData && ctrData.length > 0) {
         storage.saveContracts(ctrData.map(mapContractFromDb));
@@ -1445,7 +1458,7 @@ class SupabaseSyncService {
       }
 
       // 8. Vendas
-      const { data: salesData, error: salesErr } = await client.from(CONTAJU_TABLES.SALES).select('*');
+      const { data: salesData, error: salesErr } = await this.fetchAllRows(client, CONTAJU_TABLES.SALES);
       if (salesErr) errors.push(`Vendas: ${salesErr.message}`);
       else if (salesData && salesData.length > 0) {
         storage.saveSales(salesData.map(mapSaleFromDb));
@@ -1453,10 +1466,10 @@ class SupabaseSyncService {
       }
 
       // 9 e 10. Títulos Financeiros e Baixas com Resolução Automática de Conflitos (LWW + Preservação de Saldo)
-      const { data: titlesData, error: titlesErr } = await client.from(CONTAJU_TABLES.TITLES).select('*');
+      const { data: titlesData, error: titlesErr } = await this.fetchAllRows(client, CONTAJU_TABLES.TITLES);
       if (titlesErr) errors.push(`Títulos: ${titlesErr.message}`);
 
-      const { data: settData, error: settErr } = await client.from(CONTAJU_TABLES.SETTLEMENTS).select('*');
+      const { data: settData, error: settErr } = await this.fetchAllRows(client, CONTAJU_TABLES.SETTLEMENTS);
       if (settErr) errors.push(`Liquidações: ${settErr.message}`);
 
       // 1. Consolida Settlements (Baixas) primeiro, unificando registros remotos e locais
@@ -1491,7 +1504,7 @@ class SupabaseSyncService {
       }
 
       // 11. Movimentações
-      const { data: movData, error: movErr } = await client.from(CONTAJU_TABLES.MOVEMENTS).select('*');
+      const { data: movData, error: movErr } = await this.fetchAllRows(client, CONTAJU_TABLES.MOVEMENTS);
       if (movErr) errors.push(`Movimentações: ${movErr.message}`);
       else if (movData && movData.length > 0) {
         storage.saveMovements(movData.map(mapMovementFromDb));
@@ -1499,7 +1512,7 @@ class SupabaseSyncService {
       }
 
       // 12. Extratos
-      const { data: stmtData, error: stmtErr } = await client.from(CONTAJU_TABLES.STATEMENTS).select('*');
+      const { data: stmtData, error: stmtErr } = await this.fetchAllRows(client, CONTAJU_TABLES.STATEMENTS);
       if (stmtErr) errors.push(`Extratos: ${stmtErr.message}`);
       else if (stmtData && stmtData.length > 0) {
         storage.saveStatementEntries(stmtData.map(mapStatementFromDb));
@@ -1507,7 +1520,7 @@ class SupabaseSyncService {
       }
 
       // 13. Cartões de Crédito (Higienizando dados mockados legados)
-      const { data: cardsData, error: cardsErr } = await client.from(CONTAJU_TABLES.CREDIT_CARDS).select('*');
+      const { data: cardsData, error: cardsErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CREDIT_CARDS);
       if (cardsErr) errors.push(`Cartões: ${cardsErr.message}`);
       else if (cardsData && cardsData.length > 0) {
         // Resposta vazia da nuvem (sessão vencida, por exemplo) nunca apaga os cartões que já estão no aparelho
@@ -1521,7 +1534,7 @@ class SupabaseSyncService {
       }
 
       // 14. Compras de Cartão (Higienizando dados mockados legados)
-      const { data: purchasesData, error: purErr } = await client.from(CONTAJU_TABLES.CARD_PURCHASES).select('*');
+      const { data: purchasesData, error: purErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CARD_PURCHASES);
       if (purErr) errors.push(`Compras Cartão: ${purErr.message}`);
       else if (purchasesData && purchasesData.length > 0) {
         const isMockPur = (id: string) => Boolean(id && /^pur-(?:[1-9]|1[0-9]|20)$/.test(id));
@@ -1535,15 +1548,15 @@ class SupabaseSyncService {
       }
 
       // 14b. Conferências com o banco e contagens do caixa (resposta vazia nunca apaga o que já existe no aparelho)
-      const { data: closingsData, error: closingsErr } = await client.from(CONTAJU_TABLES.BANK_CLOSINGS).select('*');
+      const { data: closingsData, error: closingsErr } = await this.fetchAllRows(client, CONTAJU_TABLES.BANK_CLOSINGS);
       if (closingsErr) errors.push(`Conferências com o banco: ${closingsErr.message}`);
       else if (closingsData && closingsData.length > 0) storage.saveBankClosingRecords(closingsData.map(mapBankClosingFromDb));
-      const { data: countsData, error: countsErr } = await client.from(CONTAJU_TABLES.CASH_COUNTS).select('*');
+      const { data: countsData, error: countsErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CASH_COUNTS);
       if (countsErr) errors.push(`Contagens do caixa: ${countsErr.message}`);
       else if (countsData && countsData.length > 0) storage.saveCashCounts(countsData.map(mapCashCountFromDb));
 
       // 15. Fechamentos de Período
-      const { data: closuresData, error: clsErr } = await client.from(CONTAJU_TABLES.PERIOD_CLOSURES).select('*');
+      const { data: closuresData, error: clsErr } = await this.fetchAllRows(client, CONTAJU_TABLES.PERIOD_CLOSURES);
       if (clsErr) errors.push(`Fechamentos de Período: ${clsErr.message}`);
       else if (closuresData && closuresData.length > 0) {
         storage.savePeriodClosures(closuresData.map(mapPeriodClosureFromDb));
@@ -1551,7 +1564,7 @@ class SupabaseSyncService {
       }
 
       // 16. Regras de Conciliação
-      const { data: rulesData, error: rlsErr } = await client.from(CONTAJU_TABLES.RECONCILIATION_RULES).select('*');
+      const { data: rulesData, error: rlsErr } = await this.fetchAllRows(client, CONTAJU_TABLES.RECONCILIATION_RULES);
       if (rlsErr) errors.push(`Regras de Conciliação: ${rlsErr.message}`);
       else if (rulesData && rulesData.length > 0) {
         storage.saveReconciliationRules(rulesData.map(mapReconciliationRuleFromDb));

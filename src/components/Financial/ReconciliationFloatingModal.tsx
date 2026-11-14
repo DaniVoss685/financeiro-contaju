@@ -85,6 +85,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   const [adjDiscount, setAdjDiscount] = useState<number>(0);
   const [adjBankFee, setAdjBankFee] = useState<number>(0);
   const [isPartialSettlement, setIsPartialSettlement] = useState<boolean>(false);
+  const [showExtras, setShowExtras] = useState<boolean>(false);
   const [isManualEditOpen, setIsManualEditOpen] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -176,6 +177,16 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   // Ações de Ajuste Rápido
   const handleEnablePartialSettlement = () => {
     setIsPartialSettlement(true);
+    setAdjPrincipal(stmtAbsAmount);
+    setAdjInterest(0);
+    setAdjFine(0);
+    setAdjDiscount(0);
+    setAdjBankFee(0);
+  };
+
+  // Terceira opção: o título passa a valer exatamente o que o extrato mostra (sem desconto, juros ou multa)
+  const handleAdjustToStatement = () => {
+    setIsPartialSettlement(false);
     setAdjPrincipal(stmtAbsAmount);
     setAdjInterest(0);
     setAdjFine(0);
@@ -367,7 +378,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
         const effectiveBankFee = isPartial ? 0 : adjBankFee;
 
         // Se o valor principal for maior que o saldo (acréscimo no valor original)
-        if (!isPartial && effectivePrincipalToSettle > currentTitleBalance) {
+        if (!isPartial && Math.abs(effectivePrincipalToSettle - currentTitleBalance) > 0.005) {
           const allTitles = storage.getTitles();
           const updatedTitles = allTitles.map(t => {
             if (t.id === singleTitle.id) {
@@ -499,8 +510,8 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 </h2>
                 <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                   canConfirm 
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                    : 'bg-rose-500/30 text-rose-300 border border-rose-500/50'
+                    ? 'bg-emerald-500/20 text-[var(--status-success)] border border-emerald-500/40' 
+                    : 'bg-rose-500/30 text-[var(--status-danger)] border border-rose-500/50'
                 }`}>
                   {canConfirm ? '✓ 100% Batendo' : '⚠ Exige Correção de Valores'}
                 </span>
@@ -528,138 +539,56 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
           {/* ALERTA MANDATÓRIO QUANDO OS VALORES NÃO FOREM CORRIGIDOS E NÃO BATEREM 100% */}
           {/* ========================================================================= */}
           {!canConfirm ? (
-            <div className="p-4 rounded-xl bg-rose-500/10 border-2 border-rose-500/50 text-rose-900 dark:text-rose-200 animate-in fade-in space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/60 flex items-center justify-center text-rose-500 shrink-0 mt-0.5">
-                  <AlertTriangle className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-extrabold text-sm text-rose-700 dark:text-rose-300 flex items-center gap-2">
-                    <span>ATENÇÃO: A CONCILIAÇÃO NÃO PODE SER ACEITA COM VALORES DIVERGENTES</span>
-                  </h3>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">
-                    O valor registrado no <strong>Extrato Bancário</strong> ({formatBRL(stmtAbsAmount)}) não confere com o saldo do <strong>Título no ERP</strong> ({formatBRL(currentTitleBalance)}).
-                    A conciliação <strong>está bloqueada</strong> até que seja selecionada a opção de <strong>Pagamento Parcial</strong> (para manter o restante em aberto) ou que os valores sejam ajustados de fato informando o <strong>Aumento (Juros/Multa/Tarifa)</strong> ou <strong>Desconto Comercial</strong> para zerar a diferença de{' '}
-                    <strong className="text-rose-600 dark:text-rose-400 font-mono text-sm underline">
-                      {formatBRL(Math.abs(isMultiSelection ? multiDifference : differenceToStatement))}
-                    </strong>.
-                  </p>
-                </div>
-              </div>
+            <div className="rounded-xl border border-[var(--status-danger)]/40 bg-[var(--status-danger-bg)] px-4 py-3 space-y-3 animate-in fade-in">
+              <p className="text-sm text-[var(--text-primary)] flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-[var(--status-danger)] shrink-0" />
+                <span>
+                  Tem diferença de{' '}
+                  <strong className="text-[var(--status-danger)] tabular-nums">{formatBRL(Math.abs(isMultiSelection ? multiDifference : differenceToStatement))}</strong>
+                  {' '}entre o extrato e o lançamento.
+                </span>
+              </p>
 
-              {/* Botões Rápidos de Correção e Opção de Pagamento Parcial */}
               {!isMultiSelection && (
-                <div className="pt-2 border-t border-rose-500/20 flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-[11px] text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    Opções para liberar conciliação:
-                  </span>
-
-                  {/* Opção 1: Marcar Pagamento Parcial (se o extrato for menor que o título) */}
+                <div className="flex flex-wrap items-center gap-2">
                   {canPartialSettlement && (
                     <button
                       type="button"
                       onClick={handleEnablePartialSettlement}
-                      className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                      title="Registrar como baixa parcial e manter o saldo restante em aberto no ERP"
+                      className="px-3.5 py-2 rounded-lg text-xs font-semibold border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-1.5 cursor-pointer"
+                      title="Dá baixa só no valor do extrato e mantém o restante em aberto"
                     >
                       <Clock className="w-3.5 h-3.5" />
-                      <span>
-                        Marcar como {isReceipt ? 'Recebimento Parcial' : 'Pagamento Parcial'} (Restará {formatBRL(currentTitleBalance - stmtAbsAmount)} em aberto)
-                      </span>
+                      <span>{isReceipt ? 'Recebimento parcial' : 'Pagamento parcial'} (resta {formatBRL(currentTitleBalance - stmtAbsAmount)})</span>
                     </button>
                   )}
 
-                  {isReceipt ? (
-                    stmtAbsAmount < currentTitleBalance ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsBankFee}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-orange-600 dark:text-orange-400 border border-orange-500/40 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança a retenção bancária como Tarifa Bancária (taxa de boleto, cartão ou intermediação)"
-                        >
-                          <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
-                          <span>Lançar como Tarifa Bancária (-{formatBRL(currentTitleBalance - stmtAbsAmount)})</span>
-                        </button>
+                  <button
+                    type="button"
+                    onClick={handleAdjustToStatement}
+                    className="px-3.5 py-2 rounded-lg text-xs font-semibold btn-gold flex items-center gap-1.5 cursor-pointer"
+                    title="O lançamento passa a valer o mesmo valor do extrato, sem lançar desconto ou juros"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Ajustar para {formatBRL(stmtAbsAmount)} (valor do extrato)</span>
+                  </button>
 
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsDiscount}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança como Desconto Comercial concedido ao cliente (Quita 100% o título)"
-                        >
-                          <Zap className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" />
-                          <span>Lançar como Desconto Comercial (-{formatBRL(currentTitleBalance - stmtAbsAmount)})</span>
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsInterest}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança a diferença a maior como juros de mora"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-sky-500" />
-                          <span>Lançar como Juros (+{formatBRL(stmtAbsAmount - currentTitleBalance)})</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsFine}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança a diferença a maior como multa"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-amber-500" />
-                          <span>Lançar como Multa (+{formatBRL(stmtAbsAmount - currentTitleBalance)})</span>
-                        </button>
-                      </>
-                    )
+                  {stmtAbsAmount < currentTitleBalance ? (
+                    <button
+                      type="button"
+                      onClick={isReceipt ? handleApplyDiffAsBankFee : handleApplyDiffAsDiscount}
+                      className="px-3.5 py-2 rounded-lg text-xs font-semibold border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer"
+                    >
+                      Lançar a diferença como {isReceipt ? 'tarifa' : 'desconto'} (-{formatBRL(currentTitleBalance - stmtAbsAmount)})
+                    </button>
                   ) : (
-                    stmtAbsAmount > currentTitleBalance ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsBankFee}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-orange-600 dark:text-orange-400 border border-orange-500/40 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança o valor adicional como Tarifa Bancária paga ao banco (TED, DOC, taxa de emissão)"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-orange-500" />
-                          <span>Lançar como Tarifa Bancária (+{formatBRL(stmtAbsAmount - currentTitleBalance)})</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsInterest}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança a diferença a maior como juros de mora"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-sky-500" />
-                          <span>Lançar como Juros (+{formatBRL(stmtAbsAmount - currentTitleBalance)})</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleApplyDiffAsFine}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Lança a diferença a maior como multa"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-amber-500" />
-                          <span>Lançar como Multa (+{formatBRL(stmtAbsAmount - currentTitleBalance)})</span>
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleApplyDiffAsDiscount}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#1b1b20] hover:bg-slate-100 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 flex items-center gap-1 transition-colors cursor-pointer"
-                        title="Lança como Desconto Comercial obtido do fornecedor (Quita 100% o título)"
-                      >
-                        <Zap className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" />
-                        <span>Lançar como Desconto Comercial (-{formatBRL(currentTitleBalance - stmtAbsAmount)})</span>
-                      </button>
-                    )
+                    <button
+                      type="button"
+                      onClick={handleApplyDiffAsInterest}
+                      className="px-3.5 py-2 rounded-lg text-xs font-semibold border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer"
+                    >
+                      Lançar a diferença como juros (+{formatBRL(stmtAbsAmount - currentTitleBalance)})
+                    </button>
                   )}
                 </div>
               )}
@@ -950,7 +879,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
               {canPartialSettlement && (
                 <div className={`p-3.5 rounded-xl border transition-all ${
                   isPartialSettlement
-                    ? 'bg-amber-500/20 border-amber-500 text-white ring-2 ring-amber-500/40'
+                    ? 'bg-amber-500/20 border-amber-500 text-[var(--text-primary)] ring-2 ring-amber-500/40'
                     : 'bg-[var(--surface-elevated)]/80 border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-amber-500/40'
                 }`}>
                   <label className="flex items-start gap-3 cursor-pointer">
@@ -977,7 +906,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                         <span className="font-extrabold text-xs text-[var(--brand-gold)] uppercase tracking-wide">
                           {isReceipt ? 'Recebimento Parcial' : 'Pagamento Parcial'} (Manter Restante em Aberto)
                         </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-[var(--brand-gold)] border border-amber-500/30">
                           Opção Recomendada
                         </span>
                       </div>
@@ -1003,6 +932,19 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 </div>
               )}
 
+              <label className="flex items-center gap-2.5 text-sm text-[var(--text-primary)] cursor-pointer select-none w-fit">
+                <input
+                  type="checkbox"
+                  checked={showExtras || adjInterest > 0 || adjFine > 0 || adjDiscount > 0 || adjBankFee > 0}
+                  onChange={e => {
+                    setShowExtras(e.target.checked);
+                    if (!e.target.checked) { setAdjInterest(0); setAdjFine(0); setAdjDiscount(0); setAdjBankFee(0); }
+                  }}
+                  className="w-4 h-4 rounded"
+                />
+                Teve juros, multa, desconto ou tarifa?
+              </label>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
                 {/* Principal */}
                 <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
@@ -1014,16 +956,16 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 </div>
 
                 {/* Juros */}
-                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
-                  <label className="text-[10px] text-sky-400 font-bold uppercase block mb-1">
+                <div className={`${showExtras || adjInterest > 0 || adjFine > 0 || adjDiscount > 0 || adjBankFee > 0 ? '' : 'hidden '}bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]`}>
+                  <label className="text-[10px] text-[var(--text-secondary)] font-bold uppercase block mb-1">
                     + Juros (R$)
                   </label>
-                  <MoneyField value={Number(adjInterest) || 0} onChange={(v: number) => setAdjInterest(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-sky-300 font-mono focus:border-sky-400 focus:outline-hidden" />
+                  <MoneyField value={Number(adjInterest) || 0} onChange={(v: number) => setAdjInterest(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-[var(--text-primary)] font-mono focus:border-sky-400 focus:outline-hidden" />
                   <span className="text-[9px] text-[var(--text-muted)] mt-1 block">Acréscimo por atraso</span>
                 </div>
 
                 {/* Multa */}
-                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                <div className={`${showExtras || adjInterest > 0 || adjFine > 0 || adjDiscount > 0 || adjBankFee > 0 ? '' : 'hidden '}bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]`}>
                   <label className="text-[10px] text-[var(--brand-gold)] font-bold uppercase block mb-1">
                     + Multa (R$)
                   </label>
@@ -1032,7 +974,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 </div>
 
                 {/* Desconto Comercial */}
-                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                <div className={`${showExtras || adjInterest > 0 || adjFine > 0 || adjDiscount > 0 || adjBankFee > 0 ? '' : 'hidden '}bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]`}>
                   <label className="text-[10px] text-[var(--status-success)] font-bold uppercase block mb-1">
                     - Desconto Comercial (R$)
                   </label>
@@ -1041,11 +983,11 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                 </div>
 
                 {/* Tarifa Bancária */}
-                <div className="bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
-                  <label className="text-[10px] text-orange-400 font-bold uppercase block mb-1">
+                <div className={`${showExtras || adjInterest > 0 || adjFine > 0 || adjDiscount > 0 || adjBankFee > 0 ? '' : 'hidden '}bg-[var(--surface-elevated)] p-2.5 rounded-lg border border-[var(--border-subtle)]`}>
+                  <label className="text-[10px] text-[var(--text-secondary)] font-bold uppercase block mb-1">
                     {isReceipt ? '- Tarifa Bancária (R$)' : '+ Tarifa Bancária (R$)'}
                   </label>
-                  <MoneyField value={Number(adjBankFee) || 0} onChange={(v: number) => setAdjBankFee(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-orange-300 font-mono focus:border-orange-400 focus:outline-hidden" />
+                  <MoneyField value={Number(adjBankFee) || 0} onChange={(v: number) => setAdjBankFee(Math.max(0, v))} className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded px-2.5 py-1.5 text-xs text-[var(--text-primary)] font-mono focus:border-orange-400 focus:outline-hidden" />
                   <span className="text-[9px] text-[var(--text-muted)] mt-1 block">
                     {isReceipt ? 'Taxa boleto/cartão retida' : 'Taxa TED/DOC/emissão'}
                   </span>
@@ -1060,7 +1002,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   {adjInterest > 0 && <span className="text-[var(--status-danger)]"> + {formatBRL(adjInterest)} (Juros)</span>}
                   {adjFine > 0 && <span className="text-[var(--brand-gold)]"> + {formatBRL(adjFine)} (Multa)</span>}
                   {adjDiscount > 0 && <span className="text-[var(--status-success)]"> - {formatBRL(adjDiscount)} (Desc. Comercial)</span>}
-                  {adjBankFee > 0 && <span className="text-orange-400"> {isReceipt ? '-' : '+'} {formatBRL(adjBankFee)} (Tarifa Bancária)</span>}
+                  {adjBankFee > 0 && <span className="text-[var(--text-secondary)]"> {isReceipt ? '-' : '+'} {formatBRL(adjBankFee)} (Tarifa Bancária)</span>}
                   <span className="text-[var(--text-primary)] font-bold"> = Total: {formatBRL(totalSettledCalculated)}</span>
                 </div>
 
@@ -1068,8 +1010,8 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <span className="text-[var(--text-secondary)] text-xs">Diferença para o Extrato:</span>
                   <span className={`px-2.5 py-1 rounded text-xs font-bold ${
                     isSingleExact
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                      : 'bg-rose-500/30 text-rose-300 border border-rose-500/50'
+                      ? 'bg-emerald-500/20 text-[var(--status-success)] border border-emerald-500/40'
+                      : 'bg-rose-500/30 text-[var(--status-danger)] border border-rose-500/50'
                   }`}>
                     {isSingleExact ? '✓ R$ 0,00 (100% Batendo)' : formatBRL(differenceToStatement)}
                   </span>

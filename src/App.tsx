@@ -29,7 +29,21 @@ function lazyWithRetry<T extends React.ComponentType<any>>(
       return await componentImport();
     } catch (error) {
       console.warn('[Contaju Lazy] Recarregando módulo após falha transitória...', error);
-      return await componentImport();
+      try {
+        return await componentImport();
+      } catch (secondError) {
+        // Aba aberta há muito tempo com a versão antiga: o arquivo da tela não existe mais no servidor. Recarrega uma vez para pegar a versão nova.
+        try {
+          const key = 'contaju_chunk_reload';
+          const last = Number(sessionStorage.getItem(key) || 0);
+          if (Date.now() - last > 15000) {
+            sessionStorage.setItem(key, String(Date.now()));
+            window.location.reload();
+            return await new Promise<never>(() => {});
+          }
+        } catch { /* segue para o aviso de erro */ }
+        throw secondError;
+      }
     }
   });
 }
@@ -506,11 +520,14 @@ function AppContent() {
                 <button type="button" onClick={() => { const own = getOrgs().find(o => o.role !== 'CONSULTOR'); if (own) switchOrg(own.id); else handleNavigate('CONSULTORIA'); }} className="font-semibold text-[var(--brand-gold)] underline underline-offset-2">Voltar para a minha empresa</button>
               </div>
             )}
-            <AppErrorBoundary fallbackTitle="Falha na exibição desta tela">
-              <Suspense fallback={<ScreenLoadingFallback />}>
-                {renderActiveScreen()}
-              </Suspense>
-            </AppErrorBoundary>
+            {/* key: ao trocar de tela o aviso de erro some e a nova tela é tentada */}
+            <React.Fragment key={currentScreen}>
+              <AppErrorBoundary fallbackTitle="Falha na exibição desta tela">
+                <Suspense fallback={<ScreenLoadingFallback />}>
+                  {renderActiveScreen()}
+                </Suspense>
+              </AppErrorBoundary>
+            </React.Fragment>
           </div>
         </main>
       </div>

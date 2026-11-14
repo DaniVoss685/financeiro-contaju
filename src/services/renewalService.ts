@@ -61,7 +61,7 @@ export function renewForeverRecurrences(): number {
       const due = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       created.push({
         ...last,
-        id: `tit-ren-${Date.now()}-${created.length}-${Math.floor(Math.random() * 1000)}`,
+        id: `tit-ren-${key.replace(/[^A-Za-z0-9]+/g, "_")}-${comp}`,
         titleNumber: `${base} - ${comp}`,
         description: (last.description || '').replace(/\[Recorrente \d{4}-\d{2}\]/, `[Recorrente ${comp}]`),
         competence: comp,
@@ -131,7 +131,7 @@ export function renewContractDueMonths(): number {
         const amount = c.monthlyTotal || template.originalAmount;
         created.push({
           ...template,
-          id: `tit-due-${Date.now()}-${created.length}-${Math.floor(Math.random() * 1000)}`,
+          id: `tit-due-${c.id}-${ym}`,
           titleNumber: `FAT-${comp}-${String(c.contractNumber || '').replace('CTR-', '').replace('CT-', '')}-V${ym.replace('-', '')}`,
           description: (template.description || '').replace(/Comp\.\s*\d{2}\/\d{4}/, `Comp. ${comp.substring(5)}/${comp.substring(0, 4)}`),
           competence: comp,
