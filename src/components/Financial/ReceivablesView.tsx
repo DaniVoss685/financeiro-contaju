@@ -122,6 +122,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const [selectedTitleForSettlement, setSelectedTitleForSettlement] = useState<FinancialTitle | null>(null);
+  const [settledNotice, setSettledNotice] = useState(false);
   const [selectedTitleForEdit, setSelectedTitleForEdit] = useState<FinancialTitle | null>(null);
   const [receiptTitle, setReceiptTitle] = useState<FinancialTitle | null>(null);
   const [isBatchEditOpen, setIsBatchEditOpen] = useState(false);
@@ -136,6 +137,17 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
   const [expandedMobileIds, setExpandedMobileIds] = useState<Record<string, boolean>>({});
   const [historyTitle, setHistoryTitle] = useState<FinancialTitle | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  // Atalho vindo da tela Cobranças ("Abrir a limpeza de duplicidades")
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('contaju_abrir_limpeza') === '1') {
+        sessionStorage.removeItem('contaju_abrir_limpeza');
+        setIsDedupModalOpen(true);
+      }
+    } catch {
+      /* sem atalho, abre pelo menu */
+    }
+  }, []);
   const nomesClientes = useMemo(() => new Map(storage.getCounterparties().map(p => [p.id, p.name])), [refreshKey]);
 
   const duplicateCandidates = useMemo(() => {
@@ -2488,9 +2500,22 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
           onClose={() => setSelectedTitleForSettlement(null)}
           onSettled={() => {
             setSelectedTitleForSettlement(null);
-            window.location.reload();
+            setRefreshKey(k => k + 1);
+            setSettledNotice(true);
           }}
         />
+      )}
+
+      {/* Baixa concluída: nada de recarregar a página, só avisar */}
+      {settledNotice && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] p-8 text-center shadow-2xl">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center text-[var(--status-success)] text-3xl leading-none">✓</div>
+            <h3 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">Recebimento registrado</h3>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">Recebimento registrado. O saldo da conta já foi atualizado.</p>
+            <button type="button" onClick={() => setSettledNotice(false)} className="mt-6 w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer">Entendi</button>
+          </div>
+        </div>
       )}
 
       {/* Title Settlement History Modal (Linha do Tempo Visual e Extratos Vinculados) */}

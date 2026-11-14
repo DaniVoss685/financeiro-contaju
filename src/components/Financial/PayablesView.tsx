@@ -100,6 +100,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const [selectedTitleForSettlement, setSelectedTitleForSettlement] = useState<FinancialTitle | null>(null);
+  const [settledNotice, setSettledNotice] = useState(false);
   const [selectedTitleForEdit, setSelectedTitleForEdit] = useState<FinancialTitle | null>(null);
   const [isBatchEditOpen, setIsBatchEditOpen] = useState(false);
   const [isBatchSettlementOpen, setIsBatchSettlementOpen] = useState(false);
@@ -2323,9 +2324,22 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
           onClose={() => setSelectedTitleForSettlement(null)}
           onSettled={() => {
             setSelectedTitleForSettlement(null);
-            window.location.reload();
+            setRefreshKey(k => k + 1);
+            setSettledNotice(true);
           }}
         />
+      )}
+
+      {/* Baixa concluída: nada de recarregar a página, só avisar */}
+      {settledNotice && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border-highlight)] bg-[var(--surface-card)] p-8 text-center shadow-2xl">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center text-[var(--status-success)] text-3xl leading-none">✓</div>
+            <h3 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">Pagamento registrado</h3>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">Pagamento registrado. O saldo da conta já foi atualizado.</p>
+            <button type="button" onClick={() => setSettledNotice(false)} className="mt-6 w-full h-12 rounded-xl btn-gold text-sm font-semibold cursor-pointer">Entendi</button>
+          </div>
+        </div>
       )}
 
       {/* Title Settlement History Modal (Linha do Tempo Visual e Extratos Vinculados) */}
