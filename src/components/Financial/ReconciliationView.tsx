@@ -2363,6 +2363,17 @@ export const ReconciliationView: React.FC = () => {
 
   // Listagem de títulos com filtro estrito por tipo (pagamento -> apenas contas a pagar; recebido -> apenas contas a receber)
   // e ordenação automática por maior chance de compatibilidade em ordem decrescente
+  const settledMonthsByTitle = useMemo(() => {
+    const map = new Map<string, string[]>();
+    storage.getSettlements().forEach(st => {
+      if (!st.titleId || !st.settlementDate) return;
+      const arr = map.get(st.titleId) || [];
+      arr.push(String(st.settlementDate).substring(0, 7));
+      map.set(st.titleId, arr);
+    });
+    return map;
+  }, [titles, refreshKey]);
+
   const rankedTitles = useMemo(() => {
     // 1. Filtro base de títulos com suporte ao filtro de liquidação (o usuário pediu: "MESMO SE EU JA TIVER RECEBIDO OU PAGO MANUALMENTE ELE APARECE PRA CONCILIAR PRA GARANTIR QUE CRUZEI OS DADOS E CASO NÃO, ELE DE BAIXA NO TITULO SELECIONADO.")
     let candidates = titles.filter(t => {
@@ -2383,9 +2394,13 @@ export const ReconciliationView: React.FC = () => {
         if (selectedTitleIds.includes(t.id)) return true;
         if (selectedStmt && (selectedStmt.matchedTitleId === t.id || selectedStmt.suggestedTitleId === t.id)) return true;
         
+        // Conciliação é por CAIXA: vale o mês do vencimento (ou, se já baixado, o mês em que foi pago). Competência não entra.
         const dueYm = t.dueDate ? t.dueDate.substring(0, 7) : '';
-        const compYm = t.competence ? t.competence.substring(0, 7) : '';
-        return dueYm === titleYearMonth || compYm === titleYearMonth;
+        if (dueYm === titleYearMonth) return true;
+        if (t.settlementState === 'LIQUIDADO' || t.settlementState === 'PARCIAL') {
+          return (settledMonthsByTitle.get(t.id) || []).includes(titleYearMonth);
+        }
+        return false;
       });
     }
 
@@ -2461,7 +2476,7 @@ export const ReconciliationView: React.FC = () => {
     });
 
     return scored;
-  }, [titles, selectedStmt, deferredSearchTitle, counterpartyMap, titleSettlementFilter, titlePeriodMode, titleYearMonth, selectedTitleIds]);
+  }, [titles, selectedStmt, deferredSearchTitle, counterpartyMap, titleSettlementFilter, titlePeriodMode, titleYearMonth, selectedTitleIds, settledMonthsByTitle]);
 
   // Bidirecionalidade: se um título for selecionado e nenhum extrato estiver marcado,
   // filtra e ordena os extratos de acordo com a natureza do título (Pagar -> débitos, Receber -> créditos)
@@ -3694,7 +3709,7 @@ export const ReconciliationView: React.FC = () => {
                               Doc #{t.titleNumber}
                             </span>
                             {t.competence && (
-                              <span className="bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/60 font-medium">
+                              <span className="adv-only bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/60 font-medium">
                                 Comp: {formatCompetenceShort(t.competence)}
                               </span>
                             )}
