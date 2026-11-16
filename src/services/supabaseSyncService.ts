@@ -1015,9 +1015,8 @@ class SupabaseSyncService {
       // 5. Contrapartes (Clientes/Fornecedores)
       const counterparties = storage.getCounterparties();
       if (counterparties.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.COUNTERPARTIES).upsert(counterparties.map(mapCounterpartyToDb), { onConflict: 'id' });
-        if (error) errors.push(`Clientes/Fornecedores: ${error.message}`);
-        else stats.counterparties = counterparties.length;
+        const okCp = await this.pushDelta(client, CONTAJU_TABLES.COUNTERPARTIES, counterparties.map(mapCounterpartyToDb), 'Clientes/Fornecedores', errors);
+        if (okCp) stats.counterparties = counterparties.length;
       }
 
       // 6. Serviços
@@ -1039,57 +1038,29 @@ class SupabaseSyncService {
       // 8. Vendas
       const sales = storage.getSales();
       if (sales.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.SALES).upsert(sales.map(mapSaleToDb), { onConflict: 'id' });
-        if (error) errors.push(`Vendas: ${error.message}`);
-        else stats.sales = sales.length;
+        const okSales = await this.pushDelta(client, CONTAJU_TABLES.SALES, sales.map(mapSaleToDb), 'Vendas', errors);
+        if (okSales) stats.sales = sales.length;
       }
 
       // 9. Títulos Financeiros
       const titles = storage.getTitles();
       if (titles.length > 0) {
-        const chunks = this.chunkArray(titles.map(mapTitleToDb), 100);
-        let titleErrors = 0;
-        for (const chunk of chunks) {
-          const { error } = await client.from(CONTAJU_TABLES.TITLES).upsert(chunk, { onConflict: 'id' });
-          if (error) {
-            titleErrors++;
-            errors.push(`Títulos Financeiros: ${error.message}`);
-            break;
-          }
-        }
-        if (titleErrors === 0) stats.titles = titles.length;
+        const okTitles = await this.pushDelta(client, CONTAJU_TABLES.TITLES, titles.map(mapTitleToDb), 'Títulos Financeiros', errors);
+        if (okTitles) stats.titles = titles.length;
       }
 
       // 10. Baixas / Liquidações
       const settlements = storage.getSettlements();
       if (settlements.length > 0) {
-        const chunks = this.chunkArray(settlements.map(mapSettlementToDb), 100);
-        let settErrors = 0;
-        for (const chunk of chunks) {
-          const { error } = await client.from(CONTAJU_TABLES.SETTLEMENTS).upsert(chunk, { onConflict: 'id' });
-          if (error) {
-            settErrors++;
-            errors.push(`Liquidações: ${error.message}`);
-            break;
-          }
-        }
-        if (settErrors === 0) stats.settlements = settlements.length;
+        const okSett = await this.pushDelta(client, CONTAJU_TABLES.SETTLEMENTS, settlements.map(mapSettlementToDb), 'Liquidações', errors);
+        if (okSett) stats.settlements = settlements.length;
       }
 
       // 11. Movimentações de Caixa
       const movements = storage.getMovements();
       if (movements.length > 0) {
-        const chunks = this.chunkArray(movements.map(mapMovementToDb), 100);
-        let movErrors = 0;
-        for (const chunk of chunks) {
-          const { error } = await client.from(CONTAJU_TABLES.MOVEMENTS).upsert(chunk, { onConflict: 'id' });
-          if (error) {
-            movErrors++;
-            errors.push(`Movimentações de Caixa: ${error.message}`);
-            break;
-          }
-        }
-        if (movErrors === 0) stats.movements = movements.length;
+        const okMov = await this.pushDelta(client, CONTAJU_TABLES.MOVEMENTS, movements.map(mapMovementToDb), 'Movimentações de Caixa', errors);
+        if (okMov) stats.movements = movements.length;
       }
 
       // 12. Extrato Bancário
@@ -1110,17 +1081,8 @@ class SupabaseSyncService {
           }
           return mapped;
         });
-        const chunks = this.chunkArray(mappedStatements, 100);
-        let stmtErrors = 0;
-        for (const chunk of chunks) {
-          const { error } = await client.from(CONTAJU_TABLES.STATEMENTS).upsert(chunk, { onConflict: 'id' });
-          if (error) {
-            stmtErrors++;
-            errors.push(`Extrato Bancário: ${error.message}`);
-            break;
-          }
-        }
-        if (stmtErrors === 0) stats.statements = statements.length;
+        const okStmt = await this.pushDelta(client, CONTAJU_TABLES.STATEMENTS, mappedStatements, 'Extrato Bancário', errors);
+        if (okStmt) stats.statements = statements.length;
       }
 
       // 13. Cartões de Crédito
@@ -2183,6 +2145,32 @@ class SupabaseSyncService {
     } catch (e: any) {
       return { success: false, error: e.message };
     }
+  }
+
+  // Assinatura do que já foi enviado nesta sessão (por empresa e tabela): só o que mudou volta para a nuvem.
+  // Antes, cada gravação reenviava milhares de linhas, travando a tela e a rede.
+  private pushedSig = new Map<string, Map<string, string>>();
+
+  private async pushDelta(client: any, table: string, rows: any[], label: string, errors: string[]): Promise<boolean> {
+    let org = 'local';
+    try { org = localStorage.getItem('contaju_active_org') || 'local'; } catch { /* sem storage */ }
+    const key = `${org}|${table}`;
+    let sig = this.pushedSig.get(key);
+    if (!sig) { sig = new Map(); this.pushedSig.set(key, sig); }
+    const changed: Array<{ row: any; json: string }> = [];
+    for (const row of rows) {
+      const json = JSON.stringify(row);
+      if (sig.get(row.id) !== json) changed.push({ row, json });
+    }
+    for (const chunk of this.chunkArray(changed, 100)) {
+      const { error } = await client.from(table).upsert(chunk.map(c => c.row), { onConflict: 'id' });
+      if (error) {
+        errors.push(`${label}: ${error.message}`);
+        return false;
+      }
+      chunk.forEach(c => sig!.set(c.row.id, c.json));
+    }
+    return true;
   }
 
   private chunkArray<T>(arr: T[], size: number): T[][] {

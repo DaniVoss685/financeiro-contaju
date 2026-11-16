@@ -349,7 +349,7 @@ export class BudgetEngine {
 
     // 4. DESPESAS OPERACIONAIS
     const opExpAccounts = accounts.filter(
-      a => (a.parentId === 'grp-3.1' || a.parentId === 'grp-3.2' || a.parentId === 'grp-3.3') && a.isAnalytical
+      a => (a.parentId === 'grp-3.1' || a.parentId === 'grp-3.2' || a.parentId === 'grp-3.3' || a.parentId === 'grp-3.4') && a.isAnalytical
     );
     const opExpChildLines: BudgetHierarchyLine[] = opExpAccounts.map(acc => {
       const pMonthly = getPlanned(acc.id);

@@ -147,7 +147,8 @@ export const DREView: React.FC<DREViewProps> = ({ isFocusMode, onToggleFocusMode
   const [fitToScreen, setFitToScreen] = useState<boolean>(true);
 
   // 3. Recursos de produtividade e análise avançada (Sugestões 3, 4 e 5)
-  const [hideZeroRows, setHideZeroRows] = useState<boolean>(false);
+  // Começa ocultando contas sem movimento: o plano de contas agora tem muitas contas novas ainda vazias
+  const [hideZeroRows, setHideZeroRows] = useState<boolean>(true);
   const [showSparklines, setShowSparklines] = useState<boolean>(true);
   const [showBudgetVariance, setShowBudgetVariance] = useState<boolean>(false);
   const [showHorizontalAnalysis, setShowHorizontalAnalysis] = useState<boolean>(false); // Sugestão 4: Análise Horizontal MoM %

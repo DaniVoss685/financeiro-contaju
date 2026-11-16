@@ -255,11 +255,20 @@ class StorageService {
     }
   }
 
+  private notifyScheduled = false;
+
   private notify() {
-    // Agendado no próximo tick para evitar "Cannot update a component while rendering a different component"
-    setTimeout(() => {
-      this.listeners.forEach(fn => fn());
-    }, 0);
+    // Agendado no próximo tick para evitar "Cannot update a component while rendering a different component".
+    // Várias gravações seguidas (importação, baixa em lote) viram um único aviso: antes cada uma refazia todas as telas.
+    if (!this.notifyScheduled) {
+      this.notifyScheduled = true;
+      setTimeout(() => {
+        this.notifyScheduled = false;
+        this.listeners.forEach(fn => {
+          try { fn(); } catch (e) { console.error('Erro ao atualizar tela:', e); }
+        });
+      }, 0);
+    }
     this.triggerAutoSyncIfConfigured();
   }
 
