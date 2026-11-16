@@ -11,6 +11,7 @@
 import { parseOFX } from './ofxParser';
 import * as XLSX from 'xlsx';
 import { ChartAccount, Counterparty } from '../types';
+import { getFilteredChartAccounts } from '../services/financialEngine';
 
 export interface ParsedInvoiceTransaction {
   id: string;
@@ -173,7 +174,10 @@ export function suggestCategoryAndCounterparty(
   const counterpartyName = matchedCounterparty?.name || cleanName || 'Fornecedor Fatura';
 
   // Find suitable expense accounts
-  const expenseAccounts = chartAccounts.filter(a => a.type === 'DESPESA' || a.code.startsWith('4.'));
+  // Só despesas operacionais de verdade (exclui deduções da receita, tributos e resultado financeiro)
+  const expenseAccounts = getFilteredChartAccounts(chartAccounts, 'PAGAR')
+    .filter(a => (a.nature || '').startsWith('DESPESA') || /^[35]/.test(a.code || ''))
+    .sort((a, b) => (a.code || '').localeCompare(b.code || '', undefined, { numeric: true }));
 
   // Rules
   const findAccountByTerms = (terms: string[]) => {
@@ -202,7 +206,7 @@ export function suggestCategoryAndCounterparty(
 
   // Fallback to general administrative/operational expense
   if (!chartAccountId) {
-    const generalAcc = expenseAccounts.find(a => a.name.toLowerCase().includes('gerais') || a.name.toLowerCase().includes('outras') || a.name.toLowerCase().includes('administrativ'));
+    const generalAcc = expenseAccounts.find(a => /gerais|outras|diversas/i.test(a.name)) || expenseAccounts.find(a => a.nature === 'DESPESA_ADMINISTRATIVA');
     chartAccountId = generalAcc ? generalAcc.id : (expenseAccounts[0]?.id || 'acc-desp-1');
   }
 

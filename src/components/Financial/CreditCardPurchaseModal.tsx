@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { CreditCard, Counterparty, ChartAccount, CreditCardPurchase, CreditCardInstallment } from '../../types';
 import { storage } from '../../services/storageService';
-import { formatBRL } from '../../services/financialEngine';
+import { formatBRL, formatChartAccountSelectOptions } from '../../services/financialEngine';
 import { getDaysInMonth } from '../../utils/dateUtils';
 import { PremiumSelect } from '../Common/PremiumSelect';
 import { DateField } from '../Common/DateField';
@@ -93,6 +93,16 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
       setError(null);
     }
   }, [editingPurchase, initialCardId, initialTransactionType, isOpen, cards]);
+
+  // Garante uma categoria válida do plano de contas cadastrado (o padrão antigo 'acc-desp-1' não existe mais)
+  useEffect(() => {
+    const opts = chartAccounts
+      .filter(a => formatChartAccountSelectOptions(chartAccounts, transactionType === 'DESPESA' ? 'PAGAR' : undefined).some(o => o.value === a.id));
+    if (opts.length === 0 || opts.some(a => a.id === chartAccountId)) return;
+    const despesas = opts.filter(a => (a.nature || '').startsWith('DESPESA') || /^[35]/.test(a.code || ''));
+    const geral = despesas.find(a => /gerais|outras|diversas/i.test(a.name)) || despesas.find(a => a.nature === 'DESPESA_ADMINISTRATIVA');
+    setChartAccountId((geral || despesas[0] || opts[0]).id);
+  }, [chartAccounts, transactionType, chartAccountId, isOpen]);
 
   const selectedCard = useMemo(() => {
     return cards.find(c => c.id === cardId) || cards[0];
@@ -440,8 +450,8 @@ export const CreditCardPurchaseModal: React.FC<CreditCardPurchaseModalProps> = (
                 style={{ colorScheme: 'light dark' }}
                 className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer text-xs"
               >
-                {chartAccounts
-                  .filter(a => (transactionType === 'DESPESA' ? a.type === 'DESPESA' : true) && a.acceptsLaunches)
+                {formatChartAccountSelectOptions(chartAccounts, transactionType === 'DESPESA' ? 'PAGAR' : undefined)
+                  .map(o => chartAccounts.find(a => a.id === o.value)!)
                   .map(a => (
                     <option 
                       key={a.id} 

@@ -220,14 +220,6 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
               ? [{ label: 'Ver no Contas a Pagar', icon: <ExternalLink className="w-4 h-4" />, onClick: onNavigateToPayables }]
               : []),
             { label: 'Novo cartão', icon: <Plus className="w-4 h-4" />, onClick: handleOpenNewCard },
-            ...(activeCard
-              ? [{
-                  label: 'Importar fatura (OFX, CSV ou PDF)',
-                  icon: <FileSpreadsheet className="w-4 h-4" />,
-                  onClick: () => setIsImportInvoiceModalOpen(true),
-                  hint: 'Nubank, Itaú, C6, Inter, Bradesco'
-                }]
-              : []),
             ...(cards.length > 0
               ? [{
                   label: 'Lançar estorno ou crédito',
@@ -238,6 +230,16 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
               : [])
           ]}
         />
+        {activeCard && (
+          <Button
+            id="btn-import-invoice"
+            variant="secondary"
+            icon={<FileSpreadsheet className="w-4 h-4" />}
+            onClick={() => setIsImportInvoiceModalOpen(true)}
+          >
+            Importar fatura
+          </Button>
+        )}
         <Button
           id="btn-new-purchase"
           variant="primary"

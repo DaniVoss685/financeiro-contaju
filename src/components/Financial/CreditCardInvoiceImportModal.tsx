@@ -33,7 +33,7 @@ import {
   CreditCardInstallment 
 } from '../../types';
 import { storage } from '../../services/storageService';
-import { formatBRL, formatCompetence } from '../../services/financialEngine';
+import { formatBRL, formatCompetence, getFilteredChartAccounts } from '../../services/financialEngine';
 import { getDaysInMonth, addMonthsSafe } from '../../utils/dateUtils';
 import { 
   ParsedInvoiceTransaction, 
@@ -102,6 +102,20 @@ export const CreditCardInvoiceImportModal: React.FC<CreditCardInvoiceImportModal
   // Active view tab for the comparison results
   const [resultFilterTab, setResultFilterTab] = useState<'MISSING' | 'MATCHED' | 'ONLY_SYSTEM'>('MISSING');
 
+  // Categorias de despesa/custo do plano de contas cadastrado (mesmo critério de Contas a Pagar), em ordem de código
+  const expenseAccountOptions = useMemo(() => {
+    return [...getFilteredChartAccounts(chartAccounts, 'PAGAR')].sort((a, b) =>
+      (a.code || '').localeCompare(b.code || '', undefined, { numeric: true })
+    );
+  }, [chartAccounts]);
+
+  // Conta padrão quando não há sugestão: despesa geral/administrativa, senão a primeira despesa
+  const defaultExpenseId = useMemo(() => {
+    const despesas = expenseAccountOptions.filter(a => (a.nature || '').startsWith('DESPESA') || /^[35]/.test(a.code || ''));
+    const geral = despesas.find(a => /gerais|outras|diversas/i.test(a.name)) || despesas.find(a => a.nature === 'DESPESA_ADMINISTRATIVA');
+    return (geral || despesas[0] || expenseAccountOptions[0])?.id || 'acc-desp-1';
+  }, [expenseAccountOptions]);
+
   // Comparison computation
   const comparison = useMemo(() => {
     return compareInvoiceItems(importedItems, manualInvoiceItems);
@@ -120,7 +134,7 @@ export const CreditCardInvoiceImportModal: React.FC<CreditCardInvoiceImportModal
         const it = m.invoiceItem!;
         initialEdits[it.id] = {
           description: it.description,
-          chartAccountId: it.suggestedChartAccountId || chartAccounts[0]?.id || 'acc-desp-1',
+          chartAccountId: it.suggestedChartAccountId || defaultExpenseId,
           counterpartyName: it.suggestedCounterpartyName || it.cleanDescription,
           counterpartyId: it.suggestedCounterpartyId
         };
@@ -268,7 +282,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
       const it = m.invoiceItem!;
       const edits = itemEdits[it.id] || {
         description: it.description,
-        chartAccountId: it.suggestedChartAccountId || chartAccounts[0]?.id || 'acc-desp-1',
+        chartAccountId: it.suggestedChartAccountId || defaultExpenseId,
         counterpartyName: it.suggestedCounterpartyName || it.cleanDescription
       };
 
@@ -672,7 +686,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                             const isChecked = selectedMissingIds.has(it.id);
                             const edits = itemEdits[it.id] || {
                               description: it.description,
-                              chartAccountId: it.suggestedChartAccountId || chartAccounts[0]?.id || 'acc-desp-1',
+                              chartAccountId: it.suggestedChartAccountId || defaultExpenseId,
                               counterpartyName: it.suggestedCounterpartyName || it.cleanDescription
                             };
 
@@ -709,8 +723,7 @@ Vencimento: 15/${m}/${y} | Período de Compras
                                     style={{ colorScheme: 'light dark' }}
                                     className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 cursor-pointer"
                                   >
-                                    {chartAccounts
-                                      .filter(a => a.type === 'DESPESA' || (a.code.startsWith('4.') && a.type !== 'RECEITA'))
+                                    {expenseAccountOptions
                                       .map(a => (
                                         <option 
                                           key={a.id} 
