@@ -306,7 +306,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         return;
       }
       if (result.success && result.needsConfirmation) {
-        setSuccessNotice('Cadastro recebido. Se a consultoria autorizou este e-mail, entre com seu e-mail e senha.');
+        setSuccessNotice('Este e-mail já tem cadastro. Entre com a senha que foi criada na primeira vez ou clique em "Esqueceu a senha?" para criar outra.');
         // Limpar formulário de cadastro e voltar para aba de login
         setRegName('');
         setRegEmail('');

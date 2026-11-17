@@ -386,6 +386,11 @@ function AppContent() {
 
       // Consolidated Configuration Hub & AI Center
       case 'CONSULTORIA':
+        // Só quem é consultor (e-mail cadastrado como tal no banco) vê esta tela
+        if (!isConsultant()) {
+          queueMicrotask(() => setCurrentScreen('DASHBOARD'));
+          return null;
+        }
         return <ConsultoriaView />;
       case 'IA':
         return (
@@ -434,6 +439,7 @@ function AppContent() {
         <LoginView
           onLoginSuccess={(user) => {
             setCurrentUser(user);
+            setCurrentScreen('DASHBOARD'); // todo login começa no Painel inicial
             setIsAuthenticated(true);
             showSuccess('Acesso Liberado', `Bem-vindo(a), ${user.name}!`);
             // Garante hidratação completa imediata de todos os dados do banco Supabase

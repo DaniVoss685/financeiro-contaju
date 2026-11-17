@@ -32,10 +32,18 @@ const fmt = (iso: string) => {
 type ErroRpc = { message?: string; code?: string; status?: number } | null;
 
 const sessaoVencida = (e: ErroRpc) =>
-  !!e && (e.status === 401 || /jwt|token|expired|not authenticated/i.test(e.message || '') || e.code === 'PGRST301');
+  !!e &&
+  (e.status === 401 ||
+    e.code === 'PGRST301' ||
+    e.code === '42501' ||
+    /jwt|token|expired|not authenticated|permission denied/i.test(e.message || ''));
 
 // Se a sessão venceu, renova o login e tenta de novo uma vez.
 async function chamarComSessao(fn: () => PromiseLike<{ error: ErroRpc }>) {
+  const { data } = await getSupabaseClient()!.auth.getSession();
+  if (!data.session) {
+    await getSupabaseClient()!.auth.refreshSession();
+  }
   let res = await fn();
   if (res.error && sessaoVencida(res.error)) {
     await getSupabaseClient()!.auth.refreshSession();
@@ -45,7 +53,8 @@ async function chamarComSessao(fn: () => PromiseLike<{ error: ErroRpc }>) {
 }
 
 function erroAmigavel(e: NonNullable<ErroRpc>, base: string) {
-  if (sessaoVencida(e)) return `${base} Sua sessão expirou: saia do sistema e entre de novo.`;
+  if (sessaoVencida(e))
+    return 'Sua conexão com o banco expirou (o sistema ainda parece aberto, mas já está sem login). Clique no seu nome no canto superior direito, saia do sistema e entre de novo com e-mail e senha.';
   if (/Apenas consultores/i.test(e.message || '')) return `${base} Este e-mail de login não está na lista de consultores.`;
   return `${base} Detalhe: ${e.message || 'erro desconhecido'}`;
 }
