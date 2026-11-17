@@ -218,7 +218,7 @@ export const CNPJInputField: React.FC<CNPJInputFieldProps> = ({
 
         {validation.digits.length > 0 && validation.status !== 'valid' && (
           <span className="text-[10px] font-mono text-[var(--text-muted)]">
-            {validation.digits.length}/14 dígitos
+            {validation.digits.length}/{validation.digits.length <= 11 ? 11 : 14} dígitos
           </span>
         )}
       </div>

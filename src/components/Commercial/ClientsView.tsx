@@ -685,10 +685,10 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                 <div className="flex items-center justify-between text-xs font-bold text-amber-500 dark:text-amber-400">
                   <span className="flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>CNPJ do Cliente (Auto-Preenchimento Oficial)</span>
+                    <span>CNPJ ou CPF do cliente</span>
                   </span>
                   <span className="text-[10px] text-amber-600/80 dark:text-amber-400/80 font-normal">
-                    Puxa dados da Receita Federal
+                    CNPJ puxa os dados da Receita Federal
                   </span>
                 </div>
                 <CNPJInputField
@@ -712,9 +712,10 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                       notes: prev.notes ? `${prev.notes}\n[CNAE: ${receita.cnaeCodigo} - ${receita.cnaeDescricao}]` : `CNAE: ${receita.cnaeCodigo} - ${receita.cnaeDescricao}. Situação: ${receita.situacaoCadastral}.`
                     }));
                   }}
-                  label="Digite ou Cole o CNPJ *"
+                  label="Digite ou cole o CNPJ ou CPF *"
                   required
-                  placeholder="00.000.000/0000-00"
+                  placeholder="CNPJ ou CPF"
+                  helpText="CNPJ (14 números): busca os dados na Receita. CPF (11 números): só confere e cadastra, preencha o resto à mão."
                 />
               </div>
 

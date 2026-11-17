@@ -777,7 +777,15 @@ class StorageService {
         state: '',
         zipCode: ''
       };
-      return this.get(STORAGE_KEYS.COMPANY, blank);
+      const stored = this.get<CompanyProfile>(STORAGE_KEYS.COMPANY, blank);
+      // Empresa cliente nunca mostra os dados do Contaju: o modelo de demonstração (CNPJ 18.942.503/0001-88) e o
+      // cadastro do escritório ("ESCRITORIO CONTAJU LTDA") só valem para a própria empresa Contaju.
+      const isContajuProfile =
+        stored?.cnpj === INITIAL_COMPANY.cnpj ||
+        stored?.id === INITIAL_COMPANY.id ||
+        /escritorio contaju/i.test(stored?.companyName || '');
+      if (isContajuProfile && !this.isOwnerFirmSession()) return blank;
+      return stored;
     }
     return this.get(STORAGE_KEYS.COMPANY, INITIAL_COMPANY);
   }
