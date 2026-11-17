@@ -29,6 +29,27 @@ const fmt = (iso: string) => {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
+type ErroRpc = { message?: string; code?: string; status?: number } | null;
+
+const sessaoVencida = (e: ErroRpc) =>
+  !!e && (e.status === 401 || /jwt|token|expired|not authenticated/i.test(e.message || '') || e.code === 'PGRST301');
+
+// Se a sessão venceu, renova o login e tenta de novo uma vez.
+async function chamarComSessao(fn: () => PromiseLike<{ error: ErroRpc }>) {
+  let res = await fn();
+  if (res.error && sessaoVencida(res.error)) {
+    await getSupabaseClient()!.auth.refreshSession();
+    res = await fn();
+  }
+  return res;
+}
+
+function erroAmigavel(e: NonNullable<ErroRpc>, base: string) {
+  if (sessaoVencida(e)) return `${base} Sua sessão expirou: saia do sistema e entre de novo.`;
+  if (/Apenas consultores/i.test(e.message || '')) return `${base} Este e-mail de login não está na lista de consultores.`;
+  return `${base} Detalhe: ${e.message || 'erro desconhecido'}`;
+}
+
 export const ConsultoriaView: React.FC = () => {
   const orgs: OrgInfo[] = getOrgs();
   const active = getActiveOrgId();
@@ -63,18 +84,24 @@ export const ConsultoriaView: React.FC = () => {
   const authorize = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
-    if (!company.trim() || !email.includes('@')) {
-      setMsg({ tone: 'erro', text: 'Informe o nome da empresa e um e-mail válido.' });
+    if (!company.trim()) {
+      setMsg({ tone: 'erro', text: 'Preencha o nome da empresa no primeiro campo.' });
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+      setMsg({ tone: 'erro', text: 'Preencha o e-mail do responsável no segundo campo (pode ser Gmail, Yahoo, Outlook ou outro).' });
       return;
     }
     setBusy(true);
-    const { error } = await getSupabaseClient()!.rpc('contaju_add_invitation', {
-      p_email: email.trim().toLowerCase(),
-      p_company: company.trim()
-    });
+    const { error } = await chamarComSessao(() =>
+      getSupabaseClient()!.rpc('contaju_add_invitation', {
+        p_email: email.trim().toLowerCase(),
+        p_company: company.trim()
+      })
+    );
     setBusy(false);
     if (error) {
-      setMsg({ tone: 'erro', text: 'Não foi possível autorizar. Confira se você é consultor.' });
+      setMsg({ tone: 'erro', text: erroAmigavel(error, 'Não foi possível autorizar.') });
       return;
     }
     setMsg({ tone: 'ok', text: `${email.trim().toLowerCase()} autorizado. No primeiro acesso, a empresa "${company.trim()}" é criada.` });
@@ -91,10 +118,12 @@ export const ConsultoriaView: React.FC = () => {
       return;
     }
     setBusy(true);
-    const { error } = await getSupabaseClient()!.rpc('contaju_add_consultant', { p_email: consultantEmail.trim().toLowerCase() });
+    const { error } = await chamarComSessao(() =>
+      getSupabaseClient()!.rpc('contaju_add_consultant', { p_email: consultantEmail.trim().toLowerCase() })
+    );
     setBusy(false);
     if (error) {
-      setMsg({ tone: 'erro', text: 'Não foi possível adicionar o consultor.' });
+      setMsg({ tone: 'erro', text: erroAmigavel(error, 'Não foi possível adicionar o consultor.') });
       return;
     }
     setMsg({ tone: 'ok', text: `${consultantEmail.trim().toLowerCase()} agora é consultor e enxerga todas as empresas.` });
@@ -167,8 +196,14 @@ export const ConsultoriaView: React.FC = () => {
             </div>
           </div>
           <form onSubmit={authorize} className="space-y-3">
-            <input className={inputCls} placeholder="Nome da empresa" value={company} onChange={e => setCompany(e.target.value)} />
-            <input className={inputCls} type="email" placeholder="E-mail do responsável" value={email} onChange={e => setEmail(e.target.value)} />
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-[var(--text-secondary)]">Nome da empresa</span>
+              <input className={inputCls} placeholder="Ex.: Oficina Santa Rita" value={company} onChange={e => setCompany(e.target.value)} />
+            </label>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-[var(--text-secondary)]">E-mail do responsável</span>
+              <input className={inputCls} type="email" placeholder="Ex.: nome@yahoo.com" value={email} onChange={e => setEmail(e.target.value)} />
+            </label>
             <button type="submit" disabled={busy} className="btn-gold h-11 px-5 rounded-xl text-sm font-semibold disabled:opacity-50">
               Autorizar
             </button>
