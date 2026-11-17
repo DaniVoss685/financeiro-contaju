@@ -500,22 +500,54 @@ class StorageService {
   }
 
   // Backup assíncrono transparente no IndexedDB (capacidade em gigabytes)
+  // Uma única conexão reaproveitada e gravação agrupada por chave: antes, cada gravação abria uma conexão nova
+  // (nunca fechada) e copiava a lista inteira, o que enchia a memória do navegador e travava a tela.
+  private idbPromise: Promise<IDBDatabase | null> | null = null;
+  private idbPending = new Map<string, any>();
+  private idbTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private openIndexedDB(): Promise<IDBDatabase | null> {
+    if (!this.idbPromise) {
+      this.idbPromise = new Promise(resolve => {
+        try {
+          const request = indexedDB.open('contaju_db', 1);
+          request.onupgradeneeded = (e: any) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('store')) db.createObjectStore('store');
+          };
+          request.onsuccess = (e: any) => {
+            const db: IDBDatabase = e.target.result;
+            db.onclose = () => { this.idbPromise = null; };
+            db.onversionchange = () => { db.close(); this.idbPromise = null; };
+            resolve(db);
+          };
+          request.onerror = () => { this.idbPromise = null; resolve(null); };
+          request.onblocked = () => resolve(null);
+        } catch {
+          this.idbPromise = null;
+          resolve(null);
+        }
+      });
+    }
+    return this.idbPromise;
+  }
+
   private saveToIndexedDB(key: string, value: any) {
     if (typeof window === 'undefined' || typeof indexedDB === 'undefined') return;
-    try {
-      const request = indexedDB.open('contaju_db', 1);
-      request.onupgradeneeded = (e: any) => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains('store')) {
-          db.createObjectStore('store');
-        }
-      };
-      request.onsuccess = (e: any) => {
-        const db = e.target.result;
+    this.idbPending.set(key, value);
+    if (this.idbTimer) return;
+    this.idbTimer = setTimeout(async () => {
+      this.idbTimer = null;
+      const batch = Array.from(this.idbPending.entries());
+      this.idbPending.clear();
+      const db = await this.openIndexedDB();
+      if (!db) return;
+      try {
         const tx = db.transaction('store', 'readwrite');
-        tx.objectStore('store').put(value, key);
-      };
-    } catch {}
+        const store = tx.objectStore('store');
+        batch.forEach(([k, v]) => store.put(v, k));
+      } catch { /* backup opcional */ }
+    }, 2500);
   }
 
   // Generic getter/setter com proteção total contra QuotaExceededError e cache em memória O(1)

@@ -999,17 +999,15 @@ class SupabaseSyncService {
       const accounts = storage.getChartAccounts();
       if (accounts.length > 0) {
         const mapped = accounts.map(mapChartAccountToDb);
-        const { error } = await client.from(CONTAJU_TABLES.CHART_ACCOUNTS).upsert(mapped, { onConflict: 'id' });
-        if (error) errors.push(`Plano de Contas: ${error.message}`);
-        else stats.chartAccounts = accounts.length;
+        const okChart = await this.pushDelta(client, CONTAJU_TABLES.CHART_ACCOUNTS, mapped, 'Plano de Contas', errors);
+        if (okChart) stats.chartAccounts = accounts.length;
       }
 
       // 4. Contas Bancárias
       const banks = storage.getBankAccounts();
       if (banks.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.BANK_ACCOUNTS).upsert(banks.map(mapBankAccountToDb), { onConflict: 'id' });
-        if (error) errors.push(`Contas Bancárias: ${error.message}`);
-        else stats.bankAccounts = banks.length;
+        const okBanks = await this.pushDelta(client, CONTAJU_TABLES.BANK_ACCOUNTS, banks.map(mapBankAccountToDb), 'Contas Bancárias', errors);
+        if (okBanks) stats.bankAccounts = banks.length;
       }
 
       // 5. Contrapartes (Clientes/Fornecedores)
@@ -1022,17 +1020,15 @@ class SupabaseSyncService {
       // 6. Serviços
       const services = storage.getServices();
       if (services.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.SERVICES).upsert(services.map(mapServiceToDb), { onConflict: 'id' });
-        if (error) errors.push(`Serviços: ${error.message}`);
-        else stats.services = services.length;
+        const okSvc = await this.pushDelta(client, CONTAJU_TABLES.SERVICES, services.map(mapServiceToDb), 'Serviços', errors);
+        if (okSvc) stats.services = services.length;
       }
 
       // 7. Contratos
       const contracts = storage.getContracts();
       if (contracts.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.CONTRACTS).upsert(contracts.map(mapContractToDb), { onConflict: 'id' });
-        if (error) errors.push(`Contratos: ${error.message}`);
-        else stats.contracts = contracts.length;
+        const okCtr = await this.pushDelta(client, CONTAJU_TABLES.CONTRACTS, contracts.map(mapContractToDb), 'Contratos', errors);
+        if (okCtr) stats.contracts = contracts.length;
       }
 
       // 8. Vendas
@@ -1611,9 +1607,11 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || titles.length === 0) return { success: false, error: 'Supabase não conectado ou lista vazia' };
     try {
-      const chunks = this.chunkArray(titles, 100);
-      for (const chunk of chunks) {
-        let payload = chunk.map(mapTitleToDb);
+      // Só o que mudou desde o último envio (antes, cada gravação reenviava todos os títulos)
+      const { changed, mark } = this.deltaOf(CONTAJU_TABLES.TITLES, titles.map(mapTitleToDb));
+      const chunks = this.chunkArray(changed, 100);
+      for (const chunkItems of chunks) {
+        let payload = chunkItems.map(c => c.row);
         let { error } = await client.from(CONTAJU_TABLES.TITLES).upsert(payload, { onConflict: 'id' });
         if (error && (error as any).code === '23503') {
           // Alguma venda ligada ao título ainda não existe na nuvem: salva o título sem o vínculo em vez de perder o lote inteiro
@@ -1630,6 +1628,7 @@ class SupabaseSyncService {
           console.error('[SupabaseDirect] Erro no lote de títulos:', error);
           return { success: false, error: error.message };
         }
+        mark(chunkItems);
       }
       return { success: true };
     } catch (e: any) {
@@ -1688,9 +1687,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || contracts.length === 0) return { success: false };
     try {
-      const payload = contracts.map(mapContractToDb);
-      const { error } = await client.from(CONTAJU_TABLES.CONTRACTS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.CONTRACTS, contracts.map(mapContractToDb), 'CONTRACTS', errs);
+      if (!ok) return { success: false, error: errs[0] };
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };
@@ -1726,9 +1725,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || counterparties.length === 0) return { success: false };
     try {
-      const payload = counterparties.map(mapCounterpartyToDb);
-      const { error } = await client.from(CONTAJU_TABLES.COUNTERPARTIES).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.COUNTERPARTIES, counterparties.map(mapCounterpartyToDb), 'COUNTERPARTIES', errs);
+      if (!ok) return { success: false, error: errs[0] };
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };
@@ -1764,9 +1763,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || settlements.length === 0) return { success: false };
     try {
-      const payload = settlements.map(mapSettlementToDb);
-      const { error } = await client.from(CONTAJU_TABLES.SETTLEMENTS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.SETTLEMENTS, settlements.map(mapSettlementToDb), 'SETTLEMENTS', errs);
+      if (!ok) return { success: false, error: errs[0] };
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };
@@ -1802,9 +1801,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || movements.length === 0) return { success: false };
     try {
-      const payload = movements.map(mapMovementToDb);
-      const { error } = await client.from(CONTAJU_TABLES.MOVEMENTS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.MOVEMENTS, movements.map(mapMovementToDb), 'MOVEMENTS', errs);
+      if (!ok) return { success: false, error: errs[0] };
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };
@@ -1956,9 +1955,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || entries.length === 0) return { success: false };
     try {
-      const payload = entries.map(mapStatementToDb);
-      const { error } = await client.from(CONTAJU_TABLES.STATEMENTS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.STATEMENTS, entries.map(mapStatementToDb), 'STATEMENTS', errs);
+      if (!ok) return { success: false, error: errs[0] };
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };
@@ -2024,9 +2023,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || sales.length === 0) return { success: false };
     try {
-      const payload = sales.map(mapSaleToDb);
-      const { error } = await client.from(CONTAJU_TABLES.SALES).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.SALES, sales.map(mapSaleToDb), 'SALES', errs);
+      if (!ok) return { success: false, error: errs[0] };
       return { success: true };
     } catch (e: any) {
       return { success: false, error: e.message };
@@ -2151,24 +2150,31 @@ class SupabaseSyncService {
   // Antes, cada gravação reenviava milhares de linhas, travando a tela e a rede.
   private pushedSig = new Map<string, Map<string, string>>();
 
-  private async pushDelta(client: any, table: string, rows: any[], label: string, errors: string[]): Promise<boolean> {
+  private deltaOf(table: string, rows: any[]): { changed: Array<{ row: any; json: string }>; mark: (items: Array<{ row: any; json: string }>) => void } {
     let org = 'local';
     try { org = localStorage.getItem('contaju_active_org') || 'local'; } catch { /* sem storage */ }
     const key = `${org}|${table}`;
     let sig = this.pushedSig.get(key);
     if (!sig) { sig = new Map(); this.pushedSig.set(key, sig); }
+    const known = sig;
     const changed: Array<{ row: any; json: string }> = [];
     for (const row of rows) {
-      const json = JSON.stringify(row);
-      if (sig.get(row.id) !== json) changed.push({ row, json });
+      // Datas de criação/atualização geradas na hora (quando faltam) não contam como mudança
+      const json = JSON.stringify(row, (k, v) => (k === "created_at" || k === "updated_at" ? undefined : v));
+      if (known.get(row.id) !== json) changed.push({ row, json });
     }
+    return { changed, mark: items => items.forEach(c => known.set(c.row.id, c.json)) };
+  }
+
+  private async pushDelta(client: any, table: string, rows: any[], label: string, errors: string[]): Promise<boolean> {
+    const { changed, mark } = this.deltaOf(table, rows);
     for (const chunk of this.chunkArray(changed, 100)) {
       const { error } = await client.from(table).upsert(chunk.map(c => c.row), { onConflict: 'id' });
       if (error) {
         errors.push(`${label}: ${error.message}`);
         return false;
       }
-      chunk.forEach(c => sig!.set(c.row.id, c.json));
+      mark(chunk);
     }
     return true;
   }

@@ -192,22 +192,8 @@ function AppContent() {
       automaticBackupService.initScheduler();
     }).catch(() => {});
 
-    // Pré-carregamento (Pre-warming) em segundo plano dos módulos mais acessados quando o navegador estiver ocioso
-    const prewarmModules = () => {
-      import('./components/Financial/PayablesView');
-      import('./components/Financial/ReceivablesView');
-      import('./components/Financial/CreditCardsView');
-      import('./components/Financial/MovementsView');
-      import('./components/Financial/BankAccountsView');
-      import('./components/Commercial/ContractsView');
-      import('./components/Commercial/ClientsView');
-      import('./components/Management/DREView');
-    };
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(prewarmModules, { timeout: 1500 });
-    } else {
-      setTimeout(prewarmModules, 800);
-    }
+    // Sem pré-carregamento de telas: carregar vários módulos pesados (PDF, planilhas) logo após abrir travava a página
+    // por alguns segundos e impedia o clique no menu. Cada tela agora carrega só quando é aberta.
 
     // Se os dados da nuvem ainda não chegaram depois de um tempo (rede lenta ou sessão atrasada), tenta de novo uma vez
     const retryTimer = setTimeout(() => {
