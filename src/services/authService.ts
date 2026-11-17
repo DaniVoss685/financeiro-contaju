@@ -50,6 +50,13 @@ export function purgeLocalData(): void {
     if (k && k.startsWith('contaju_') && !KEEP_KEYS.has(k) && !k.startsWith('sb-')) toRemove.push(k);
   }
   toRemove.forEach(k => localStorage.removeItem(k));
+  // Limpa também a memória da página e a cópia de segurança do navegador (IndexedDB)
+  try {
+    window.dispatchEvent(new Event('contaju:dados-limpos'));
+    indexedDB.deleteDatabase('contaju_db');
+  } catch {
+    // ignora
+  }
   try {
     Object.keys(sessionStorage).filter(k => k.startsWith('contaju_filter_')).forEach(k => sessionStorage.removeItem(k));
   } catch {

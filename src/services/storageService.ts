@@ -187,6 +187,13 @@ class StorageService {
     this.initIfEmpty();
 
     if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      // Troca de usuário/empresa: esquece tudo que estava na memória da página (senão os dados da empresa anterior
+      // continuam aparecendo e acabam gravados na empresa nova)
+      window.addEventListener('contaju:dados-limpos', () => {
+        this.invalidateCache();
+        this.idbPending.clear();
+        this.notify();
+      });
       window.addEventListener('storage', (e) => {
         if (e.key) {
           this.inMemoryCache.delete(e.key);
@@ -1422,7 +1429,11 @@ class StorageService {
 
   public logout(): void {
     if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
-    import('./authService').then(m => m.signOut()).catch(() => {});
+    // Depois de sair, recarrega a página: nada da empresa anterior fica na memória para o próximo login
+    import('./authService')
+      .then(m => m.signOut())
+      .catch(() => {})
+      .then(() => window.location.reload());
     const user = this.getCurrentUser();
     try {
       this.addAuditLog({
