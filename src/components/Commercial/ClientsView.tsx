@@ -17,6 +17,7 @@ import {
   ExternalLink,
   Receipt,
   UserMinus,
+  Trash2,
   UserCheck,
   RotateCcw,
   Ban,
@@ -106,14 +107,52 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
   const titles = storage.getTitles().filter(t => t.type === 'RECEBER');
   const today = new Date().toISOString().split('T')[0];
 
-  const handleToggleClientStatus = (client: Counterparty) => {
+  // Janela de confirmação (inativar, reativar ou excluir) no lugar do confirm() do navegador
+  const [confirmAction, setConfirmAction] = useState<{ kind: 'INATIVAR' | 'REATIVAR' | 'EXCLUIR'; client: Counterparty } | null>(null);
+
+  /** O que está ligado ao cliente: com histórico, a exclusão é bloqueada para não perder lançamentos. */
+  const linksOf = (client: Counterparty) => {
+    const sales = storage.getSales();
+    return {
+      titles: storage.getTitles().filter(t => t.counterpartyId === client.id).length,
+      contracts: contracts.filter(c => c.customerId === client.id).length,
+      sales: sales.filter(s => s.customerId === client.id).length
+    };
+  };
+
+  const handleDeleteClient = (client: Counterparty) => {
+    const currentUser = storage.getCurrentUser();
+    const links = linksOf(client);
+    if (links.titles + links.contracts + links.sales > 0) return; // bloqueado: a janela já oferece "Inativar"
+    storage.saveCounterparties(counterparties.filter(c => c.id !== client.id));
+    import('../../services/supabaseSyncService').then(({ supabaseSync }) => {
+      supabaseSync.deleteCounterpartyDirectly(client.id);
+    }).catch(() => {});
+    storage.addAuditLog({
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      action: 'EXCLUSAO_CLIENTE',
+      module: 'Comercial & Clientes',
+      recordId: client.id,
+      details: `Exclusão do cliente ${client.name} (${client.document || 'sem documento'}) sem lançamentos vinculados.`
+    });
+    setToastMessage(`Cliente ${client.name} excluído.`);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
+
+  const handleToggleClientStatus = (client: Counterparty, confirmed = false) => {
     const isActivating = client.status === 'INATIVO';
     const currentUser = storage.getCurrentUser();
     const clientContracts = contracts.filter(c => c.customerId === client.id);
     const activeContracts = clientContracts.filter(c => c.status === 'ATIVO');
 
+    if (!confirmed) {
+      setConfirmAction({ kind: isActivating ? 'REATIVAR' : 'INATIVAR', client });
+      return;
+    }
+
     if (isActivating) {
-      if (confirm(`Deseja reativar o cliente "${client.name}" na carteira de clientes ativos?`)) {
+      {
         const updated = counterparties.map(c => c.id === client.id ? { ...c, status: 'ATIVO' as const } : c);
         storage.saveCounterparties(updated);
         storage.addAuditLog({
@@ -128,12 +167,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
         setTimeout(() => setToastMessage(''), 4000);
       }
     } else {
-      let promptMsg = `Deseja marcar o cliente "${client.name}" como INATIVO?`;
-      if (activeContracts.length > 0) {
-        promptMsg += `\n\nEste cliente possui ${activeContracts.length} contrato(s) ativo(s) (${activeContracts.map(c => c.contractNumber).join(', ')}). Deseja também inativar esses contratos para retirá-los da renda da carteira (MRR)?`;
-      }
-
-      if (confirm(promptMsg)) {
+      {
         const updatedCounterparties = counterparties.map(c => c.id === client.id ? { ...c, status: 'INATIVO' as const } : c);
         storage.saveCounterparties(updatedCounterparties);
 
@@ -600,40 +634,52 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                       </div>
                     </td>
 
-                    <td className="py-3 px-4 text-right space-x-1.5">
-                      {client.status === 'ATIVO' ? (
+                    <td className="py-3 px-4 text-right">
+                      <div className="inline-flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => handleToggleClientStatus(client)}
-                          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors inline-flex items-center text-xs"
-                          title="Inativar este cliente e respectivos contratos"
+                          onClick={() => handleOpenClientHistory(client)}
+                          className="h-9 px-3 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-colors inline-flex items-center text-xs font-semibold"
+                          title="Ver histórico de pagamentos, contratos e movimentações"
                         >
-                          <UserMinus className="w-4 h-4" />
+                          <Eye className="w-4 h-4 mr-1" />
+                          <span>Ficha</span>
                         </button>
-                      ) : (
                         <button
-                          onClick={() => handleToggleClientStatus(client)}
-                          className="p-1.5 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-lg transition-colors inline-flex items-center text-xs"
-                          title="Reativar este cliente na carteira ativa"
+                          onClick={() => handleEdit(client)}
+                          className="h-9 w-9 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-lg transition-colors inline-flex items-center justify-center"
+                          title="Editar cadastro"
+                          aria-label="Editar cadastro"
                         >
-                          <RotateCcw className="w-4 h-4" />
+                          <Edit2 className="w-4 h-4" />
                         </button>
-                      )}
-
-                      <button
-                        onClick={() => handleOpenClientHistory(client)}
-                        className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-colors inline-flex items-center text-xs font-semibold"
-                        title="Ver histórico de pagamentos, contratos e movimentações"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        <span>Ficha</span>
-                      </button>
-                      <button
-                        onClick={() => handleEdit(client)}
-                        className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-lg transition-colors"
-                        title="Editar cadastro"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
+                        {client.status === 'ATIVO' ? (
+                          <button
+                            onClick={() => handleToggleClientStatus(client)}
+                            className="h-9 px-3 text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:text-amber-400 hover:border-amber-500/50 hover:bg-amber-500/10 rounded-lg transition-colors inline-flex items-center text-xs font-semibold"
+                            title="Inativar este cliente: ele sai da carteira ativa, mas o histórico fica guardado"
+                          >
+                            <UserMinus className="w-4 h-4 mr-1.5" />
+                            <span>Inativar</span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleClientStatus(client)}
+                            className="h-9 px-3 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/10 rounded-lg transition-colors inline-flex items-center text-xs font-semibold"
+                            title="Reativar este cliente na carteira ativa"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-1.5" />
+                            <span>Reativar</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setConfirmAction({ kind: 'EXCLUIR', client })}
+                          className="h-9 w-9 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors inline-flex items-center justify-center"
+                          title="Excluir cliente"
+                          aria-label="Excluir cliente"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -642,6 +688,92 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
           </table>
         </div>
       </div>
+
+      {/* Confirmação de inativar / reativar / excluir cliente */}
+      {confirmAction && (() => {
+        const { kind, client } = confirmAction;
+        const links = linksOf(client);
+        const totalLinks = links.titles + links.contracts + links.sales;
+        const activeContractsCount = contracts.filter(c => c.customerId === client.id && c.status === 'ATIVO').length;
+        const blocked = kind === 'EXCLUIR' && totalLinks > 0;
+        const close = () => setConfirmAction(null);
+        const partsOfLinks = [
+          links.titles > 0 ? `${links.titles} lançamento(s) financeiro(s)` : '',
+          links.contracts > 0 ? `${links.contracts} contrato(s)` : '',
+          links.sales > 0 ? `${links.sales} venda(s)` : ''
+        ].filter(Boolean).join(', ');
+        return (
+          <div
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60"
+            onClick={close}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-6 shadow-2xl space-y-4"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${kind === 'EXCLUIR' ? 'bg-rose-500/15 text-rose-400' : kind === 'REATIVAR' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}>
+                  {kind === 'EXCLUIR' ? <Trash2 className="w-5 h-5" /> : kind === 'REATIVAR' ? <RotateCcw className="w-5 h-5" /> : <UserMinus className="w-5 h-5" />}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-[var(--text-primary)]">
+                    {blocked ? 'Este cliente não pode ser excluído' : kind === 'EXCLUIR' ? 'Excluir cliente?' : kind === 'REATIVAR' ? 'Reativar cliente?' : 'Inativar cliente?'}
+                  </h3>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1 break-words">{client.name}</p>
+                </div>
+              </div>
+
+              {blocked ? (
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Ele tem {partsOfLinks}. Para não perder o histórico, não dá para excluir. Você pode <strong>inativar</strong>: ele sai da carteira ativa e o histórico continua guardado.
+                </p>
+              ) : kind === 'EXCLUIR' ? (
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Este cliente não tem contratos, vendas nem lançamentos. A exclusão apaga o cadastro e <strong>não pode ser desfeita</strong>.
+                </p>
+              ) : kind === 'REATIVAR' ? (
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">O cliente volta para a carteira de clientes ativos.</p>
+              ) : (
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  O cliente sai da carteira ativa e o histórico continua guardado.
+                  {activeContractsCount > 0 && <> Os <strong>{activeContractsCount} contrato(s) ativo(s)</strong> dele também serão inativados e saem da receita recorrente (MRR).</>}
+                </p>
+              )}
+
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1">
+                <button type="button" onClick={close} className="h-11 px-5 rounded-xl text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                  Cancelar
+                </button>
+                {blocked ? (
+                  client.status === 'ATIVO' && (
+                    <button
+                      type="button"
+                      onClick={() => { close(); handleToggleClientStatus(client, true); }}
+                      className="btn-gold h-11 px-5 rounded-xl text-sm font-semibold"
+                    >
+                      Inativar em vez de excluir
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      close();
+                      if (kind === 'EXCLUIR') handleDeleteClient(client);
+                      else handleToggleClientStatus(client, true);
+                    }}
+                    className={kind === 'EXCLUIR' ? 'h-11 px-5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 text-white' : 'btn-gold h-11 px-5 rounded-xl text-sm font-semibold'}
+                  >
+                    {kind === 'EXCLUIR' ? 'Excluir cliente' : kind === 'REATIVAR' ? 'Reativar' : 'Inativar'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* COMPREHENSIVE CLIENT FINANCIAL FILE & FULL HISTORY MODAL */}
       {selectedClient && (
