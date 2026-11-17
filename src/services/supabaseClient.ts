@@ -106,12 +106,35 @@ const ORG_FREE_TABLES = new Set([
   'contaju_consultant_access_log'
 ]);
 
+// A empresa ativa fica TRAVADA nesta aba desde que a página abriu. Antes ela era lida do armazenamento compartilhado
+// entre abas: quando outro usuário entrava em outra aba, a aba antiga passava a gravar os dados dela na empresa nova.
+let tabOrg: string | null = null;
+try {
+  tabOrg = typeof localStorage !== 'undefined' ? localStorage.getItem('contaju_active_org') : null;
+} catch {
+  tabOrg = null;
+}
+
+/** Troca a empresa desta aba (só chamar no login ou ao trocar de empresa nesta mesma aba). */
+export function setTabOrg(id: string | null): void {
+  tabOrg = id;
+}
+
+// Se outra aba mudar a empresa ativa ou o usuário, esta aba recarrega do zero (memória limpa) em vez de gravar na empresa errada.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('storage', e => {
+    if (e.key === 'contaju_active_org' && e.newValue !== tabOrg) {
+      window.location.reload();
+    }
+  });
+}
+
+export function getTabOrg(): string | null {
+  return tabOrg;
+}
+
 function activeOrgId(): string | null {
-  try {
-    return localStorage.getItem('contaju_active_org');
-  } catch {
-    return null;
-  }
+  return tabOrg;
 }
 
 function withOrg(rows: any, org: string): any {

@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './supabaseClient';
+import { getSupabaseClient, setTabOrg, getTabOrg } from './supabaseClient';
 import { storage } from './storageService';
 import type { User, UserRole } from '../types';
 
@@ -30,9 +30,10 @@ export function isConsultant(): boolean {
   return localStorage.getItem(KEY_CONSULTANT) === 'true';
 }
 export function getActiveOrgId(): string | null {
-  return localStorage.getItem(KEY_ACTIVE);
+  return getTabOrg();
 }
 export function setActiveOrgId(id: string): void {
+  setTabOrg(id);
   localStorage.setItem(KEY_ACTIVE, id);
 }
 
@@ -219,6 +220,7 @@ export async function signOut() {
   }
   localStorage.removeItem(KEY_ORGS);
   localStorage.removeItem(KEY_ACTIVE);
+  setTabOrg(null);
   localStorage.removeItem(KEY_CONSULTANT);
   localStorage.removeItem('contaju_cache_org');
   purgeLocalData();

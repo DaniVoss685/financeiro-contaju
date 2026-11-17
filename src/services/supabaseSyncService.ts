@@ -1,4 +1,4 @@
-import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
+import { getSupabaseClient, isSupabaseConfigured, getTabOrg } from './supabaseClient';
 import { storage } from './storageService';
 import {
   CompanyProfile,
@@ -2151,8 +2151,7 @@ class SupabaseSyncService {
   private pushedSig = new Map<string, Map<string, string>>();
 
   private deltaOf(table: string, rows: any[]): { changed: Array<{ row: any; json: string }>; mark: (items: Array<{ row: any; json: string }>) => void } {
-    let org = 'local';
-    try { org = localStorage.getItem('contaju_active_org') || 'local'; } catch { /* sem storage */ }
+    const org = getTabOrg() || 'local';
     const key = `${org}|${table}`;
     let sig = this.pushedSig.get(key);
     if (!sig) { sig = new Map(); this.pushedSig.set(key, sig); }
