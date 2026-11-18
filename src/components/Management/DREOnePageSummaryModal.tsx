@@ -83,7 +83,7 @@ export const DREOnePageSummaryModal: React.FC<DREOnePageSummaryModalProps> = ({
   const handleCopyText = () => {
     const text = `
 CONTAJU • SUMÁRIO EXECUTIVO DRE (${effectiveYear})
-Empresa: ${company.companyName || company.tradeName || 'Contaju Gestão'} (CNPJ: ${company.cnpj || '00.000.000/0001-00'})
+Empresa: ${company.companyName || company.tradeName || 'Contaju Gestão'} (CNPJ: ${company.cnpj || 'não informado'})
 --------------------------------------------------
 • Receita Líquida: ${formatBRL(kpis.netRev)}
 • Lucro Bruto: ${formatBRL(kpis.grossProfit)} (Margem: ${grossMargin.toFixed(1)}%)
@@ -183,7 +183,7 @@ Gerado em ${new Date().toLocaleDateString('pt-BR')} via Contaju.
                 {company.companyName || company.tradeName || 'Contaju Soluções e Gestão'}
               </h1>
               <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
-                CNPJ: {company.cnpj || '00.000.000/0001-00'} • Regime Contábil: <strong>Competência</strong>
+                CNPJ: {company.cnpj || 'não informado'} • Regime Contábil: <strong>Competência</strong>
               </div>
             </div>
 

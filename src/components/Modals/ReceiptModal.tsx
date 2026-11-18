@@ -47,6 +47,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
   const amountInWords = numberToWordsBRL(receiptAmount);
 
+  // Tudo vem do cadastro da empresa (Ajustes > Minha empresa): nada de endereço, cidade ou CNPJ fixo no recibo
+  const issuerName = (company?.tradeName || company?.companyName || '').trim();
+  const issuerCnpj = (company?.cnpj || '').trim();
+  const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const cityState = [company?.city?.trim(), company?.state?.trim()].filter(Boolean).join(' - ');
+  const addressParts: string[] = [];
+  if (company?.address?.trim()) addressParts.push(company.address.trim());
+  if (cityState && !(company?.city && norm(company.address || '').includes(norm(company.city)))) addressParts.push(cityState);
+  if (company?.zipCode?.trim() && !(company.address || '').includes(company.zipCode.trim())) addressParts.push(`CEP ${company.zipCode.trim()}`);
+  const issuerAddress = addressParts.join(' - ');
+
   const handlePrint = () => {
     window.print();
   };
@@ -100,17 +111,23 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b-2 border-slate-800">
             <div>
               <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950">
-                {company?.tradeName || company?.companyName || 'CONTAJU GESTÃO CONTÁBIL'}
+                {issuerName}
               </h1>
-              <p className="text-xs text-slate-600 font-medium">
-                {company?.companyName}
-              </p>
-              <p className="text-xs text-slate-600">
-                CNPJ: <strong className="font-mono">{company?.cnpj || '00.000.000/0001-00'}</strong>
-              </p>
-              <p className="text-xs text-slate-500">
-                {company?.address ? `${company.address}, ${company.city} - ${company.state}` : 'Brasil'}
-              </p>
+              {company?.companyName && company.companyName.trim() !== issuerName && (
+                <p className="text-xs text-slate-600 font-medium">
+                  {company.companyName}
+                </p>
+              )}
+              {issuerCnpj && (
+                <p className="text-xs text-slate-600">
+                  CNPJ: <strong className="font-mono">{issuerCnpj}</strong>
+                </p>
+              )}
+              {issuerAddress && (
+                <p className="text-xs text-slate-500">
+                  {issuerAddress}
+                </p>
+              )}
             </div>
 
             <div className="text-right sm:text-right bg-slate-100 p-3.5 rounded-xl border border-slate-300 min-w-[200px]">
@@ -169,7 +186,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           <div className="pt-6 flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6">
             <div className="text-xs text-slate-600">
               <span className="block font-bold text-slate-800">
-                {company?.city || 'Goiânia'} - {company?.state || 'GO'}, {formatDateBR(paymentDate)}
+                {cityState ? `${cityState}, ` : ''}{formatDateBR(paymentDate)}
               </span>
               <span className="text-[10px] text-slate-500">
                 Data do Pagamento: {formatDateBR(paymentDate)}
@@ -179,11 +196,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             <div className="w-full sm:w-64 text-center space-y-1">
               <div className="border-b-2 border-slate-800 pb-1 w-full" />
               <span className="font-bold text-xs text-slate-900 block">
-                {company?.tradeName || company?.companyName || 'CONTAJU'}
+                {issuerName}
               </span>
-              <span className="text-[10px] text-slate-500 block">
-                CNPJ: {company?.cnpj || '00.000.000/0001-00'}
-              </span>
+              {issuerCnpj && (
+                <span className="text-[10px] text-slate-500 block">
+                  CNPJ: {issuerCnpj}
+                </span>
+              )}
             </div>
           </div>
 

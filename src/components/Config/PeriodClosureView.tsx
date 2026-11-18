@@ -1946,7 +1946,7 @@ export const PeriodClosureView: React.FC<PeriodClosureViewProps> = ({ onNavigate
                     TERMO EXECUTIVO DE FECHAMENTO CONTÁBIL
                   </h1>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-                    {storage.getCompany().companyName || storage.getCompany().tradeName || 'Contaju Gestão Contábil'} • CNPJ: {storage.getCompany().cnpj || '00.000.000/0001-00'} • Regime: {storage.getCompany().fiscalRegime || 'Simples Nacional'}
+                    {storage.getCompany().companyName || storage.getCompany().tradeName || 'Contaju Gestão Contábil'} • CNPJ: {storage.getCompany().cnpj || 'não informado'} • Regime: {storage.getCompany().fiscalRegime || 'Simples Nacional'}
                   </p>
                 </div>
 

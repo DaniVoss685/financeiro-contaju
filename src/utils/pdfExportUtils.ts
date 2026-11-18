@@ -75,7 +75,7 @@ export function exportDREToPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(203, 213, 225); // slate-300
-  doc.text(`Empresa: ${companyName} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Regime: Competência`, 14, 18);
+  doc.text(`Empresa: ${companyName} • CNPJ: ${company.cnpj || 'não informado'} • Regime: Competência`, 14, 18);
   const horizonText = opts.timeHorizonLabel ? ` • ${opts.timeHorizonLabel}` : '';
   doc.text(`Exercício: ${year}${horizonText} • Emissão: ${nowStr}`, 200, 18);
 
@@ -287,7 +287,7 @@ export function exportCashFlowToPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(203, 213, 225);
-  doc.text(`Empresa: ${companyName} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Regime: Caixa (${mode})`, 14, 18);
+  doc.text(`Empresa: ${companyName} • CNPJ: ${company.cnpj || 'não informado'} • Regime: Caixa (${mode})`, 14, 18);
   const horizonText = opts.timeHorizonLabel ? ` • ${opts.timeHorizonLabel}` : '';
   doc.text(`Exercício: ${year}${horizonText} • Emissão: ${nowStr}`, 200, 18);
 
@@ -499,7 +499,7 @@ export function exportOnePageDRESummaryPDF(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(203, 213, 225);
-  doc.text(`Empresa: ${companyName || company.companyName || company.tradeName || 'Contaju Gestão'} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Exercício: ${year}`, 14, 17);
+  doc.text(`Empresa: ${companyName || company.companyName || company.tradeName || 'Contaju Gestão'} • CNPJ: ${company.cnpj || 'não informado'} • Exercício: ${year}`, 14, 17);
   doc.text(`Emissão: ${nowStr} • Relatório Sintético para Diretoria & Conselho`, 200, 17);
 
   // 2. Quatro Cards de Destaque Executivo (Y: 28 to 48)
@@ -789,7 +789,7 @@ export function exportPeriodClosureToPDF(closure: PeriodClosure, customCompany?:
   doc.setFontSize(8);
   doc.setTextColor(203, 213, 225);
   const compName = company.companyName || company.tradeName || 'Contaju Gestão Contábil';
-  doc.text(`Empresa: ${compName} • CNPJ: ${company.cnpj || '00.000.000/0001-00'} • Regime: ${company.fiscalRegime || 'Simples Nacional'}`, 14, 18);
+  doc.text(`Empresa: ${compName} • CNPJ: ${company.cnpj || 'não informado'} • Regime: ${company.fiscalRegime || 'Simples Nacional'}`, 14, 18);
   doc.text(`Competência: ${competence} • Auditoria de Saldos e Travas Operacionais`, 14, 23);
   doc.text(`Emissão: ${nowStr}`, 155, 23);
 

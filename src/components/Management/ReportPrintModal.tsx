@@ -232,7 +232,7 @@ export const ReportPrintModal: React.FC<ReportPrintModalProps> = ({
                 isDark ? 'text-slate-300' : 'text-slate-700'
               }`}>
                 <div><strong>Empresa:</strong> {company.companyName || company.tradeName || 'Contaju Gestão Financeira'}</div>
-                <div><strong>CNPJ:</strong> {company.cnpj || '00.000.000/0001-00'}</div>
+                <div><strong>CNPJ:</strong> {company.cnpj || 'não informado'}</div>
                 <div><strong>Regime:</strong> {reportType === 'DRE' ? 'Competência' : `Caixa (${modeLabel || 'Consolidado'})`}</div>
                 <div className="text-[11px] opacity-80">Emissão: {emissionDate}</div>
               </div>
