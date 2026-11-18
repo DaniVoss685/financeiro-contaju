@@ -8,6 +8,7 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   Edit3,
+  Trash2,
   CheckCircle2,
   AlertCircle,
   X
@@ -107,6 +108,27 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
       setMovAccountId(m.accountId || '');
       setMovDirection(m.direction);
     }
+  };
+
+  // Excluir movimentação: só quando não é a baixa de um lançamento existente (essas se desfazem pelo estorno no lançamento)
+  const [deleteTarget, setDeleteTarget] = useState<FinancialMovement | null>(null);
+  const [toast, setToast] = useState<{ tone: 'ok' | 'erro'; text: string } | null>(null);
+
+  const findLinkedTitle = (m: FinancialMovement): FinancialTitle | undefined => {
+    if (!m.originReferenceId) return undefined;
+    const direct = titles.find(t => t.id === m.originReferenceId || t.titleNumber === m.originReferenceId);
+    if (direct) return direct;
+    const st = settlements.find(s => (s.id === m.originReferenceId || s.settlementNumber === m.originReferenceId) && !s.isReversed);
+    return st ? titles.find(t => t.id === st.titleId) : undefined;
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    const res = storage.deleteMovement(deleteTarget.id);
+    setDeleteTarget(null);
+    setRefreshKey(k => k + 1);
+    setToast({ tone: res.success ? 'ok' : 'erro', text: res.message });
+    setTimeout(() => setToast(null), 5000);
   };
 
   const handleSaveDirectMovement = (e: React.FormEvent) => {
@@ -324,6 +346,18 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                     <Edit3 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>Editar</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTarget(m);
+                    }}
+                    className="min-h-[40px] min-w-[40px] rounded-xl text-rose-500 hover:bg-rose-500/10 flex items-center justify-center ml-1 cursor-pointer transition-colors shrink-0"
+                    title="Excluir movimentação"
+                    aria-label="Excluir movimentação"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             );
@@ -344,7 +378,7 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                 <th className="py-3 px-4">Descrição da Operação</th>
                 <th className="hidden xl:table-cell py-3 px-4">Documento / Ref</th>
                 <th className="py-3 px-4 text-right">Valor</th>
-                <th className="py-3 px-4 text-center">Editar</th>
+                <th className="py-3 px-4 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-[#26262b]">
@@ -407,8 +441,20 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
                           }}
                           className="p-1.5 text-slate-500 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                           title="Editar lançamento (ou dê 2 cliques na linha)"
+                          aria-label="Editar lançamento"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTarget(m);
+                          }}
+                          className="p-1.5 ml-1 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                          title="Excluir movimentação"
+                          aria-label="Excluir movimentação"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </td>
                     </tr>
@@ -419,6 +465,67 @@ export const MovementsView: React.FC<MovementsViewProps> = ({ initialSearch = ''
           </table>
         </div>
       </div>
+
+      {/* Aviso de resultado (excluir movimentação) */}
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[130] max-w-[92vw] px-4 py-3 rounded-xl text-sm font-semibold shadow-xl border ${toast.tone === 'ok' ? 'bg-emerald-600 text-white border-emerald-500' : 'bg-rose-600 text-white border-rose-500'}`}>
+          {toast.text}
+        </div>
+      )}
+
+      {/* Confirmação de exclusão de movimentação */}
+      {deleteTarget && (() => {
+        const linked = findLinkedTitle(deleteTarget);
+        const closed = FinancialEngine.isPeriodClosed((deleteTarget.date || '').substring(0, 7));
+        const blocked = !!linked || closed;
+        const close = () => setDeleteTarget(null);
+        return (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60" onClick={close} role="dialog" aria-modal="true">
+            <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-[#26262b] bg-white dark:bg-[#131316] p-6 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-500 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    {closed ? 'Período encerrado' : linked ? 'Esta movimentação é a baixa de um lançamento' : 'Excluir movimentação?'}
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 break-words">{deleteTarget.description}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {formatDateBR(deleteTarget.date)} • {deleteTarget.direction === 'ENTRADA' ? '+' : '-'} {formatBRL(deleteTarget.amount)}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                {closed
+                  ? 'O mês desta movimentação está fechado e não pode ser alterado. Reabra o período para mexer nela.'
+                  : linked
+                  ? 'Para não bagunçar o caixa e o saldo do lançamento, ela não é excluída aqui. Abra o lançamento e estorne a baixa: a movimentação some junto.'
+                  : 'Ela não está ligada a nenhum lançamento em Contas a pagar ou receber. A exclusão tira o valor do saldo da conta e não pode ser desfeita.'}
+              </p>
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1">
+                <button type="button" onClick={close} className="h-11 px-5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#26262b] hover:bg-slate-50 dark:hover:bg-[#1b1b20]">
+                  {blocked ? 'Fechar' : 'Cancelar'}
+                </button>
+                {linked && !closed && (
+                  <button
+                    type="button"
+                    onClick={() => { const m = deleteTarget; close(); handleOpenEdit(m); }}
+                    className="btn-gold h-11 px-5 rounded-xl text-sm font-semibold"
+                  >
+                    Abrir o lançamento
+                  </button>
+                )}
+                {!blocked && (
+                  <button type="button" onClick={handleConfirmDelete} className="h-11 px-5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 text-white">
+                    Excluir movimentação
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Modal 1: EditTitleModal (quando a movimentação está vinculada ao Contas a Pagar/Receber) */}
       {selectedTitleForEdit && (

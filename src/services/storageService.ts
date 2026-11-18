@@ -2166,6 +2166,44 @@ class StorageService {
     this.set(STORAGE_KEYS.MOVEMENTS, movements);
   }
 
+  /**
+   * Exclui uma movimentação que NÃO é a baixa de um lançamento existente (avulsa, ou sobra de um lançamento já excluído).
+   * Baixa de lançamento existente deve ser desfeita pelo estorno no próprio lançamento. Período encerrado não pode ser mexido.
+   */
+  public deleteMovement(id: string): { success: boolean; message: string } {
+    const movements = this.getMovements();
+    const mov = movements.find(m => m.id === id);
+    if (!mov) return { success: false, message: 'Movimentação não encontrada.' };
+
+    const month = (mov.date || '').substring(0, 7);
+    if (this.getPeriodClosures().some(c => c.isClosed && c.yearMonth === month)) {
+      return { success: false, message: `O período ${month} está encerrado. Reabra o período para mexer nesta movimentação.` };
+    }
+
+    const ref = mov.originReferenceId;
+    const settlement = ref ? this.getSettlements().find(s => s.id === ref || s.settlementNumber === ref) : undefined;
+    const title = ref ? this.getTitles().find(t => t.id === ref || t.titleNumber === ref) : undefined;
+    if ((settlement && !settlement.isReversed) || title) {
+      return { success: false, message: 'Esta movimentação é a baixa de um lançamento. Para desfazer, estorne a baixa no próprio lançamento.' };
+    }
+
+    this.saveMovements(movements.filter(m => m.id !== id));
+    import('./supabaseSyncService').then(({ supabaseSync }) => {
+      supabaseSync.deleteMovementDirectly(id);
+    }).catch(() => {});
+
+    const user = this.getCurrentUser();
+    this.addAuditLog({
+      userName: user.name,
+      userRole: user.role,
+      action: 'EXCLUSAO',
+      module: 'Movimentações',
+      recordId: id,
+      details: `Movimentação excluída: ${mov.description} (${mov.direction}, R$ ${Number(mov.amount).toFixed(2)}, ${mov.date}).`
+    });
+    return { success: true, message: 'Movimentação excluída.' };
+  }
+
   // Statement entries
   public getStatementEntries(): StatementEntry[] {
     return this.get(STORAGE_KEYS.STATEMENT_ENTRIES, INITIAL_STATEMENT_ENTRIES);
@@ -2511,10 +2549,19 @@ class StorageService {
 
       // Remove any movements linked to these settlements
       const linkedSettlementIds = new Set(linkedSettlements.map(s => s.id));
-      const remainingMovements = movements.filter(m => 
+      const remainingMovements = movements.filter(m =>
         !(m.originType === 'BAIXA_TITULO' && m.originReferenceId && linkedSettlementIds.has(m.originReferenceId))
       );
       this.saveMovements(remainingMovements);
+
+      // Também apaga as baixas e movimentações na nuvem; antes só saíam da tela e voltavam como movimentação órfã
+      const removedMovementIds = movements
+        .filter(m => m.originType === 'BAIXA_TITULO' && m.originReferenceId && linkedSettlementIds.has(m.originReferenceId))
+        .map(m => m.id);
+      import('./supabaseSyncService').then(({ supabaseSync }) => {
+        linkedSettlements.forEach(s => supabaseSync.deleteSettlementDirectly(s.id));
+        removedMovementIds.forEach(mid => supabaseSync.deleteMovementDirectly(mid));
+      }).catch(() => {});
     }
 
     // 3. Add audit log
