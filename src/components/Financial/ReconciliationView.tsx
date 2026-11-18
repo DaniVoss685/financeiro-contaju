@@ -49,6 +49,7 @@ import { storage } from '../../services/storageService';
 import { FinancialEngine, formatBRL, formatDateBR, getFilteredChartAccounts, formatChartAccountSelectOptions } from '../../services/financialEngine';
 import { parseOFX, parseOFXFull } from '../../utils/ofxParser';
 import { parseBankStatementPdf } from '../../utils/bankStatementPdfParser';
+import { dedupeIncoming, addImportLog, getImportLog, periodOf, coverageOf, nextDay } from '../../utils/statementImport';
 import { calculateReconciliationSimilarity } from '../../services/reconciliationMatchingEngine';
 import { normalizeForSearch, matchesSearch } from '../../utils/searchUtils';
 import { SearchableSelect, SelectOption } from '../Common/SearchableSelect';
@@ -2027,6 +2028,15 @@ export const ReconciliationView: React.FC = () => {
     setRefreshKey(k => k + 1);
   };
 
+  // Aviso quando o arquivo repete um período que já tinha sido importado nesta conta
+  const overlapNote = (prev: { from: string; to: string; count: number } | null, period: { from: string; to: string }, skipped: number): string => {
+    if (!prev || !period.from) return '';
+    if (period.from <= prev.to) {
+      return ` Atenção: esse arquivo começa em ${formatDateBR(period.from)}, mas esta conta já tinha extrato até ${formatDateBR(prev.to)}. O que se repetia (${skipped}) foi ignorado, sem duplicar.`;
+    }
+    return '';
+  };
+
   // Upload and parse real OFX file com leitura segura de ArrayBuffer, TextDecoder e deduplicação
   const processFile = (file: File) => {
     if (!file) return;
@@ -2052,9 +2062,11 @@ export const ReconciliationView: React.FC = () => {
             return;
           }
           const current = storage.getStatementEntries();
-          const have = new Set(current.filter(s => s.bankAccountId === acc.id && s.fitId).map(s => s.fitId));
+          const prevCov = coverageOf(current, acc.id);
+          const period = periodOf(lines);
+          const dd = dedupeIncoming(current.filter(s => s.bankAccountId === acc.id), lines, 'pdf');
           const batchId = `batch-pdf-${Date.now()}`;
-          const fresh = lines.filter(l => !have.has(l.fitId)).map((l, idx) => ({
+          const fresh = dd.fresh.map((l, idx) => ({
             id: `stmt-pdf-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
             importBatchId: batchId,
             bankAccountId: acc.id,
@@ -2065,7 +2077,8 @@ export const ReconciliationView: React.FC = () => {
             reconciliationStatus: 'PENDENTE' as const
           }));
           if (fresh.length > 0) storage.saveStatementEntries([...fresh, ...current]);
-          setSuccessMsg(`Extrato em PDF lido na conta ${acc.name}: ${fresh.length} lançamentos novos (${lines.length - fresh.length} já existiam). Confira os valores antes de conciliar.`);
+          addImportLog({ accountId: acc.id, importedAt: new Date().toISOString(), fileName: file.name, kind: 'pdf', from: period.from, to: period.to, total: lines.length, added: fresh.length, skipped: dd.skipped.length });
+          setSuccessMsg(`Extrato em PDF lido na conta ${acc.name} (período ${formatDateBR(period.from)} a ${formatDateBR(period.to)}): ${fresh.length} lançamentos novos, ${dd.skipped.length} já estavam importados e foram ignorados.${overlapNote(prevCov, period, dd.skipped.length)} Confira os valores antes de conciliar.`);
           setRefreshKey(k => k + 1);
         })
         .catch(err => setErrorMsg(`Falha ao ler o PDF: ${err?.message || 'arquivo inválido'}`))
@@ -2180,35 +2193,24 @@ export const ReconciliationView: React.FC = () => {
         const currentStatements = storage.getStatementEntries();
         const batchId = `batch-ofx-${Date.now()}`;
 
-        // Deduplicação inteligente por fitId na mesma conta bancária
-        const existingFitIds = new Set(
-          currentStatements
-            .filter(s => s.bankAccountId === targetAccountId && s.fitId)
-            .map(s => s.fitId)
-        );
-
-        let alreadyExistingCount = 0;
-        const newEntries: BankStatementEntry[] = [];
-
-        parsed.forEach((p, idx) => {
-          if (p.fitId && existingFitIds.has(p.fitId)) {
-            alreadyExistingCount++;
-          } else {
-            newEntries.push({
-              id: `stmt-ofx-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
-              importBatchId: batchId,
-              bankAccountId: targetAccountId,
-              fitId: p.fitId,
-              date: p.date,
-              amount: p.amount,
-              description: p.description,
-              reconciliationStatus: 'PENDENTE'
-            });
-            if (p.fitId) {
-              existingFitIds.add(p.fitId);
-            }
-          }
-        });
+        // Deduplicação: mesmo código do banco, mesma data+valor+descrição (por quantidade) ou mesma data+valor vindos de outro formato
+        const prevCov = coverageOf(currentStatements, targetAccountId);
+        const period = periodOf(parsed);
+        const dd = dedupeIncoming(currentStatements.filter(s => s.bankAccountId === targetAccountId), parsed, 'ofx');
+        const alreadyExistingCount = dd.skipped.length;
+        const newEntries: BankStatementEntry[] = dd.fresh.map((p, idx) => ({
+          id: `stmt-ofx-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+          importBatchId: batchId,
+          bankAccountId: targetAccountId,
+          fitId: p.fitId,
+          date: p.date,
+          amount: p.amount,
+          description: p.description,
+          reconciliationStatus: 'PENDENTE' as const
+        }));
+        addImportLog({ accountId: targetAccountId, importedAt: new Date().toISOString(), fileName: file.name, kind: 'ofx', from: period.from, to: period.to, total: parsed.length, added: newEntries.length, skipped: alreadyExistingCount });
+        const periodTxt = ` (período ${formatDateBR(period.from)} a ${formatDateBR(period.to)})`;
+        const noteTxt = overlapNote(prevCov, period, alreadyExistingCount);
 
         if (newEntries.length === 0 && alreadyExistingCount > 0) {
           // Re-importação inteligente: atualiza descrições e valores das transações pendentes daquele arquivo
@@ -2230,7 +2232,7 @@ export const ReconciliationView: React.FC = () => {
           });
 
           storage.saveStatementEntries(updatedAll);
-          setSuccessMsg(`Extrato OFX "${file.name}" sincronizado: ${alreadyExistingCount} lançamentos conferidos na conta ${targetAccount.name} (${refreshedCount} pendentes atualizados).`);
+          setSuccessMsg(`Extrato OFX "${file.name}"${periodTxt} já estava todo importado na conta ${targetAccount.name}: nenhum lançamento novo, ${alreadyExistingCount} repetidos ignorados (${refreshedCount} pendentes atualizados).${noteTxt}`);
           setRefreshKey(k => k + 1);
           setIsImportingOfx(false);
           return;
@@ -2252,9 +2254,9 @@ export const ReconciliationView: React.FC = () => {
           : '';
 
         if (alreadyExistingCount > 0) {
-          setSuccessMsg(`Extrato OFX "${file.name}" importado com sucesso na conta ${targetAccount.name}! ${newEntries.length} novas transações adicionadas (${alreadyExistingCount} já existiam)${balanceInfo}.`);
+          setSuccessMsg(`Extrato OFX "${file.name}"${periodTxt} importado na conta ${targetAccount.name}! ${newEntries.length} novas transações adicionadas, ${alreadyExistingCount} já estavam importadas e foram ignoradas${balanceInfo}.${noteTxt}`);
         } else {
-          setSuccessMsg(`Extrato OFX "${file.name}" importado com sucesso na conta ${targetAccount.name}! ${newEntries.length} transações adicionadas${balanceInfo}.`);
+          setSuccessMsg(`Extrato OFX "${file.name}"${periodTxt} importado na conta ${targetAccount.name}! ${newEntries.length} transações adicionadas${balanceInfo}.${noteTxt}`);
         }
 
         setRefreshKey(k => k + 1);
@@ -2747,6 +2749,35 @@ export const ReconciliationView: React.FC = () => {
             <option value={100}>100% (exato)</option>
           </PremiumSelect>
         </div>
+
+        {currentAccount && (() => {
+          const cov = coverageOf(statements, currentAccount.id);
+          const last = getImportLog().find(l => l.accountId === currentAccount.id);
+          return (
+            <div className="w-full text-sm rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-base)] px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-1">
+              {cov ? (
+                <>
+                  <span>
+                    <span className="text-[var(--text-secondary)]">Extrato já importado: </span>
+                    <strong>{formatDateBR(cov.from)} a {formatDateBR(cov.to)}</strong>
+                    <span className="text-[var(--text-muted)]"> ({cov.count} lançamentos)</span>
+                  </span>
+                  <span>
+                    <span className="text-[var(--text-secondary)]">Próximo a importar: </span>
+                    <strong>a partir de {formatDateBR(nextDay(cov.to))}</strong>
+                  </span>
+                </>
+              ) : (
+                <span className="text-[var(--text-secondary)]">Nenhum extrato importado nesta conta ainda.</span>
+              )}
+              {last && (
+                <span className="text-[var(--text-muted)]">
+                  Última importação em {formatDateBR(last.importedAt.slice(0, 10))} ({last.kind === 'pdf' ? 'PDF' : 'OFX'}, arquivo de {formatDateBR(last.from)} a {formatDateBR(last.to)}; {last.added} novos, {last.skipped} repetidos ignorados)
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         <p className="text-xs text-[var(--text-muted)] sm:ml-auto hidden md:block">
           Atalhos: <kbd className="px-1.5 py-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-base)]">Enter</kbd> concilia •{' '}

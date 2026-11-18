@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   Printer, 
   X, 
@@ -14,6 +14,7 @@ import { FinancialTitle, Settlement, Counterparty, CompanyProfile } from '../../
 import { storage } from '../../services/storageService';
 import { formatBRL, formatDateBR, formatCompetence } from '../../services/financialEngine';
 import { numberToWordsBRL } from '../../utils/numberToWords';
+import { downloadReceiptPdf } from '../../utils/receiptPdf';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   onClose
 }) => {
   const printAreaRef = useRef<HTMLDivElement>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfError, setPdfError] = useState('');
 
   if (!isOpen || !title) return null;
 
@@ -58,8 +61,34 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   if (company?.zipCode?.trim() && !(company.address || '').includes(company.zipCode.trim())) addressParts.push(`CEP ${company.zipCode.trim()}`);
   const issuerAddress = addressParts.join(' - ');
 
-  const handlePrint = () => {
-    window.print();
+  // PDF de verdade, gerado a partir dos dados do recibo (não é uma foto da tela)
+  const handlePrint = async () => {
+    setPdfBusy(true);
+    setPdfError('');
+    try {
+      await downloadReceiptPdf({
+        issuerName,
+        issuerLegalName: company?.companyName && company.companyName.trim() !== issuerName ? company.companyName.trim() : undefined,
+        issuerCnpj: issuerCnpj || undefined,
+        issuerAddress: issuerAddress || undefined,
+        receiptNumber,
+        amountLabel: formatBRL(receiptAmount),
+        amountInWords,
+        customerName: customer?.name || 'Cliente',
+        customerDocument: customer?.document || undefined,
+        description: title.description,
+        competenceLabel: formatCompetence(title.competence),
+        titleLabel: `${title.titleNumber}${title.totalInstallments && title.totalInstallments > 1 ? ` (Parcela ${title.installmentIndex || 1}/${title.totalInstallments})` : ''}`,
+        originLabel: title.contractNumber ? `Contrato Recorrente de Honorários ${title.contractNumber}` : undefined,
+        placeAndDate: `${cityState ? `${cityState}, ` : ''}${formatDateBR(paymentDate)}`,
+        paymentDateLabel: formatDateBR(paymentDate),
+        recordId: title.id
+      });
+    } catch {
+      setPdfError('Não foi possível gerar o PDF agora. Tente de novo.');
+    } finally {
+      setPdfBusy(false);
+    }
   };
 
   return (
@@ -86,11 +115,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             <button
               type="button"
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-              title="Imprimir ou Salvar como PDF"
+              disabled={pdfBusy}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              title="Baixar o recibo em PDF"
             >
-              <Printer className="w-4 h-4" />
-              <span>Imprimir / PDF</span>
+              <Download className="w-4 h-4" />
+              <span>{pdfBusy ? 'Gerando...' : 'Baixar PDF'}</span>
             </button>
             <button
               type="button"
@@ -216,7 +246,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         {/* Rodapé - Invisível na Impressão */}
         <div className="px-6 py-3 bg-[var(--surface-elevated)] border-t border-[var(--border-subtle)] flex items-center justify-between shrink-0 print:hidden">
           <span className="text-xs text-[var(--text-secondary)]">
-            Dica: Utilize a opção de impressão para gerar cópia em papel ou exportar em PDF.
+            {pdfError || 'O PDF baixado já está pronto para imprimir ou enviar ao cliente.'}
           </span>
           <button
             type="button"

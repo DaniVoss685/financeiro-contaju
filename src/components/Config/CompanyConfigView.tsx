@@ -3,6 +3,7 @@ import { Building, Save, CheckCircle2, Download, Database } from 'lucide-react';
 import { CompanyInfo } from '../../types';
 import { storage } from '../../services/storageService';
 import { PremiumSelect } from '../Common/PremiumSelect';
+import { CNPJInputField } from '../Common/CNPJInputField';
 
 export const CompanyConfigView: React.FC = () => {
   const [company, setCompany] = useState<CompanyInfo>(storage.getCompany());
@@ -14,7 +15,8 @@ export const CompanyConfigView: React.FC = () => {
       setSuccessMsg(`Backup "${res.filename}" (${res.sizeKb} KB) exportado com sucesso!`);
       setTimeout(() => setSuccessMsg(''), 5000);
     } catch {
-      alert('Erro ao exportar backup');
+      setSuccessMsg('Não foi possível exportar o backup agora. Tente de novo.');
+      setTimeout(() => setSuccessMsg(''), 5000);
     }
   };
 
@@ -73,8 +75,8 @@ export const CompanyConfigView: React.FC = () => {
               <input
                 type="text"
                 required
-                value={company.legalName}
-                onChange={e => setCompany({ ...company, legalName: e.target.value })}
+                value={company.companyName || ''}
+                onChange={e => setCompany({ ...company, companyName: e.target.value })}
                 className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 focus:outline-none focus:border-amber-400 transition-colors"
               />
             </div>
@@ -83,7 +85,7 @@ export const CompanyConfigView: React.FC = () => {
               <input
                 type="text"
                 required
-                value={company.tradeName}
+                value={company.tradeName || ''}
                 onChange={e => setCompany({ ...company, tradeName: e.target.value })}
                 className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 focus:outline-none focus:border-amber-400 transition-colors"
               />
@@ -92,20 +94,37 @@ export const CompanyConfigView: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-medium text-[var(--text-secondary)] mb-1">CNPJ *</label>
-              <input
-                type="text"
+              <CNPJInputField
+                id="empresa-cnpj"
+                label="CNPJ *"
                 required
-                value={company.cnpj}
-                onChange={e => setCompany({ ...company, cnpj: e.target.value })}
-                className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 font-mono focus:outline-none focus:border-amber-400 transition-colors"
+                placeholder=""
+                value={company.cnpj || ''}
+                onChange={maskedVal => setCompany(prev => ({ ...prev, cnpj: maskedVal }))}
+                onDataFetched={receita => {
+                  // CNPJ digitado ou colado: traz os dados da Receita Federal (mesma busca do cadastro de cliente)
+                  setCompany(prev => ({
+                    ...prev,
+                    cnpj: receita.formattedCnpj,
+                    companyName: receita.razaoSocial || prev.companyName,
+                    tradeName: receita.nomeFantasia || receita.razaoSocial || prev.tradeName,
+                    address: receita.enderecoCompleto || prev.address,
+                    city: receita.municipio || prev.city,
+                    state: receita.uf || prev.state,
+                    zipCode: receita.cep || prev.zipCode,
+                    phone: prev.phone || receita.telefone,
+                    email: prev.email || receita.email
+                  }));
+                  setSuccessMsg('Dados da empresa preenchidos com as informações da Receita Federal. Confira e clique em Salvar.');
+                  setTimeout(() => setSuccessMsg(''), 6000);
+                }}
               />
             </div>
             <div>
               <label className="block font-medium text-[var(--text-secondary)] mb-1">Regime Tributário</label>
               <PremiumSelect
-                value={company.taxRegime}
-                onChange={e => setCompany({ ...company, taxRegime: e.target.value as any })}
+                value={company.fiscalRegime || 'SIMPLES_NACIONAL'}
+                onChange={e => setCompany({ ...company, fiscalRegime: e.target.value as any })}
                 className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] px-3 py-2 font-medium focus:outline-none focus:border-amber-400 transition-colors cursor-pointer"
               >
                 <option value="SIMPLES_NACIONAL">Simples Nacional</option>
