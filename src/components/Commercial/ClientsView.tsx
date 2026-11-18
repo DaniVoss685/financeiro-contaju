@@ -844,10 +844,9 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ initialSearch = '' }) 
                       notes: prev.notes ? `${prev.notes}\n[CNAE: ${receita.cnaeCodigo} - ${receita.cnaeDescricao}]` : `CNAE: ${receita.cnaeCodigo} - ${receita.cnaeDescricao}. Situação: ${receita.situacaoCadastral}.`
                     }));
                   }}
-                  label="Digite ou cole o CNPJ ou CPF *"
-                  required
-                  placeholder="CNPJ ou CPF"
-                  helpText="CNPJ (14 números): busca os dados na Receita. CPF (11 números): só confere e cadastra, preencha o resto à mão."
+                  label="CNPJ ou CPF (opcional)"
+                  placeholder=""
+                  helpText="CNPJ (14 números): busca os dados na Receita. CPF (11 números): só confere e cadastra. Pode deixar em branco se o cliente não tiver o documento na hora."
                 />
               </div>
 
