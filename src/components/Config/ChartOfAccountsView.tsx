@@ -109,6 +109,16 @@ interface ModalCreationContext {
 
 export const ChartOfAccountsView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  // Tela cheia da tabela de contas (disponível também na versão simples)
+  const [isTableFull, setIsTableFull] = useState(false);
+  useEffect(() => {
+    if (!isTableFull) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsTableFull(false); };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+  }, [isTableFull]);
   const [selectedRootFilter, setSelectedRootFilter] = useState<string>('TODOS');
   const [usageFilter, setUsageFilter] = useState<'TODOS' | 'COM_LANCAMENTOS' | 'OCIOSAS'>('TODOS');
   
@@ -1047,6 +1057,15 @@ export const ChartOfAccountsView: React.FC = () => {
                 <Minimize2 className="w-3 h-3 text-slate-400" />
                 <span>Recolher Tudo</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setIsTableFull(v => !v)}
+                className="px-2 py-1 rounded-lg text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-card)] transition-colors flex items-center gap-1 cursor-pointer"
+                title={isTableFull ? 'Voltar ao tamanho normal (Esc)' : 'Abrir a tabela em tela cheia'}
+              >
+                {isTableFull ? <Minimize2 className="w-3 h-3 text-amber-500" /> : <Maximize2 className="w-3 h-3 text-amber-500" />}
+                <span>{isTableFull ? 'Sair da tela cheia' : 'Tela cheia'}</span>
+              </button>
             </div>
 
           </div>
@@ -1054,15 +1073,28 @@ export const ChartOfAccountsView: React.FC = () => {
       </div>
 
       {/* Tabela Interativa de Contas com Acordeão, Drag & Drop, Auditoria e Fusão */}
-      <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className={`bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-2xs overflow-hidden ${isTableFull ? 'fixed inset-0 z-[60] flex flex-col rounded-none' : 'rounded-2xl'}`}>
+        {isTableFull && (
+          <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] shrink-0">
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">Plano de contas (DRE)</h3>
+            <button
+              type="button"
+              onClick={() => setIsTableFull(false)}
+              className="px-3 h-9 border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            >
+              <Minimize2 className="w-3.5 h-3.5" />
+              Sair da tela cheia
+            </button>
+          </div>
+        )}
+        <div className={isTableFull ? 'flex-1 overflow-auto' : 'overflow-auto max-h-[72vh]'}>
           <table className="w-full text-left text-xs">
-            <thead className="bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-semibold uppercase tracking-wider text-[11px]">
-              <tr>
-                <th className="py-3 px-3 w-14 text-center">Ordem</th>
-                <th className="py-3 px-4 w-28">Código</th>
-                <th className="py-3 px-4">Descrição da Conta</th>
-                <th className="py-3 px-3">Tipo</th>
+            <thead className="text-[var(--text-secondary)] font-semibold uppercase tracking-wider text-[11px]">
+              <tr className="[&>th]:bg-[var(--surface-elevated)] [&>th]:sticky [&>th]:top-0 [&>th]:z-20 [&>th]:border-b [&>th]:border-[var(--border-subtle)]">
+                <th className="py-3 px-3 text-center md:left-0 md:z-30" style={{ width: 88, minWidth: 88 }}>Ordem</th>
+                <th className="py-3 px-4 md:z-30" style={{ width: 100, minWidth: 100, left: 88 }}>Código</th>
+                <th className="py-3 px-4 md:z-30" style={{ width: 230, minWidth: 230, left: 188 }}>Descrição da Conta</th>
+                <th className="py-3 px-3 md:z-30 md:shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)]" style={{ width: 176, minWidth: 176, left: 418 }}>Tipo</th>
                 <th className="py-3 px-4">Linha Estratégica DRE</th>
                 <th className="py-3 px-4">Auditoria & Uso</th>
                 <th className="py-3 px-3">Mover de Grupo</th>
@@ -1108,7 +1140,7 @@ export const ChartOfAccountsView: React.FC = () => {
                     } ${acc.status === 'INATIVO' || acc.isActive === false ? 'opacity-60 bg-slate-50 dark:bg-slate-900/30' : ''}`}
                   >
                     {/* Alça de Arraste OU Toggle do Acordeão */}
-                    <td className="py-2 px-2 text-center">
+                    <td className={`py-2 px-2 text-center md:sticky md:z-10 ${isSynthetic ? 'bg-[var(--surface-elevated)]' : 'bg-[var(--surface-card)]'}`} style={{ width: 88, minWidth: 88, left: 0 }}>
                       {!isSynthetic ? (
                         <div className="flex items-center justify-center gap-0.5">
                           <button
@@ -1151,7 +1183,7 @@ export const ChartOfAccountsView: React.FC = () => {
                     </td>
 
                     {/* Código Estrutural */}
-                    <td className="py-2.5 px-4 font-mono text-[var(--text-primary)] font-bold whitespace-nowrap">
+                    <td className={`py-2.5 px-4 font-mono text-[var(--text-primary)] font-bold whitespace-nowrap md:sticky md:z-10 ${isSynthetic ? 'bg-[var(--surface-elevated)]' : 'bg-[var(--surface-card)]'}`} style={{ width: 100, minWidth: 100, left: 88 }}>
                       <span className={`px-2 py-0.5 rounded-md ${
                         isSynthetic 
                           ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-extrabold shadow-2xs' 
@@ -1162,7 +1194,7 @@ export const ChartOfAccountsView: React.FC = () => {
                     </td>
 
                     {/* Descrição com Indentação e Ícone de Pasta */}
-                    <td className="py-2.5 px-4" style={{ paddingLeft: `${Math.max(16, level * 18)}px` }}>
+                    <td className={`py-2.5 px-4 md:sticky md:z-10 ${isSynthetic ? 'bg-[var(--surface-elevated)]' : 'bg-[var(--surface-card)]'}`} style={{ paddingLeft: `${Math.max(16, level * 18)}px`, width: 230, minWidth: 230, left: 188 }}>
                       <div className="flex items-center gap-2">
                         {isSynthetic ? (
                           <button
@@ -1196,7 +1228,7 @@ export const ChartOfAccountsView: React.FC = () => {
                     </td>
 
                     {/* Tipo: Sintética vs Analítica */}
-                    <td className="py-2.5 px-3 whitespace-nowrap">
+                    <td className={`py-2.5 px-3 whitespace-nowrap md:sticky md:z-10 md:shadow-[4px_0_6px_-4px_rgba(0,0,0,0.25)] ${isSynthetic ? 'bg-[var(--surface-elevated)]' : 'bg-[var(--surface-card)]'}`} style={{ width: 176, minWidth: 176, left: 418 }}>
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
                         isSynthetic 
                           ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200' 
