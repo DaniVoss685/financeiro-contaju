@@ -2172,15 +2172,35 @@ class SupabaseSyncService {
 
   private async pushDelta(client: any, table: string, rows: any[], label: string, errors: string[]): Promise<boolean> {
     const { changed, mark } = this.deltaOf(table, rows);
+    let allOk = true;
     for (const chunk of this.chunkArray(changed, 100)) {
       const { error } = await client.from(table).upsert(chunk.map(c => c.row), { onConflict: 'id' });
-      if (error) {
-        errors.push(`${label}: ${error.message}`);
-        return false;
+      if (!error) {
+        mark(chunk);
+        continue;
       }
-      mark(chunk);
+      // O banco recusa o lote inteiro quando UMA linha tem problema (ex.: número de venda repetido).
+      // Tenta linha por linha: as boas sobem; só as ruins ficam de fora e são apontadas.
+      let bad = 0;
+      let firstMsg = '';
+      for (const item of chunk) {
+        const r = await client.from(table).upsert([item.row], { onConflict: 'id' });
+        if (r.error) {
+          bad++;
+          if (!firstMsg) {
+            const ref = item.row.sale_number || item.row.title_number || item.row.description || item.row.id;
+            firstMsg = `${r.error.message} (${String(ref).slice(0, 60)})`;
+          }
+        } else {
+          mark([item]);
+        }
+      }
+      if (bad > 0) {
+        errors.push(`${label}: ${bad} registro(s) recusado(s) pelo banco - ${firstMsg}`);
+        allOk = false;
+      }
     }
-    return true;
+    return allOk;
   }
 
   private chunkArray<T>(arr: T[], size: number): T[][] {
