@@ -37,9 +37,9 @@ export const SyncGuardNotice: React.FC = () => {
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">Seu acesso venceu</h2>
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">Sua sessão foi encerrada</h2>
               <p className="text-sm text-[var(--text-secondary)] mt-1 leading-relaxed">
-                O sistema não está conseguindo salvar na nuvem agora. <strong>Não se preocupe: tudo o que você lançou está guardado neste aparelho</strong> e será enviado assim que você entrar de novo.
+                O login deste aparelho foi encerrado (por exemplo, alguém saiu da mesma conta em outro computador). <strong>Seus lançamentos estão guardados neste aparelho</strong> e serão enviados assim que você entrar de novo.
               </p>
             </div>
           </div>

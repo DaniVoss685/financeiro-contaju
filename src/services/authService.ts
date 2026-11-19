@@ -119,7 +119,7 @@ async function finishLogin(): Promise<{ success: boolean; user?: User; error?: s
   }
 
   if (!consultant && orgs.length === 0) {
-    await client.auth.signOut();
+    await client.auth.signOut({ scope: 'local' });
     return {
       success: false,
       error: 'Seu e-mail ainda não foi autorizado pela consultoria. Peça a liberação e tente de novo.'
@@ -220,7 +220,7 @@ export async function signOut() {
   stashLocalBeforePurge();
   const client = getSupabaseClient();
   try {
-    await client?.auth.signOut();
+    await client?.auth.signOut({ scope: 'local' }); // 'local': sair neste aparelho NÃO derruba o login dos outros aparelhos (o padrão era derrubar todos)
   } catch {
     // ignora
   }
