@@ -25,6 +25,7 @@ import {
   ImprovementRequest
 } from '../types';
 import { ConflictResolutionEngine } from './conflictResolutionEngine';
+import { markSyncedOk } from './unsyncedGuard';
 import { OfflineSyncService } from './offlineSyncService';
 
 export interface SyncStats {
@@ -1263,7 +1264,11 @@ class SupabaseSyncService {
 
       const durationMs = Math.round(performance.now() - startTime);
       const nowIso = new Date().toISOString();
-      this.setLastSyncTime(nowIso);
+      // Só conta como "em dia" quando nada foi recusado (antes marcava como enviado mesmo com erro de sessão)
+      if (errors.length === 0) {
+        this.setLastSyncTime(nowIso);
+        markSyncedOk();
+      }
 
       if (errors.length > 0) {
         return {

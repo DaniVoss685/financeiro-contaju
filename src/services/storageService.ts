@@ -66,6 +66,7 @@ import {
 import { INITIAL_RECONCILIATION_RULES } from '../data/reconciliationRulesData';
 import { INITIAL_AGENT_DEFINITIONS } from '../data/initialAgentsData';
 import { advanceCompetence, addMonthsSafe } from '../utils/dateUtils';
+import { SYNC_KEYS, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
 
 const STORAGE_KEYS = {
   AGENT_DEFINITIONS: 'contaju_agent_definitions',
@@ -3592,6 +3593,16 @@ class StorageService {
 
       const { supabaseSync } = await import('./supabaseSyncService');
 
+      // Antes de baixar da nuvem: guarda o que existe só neste aparelho (gravações que a nuvem recusou, por exemplo)
+      const preserved = this.snapshotLocalRows();
+      // A cópia de segurança do navegador (IndexedDB) também entra: pode ter dados que a lista principal já perdeu
+      try {
+        const backup = await this.readIndexedDBBackup();
+        for (const key of SYNC_KEYS) {
+          if (Array.isArray(backup[key]) && backup[key].length > 0) preserved[key] = unionById(preserved[key] || [], backup[key]);
+        }
+      } catch { /* segue sem a cópia */ }
+
       this.startCloudPull();
       try {
         const pullRes = await supabaseSync.pullAllFromSupabase();
@@ -3599,6 +3610,8 @@ class StorageService {
           this.isCloudHydrated = true;
           this.inMemoryCache.clear();
           this.normalizedTitlesCache = null;
+          // O que só existia neste aparelho volta a somar com o que veio da nuvem e é reenviado: nada some
+          this.mergeBackLocalRows(preserved);
           try {
             localStorage.setItem('contaju_hydrated_from_supabase', 'true');
           } catch {}
@@ -3613,6 +3626,76 @@ class StorageService {
     } catch (e) {
       console.warn('[Contaju Cloud Sync] Aviso ao carregar do Supabase:', e);
       return false;
+    }
+  }
+
+  private async readIndexedDBBackup(): Promise<Record<string, any[]>> {
+    const out: Record<string, any[]> = {};
+    if (typeof indexedDB === 'undefined') return out;
+    try {
+      const db = await this.openIndexedDB();
+      if (!db) return out;
+      await Promise.all(SYNC_KEYS.map(key => new Promise<void>(resolve => {
+        try {
+          const rq = db.transaction('store', 'readonly').objectStore('store').get(key);
+          rq.onsuccess = () => { if (Array.isArray(rq.result)) out[key] = rq.result; resolve(); };
+          rq.onerror = () => resolve();
+        } catch { resolve(); }
+      })));
+    } catch { /* sem cópia */ }
+    return out;
+  }
+
+  /** Cópia (só leitura) das listas de dados deste aparelho + reserva de quem saiu antes de enviar. */
+  private snapshotLocalRows(): Record<string, any[]> {
+    const snap: Record<string, any[]> = {};
+    try {
+      const stash = readStash();
+      for (const key of SYNC_KEYS) {
+        let rows: any[] = [];
+        try { const raw = localStorage.getItem(key); rows = raw ? JSON.parse(raw) : []; } catch { rows = []; }
+        if (!Array.isArray(rows)) rows = [];
+        snap[key] = unionById(rows, Array.isArray(stash[key]) ? stash[key] : []);
+      }
+    } catch { /* sem cópia: segue só com a nuvem */ }
+    return snap;
+  }
+
+  private mergeBackLocalRows(preserved: Record<string, any[]>): void {
+    try {
+      const pending = hasUnsynced();
+      const lastOk = lastSyncOk();
+      const rowTime = (r: any): string => String(r?.updatedAt || r?.createdAt || '');
+      let restored = 0;
+      for (const key of SYNC_KEYS) {
+        const local = preserved[key] || [];
+        if (local.length === 0) continue;
+        const cloud = (this.get<any[]>(key, []) as any[]) || [];
+        const byId = new Map<string, any>(cloud.map(r => [String(r.id), r]));
+        const extra: any[] = [];
+        const newer: any[] = [];
+        for (const r of local) {
+          if (!r || r.id == null) continue;
+          const c = byId.get(String(r.id));
+          if (!c) {
+            // só existe aqui: é dado novo ainda não enviado (ou, sem registro de envio, tratamos como novo)
+            if (pending || !lastOk || rowTime(r) > lastOk) extra.push(r);
+          } else if (pending && rowTime(r) > rowTime(c)) {
+            newer.push(r);
+          }
+        }
+        if (extra.length === 0 && newer.length === 0) continue;
+        const newerIds = new Set(newer.map(r => String(r.id)));
+        const merged = [...cloud.filter(r => !newerIds.has(String(r.id))), ...newer, ...extra];
+        this.set(key, merged, { skipRemoteSync: true });
+        restored += extra.length + newer.length;
+      }
+      if (restored > 0 || pending) {
+        console.warn(`[Contaju] ${restored} registro(s) que só existiam neste aparelho foram mantidos e serão reenviados.`);
+        setTimeout(() => { void flushUnsynced(); }, 800);
+      }
+    } catch (e) {
+      console.warn('[Contaju] Não foi possível somar os dados locais com a nuvem:', e);
     }
   }
 

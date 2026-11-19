@@ -1,6 +1,7 @@
 import { getSupabaseClient, setTabOrg, getTabOrg } from './supabaseClient';
 import { storage } from './storageService';
 import type { User, UserRole } from '../types';
+import { stashLocalBeforePurge, flushUnsynced, hasUnsynced } from './unsyncedGuard';
 
 /**
  * Login real pelo Supabase Auth. Quem pode entrar é decidido no banco:
@@ -45,10 +46,12 @@ const KEEP_KEYS = new Set([
 
 /** Apaga o cache local dos dados (nunca mistura empresas no mesmo navegador). */
 export function purgeLocalData(): void {
+  // Antes de apagar: guarda uma reserva do que ainda não chegou na nuvem (volta e é reenviada no próximo acesso)
+  stashLocalBeforePurge();
   const toRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
-    if (k && k.startsWith('contaju_') && !KEEP_KEYS.has(k) && !k.startsWith('sb-')) toRemove.push(k);
+    if (k && k.startsWith('contaju_') && !KEEP_KEYS.has(k) && !k.startsWith('sb-') && !k.startsWith('contaju_dirty_') && !k.startsWith('contaju_unsynced_') && !k.startsWith('contaju_last_sync_ok_')) toRemove.push(k);
   }
   toRemove.forEach(k => localStorage.removeItem(k));
   // Limpa também a memória da página e a cópia de segurança do navegador (IndexedDB)
@@ -212,6 +215,9 @@ export function onPasswordRecovery(cb: () => void): () => void {
 }
 
 export async function signOut() {
+  // Tenta enviar o que ainda não foi para a nuvem antes de encerrar; se não der, a reserva fica guardada
+  try { if (hasUnsynced()) await flushUnsynced(); } catch { /* segue: a reserva protege os dados */ }
+  stashLocalBeforePurge();
   const client = getSupabaseClient();
   try {
     await client?.auth.signOut();

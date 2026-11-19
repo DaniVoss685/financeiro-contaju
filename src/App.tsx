@@ -78,6 +78,7 @@ import { Menu, Minimize2 } from 'lucide-react';
 import { useToast, ToastProvider } from './hooks/useToast';
 import { ToastContainer } from './components/Common/Toast';
 import { FloatingCalculator } from './components/Common/FloatingCalculator';
+import { SyncGuardNotice } from './components/Common/SyncGuardNotice';
 import { LoginView } from './components/Auth/LoginView';
 
 const ScreenLoadingFallback: React.FC = () => (
@@ -603,6 +604,9 @@ function AppContent() {
 
       {/* Sistema Global de Notificações (Toast) */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
+      {/* Aviso de acesso vencido / dados ainda não enviados à nuvem */}
+      <SyncGuardNotice />
 
       {/* Calculadora Flutuante e Minimizável do Sistema */}
       <FloatingCalculator

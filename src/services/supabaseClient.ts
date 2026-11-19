@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { markDirty, setSessionExpired, TABLE_TO_KEY } from './unsyncedGuard';
 
 const STORAGE_KEYS = {
   SUPABASE_URL: 'contaju_supabase_url',
@@ -166,6 +167,34 @@ function scopeToOrg(client: SupabaseClient): SupabaseClient {
   return client;
 }
 
+// Observa as respostas do banco: gravação recusada (sessão vencida, sem permissão, servidor fora) ou sem rede
+// deixa uma marca de "dados só neste aparelho" e a sessão vencida aparece na tela, em vez de falhar em silêncio.
+const guardedFetch: typeof fetch = async (input: any, init?: any) => {
+  let table = '';
+  let method = 'GET';
+  try {
+    const url = typeof input === 'string' ? input : input?.url || String(input);
+    const m = url.match(/\/rest\/v1\/([^/?]+)/);
+    table = m ? m[1] : '';
+    method = String(init?.method || (typeof input !== 'string' ? input?.method : '') || 'GET').toUpperCase();
+  } catch { /* segue sem classificar */ }
+  const isData = !!table && Object.prototype.hasOwnProperty.call(TABLE_TO_KEY, table);
+  const isWrite = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+  try {
+    const res = await fetch(input, init);
+    if (isData && !res.ok) {
+      if (res.status === 401) setSessionExpired(true);
+      if (isWrite && (res.status === 401 || res.status === 403 || res.status >= 500)) markDirty(table);
+    } else if (res.status === 401 && table.startsWith('contaju_')) {
+      setSessionExpired(true);
+    }
+    return res;
+  } catch (e) {
+    if (isData && isWrite) markDirty(table);
+    throw e;
+  }
+};
+
 export function getSupabaseClient(): SupabaseClient | null {
   const config = getSupabaseConfig();
   if (!config.url || !config.anonKey || !config.url.startsWith('http')) {
@@ -182,7 +211,8 @@ export function getSupabaseClient(): SupabaseClient | null {
       auth: {
         persistSession: true,
         autoRefreshToken: true
-      }
+      },
+      global: { fetch: guardedFetch }
     }));
     cachedClientKey = clientKey;
     return cachedClient;
