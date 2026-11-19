@@ -44,6 +44,8 @@ interface NewTitleModalProps {
   onClose: () => void;
   onSaved?: (details?: { count: number; type: TitleType; description: string; totalAmount: number }) => void;
   onCreated?: () => void;
+  /** Chamado ao salvar e continuar lançando (modal continua aberto): só atualiza as telas. */
+  onSavedKeepOpen?: () => void;
   onError?: (errorMessage: string) => void;
 }
 
@@ -56,6 +58,7 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
   onClose,
   onSaved,
   onCreated,
+  onSavedKeepOpen,
   onError
 }) => {
   const simple = useIsSimpleMode();
@@ -133,42 +136,45 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
   const [openCompleteModal, setOpenCompleteModal] = useState(false);
   const [openCompleteAfterSave, setOpenCompleteAfterSave] = useState(true);
 
+  // Deixa o formulário em branco para um novo lançamento
+  const resetForm = (activeType: TitleType) => {
+    setType(activeType);
+    setBaseTitleNumber(
+      `${activeType === 'RECEBER' ? 'REC' : 'PAG'}-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`
+    );
+    setLaunchDate(today);
+    setCompetence(currentMonth);
+    setDueDate(today);
+    setExpectedCashDate(today);
+    setAccountId('');
+    setOnCard(false);
+    setCardId('');
+    setCounterpartyId('');
+    setDescription('');
+    setOriginalAmount(0);
+    setErrorMessage('');
+    setNotes('');
+    setLaunchMode('UNICO');
+    setCounterpartyFilter('TODOS');
+    setInstallmentsCount(3);
+    setIsCustomInstallments(false);
+    setRecurringMonths(12);
+    setIsCustomRecurring(false);
+    setIsAlreadySettled(false);
+    setSettlementDate(today);
+    setSettlementBankAccountId(bankAccounts[0]?.id || '');
+    setSettlementPaymentMethod('PIX');
+    setSettlementDiscount(0);
+    setSettlementInterest(0);
+    setSettlementBankFee(0);
+    setSettlementVoucherRef('');
+    setSettlementNotes('');
+    setSettlementScope('FIRST');
+  };
+
   // Sincronizar com defaultType toda vez que o modal abrir ou a prop defaultType mudar
   useEffect(() => {
-    if (isOpen) {
-      const activeType = defaultType || 'PAGAR';
-      setType(activeType);
-      setBaseTitleNumber(
-        `${activeType === 'RECEBER' ? 'REC' : 'PAG'}-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`
-      );
-      setLaunchDate(today);
-      setCompetence(currentMonth);
-      setDueDate(today);
-      setExpectedCashDate(today);
-      setAccountId('');
-      setOnCard(false);
-      setCardId('');
-      setCounterpartyId('');
-      setDescription('');
-      setOriginalAmount(0);
-      setErrorMessage('');
-      setLaunchMode('UNICO');
-      setCounterpartyFilter('TODOS');
-      setInstallmentsCount(3);
-      setIsCustomInstallments(false);
-      setRecurringMonths(12);
-      setIsCustomRecurring(false);
-      setIsAlreadySettled(false);
-      setSettlementDate(today);
-      setSettlementBankAccountId(bankAccounts[0]?.id || '');
-      setSettlementPaymentMethod('PIX');
-      setSettlementDiscount(0);
-      setSettlementInterest(0);
-      setSettlementBankFee(0);
-      setSettlementVoucherRef('');
-      setSettlementNotes('');
-      setSettlementScope('FIRST');
-    }
+    if (isOpen) resetForm((defaultType || 'PAGAR') as TitleType);
   }, [isOpen, defaultType]);
 
   // Atualizar prefixo quando o tipo mudar
@@ -588,19 +594,46 @@ export const NewTitleModal: React.FC<NewTitleModalProps> = ({
               </p>
               <p className="text-2xl font-semibold tabular-nums text-[var(--text-primary)]">{formatBRL(successInfo.total)}</p>
             </div>
-            <button
-              type="button"
-              autoFocus
-              onClick={() => {
-                const done = finishRef.current;
-                finishRef.current = null;
-                setSuccessInfo(null);
-                if (done) done();
-              }}
-              className="h-11 px-8 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
-            >
-              Concluir
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  finishRef.current = null;
+                  setSuccessInfo(null);
+                  resetForm(type);
+                  if (onSavedKeepOpen) onSavedKeepOpen();
+                }}
+                className="h-11 px-5 rounded-xl btn-gold text-sm font-semibold cursor-pointer"
+              >
+                Lançar outra
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  finishRef.current = null;
+                  setSuccessInfo(null);
+                  setBaseTitleNumber(`${type === 'RECEBER' ? 'REC' : 'PAG'}-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`);
+                  setErrorMessage('');
+                  if (onSavedKeepOpen) onSavedKeepOpen();
+                }}
+                className="h-11 px-5 rounded-xl border border-[var(--border-subtle)] text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] cursor-pointer"
+              >
+                Duplicar esta
+              </button>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => {
+                  const done = finishRef.current;
+                  finishRef.current = null;
+                  setSuccessInfo(null);
+                  if (done) done();
+                }}
+                className="h-11 px-5 rounded-xl text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+              >
+                Concluir
+              </button>
+            </div>
           </div>
         </div>
       )}

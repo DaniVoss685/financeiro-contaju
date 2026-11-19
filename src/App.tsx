@@ -552,6 +552,7 @@ function AppContent() {
             setIsNewTitleModalOpen(false);
             setCurrentScreen(prev => prev);
           }}
+          onSavedKeepOpen={() => setCurrentScreen(prev => prev)}
           onCreated={() => {
             setIsNewTitleModalOpen(false);
             setCurrentScreen(prev => prev);

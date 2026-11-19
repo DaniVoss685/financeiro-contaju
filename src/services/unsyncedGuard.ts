@@ -46,6 +46,9 @@ export interface SyncGuardStatus {
 }
 let sessionExpired = false;
 let flushing = false;
+let lastFlushErrors: string[] = [];
+/** Motivo do último envio que não deu certo (para mostrar na tela). */
+export function getLastFlushErrors(): string[] { return lastFlushErrors; }
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach(fn => { try { fn(); } catch { /* ignora */ } });
 
@@ -162,8 +165,20 @@ export async function flushUnsynced(): Promise<boolean> {
     if (!data.session) { setSessionExpired(true); return false; }
     // (getSession já renova sozinho quando o acesso venceu; não chamamos a renovação à mão para não disputar com ela)
     const { supabaseSync } = await import('./supabaseSyncService');
-    const res = await supabaseSync.syncAllToSupabase();
-    if (res.success) {
+    let res = await supabaseSync.syncAllToSupabase();
+    // Banco recusou o acesso (401) mesmo com sessão guardada: renova o acesso uma vez e tenta de novo
+    if (!res.success && sessionExpired) {
+      try {
+        const r = await client.auth.refreshSession();
+        if (r.data?.session) { setSessionExpired(false); res = await supabaseSync.syncAllToSupabase(); }
+      } catch { /* segue com o resultado anterior */ }
+    }
+    // Cadastros de apoio (empresa, usuários, plano de contas, regras, auditoria) não são lançamentos do cliente:
+    // se só eles recusarem, os lançamentos já estão na nuvem e o aviso não deve ficar preso.
+    const SUPPORT = /^(Empresas|Usuários|Plano de Contas|Regras de Conciliação|Logs de Auditoria|Planos Orçamentários|Fechamentos de Período|Fechamentos de Saldo|Contagens do caixa):/;
+    lastFlushErrors = res.errors || [];
+    const onlySupportFailed = !res.success && lastFlushErrors.length > 0 && lastFlushErrors.every(e => SUPPORT.test(e));
+    if (res.success || onlySupportFailed) {
       setSessionExpired(false);
       clearDirty();
       clearStash();
