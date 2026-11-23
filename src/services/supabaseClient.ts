@@ -179,9 +179,20 @@ const guardedFetch: typeof fetch = async (input: any, init?: any) => {
     method = String(init?.method || (typeof input !== 'string' ? input?.method : '') || 'GET').toUpperCase();
   } catch { /* segue sem classificar */ }
   const isData = !!table && Object.prototype.hasOwnProperty.call(TABLE_TO_KEY, table);
+  const isAuthToken = typeof input === 'string' ? input.includes('/auth/v1/token') : String(input?.url || '').includes('/auth/v1/token');
   const isWrite = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
   try {
     const res = await fetch(input, init);
+    // Caixa-preta do login: se o banco recusar a renovação do acesso, guarda o motivo exato (código e hora) para diagnóstico
+    if (isAuthToken && !res.ok) {
+      res.clone().json().then((b: any) => {
+        try {
+          const list = JSON.parse(localStorage.getItem('contaju_auth_diag') || '[]');
+          list.unshift({ em: new Date().toISOString(), status: res.status, codigo: b?.error_code || b?.error || '', msg: String(b?.msg || b?.error_description || b?.message || '').slice(0, 160) });
+          localStorage.setItem('contaju_auth_diag', JSON.stringify(list.slice(0, 20)));
+        } catch { /* só diagnóstico */ }
+      }).catch(() => {});
+    }
     if (isData && !res.ok) {
       if (res.status === 401) queueSessionCheck();
       if (isWrite && (res.status === 401 || res.status === 403 || res.status >= 500)) markDirty(table);

@@ -67,7 +67,14 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successNotice, setSuccessNotice] = useState<string | null>(null);
+  // Quando o sistema abriu sem o login do banco, explica em linguagem simples (nada foi perdido)
+  const [successNotice, setSuccessNotice] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('contaju_login_notice')
+        ? 'Por segurança, o sistema precisa que você entre de novo. Seus lançamentos foram guardados e vão para a nuvem assim que você entrar.'
+        : null;
+    } catch { return null; }
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(storage.getTheme());
 
@@ -164,6 +171,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       setIsLoading(false);
 
       if (result.success && result.user) {
+        try { localStorage.removeItem('contaju_login_notice'); } catch { /* ignora */ }
         onLoginSuccess(result.user);
       } else {
         setErrorMessage(result.error || 'Credenciais inválidas. Verifique seu e-mail e senha.');
@@ -186,6 +194,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       setIsLoading(false);
 
       if (result.success && result.user) {
+        try { localStorage.removeItem('contaju_login_notice'); } catch { /* ignora */ }
         onLoginSuccess(result.user);
       } else {
         setErrorMessage(result.error || 'Código de verificação incorreto ou expirado.');
@@ -302,6 +311,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       setIsLoading(false);
 
       if (result.success && result.user) {
+        try { localStorage.removeItem('contaju_login_notice'); } catch { /* ignora */ }
         onLoginSuccess(result.user);
         return;
       }
@@ -347,6 +357,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         return;
       }
       if (result.success && result.user) {
+        try { localStorage.removeItem('contaju_login_notice'); } catch { /* ignora */ }
         onLoginSuccess(result.user);
       } else {
         setErrorMessage(result.error || 'Erro ao realizar login.');

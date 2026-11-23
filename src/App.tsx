@@ -117,7 +117,11 @@ function AppContent() {
         if (!client) return;
         const { data, error } = await client.auth.getSession();
         if (cancelled || data.session || error || !navigator.onLine) return;
-        try { localStorage.removeItem('contaju_auth_session'); } catch { /* ignora */ }
+        try { localStorage.removeItem('contaju_auth_session'); localStorage.setItem('contaju_login_notice', '1');
+          const d = JSON.parse(localStorage.getItem('contaju_auth_diag') || '[]');
+          d.unshift({ em: new Date().toISOString(), status: 0, codigo: 'sem_login_ao_abrir', msg: 'O aparelho abriu sem o login do banco' });
+          localStorage.setItem('contaju_auth_diag', JSON.stringify(d.slice(0, 20)));
+        } catch { /* ignora */ }
         setIsAuthenticated(false);
       } catch { /* sem rede: mantém como está */ }
     })();
@@ -461,6 +465,14 @@ function AppContent() {
             setCurrentScreen('DASHBOARD'); // todo login começa no Painel inicial
             setIsAuthenticated(true);
             showSuccess('Acesso Liberado', `Bem-vindo(a), ${user.name}!`);
+            // Diagnóstico: se o login tinha caído, grava o motivo exato no histórico para a gente descobrir a causa
+            try {
+              const diag = localStorage.getItem('contaju_auth_diag');
+              if (diag && diag !== '[]') {
+                storage.addAuditLog({ userName: user.name, userRole: user.role, action: 'DIAGNOSTICO_LOGIN', module: 'Autenticação', recordId: user.id, details: diag.slice(0, 900) });
+                localStorage.removeItem('contaju_auth_diag');
+              }
+            } catch { /* só diagnóstico */ }
             // Garante hidratação completa imediata de todos os dados do banco Supabase
             storage.initializeDatabaseFirst().then(() => {
               setDataVersion(v => v + 1);
