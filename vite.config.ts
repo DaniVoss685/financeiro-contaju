@@ -91,13 +91,13 @@ function devApiServerlessPlugin(): Plugin {
           }
         }
 
-        const rotaServidor: Record<string, string> = { '/api/nfse': './api/nfse.js', '/api/asaas': './api/asaas.js', '/api/asaas-webhook': './api/asaas-webhook.js', '/api/asaas-cron': './api/asaas-cron.js' };
+        const rotaServidor: Record<string, string> = { '/api/nfse': './api/nfse.js', '/api/asaas': './api/asaas.js', '/api/asaas-webhook': './api/asaas-webhook.js', '/api/asaas-cron': './api/asaas-cron.js', '/api/push': './api/push.js', '/api/push-cron': './api/push-cron.js' };
         if (rotaServidor[url.pathname]) {
           try {
             decorateRes(res);
             // As funções de servidor leem process.env; no ambiente local os valores vêm do .env / .env.local
             const localEnv = loadEnv('development', process.cwd(), '');
-            for (const k of ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'NFSE_CERT_SECRET', 'NFSE_SIGN_ALG', 'ASAAS_KEY_SECRET', 'APP_BASE_URL', 'CRON_SECRET', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']) {
+            for (const k of ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'NFSE_CERT_SECRET', 'NFSE_SIGN_ALG', 'ASAAS_KEY_SECRET', 'APP_BASE_URL', 'CRON_SECRET', 'VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']) {
               if (!process.env[k] && localEnv[k]) process.env[k] = localEnv[k];
             }
             const buffers: Buffer[] = [];

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Bell, 
   AlertTriangle, 
@@ -64,30 +64,61 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
   const [isPushEnabled, setIsPushEnabled] = useState<boolean>(() => NotificationService.isEnabledByUser());
   const [testNotificationFeedback, setTestNotificationFeedback] = useState<string | null>(null);
 
-  const handleRequestPush = async () => {
-    const res = await NotificationService.requestPermission();
-    setPushPermission(res);
-    setIsPushEnabled(res === 'granted');
-    if (res === 'granted') {
-      setTestNotificationFeedback('Notificações ativadas no seu dispositivo com sucesso!');
-      setTimeout(() => setTestNotificationFeedback(null), 4000);
+  // Aviso com o sistema fechado (servidor manda o aviso para este aparelho)
+  const [pushActive, setPushActive] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
+  const pushSupported = NotificationService.isPushSupported();
+  const needsIosInstall = NotificationService.needsInstallOnIos();
+
+  useEffect(() => {
+    let vivo = true;
+    NotificationService.isPushActive().then(ativo => { if (vivo) setPushActive(ativo); });
+    return () => { vivo = false; };
+  }, []);
+
+  const handleEnablePush = async () => {
+    setPushBusy(true);
+    setPushError(null);
+    setTestNotificationFeedback(null);
+    const res = await NotificationService.enablePush();
+    setPushPermission(NotificationService.getPermission());
+    if (res.ok) {
+      setPushActive(true);
+      setIsPushEnabled(true);
+      const teste = await NotificationService.sendPushTest();
+      setTestNotificationFeedback(teste.ok
+        ? 'Pronto! Este aparelho vai receber o aviso de vencimento, mesmo com o sistema fechado. Mandamos um aviso agora para você conferir.'
+        : 'Pronto! Aparelho ativado. O aviso de teste não saiu agora, mas o aviso diário já está valendo.');
+    } else {
+      setPushError(res.motivo || "Não foi possível concluir. Tente de novo.");
     }
+    setPushBusy(false);
+  };
+
+  const handleDisablePush = async () => {
+    setPushBusy(true);
+    setPushError(null);
+    await NotificationService.disablePush();
+    setPushActive(false);
+    setTestNotificationFeedback('Aviso desligado neste aparelho.');
+    setPushBusy(false);
   };
 
   const handleTestPushToday = async () => {
-    setTestNotificationFeedback('Verificando contas e enviando notificação nativa...');
-    const res = await NotificationService.checkAndNotifyDueToday(true);
-    if (res.notified) {
-      setTestNotificationFeedback(`Notificação enviada com sucesso! (${res.payablesCount} a pagar, ${res.receivablesCount} a receber hoje)`);
+    setPushBusy(true);
+    setPushError(null);
+    setTestNotificationFeedback(null);
+    const res = await NotificationService.sendPushTest();
+    if (res.ok) {
+      setTestNotificationFeedback(res.comVencimentos
+        ? 'Enviamos agora o aviso das contas que vencem hoje. Ele deve aparecer em segundos.'
+        : 'Aviso de teste enviado. Ele deve aparecer em segundos, mesmo com o sistema fechado.');
     } else {
-      // Se não houver contas hoje, envia notificação de exemplo
-      await NotificationService.showNotification('Contaju: Teste de Notificação Nativa', {
-        body: 'Seu sistema está pronto para alertar sobre contas a pagar e receber vencendo no dia!',
-        tag: 'contaju-test-manual'
-      });
-      setTestNotificationFeedback('Notificação de teste disparada com sucesso!');
+      setPushError(res.motivo || "Não foi possível concluir. Tente de novo.");
+      if (res.codigo === 'APARELHO_EXPIRADO') setPushActive(false);
     }
-    setTimeout(() => setTestNotificationFeedback(null), 5000);
+    setPushBusy(false);
   };
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -230,8 +261,8 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
         {/* Card 1: Contratos a Vencer */}
         <div 
           onClick={() => setActiveFilter('CONTRATOS')}
-          className={`p-4 rounded-xl border transition-all cursor-pointer shadow-xs ${
-            activeFilter === 'CONTRATOS' 
+          className={`adv-only p-4 rounded-xl border transition-all cursor-pointer shadow-xs ${
+            activeFilter === 'CONTRATOS'
               ? 'border-amber-500 bg-amber-500/[0.10]' 
               : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-amber-500/50'
           }`}
@@ -293,8 +324,8 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
         {/* Card 4: Pendências de Conciliação */}
         <div 
           onClick={() => setActiveFilter('CONCILIACAO')}
-          className={`p-4 rounded-xl border transition-all cursor-pointer shadow-xs ${
-            activeFilter === 'CONCILIACAO' 
+          className={`adv-only p-4 rounded-xl border transition-all cursor-pointer shadow-xs ${
+            activeFilter === 'CONCILIACAO'
               ? 'border-emerald-500 bg-emerald-500/[0.10]' 
               : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-emerald-500/50'
           }`}
@@ -318,7 +349,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
 
         {/* Painel de Configuração de Parâmetros */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs space-y-5">
+          <div className="adv-only bg-[var(--surface-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-xs space-y-5">
             <div className="flex items-center space-x-2 border-b border-[var(--border-subtle)] pb-3">
               <Sliders className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-[var(--text-primary)]">
@@ -424,45 +455,72 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
             </div>
 
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              Receba alertas do sistema operacional no seu computador ou celular sobre contas a pagar e a receber que vencem no dia, sem depender de e-mail.
+              Todo dia de manhã, o sistema avisa neste aparelho as contas que vencem no dia, com o nome e o valor (ex.: "Água vence hoje — R$ 180,00"). Vale para contas a pagar e a receber, <strong className="text-[var(--text-primary)]">mesmo com o sistema fechado</strong>. Ative em cada aparelho que você usa (celular e computador).
             </p>
 
             {testNotificationFeedback && (
-              <div className="p-3 bg-amber-500/15 border border-amber-500/30 rounded-xl text-xs text-amber-900 dark:text-amber-200 font-medium">
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-600 dark:text-emerald-300 font-medium leading-relaxed">
                 {testNotificationFeedback}
+              </div>
+            )}
+            {pushError && (
+              <div role="alert" className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 dark:text-rose-300 font-medium leading-relaxed">
+                {pushError}
               </div>
             )}
 
             <div className="space-y-2.5">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
+              <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)]">
                 <div>
-                  <span className="text-xs font-semibold text-[var(--text-primary)] block">Permissão do Navegador</span>
+                  <span className="text-xs font-semibold text-[var(--text-primary)] block">Aviso neste aparelho</span>
                   <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                    pushPermission === 'granted' ? 'text-emerald-500' : pushPermission === 'denied' ? 'text-rose-500' : 'text-amber-500'
+                    pushActive ? 'text-emerald-500' : pushPermission === 'denied' ? 'text-rose-500' : 'text-amber-500'
                   }`}>
-                    {pushPermission === 'granted' ? '● Ativada' : pushPermission === 'denied' ? '● Bloqueada' : '● Pendente'}
+                    {pushActive ? '● Ligado' : pushPermission === 'denied' ? '● Bloqueado no navegador' : '● Desligado'}
                   </span>
                 </div>
-                {pushPermission !== 'granted' && (
+                {pushActive ? (
                   <button
                     type="button"
-                    onClick={handleRequestPush}
-                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer shadow-xs transition-colors"
+                    onClick={handleDisablePush}
+                    disabled={pushBusy}
+                    className="px-3 py-2 min-h-[40px] bg-[var(--surface-card)] hover:bg-rose-500/10 text-[var(--text-secondary)] hover:text-rose-400 border border-[var(--border-subtle)] rounded-lg text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
                   >
-                    Ativar Agora
+                    Desligar
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleEnablePush}
+                    disabled={pushBusy || (!pushSupported && !needsIosInstall)}
+                    className="px-3 py-2 min-h-[40px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer shadow-xs transition-colors disabled:opacity-50"
+                  >
+                    {pushBusy ? 'Ativando...' : 'Ativar neste aparelho'}
                   </button>
                 )}
               </div>
 
-              {pushPermission === 'granted' && (
+              {needsIosInstall && !pushActive && (
+                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed px-1">
+                  No iPhone, primeiro toque em <strong className="text-[var(--text-primary)]">Compartilhar</strong> e em <strong className="text-[var(--text-primary)]">Adicionar à Tela de Início</strong>. Depois abra o Contaju por esse ícone e ative o aviso.
+                </p>
+              )}
+              {!pushSupported && !needsIosInstall && (
+                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed px-1">
+                  Este navegador não recebe avisos com o sistema fechado. Use o Chrome, Edge ou Safari atualizado.
+                </p>
+              )}
+
+              {pushActive && (
                 <div className="flex flex-col gap-2 pt-1">
                   <button
                     type="button"
                     onClick={handleTestPushToday}
-                    className="w-full py-2 bg-[var(--surface-elevated)] hover:bg-[var(--surface-elevated)]/80 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                    disabled={pushBusy}
+                    className="w-full py-2.5 min-h-[40px] bg-[var(--surface-elevated)] hover:bg-[var(--surface-elevated)]/80 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-50"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Disparar Alerta de Teste Agora</span>
+                    <span>{pushBusy ? 'Enviando...' : 'Enviar um aviso de teste agora'}</span>
                   </button>
                 </div>
               )}
@@ -488,7 +546,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
               </button>
               <button
                 onClick={() => setActiveFilter('CONTRATOS')}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                className={`adv-only px-3 py-1.5 rounded-lg font-medium transition-colors ${
                   activeFilter === 'CONTRATOS'
                     ? 'bg-amber-500 text-slate-950 font-bold'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -508,7 +566,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
               </button>
               <button
                 onClick={() => setActiveFilter('CONCILIACAO')}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                className={`adv-only px-3 py-1.5 rounded-lg font-medium transition-colors ${
                   activeFilter === 'CONCILIACAO'
                     ? 'bg-emerald-600 text-white font-bold'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -525,7 +583,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
 
           {/* 1. Seção: Contratos Próximos do Fim */}
           {(activeFilter === 'ALL' || activeFilter === 'CONTRATOS') && expiringContracts.length > 0 && (
-            <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xs overflow-hidden">
+            <div className="adv-only bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xs overflow-hidden">
               <div className="p-3.5 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <FileText className="w-4 h-4 text-amber-400" />
@@ -686,7 +744,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
 
           {/* 4. Seção: Pendências na Conciliação Bancária */}
           {(activeFilter === 'ALL' || activeFilter === 'CONCILIACAO') && preferences.alertPendingReconciliation && (
-            <div className="bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xs overflow-hidden">
+            <div className="adv-only bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xs overflow-hidden">
               <div className="p-3.5 border-b border-[var(--border-subtle)] bg-[var(--surface-elevated)] flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <CheckCheck className="w-4 h-4 text-emerald-400" />

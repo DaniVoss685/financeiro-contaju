@@ -215,6 +215,12 @@ export function onPasswordRecovery(cb: () => void): () => void {
 }
 
 export async function signOut() {
+  // Desliga o aviso de vencimento deste aparelho (precisa da sessão ainda ativa). Quem entrar depois neste
+  // aparelho não recebe os avisos de quem saiu.
+  try {
+    const { NotificationService } = await import('./notificationService');
+    await Promise.race([NotificationService.disablePush(), new Promise(r => setTimeout(r, 3000))]);
+  } catch { /* segue: o robô também confere o acesso a cada envio */ }
   // Tenta enviar o que ainda não foi para a nuvem antes de encerrar; se não der, a reserva fica guardada
   try { if (hasUnsynced()) await flushUnsynced(); } catch { /* segue: a reserva protege os dados */ }
   stashLocalBeforePurge();

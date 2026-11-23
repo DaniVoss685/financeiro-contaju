@@ -20,12 +20,19 @@
     },
     "api/asaas-cron.js": {
       "maxDuration": 60
+    },
+    "api/push-cron.js": {
+      "maxDuration": 60
     }
   },
   "crons": [
     {
       "path": "/api/asaas-cron",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/push-cron",
+      "schedule": "0 11 * * *"
     }
   ]
 }

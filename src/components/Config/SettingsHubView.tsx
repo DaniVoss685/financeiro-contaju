@@ -215,7 +215,7 @@ export const SettingsHubView: React.FC<SettingsHubViewProps> = ({
 
   const consultant = isConsultant();
   // Telas técnicas: somem para empresas clientes (versão simples)
-  const ADVANCED_TABS = new Set<ConfigSubTab>(['NOTIFICACOES', 'PLANO_CONTAS', 'RECORRENCIAS', 'FECHAMENTO_PERIODO', 'IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'MELHORIAS']);
+  const ADVANCED_TABS = new Set<ConfigSubTab>(['PLANO_CONTAS', 'RECORRENCIAS', 'FECHAMENTO_PERIODO', 'IA', 'MODULOS_INTEGRACOES', 'SUPABASE', 'AUDITORIA', 'MELHORIAS']);
   // Empresas clientes não veem a conexão técnica com o banco.
   const visibleTabs = tabs.filter(t => t.id !== 'SUPABASE' || consultant);
   const byId = (ids: ConfigSubTab[]) => ids.map(id => visibleTabs.find(t => t.id === id)).filter(Boolean) as TabDefinition[];

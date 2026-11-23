@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useTransition, Suspense, lazy } from 'react';
 import { Header } from './components/Header';
+import { PushInvite } from './components/Common/PushInvite';
 import { Sidebar, NavigationScreen } from './components/Sidebar';
 import { isConsultant, getOrgs, getActiveOrgId, switchOrg } from './services/authService';
 import { useIsSimpleMode } from './hooks/useViewMode';
@@ -179,6 +180,21 @@ function AppContent() {
   const handleNavigate = (screen: NavigationScreen) => {
     setCurrentScreen(screen);
   };
+
+  // Toque no aviso de vencimento (ou atalho do app instalado): abre direto em Contas a pagar / a receber.
+  useEffect(() => {
+    const irPara = (alvo: string) => {
+      const hash = (alvo.includes('#') ? alvo.split('#')[1] : '').toLowerCase();
+      if (hash === 'pagar') setCurrentScreen('CONTAS_PAGAR');
+      else if (hash === 'receber') setCurrentScreen('CONTAS_RECEBER');
+    };
+    irPara(window.location.hash);
+    const aoMensagem = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'NOTIFICATION_CLICKED' && typeof e.data.target === 'string') irPara(e.data.target);
+    };
+    navigator.serviceWorker?.addEventListener('message', aoMensagem);
+    return () => navigator.serviceWorker?.removeEventListener('message', aoMensagem);
+  }, []);
 
   // Badges de pendências para navegação mobile - depende exclusivamente de atualizações nos dados, NUNCA da troca de tela
   const { overduePayablesCount, overdueReceivablesCount } = useMemo(() => {
@@ -462,7 +478,9 @@ function AppContent() {
         <LoginView
           onLoginSuccess={(user) => {
             setCurrentUser(user);
-            setCurrentScreen('DASHBOARD'); // todo login começa no Painel inicial
+            // todo login começa no Painel inicial (exceto quando veio de um aviso de vencimento: /#pagar ou /#receber)
+            const destinoAviso = window.location.hash.toLowerCase();
+            setCurrentScreen(destinoAviso === '#pagar' ? 'CONTAS_PAGAR' : destinoAviso === '#receber' ? 'CONTAS_RECEBER' : 'DASHBOARD');
             setIsAuthenticated(true);
             showSuccess('Acesso Liberado', `Bem-vindo(a), ${user.name}!`);
             // Diagnóstico: se o login tinha caído, grava o motivo exato no histórico para a gente descobrir a causa
@@ -487,6 +505,8 @@ function AppContent() {
   return (
     <div className="flex h-screen w-full max-w-full bg-[var(--bg-app)] text-[var(--text-primary)] overflow-x-hidden overflow-y-hidden font-sans antialiased transition-colors relative">
       
+      <PushInvite />
+
       {/* Floating Focus Mode Banner */}
       {isFocusMode && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-[var(--surface-card)]/95 backdrop-blur-md border border-[var(--border-subtle)] shadow-lg pl-4 pr-1.5 py-1.5 rounded-full">
