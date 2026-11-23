@@ -105,6 +105,24 @@ function AppContent() {
   // Sobe de 0 para 1 quando os dados da nuvem terminam de chegar: a tela aberta é refeita com os dados novos
   const [hydrationKey, setHydrationKey] = useState(0);
   const hydratedSeenRef = React.useRef<boolean>(storage.isHydratedFromCloud());
+  // Ao abrir o sistema: se o aparelho diz "logado" mas o banco já não tem o login (sessão encerrada), mostra a tela de entrada
+  // em vez de um painel vazio com erros. Os dados do aparelho ficam guardados e sobem depois do novo login.
+  useEffect(() => {
+    if (!storage.isAuthenticated()) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getSupabaseClient } = await import('./services/supabaseClient');
+        const client = getSupabaseClient();
+        if (!client) return;
+        const { data, error } = await client.auth.getSession();
+        if (cancelled || data.session || error || !navigator.onLine) return;
+        try { localStorage.removeItem('contaju_auth_session'); } catch { /* ignora */ }
+        setIsAuthenticated(false);
+      } catch { /* sem rede: mantém como está */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const [currentUser, setCurrentUser] = useState<User>(() => storage.getCurrentUser());
   // Contratos "todo mês" (sem data final) sempre têm os próximos 12 meses prontos: renova uma vez por dia
   useEffect(() => {

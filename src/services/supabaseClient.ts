@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { markDirty, setSessionExpired, TABLE_TO_KEY } from './unsyncedGuard';
+import { markDirty, queueSessionCheck, TABLE_TO_KEY } from './unsyncedGuard';
 
 const STORAGE_KEYS = {
   SUPABASE_URL: 'contaju_supabase_url',
@@ -183,10 +183,10 @@ const guardedFetch: typeof fetch = async (input: any, init?: any) => {
   try {
     const res = await fetch(input, init);
     if (isData && !res.ok) {
-      if (res.status === 401) setSessionExpired(true);
+      if (res.status === 401) queueSessionCheck();
       if (isWrite && (res.status === 401 || res.status === 403 || res.status >= 500)) markDirty(table);
     } else if (res.status === 401 && table.startsWith('contaju_')) {
-      setSessionExpired(true);
+      queueSessionCheck();
     }
     return res;
   } catch (e) {

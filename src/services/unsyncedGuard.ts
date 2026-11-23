@@ -65,6 +65,26 @@ export function setSessionExpired(v: boolean): void {
   emit();
 }
 
+/**
+ * Um erro 401 sozinho não prova que o login caiu (pode ser uma resposta atrasada de antes do login).
+ * Confere de verdade: só avisa se o aparelho realmente não tem mais sessão. Se tem, o aviso some.
+ */
+let sessionCheckTimer: ReturnType<typeof setTimeout> | null = null;
+export function queueSessionCheck(): void {
+  if (sessionCheckTimer) return;
+  sessionCheckTimer = setTimeout(async () => {
+    sessionCheckTimer = null;
+    try {
+      const { getSupabaseClient } = await import('./supabaseClient');
+      const client = getSupabaseClient();
+      if (!client) return;
+      const { data, error } = await client.auth.getSession();
+      if (!data.session && !error) setSessionExpired(true);
+      else if (data.session) setSessionExpired(false);
+    } catch { /* sem rede: não conclui nada */ }
+  }, 2500);
+}
+
 // ------------------------------ marcação de pendências ------------------------------
 export function markDirty(table: string): void {
   try {
