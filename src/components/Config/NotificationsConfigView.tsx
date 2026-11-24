@@ -455,7 +455,7 @@ export const NotificationsConfigView: React.FC<NotificationsConfigViewProps> = (
             </div>
 
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              Todo dia de manhã, o sistema avisa neste aparelho as contas que vencem no dia, com o nome e o valor (ex.: "Água vence hoje — R$ 180,00"). Vale para contas a pagar e a receber, <strong className="text-[var(--text-primary)]">mesmo com o sistema fechado</strong>. Ative em cada aparelho que você usa (celular e computador).
+              O sistema avisa neste aparelho o que vence hoje e amanhã, com o nome e o valor (ex.: "Água vence hoje — R$ 180,00"). O primeiro aviso sai às 8h; conta lançada durante o dia avisa em até 30 minutos (até as 21h). Vale para contas a pagar e a receber, <strong className="text-[var(--text-primary)]">mesmo com o sistema fechado</strong>. Ative em cada aparelho que você usa (celular e computador).
             </p>
 
             {testNotificationFeedback && (

@@ -20,12 +20,15 @@ export function configurarWebPush(env = process.env) {
   return true;
 }
 
-/** Títulos em aberto que vencem na data (a pagar e a receber) de uma empresa. */
+export const amanhaDe = dia => new Date(new Date(`${dia}T12:00:00Z`).getTime() + 86_400_000).toISOString().slice(0, 10);
+
+/** Títulos em aberto que vencem hoje e amanhã (a pagar e a receber). Cada item sabe se é HOJE ou AMANHA. */
 export async function vencimentosDoDia(admin, orgId, dia) {
+  const amanha = amanhaDe(dia);
   const { data, error } = await admin
     .from('contaju_financial_titles')
     .select('id, type, description, title_number, due_date, balance_principal, counterparty_id')
-    .eq('org_id', orgId).eq('due_date', dia)
+    .eq('org_id', orgId).in('due_date', [dia, amanha])
     .in('type', ['PAGAR', 'RECEBER'])
     .neq('document_state', 'CANCELADO')
     .in('settlement_state', ['ABERTO', 'PARCIAL']).gt('balance_principal', 0)
@@ -40,6 +43,7 @@ export async function vencimentosDoDia(admin, orgId, dia) {
   }
   return lista.map(t => ({
     id: t.id, tipo: t.type, valor: Number(t.balance_principal),
+    quando: String(t.due_date).slice(0, 10) === dia ? 'HOJE' : 'AMANHA',
     nome: String(t.description || '').trim() || nomes.get(t.counterparty_id) || (t.type === 'PAGAR' ? 'Conta a pagar' : 'Recebimento'),
     parte: nomes.get(t.counterparty_id) || ''
   }));
@@ -77,13 +81,16 @@ const LIMITE_INDIVIDUAL = 3;
 export function montarMensagens(itens, { pagar = true, receber = true } = {}) {
   const lista = itens.filter(i => (i.tipo === 'PAGAR' ? pagar : receber));
   if (!lista.length) return [];
+  // hoje primeiro, depois amanhã
+  lista.sort((a, b) => (a.quando === b.quando ? 0 : a.quando === 'HOJE' ? -1 : 1));
+  const dq = i => (i.quando === 'AMANHA' ? 'amanhã' : 'hoje');
   if (lista.length <= LIMITE_INDIVIDUAL) {
     return lista.map(i => ({
-      title: i.tipo === 'PAGAR' ? `${i.nome} vence hoje` : `Recebimento previsto hoje: ${i.nome}`,
+      title: i.tipo === 'PAGAR' ? `${i.nome} vence ${dq(i)}` : `Recebimento previsto ${dq(i)}: ${i.nome}`,
       body: i.tipo === 'PAGAR'
         ? `${brl(i.valor)} a pagar${i.parte && i.parte !== i.nome ? ` • ${i.parte}` : ''}`
         : `${brl(i.valor)} a receber${i.parte && i.parte !== i.nome ? ` • ${i.parte}` : ''}`,
-      tag: `vence-${i.id}`,
+      tag: `vence-${i.id}-${i.quando}`,
       url: i.tipo === 'PAGAR' ? '/#pagar' : '/#receber'
     }));
   }
@@ -92,11 +99,14 @@ export function montarMensagens(itens, { pagar = true, receber = true } = {}) {
   const partes = [];
   if (pg.length) partes.push(`${pg.length} a pagar: ${brl(pg.reduce((s, i) => s + i.valor, 0))}`);
   if (rc.length) partes.push(`${rc.length} a receber: ${brl(rc.reduce((s, i) => s + i.valor, 0))}`);
-  const maiores = lista.slice(0, 3).map(i => `${i.nome} ${brl(i.valor)}`).join(' • ');
+  const maiores = lista.slice(0, 3).map(i => `${i.nome} ${brl(i.valor)}${i.quando === 'AMANHA' ? ' (amanhã)' : ''}`).join(' • ');
+  const nh = lista.filter(i => i.quando !== 'AMANHA').length;
+  const na = lista.length - nh;
+  const titulo = na === 0 ? `${lista.length} vencimentos hoje` : nh === 0 ? `${lista.length} vencimentos amanhã` : `${lista.length} vencimentos: ${nh} hoje, ${na} amanhã`;
   return [{
-    title: `${lista.length} vencimentos hoje`,
+    title: titulo,
     body: `${partes.join(' • ')}\n${maiores}`,
-    tag: `vence-resumo-${hojeBrasil()}`,
+    tag: `vence-resumo-${hojeBrasil()}-${Date.now()}`,
     url: pg.length ? '/#pagar' : '/#receber'
   }];
 }

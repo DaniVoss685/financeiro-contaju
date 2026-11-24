@@ -72,7 +72,7 @@ export const PushInvite: React.FC = () => {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-[var(--text-primary)]">Receber aviso de vencimento?</p>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed mt-1">
-                De manhã, no seu {NotificationService.needsInstallOnIos() ? 'iPhone' : 'aparelho'}, com o nome e o valor da conta que vence no dia. Funciona até com o sistema fechado.
+                No seu {NotificationService.needsInstallOnIos() ? 'iPhone' : 'aparelho'}, com o nome e o valor do que vence hoje e amanhã. Funciona até com o sistema fechado.
               </p>
             </div>
             <button

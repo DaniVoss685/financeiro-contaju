@@ -43,6 +43,23 @@ await t('aparelho que só quer "a pagar" não recebe receita', () => {
   assert.equal(m[0].title, 'X vence hoje');
   assert.equal(montarMensagens([], {}).length, 0);
 });
+await t('conta de amanhã vira "Nome vence amanhã" e vem depois das de hoje', () => {
+  const m = montarMensagens([
+    { id: 'x', tipo: 'PAGAR', valor: 90, nome: 'Luz', parte: '', quando: 'AMANHA' },
+    { id: 'y', tipo: 'PAGAR', valor: 180, nome: 'Água', parte: '', quando: 'HOJE' }
+  ]);
+  assert.deepEqual(m.map(x => x.title), ['Água vence hoje', 'Luz vence amanhã']);
+  assert.notEqual(m[0].tag, m[1].tag);
+});
+await t('resumo mistura hoje e amanhã no título', () => {
+  const itens = [1, 2, 3, 4].map(i => ({ id: 'i' + i, tipo: 'PAGAR', valor: 10, nome: 'C' + i, parte: '', quando: i <= 2 ? 'HOJE' : 'AMANHA' }));
+  assert.equal(montarMensagens(itens)[0].title, '4 vencimentos: 2 hoje, 2 amanhã');
+});
+await t('robô fora do horário (madrugada) não manda nada', async () => {
+  const { horaBrasil } = await import('../api/push-cron.js');
+  assert.equal(horaBrasil(Date.UTC(2026, 10, 24, 6, 0)), 3);
+  assert.equal(horaBrasil(Date.UTC(2026, 10, 24, 11, 0)), 8);
+});
 await t('sem chaves o servidor não está pronto', () => {
   assert.equal(configurarWebPush({}), false);
 });
