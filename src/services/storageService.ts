@@ -66,7 +66,7 @@ import {
 import { INITIAL_RECONCILIATION_RULES } from '../data/reconciliationRulesData';
 import { INITIAL_AGENT_DEFINITIONS } from '../data/initialAgentsData';
 import { advanceCompetence, addMonthsSafe } from '../utils/dateUtils';
-import { SYNC_KEYS, TABLE_TO_KEY, markDirty, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
+import { SYNC_KEYS, readCloudIds, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
 
 const STORAGE_KEYS = {
   AGENT_DEFINITIONS: 'contaju_agent_definitions',
@@ -677,9 +677,9 @@ class StorageService {
     if (!this.isPullingFromCloud && !options?.skipRemoteSync) {
       if (!this.isCloudHydrated && this.isCloudConfigured()) {
         // A nuvem ainda não foi lida nesta abertura: a lista deste aparelho pode estar velha e subiria inteira.
-        // Fica marcada como pendente; ao terminar a leitura, o que mudou aqui é somado à nuvem e enviado.
-        const table = Object.keys(TABLE_TO_KEY).find(t => TABLE_TO_KEY[t] === key);
-        if (table) markDirty(table);
+        // Não envia agora. Ao terminar a leitura, registro novo feito aqui (criado depois do último envio completo)
+        // é mantido e sobe; registro que já existe na nuvem fica com a versão da nuvem.
+        // (Não marca "pendente" de propósito: a marca faria a cópia velha inteira vencer a nuvem.)
         return;
       }
       this.syncKeyDirectlyToSupabase(key, value);
@@ -3657,6 +3657,9 @@ class StorageService {
         }
       } catch { /* segue sem a cópia */ }
 
+      // O que já esteve na nuvem na leitura anterior (antes de esta leitura atualizar a lista)
+      const knownBefore = readCloudIds();
+
       this.startCloudPull();
       try {
         const pullRes = await supabaseSync.pullAllFromSupabase();
@@ -3664,12 +3667,16 @@ class StorageService {
         // falhou, a cópia do aparelho fica sem comparação e não pode subir (tenta ler de novo depois).
         const CORE = /^(Títulos|Liquidações|Contas Bancárias|Movimentações|Contrapartes|Plano de Contas|Contratos|Vendas|Extratos|Cartões|Compras Cartão):/;
         const coreFailed = (pullRes.errors || []).some(e => CORE.test(e));
-        if (!coreFailed && (pullRes.success || (pullRes.stats?.totalRecords || 0) > 0)) {
-          this.isCloudHydrated = true;
+        const pulledSomething = pullRes.success || (pullRes.stats?.totalRecords || 0) > 0;
+        if (pulledSomething) {
           this.inMemoryCache.clear();
           this.normalizedTitlesCache = null;
-          // O que só existia neste aparelho volta a somar com o que veio da nuvem e é reenviado: nada some
-          this.mergeBackLocalRows(preserved);
+          // O que só existia neste aparelho volta a somar com o que veio da nuvem: nada some, mesmo se parte da
+          // leitura falhou (antes, uma leitura pela metade trocava a lista de contas e a conta nova se perdia)
+          this.mergeBackLocalRows(preserved, knownBefore);
+        }
+        if (!coreFailed && pulledSomething) {
+          this.isCloudHydrated = true;
           try {
             localStorage.setItem('contaju_hydrated_from_supabase', 'true');
           } catch {}
@@ -3679,6 +3686,7 @@ class StorageService {
           setTimeout(() => this.triggerAutoSyncIfConfigured(), 0);
           return true;
         }
+        if (pulledSomething) this.notify();
       } finally {
         this.endCloudPull();
       }
@@ -3722,25 +3730,35 @@ class StorageService {
     return snap;
   }
 
-  private mergeBackLocalRows(preserved: Record<string, any[]>): void {
+  private mergeBackLocalRows(preserved: Record<string, any[]>, knownBefore: Record<string, string[]> = {}): void {
     try {
       const pending = hasUnsynced();
       const lastOk = lastSyncOk();
       const rowTime = (r: any): string => String(r?.updatedAt || r?.createdAt || '');
       let restored = 0;
-      for (const key of SYNC_KEYS) {
+      const touchedTitles = new Set<string>();
+      // Baixas primeiro, títulos depois (a situação do título é recalculada pelas baixas restauradas)
+      const order = [...SYNC_KEYS].sort((a, b) => (a === STORAGE_KEYS.SETTLEMENTS ? -1 : b === STORAGE_KEYS.SETTLEMENTS ? 1 : 0));
+      for (const key of order) {
         const local = preserved[key] || [];
         if (local.length === 0) continue;
         const cloud = (this.get<any[]>(key, []) as any[]) || [];
         const byId = new Map<string, any>(cloud.map(r => [String(r.id), r]));
+        const known = Array.isArray(knownBefore[key]) ? new Set(knownBefore[key].map(String)) : null;
         const extra: any[] = [];
         const newer: any[] = [];
         for (const r of local) {
           if (!r || r.id == null) continue;
           const c = byId.get(String(r.id));
           if (!c) {
-            // só existe aqui: é dado novo ainda não enviado (ou, sem registro de envio, tratamos como novo)
-            if (pending || !lastOk || rowTime(r) > lastOk) extra.push(r);
+            if (known) {
+              // Sabemos o que estava na nuvem: se este registro estava lá e sumiu, foi apagado em outro aparelho
+              // (não volta); se nunca esteve, é novo deste aparelho e precisa subir, não importa a data.
+              if (!known.has(String(r.id))) extra.push(r);
+            } else if (pending || !lastOk || rowTime(r) > lastOk) {
+              // só existe aqui: é dado novo ainda não enviado (ou, sem registro de envio, tratamos como novo)
+              extra.push(r);
+            }
           } else if (pending && rowTime(r) > rowTime(c)) {
             newer.push(r);
           }
@@ -3750,6 +3768,23 @@ class StorageService {
         const merged = [...cloud.filter(r => !newerIds.has(String(r.id))), ...newer, ...extra];
         this.set(key, merged, { skipRemoteSync: true });
         restored += extra.length + newer.length;
+        if (key === STORAGE_KEYS.SETTLEMENTS) extra.forEach(r => r?.titleId && touchedTitles.add(String(r.titleId)));
+      }
+      // Baixa que só existia aqui voltou: a situação do título acompanha as baixas (senão ficaria "em aberto" com baixa)
+      if (touchedTitles.size > 0) {
+        const setts = (this.get<any[]>(STORAGE_KEYS.SETTLEMENTS, []) as any[]) || [];
+        const titles = (this.get<any[]>(STORAGE_KEYS.TITLES, []) as any[]) || [];
+        let changed = false;
+        const fixed = titles.map(t => {
+          if (!touchedTitles.has(String(t.id))) return t;
+          const settled = setts.filter(x => x.titleId === t.id && !x.isReversed).reduce((sum, x) => sum + (Number(x.components?.principalSettled) || 0), 0);
+          const balance = Math.max(0, Number(((t.originalAmount || 0) - settled).toFixed(2)));
+          const state = balance <= 0.001 && t.originalAmount > 0 ? 'LIQUIDADO' : (settled > 0.001 ? 'PARCIAL' : 'ABERTO');
+          if (state === t.settlementState && Math.abs((t.balancePrincipal || 0) - balance) < 0.001) return t;
+          changed = true;
+          return { ...t, settledPrincipal: Number(settled.toFixed(2)), balancePrincipal: balance, settlementState: state, updatedAt: new Date().toISOString() };
+        });
+        if (changed) this.set(STORAGE_KEYS.TITLES, fixed, { skipRemoteSync: true });
       }
       if (restored > 0 || pending) {
         console.warn(`[Contaju] ${restored} registro(s) que só existiam neste aparelho foram mantidos e serão reenviados.`);

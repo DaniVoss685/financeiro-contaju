@@ -27,6 +27,7 @@ process.env.VITE_SUPABASE_ANON_KEY = 'fake-anon-key';
 const db: Record<string, any[]> = {};
 const writes: Array<{ table: string; ids: string[] }> = [];
 let revertedInCloud = false; // a nuvem chegou a receber o título pago como "em aberto"?
+let titlesFailedOnce = false;
 const T_ID = 'tit-teste-pago';
 const DELAY = 220; // cada leitura demora um pouco, como no celular
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -42,6 +43,11 @@ const realFetch = globalThis.fetch;
   if (method === 'GET' || method === 'HEAD') {
     // A lista de títulos é a maior (1.400 linhas na Contaju): no celular essa leitura passa de 3 segundos
     await sleep(table === 'contaju_financial_titles' ? 3500 : DELAY);
+    // FALHA_LEITURA=1: a primeira leitura dos títulos dá erro no servidor (rede ruim), a segunda funciona
+    if (table === 'contaju_financial_titles' && process.env.FALHA_LEITURA && !titlesFailedOnce) {
+      titlesFailedOnce = true;
+      return new Response(JSON.stringify({ message: 'erro temporário', code: '500' }), { status: 500, headers: { 'content-type': 'application/json' } });
+    }
     const offset = Number(url.searchParams.get('offset') || 0);
     const limit = Number(url.searchParams.get('limit') || 100000);
     return new Response(JSON.stringify(db[table].slice(offset, offset + limit)), { status: 200, headers: { 'content-type': 'application/json' } });
@@ -97,13 +103,17 @@ const staleTitle = {
 store.set('contaju_supabase_url', 'http://fake.supabase.local');
 store.set('contaju_supabase_anon_key', 'fake-anon-key');
 store.set('contaju_schema_version', 'v7_supabase_database_first');
-store.set('contaju_titles', JSON.stringify([staleTitle, { ...staleTitle, id: T2, titleNumber: 'PAG-TESTE-2' }]));
+// Título 3: existia no aparelho, mas foi apagado em outro aparelho (não está mais na nuvem) — não pode voltar
+const T3 = 'tit-apagado-em-outro-aparelho';
+store.set('contaju_titles', JSON.stringify([staleTitle, { ...staleTitle, id: T2, titleNumber: 'PAG-TESTE-2' }, { ...staleTitle, id: T3, titleNumber: 'PAG-APAGADO' }]));
 store.set('contaju_settlements', JSON.stringify([]));
 store.set('contaju_bank_accounts', JSON.stringify([
   { id: 'acc-a', institution: 'Inter', name: 'Inter', type: 'CORRENTE', currency: 'BRL', initialBalance: 0, currentBalance: 0, baseDate: '2026-11-01', includeInCashFlow: true, status: 'ATIVO' },
   { id: 'acc-consumo', institution: 'Consumo', name: 'Consumo', type: 'CORRENTE', currency: 'BRL', initialBalance: 0, currentBalance: 0, baseDate: '2026-11-22', includeInCashFlow: true, status: 'ATIVO', createdAt: '2026-11-22T12:00:00.000Z', updatedAt: '2026-11-22T12:00:00.000Z' }
 ]));
 store.set('contaju_last_sync_ok_local', '2026-11-21T00:00:00.000Z'); // último envio completo foi antes de criar a Consumo
+// Na leitura anterior (já com a versão nova) a nuvem tinha os 3 títulos e só a conta Inter
+store.set('contaju_cloud_ids_local', JSON.stringify({ contaju_titles: [T_ID, T2, T3], contaju_bank_accounts: ['acc-a'], contaju_settlements: ['set-teste', 'set-teste-2'] }));
 
 // ---------------------------------------------------------------- execução
 let failures = 0;
@@ -111,7 +121,18 @@ const check = (ok: boolean, msg: string) => { console.log(`${ok ? 'OK  ' : 'FALH
 
 (async () => {
   const { storage } = await import('../src/services/storageService');
-  await storage.initializeDatabaseFirst();
+  // Uma rotina de abertura grava a lista de títulos antes de a nuvem ser lida (ex.: geração de recorrentes)
+  storage.saveTitles(storage.getTitles());
+  await sleep(300);
+  check(writes.length === 0, `nada foi enviado antes de ler a nuvem (${writes.length} envio(s))`);
+  const first = await storage.initializeDatabaseFirst();
+  if (process.env.FALHA_LEITURA) {
+    check(first === false, 'primeira leitura falhou e o aparelho não se considera em dia');
+    await sleep(4000);
+    check(!writes.some(w => w.table === 'contaju_financial_titles'), 'com a leitura falhando, nenhum título subiu');
+    const second = await storage.initializeDatabaseFirst(); // nova tentativa (no app: a cada 45 s ou 10 s após abrir)
+    check(second === true, 'segunda leitura funcionou');
+  }
   await sleep(6000); // deixa a gravação automática (3 s) e o reenvio rodarem
   if (process.env.DEBUG_SYNC) {
     const { supabaseSync } = await import('../src/services/supabaseSyncService');
@@ -132,6 +153,8 @@ const check = (ok: boolean, msg: string) => { console.log(`${ok ? 'OK  ' : 'FALH
   const t2Cloud = db.contaju_financial_titles.find(t => t.id === T2);
   check(t2Local?.settlementState === 'LIQUIDADO', `título com baixa mas gravado "em aberto" volta a aparecer pago (mostra ${t2Local?.settlementState})`);
   check(t2Cloud?.settlement_state === 'LIQUIDADO', `e a nuvem é corrigida (está ${t2Cloud?.settlement_state})`);
+  check(!db.contaju_financial_titles.some(t => t.id === T3), 'título apagado em outro aparelho não voltou para a nuvem');
+  check(!storage.getTitles().some(t => t.id === T3), 'nem continua aparecendo no aparelho B');
   check(storage.getBankAccounts().some(b => b.id === 'acc-consumo'), 'aparelho B ainda tem a conta Consumo');
   check(db.contaju_bank_accounts.some(b => b.id === 'acc-consumo'), 'conta Consumo foi enviada para a nuvem');
 

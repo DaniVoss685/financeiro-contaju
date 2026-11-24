@@ -77,14 +77,18 @@ export class ConflictResolutionEngine {
    */
   public static mergeSettlements(
     localSettlements: Settlement[],
-    remoteSettlements: Settlement[]
+    remoteSettlements: Settlement[],
+    wasInCloud?: Set<string>
   ): SettlementMergeResult {
     const settlementMap = new Map<string, Settlement>();
     let newFromRemoteCount = 0;
     let preservedFromLocalCount = 0;
+    const remoteIds = new Set(remoteSettlements.map(s => s?.id).filter(Boolean) as string[]);
 
     // 1. Registra os settlements locais
     for (const local of localSettlements) {
+      // Baixa que já esteve na nuvem e não está mais foi apagada em outro aparelho: não volta
+      if (local?.id && wasInCloud && wasInCloud.has(local.id) && !remoteIds.has(local.id)) continue;
       if (local?.id) {
         settlementMap.set(local.id, { ...local });
         preservedFromLocalCount++;
@@ -255,7 +259,8 @@ export class ConflictResolutionEngine {
   public static mergeTitleCollections(
     localTitles: FinancialTitle[],
     remoteTitles: FinancialTitle[],
-    allSettlements: Settlement[]
+    allSettlements: Settlement[],
+    wasInCloud?: Set<string>
   ): TitleMergeResult {
     const titlesMap = new Map<string, FinancialTitle>();
     const localMap = new Map<string, FinancialTitle>();
@@ -272,7 +277,10 @@ export class ConflictResolutionEngine {
       const local = localMap.get(id);
       const remote = remoteMap.get(id);
 
-      if (local && !remote) {
+      if (local && !remote && wasInCloud && wasInCloud.has(id)) {
+        // Já esteve na nuvem e não está mais: foi apagado em outro aparelho. Não volta.
+        continue;
+      } else if (local && !remote) {
         // Título existe apenas localmente (criado offline ou ainda não subiu)
         const titleSettlements = allSettlements.filter(s => s.titleId === id && !s.isReversed);
         const settled = titleSettlements.reduce((sum, s) => sum + (s.components?.principalSettled || 0), 0);

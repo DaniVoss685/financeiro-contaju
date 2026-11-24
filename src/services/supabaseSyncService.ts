@@ -25,7 +25,7 @@ import {
   ImprovementRequest
 } from '../types';
 import { ConflictResolutionEngine } from './conflictResolutionEngine';
-import { markSyncedOk } from './unsyncedGuard';
+import { markSyncedOk, readCloudIds, writeCloudIds } from './unsyncedGuard';
 import { OfflineSyncService } from './offlineSyncService';
 
 export interface SyncStats {
@@ -1301,7 +1301,10 @@ class SupabaseSyncService {
         ? settData.map(mapSettlementFromDb)
         : [];
       const localSettlements = storage.getSettlements();
-      const settlementMergeResult = ConflictResolutionEngine.mergeSettlements(localSettlements, remoteSettlements);
+      // O que já esteve na nuvem na última leitura: some de lá = foi apagado em outro aparelho (só vale se a leitura deu certo)
+      const knownBefore = readCloudIds();
+      const knownSet = (key: string) => (Array.isArray(knownBefore[key]) ? new Set(knownBefore[key]) : undefined);
+      const settlementMergeResult = ConflictResolutionEngine.mergeSettlements(localSettlements, remoteSettlements, settErr ? undefined : knownSet('contaju_settlements'));
       storage.saveSettlements(settlementMergeResult.mergedSettlements);
       stats.settlements = settlementMergeResult.mergedSettlements.length;
 
@@ -1313,8 +1316,11 @@ class SupabaseSyncService {
       const titleMergeResult = ConflictResolutionEngine.mergeTitleCollections(
         localTitles,
         remoteTitles,
-        settlementMergeResult.mergedSettlements
+        settlementMergeResult.mergedSettlements,
+        titlesErr ? undefined : knownSet('contaju_titles')
       );
+      if (!titlesErr && titlesData) writeCloudIds('contaju_titles', titlesData.map((r: any) => String(r.id)));
+      if (!settErr && settData) writeCloudIds('contaju_settlements', settData.map((r: any) => String(r.id)));
       storage.saveTitles(titleMergeResult.mergedTitles);
       stats.titles = titleMergeResult.mergedTitles.length;
 
@@ -1404,6 +1410,17 @@ class SupabaseSyncService {
         storage.saveAuditLogs(auditData.map(mapAuditLogFromDb));
         stats.auditLogs = auditData.length;
       }
+
+      // Ids que estão na nuvem agora (para saber, na próxima abertura, o que foi apagado em outro aparelho)
+      if (!banksErr && banksData) writeCloudIds('contaju_bank_accounts', banksData.map((r: any) => String(r.id)));
+      if (!cpErr && cpData) writeCloudIds('contaju_counterparties', cpData.map((r: any) => String(r.id)));
+      if (!srvErr && srvData) writeCloudIds('contaju_services', srvData.map((r: any) => String(r.id)));
+      if (!ctrErr && ctrData) writeCloudIds('contaju_contracts', ctrData.map((r: any) => String(r.id)));
+      if (!salesErr && salesData) writeCloudIds('contaju_sales', salesData.map((r: any) => String(r.id)));
+      if (!movErr && movData) writeCloudIds('contaju_movements', movData.map((r: any) => String(r.id)));
+      if (!stmtErr && stmtData) writeCloudIds('contaju_statements', stmtData.map((r: any) => String(r.id)));
+      if (!cardsErr && cardsData) writeCloudIds('contaju_credit_cards', cardsData.map((r: any) => String(r.id)));
+      if (!purErr && purchasesData) writeCloudIds('contaju_card_purchases', purchasesData.map((r: any) => String(r.id)));
 
       // Cadastros de apoio que vieram da nuvem ficam registrados como "já estão lá" (só os que vieram dela:
       // o que existe apenas neste aparelho continua pendente e sobe no próximo envio)

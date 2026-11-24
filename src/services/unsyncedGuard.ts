@@ -165,6 +165,22 @@ export function clearStash(org: string = cacheOrg()): void {
   emit();
 }
 
+// ------------------------------ o que já esteve na nuvem ------------------------------
+// Lista de ids que vieram na última leitura completa de cada tabela. Serve para distinguir, entre os registros
+// que só existem no aparelho, o que é novo (nunca esteve na nuvem: tem que subir) do que foi apagado em outro
+// aparelho (esteve na nuvem e sumiu: não pode voltar).
+const cloudIdsKey = (org: string) => `contaju_cloud_ids_${org}`;
+export function readCloudIds(org: string = cacheOrg()): Record<string, string[]> {
+  try { return JSON.parse(localStorage.getItem(cloudIdsKey(org)) || '{}'); } catch { return {}; }
+}
+export function writeCloudIds(localKey: string, ids: string[], org: string = cacheOrg()): void {
+  try {
+    const cur = readCloudIds(org);
+    cur[localKey] = ids;
+    localStorage.setItem(cloudIdsKey(org), JSON.stringify(cur));
+  } catch { /* sem espaço: segue com a regra antiga */ }
+}
+
 export function markSyncedOk(): void {
   try { localStorage.setItem(`${LAST_OK_KEY}_${cacheOrg()}`, new Date().toISOString()); } catch { /* ignora */ }
 }
@@ -232,8 +248,10 @@ export function startSyncWatch(): void {
         setSessionExpired(true);
         return;
       }
-      // sessão ok: se havia aviso, some; se há pendência, reenvia
+      // sessão ok: se havia aviso, some; se a nuvem ainda não foi lida nesta abertura, lê de novo; se há pendência, reenvia
       setSessionExpired(false);
+      const { storage } = await import('./storageService');
+      if (!storage.isHydratedFromCloud()) { void storage.ensureCloudSync(); return; }
       if (hasUnsynced()) void flushUnsynced();
     } catch { /* sem rede: tenta de novo no próximo ciclo */ }
   };
