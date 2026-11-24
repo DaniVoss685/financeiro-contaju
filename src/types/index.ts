@@ -352,6 +352,9 @@ export interface BankAccount {
   includeInCashFlow: boolean; // Se faz parte do caixa consolidado
   status: 'ATIVO' | 'INATIVO';
   color?: string;
+  // Sem estas datas, uma conta criada num aparelho e ainda não enviada era descartada ao recarregar da nuvem
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type MovementDirection = 'ENTRADA' | 'SAIDA';

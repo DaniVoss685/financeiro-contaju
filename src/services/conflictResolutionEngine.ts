@@ -146,6 +146,19 @@ export class ConflictResolutionEngine {
       const localTime = new Date(local.updatedAt || local.createdAt || 0).getTime();
       const remoteTime = new Date(remote.updatedAt || remote.createdAt || 0).getTime();
       const base = remoteTime > localTime ? { ...remote } : { ...local };
+      // As duas cópias iguais não provam que a situação está certa: se uma cópia velha "em aberto" foi gravada
+      // por cima na nuvem, as duas ficam iguais e a baixa existente era ignorada. As baixas mandam no saldo.
+      const own = titleSettlements.filter(s => s.titleId === base.id);
+      if (own.length > 0) {
+        const settled = own.filter(s => !s.isReversed).reduce((sum, s) => sum + (Number(s.components?.principalSettled) || 0), 0);
+        const balance = Math.max(0, Number(((base.originalAmount || 0) - settled).toFixed(2)));
+        const state: TitleSettlementState = balance <= 0.001 && base.originalAmount > 0 ? 'LIQUIDADO' : (settled > 0.001 ? 'PARCIAL' : 'ABERTO');
+        if (state !== base.settlementState || Math.abs((base.balancePrincipal || 0) - balance) > 0.001) {
+          base.settledPrincipal = Number(settled.toFixed(2));
+          base.balancePrincipal = balance;
+          base.settlementState = state;
+        }
+      }
       return { resolved: base };
     }
 

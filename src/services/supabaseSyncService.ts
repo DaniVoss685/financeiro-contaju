@@ -198,7 +198,9 @@ function mapBankAccountFromDb(row: any): BankAccount {
     baseDate: row.base_date || new Date().toISOString().split('T')[0],
     includeInCashFlow: row.include_in_cash_flow !== false,
     status: row.status || 'ATIVO',
-    color: row.color || '#3B82F6'
+    color: row.color || '#3B82F6',
+    createdAt: row.created_at || undefined,
+    updatedAt: row.updated_at || row.created_at || undefined
   };
 }
 
@@ -940,6 +942,17 @@ class SupabaseSyncService {
       };
     }
 
+    // Nunca envia a cópia do aparelho antes de ela ter sido somada com a nuvem nesta abertura:
+    // a cópia pode ser de dias atrás e gravaria por cima do que foi pago ou cadastrado em outro aparelho.
+    if (storage.isCloudPullInProgress() || !storage.isHydratedFromCloud()) {
+      return {
+        success: false,
+        message: 'Aguardando terminar de carregar os dados da nuvem para enviar.',
+        errors: ['Aguardando carregar os dados da nuvem'],
+        durationMs: 0
+      };
+    }
+
     const client = getSupabaseClient();
     if (!client) {
       return {
@@ -980,20 +993,11 @@ class SupabaseSyncService {
     };
 
     try {
-      // 1. Empresa
-      const company = storage.getCompany();
-      if (company?.id) {
-        const { error } = await client.from(CONTAJU_TABLES.COMPANIES).upsert([mapCompanyToDb(company)], { onConflict: 'id' });
-        if (error) errors.push(`Empresas: ${error.message}`);
-        else stats.companies = 1;
-      }
-
-      // 2. Usuários
-      const users = storage.getUsers();
-      if (users.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.USERS).upsert(users.map(mapUserToDb), { onConflict: 'id' });
-        if (error) errors.push(`Usuários: ${error.message}`);
-        else stats.users = users.length;
+      // 1 e 2. Empresa e usuários
+      for (const part of this.supportRowsForPush(false)) {
+        if (part.rows.length === 0) continue;
+        const ok = await this.pushDelta(client, part.table, part.rows, part.label, errors);
+        if (ok && part.stat) (stats as any)[part.stat] = part.rows.length;
       }
 
       // 3. Plano de Contas
@@ -1082,163 +1086,11 @@ class SupabaseSyncService {
         if (okStmt) stats.statements = statements.length;
       }
 
-      // 13. Cartões de Crédito
-      const cards = storage.getCreditCards();
-      if (cards.length > 0) {
-        const mappedCards = cards.map(c => ({
-          id: c.id,
-          name: c.name,
-          institution: c.institution,
-          brand: c.brand,
-          last_four_digits: c.lastFourDigits,
-          credit_limit: c.creditLimit,
-          closing_day: c.closingDay,
-          due_day: c.dueDay,
-          color: c.color,
-          default_payment_bank_account_id: c.defaultPaymentBankAccountId || null,
-          status: c.status || 'ATIVO',
-          notes: c.notes || null,
-          created_at: c.createdAt || new Date().toISOString()
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.CREDIT_CARDS).upsert(mappedCards, { onConflict: 'id' });
-        if (error) errors.push(`Cartões: ${error.message}`);
-        else stats.creditCards = cards.length;
-      }
-
-      // 14. Compras de Cartão
-      const cardPurchases = storage.getCardPurchases();
-      const validAccountIds = new Set(storage.getChartAccounts().map(a => a.id));
-      const fallbackExpenseAccountId = storage.getChartAccounts().find(a => a.isAnalytical && a.nature.startsWith('DESPESA'))?.id || 'acc-3.2.04';
-      if (cardPurchases.length > 0) {
-        const mappedPurchases = cardPurchases.map(p => ({
-          id: p.id,
-          card_id: p.cardId,
-          purchase_date: p.purchaseDate,
-          description: p.description,
-          counterparty_id: p.counterpartyId || null,
-          counterparty_name: p.counterpartyName || null,
-          chart_account_id: validAccountIds.has(p.chartAccountId) ? p.chartAccountId : fallbackExpenseAccountId,
-          total_amount: p.totalAmount,
-          installments_count: p.installmentsCount || 1,
-          calculation_mode: p.calculationMode,
-          installment_value: p.installmentValue,
-          installments: p.installments || [],
-          invoice_month: p.invoiceMonth,
-          notes: p.notes || null,
-          created_at: p.createdAt || new Date().toISOString()
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.CARD_PURCHASES).upsert(mappedPurchases, { onConflict: 'id' });
-        if (error) errors.push(`Compras Cartão: ${error.message}`);
-        else stats.cardPurchases = cardPurchases.length;
-      }
-
-      // 15. Fechamentos de Período
-      const closures = storage.getPeriodClosures();
-      if (closures.length > 0) {
-        const mappedClosures = closures.map(fc => ({
-          id: fc.id,
-          year_month: fc.yearMonth || fc.competence || '2026-01',
-          closed_at: fc.closedAt,
-          closed_by: fc.closedBy,
-          notes: fc.notes || null,
-          is_closed: fc.isClosed !== false,
-          reopened_at: fc.reopenedAt || null,
-          reopened_by: fc.reopenedBy || null,
-          reopen_reason: fc.reopenReason || null,
-          bank_snapshots: fc.bankSnapshots || [],
-          checklist_snapshot: fc.checklistSnapshot || null
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.PERIOD_CLOSURES).upsert(mappedClosures, { onConflict: 'id' });
-        if (error) errors.push(`Fechamentos de Período: ${error.message}`);
-        else stats.periodClosures = closures.length;
-      }
-
-      // 16. Regras de Conciliação
-      const rules = storage.getReconciliationRules();
-      if (rules.length > 0) {
-        const mappedRules = rules.map(r => ({
-          id: r.id,
-          name: r.name,
-          pattern: r.pattern,
-          match_type: r.matchType,
-          transaction_type: r.transactionType,
-          chart_account_id: validAccountIds.has(r.chartAccountId) ? r.chartAccountId : fallbackExpenseAccountId,
-          counterparty_id: r.counterpartyId || null,
-          action: r.action,
-          active: r.active,
-          priority: r.priority || 10,
-          description_template: r.descriptionTemplate || null,
-          tags: r.tags || [],
-          created_at: r.createdAt || new Date().toISOString(),
-          updated_at: r.updatedAt || new Date().toISOString()
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.RECONCILIATION_RULES).upsert(mappedRules, { onConflict: 'id' });
-        if (error) errors.push(`Regras de Conciliação: ${error.message}`);
-        else stats.reconciliationRules = rules.length;
-      }
-
-      // 17. Fechamentos de Saldo Bancário
-      const bankClosings = storage.getBankClosingRecords();
-      if (bankClosings.length > 0) {
-        const mappedClosings = bankClosings.map(bc => ({
-          id: bc.id,
-          bank_account_id: bc.bankAccountId,
-          closing_date: bc.closingDate,
-          closing_time: bc.closingTime,
-          closed_by: bc.closedBy,
-          system_balance: bc.systemBalance,
-          real_balance: bc.realBalance,
-          difference: bc.difference,
-          status: bc.status,
-          notes: bc.notes || null,
-          created_at: bc.createdAt || new Date().toISOString()
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.BANK_CLOSINGS).upsert(mappedClosings, { onConflict: 'id' });
-        if (error) errors.push(`Fechamentos de Saldo: ${error.message}`);
-        else stats.bankClosings = bankClosings.length;
-      }
-
-      // 17b. Contagens do caixa em dinheiro
-      const cashCounts = storage.getCashCounts();
-      if (cashCounts.length > 0) {
-        const { error } = await client.from(CONTAJU_TABLES.CASH_COUNTS).upsert(cashCounts.map(mapCashCountToDb), { onConflict: 'id' });
-        if (error) errors.push(`Contagens do caixa: ${error.message}`);
-      }
-
-      // 18. Orçamentos Anuais
-      const budgetPlans = storage.getBudgetPlans();
-      if (budgetPlans.length > 0) {
-        const mappedPlans = budgetPlans.map(bp => ({
-          id: bp.id,
-          year: bp.year,
-          name: bp.name,
-          updated_at: bp.updatedAt || new Date().toISOString(),
-          notes: bp.notes || null,
-          items: bp.items || []
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.BUDGET_PLANS).upsert(mappedPlans, { onConflict: 'id' });
-        if (error) errors.push(`Planos Orçamentários: ${error.message}`);
-        else stats.budgetPlans = budgetPlans.length;
-      }
-
-      // 19. Auditoria
-      const logs = storage.getAuditLogs();
-      if (logs.length > 0) {
-        const mappedLogs = logs.slice(0, 200).map(l => ({
-          id: l.id,
-          timestamp: l.timestamp,
-          user_name: l.userName,
-          user_role: l.userRole,
-          action: l.action,
-          module: l.module,
-          record_id: l.recordId || null,
-          details: l.details,
-          previous_value: l.previousValue || null,
-          new_value: l.newValue || null
-        }));
-        const { error } = await client.from(CONTAJU_TABLES.AUDIT_LOGS).upsert(mappedLogs, { onConflict: 'id' });
-        if (error) errors.push(`Logs de Auditoria: ${error.message}`);
-        else stats.auditLogs = mappedLogs.length;
+      // 13 a 19. Cartões, compras, fechamentos, regras, conferências, caixa, orçamentos e auditoria
+      for (const part of this.supportRowsForPush(true)) {
+        if (part.rows.length === 0) continue;
+        const ok = await this.pushDelta(client, part.table, part.rows, part.label, errors);
+        if (ok && part.stat) (stats as any)[part.stat] = part.rows.length;
       }
 
       stats.totalRecords = 
@@ -1384,6 +1236,7 @@ class SupabaseSyncService {
       const { data: accountsData, error: accErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CHART_ACCOUNTS);
       if (accErr) errors.push(`Plano de Contas: ${accErr.message}`);
       else if (accountsData && accountsData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.CHART_ACCOUNTS, accountsData.map(r => mapChartAccountToDb(mapChartAccountFromDb(r))));
         storage.saveChartAccounts(accountsData.map(mapChartAccountFromDb));
         stats.chartAccounts = accountsData.length;
       }
@@ -1392,6 +1245,7 @@ class SupabaseSyncService {
       const { data: banksData, error: banksErr } = await this.fetchAllRows(client, CONTAJU_TABLES.BANK_ACCOUNTS);
       if (banksErr) errors.push(`Contas Bancárias: ${banksErr.message}`);
       else if (banksData && banksData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.BANK_ACCOUNTS, banksData.map(r => mapBankAccountToDb(mapBankAccountFromDb(r))));
         storage.saveBankAccounts(banksData.map(mapBankAccountFromDb));
         stats.bankAccounts = banksData.length;
       }
@@ -1400,6 +1254,7 @@ class SupabaseSyncService {
       const { data: cpData, error: cpErr } = await this.fetchAllRows(client, CONTAJU_TABLES.COUNTERPARTIES);
       if (cpErr) errors.push(`Contrapartes: ${cpErr.message}`);
       else if (cpData && cpData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.COUNTERPARTIES, cpData.map(r => mapCounterpartyToDb(mapCounterpartyFromDb(r))));
         storage.saveCounterparties(cpData.map(mapCounterpartyFromDb));
         stats.counterparties = cpData.length;
       }
@@ -1408,6 +1263,7 @@ class SupabaseSyncService {
       const { data: srvData, error: srvErr } = await this.fetchAllRows(client, CONTAJU_TABLES.SERVICES);
       if (srvErr) errors.push(`Serviços: ${srvErr.message}`);
       else if (srvData && srvData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.SERVICES, srvData.map(r => mapServiceToDb(mapServiceFromDb(r))));
         storage.saveServices(srvData.map(mapServiceFromDb));
         stats.services = srvData.length;
       }
@@ -1416,6 +1272,7 @@ class SupabaseSyncService {
       const { data: ctrData, error: ctrErr } = await this.fetchAllRows(client, CONTAJU_TABLES.CONTRACTS);
       if (ctrErr) errors.push(`Contratos: ${ctrErr.message}`);
       else if (ctrData && ctrData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.CONTRACTS, ctrData.map(r => mapContractToDb(mapContractFromDb(r))));
         storage.saveContracts(ctrData.map(mapContractFromDb));
         stats.contracts = ctrData.length;
       }
@@ -1424,6 +1281,7 @@ class SupabaseSyncService {
       const { data: salesData, error: salesErr } = await this.fetchAllRows(client, CONTAJU_TABLES.SALES);
       if (salesErr) errors.push(`Vendas: ${salesErr.message}`);
       else if (salesData && salesData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.SALES, salesData.map(r => mapSaleToDb(mapSaleFromDb(r))));
         storage.saveSales(salesData.map(mapSaleFromDb));
         stats.sales = salesData.length;
       }
@@ -1436,6 +1294,9 @@ class SupabaseSyncService {
       if (settErr) errors.push(`Liquidações: ${settErr.message}`);
 
       // 1. Consolida Settlements (Baixas) primeiro, unificando registros remotos e locais
+      // O que veio da nuvem fica registrado como "já está lá": só o que este aparelho mudar sobe depois
+      if (!titlesErr && titlesData) this.rememberCloudRows(CONTAJU_TABLES.TITLES, titlesData.map(r => mapTitleToDb(mapTitleFromDb(r))));
+      if (!settErr && settData) this.rememberCloudRows(CONTAJU_TABLES.SETTLEMENTS, settData.map(r => mapSettlementToDb(mapSettlementFromDb(r))));
       const remoteSettlements: Settlement[] = (settData && settData.length > 0)
         ? settData.map(mapSettlementFromDb)
         : [];
@@ -1470,6 +1331,7 @@ class SupabaseSyncService {
       const { data: movData, error: movErr } = await this.fetchAllRows(client, CONTAJU_TABLES.MOVEMENTS);
       if (movErr) errors.push(`Movimentações: ${movErr.message}`);
       else if (movData && movData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.MOVEMENTS, movData.map(r => mapMovementToDb(mapMovementFromDb(r))));
         storage.saveMovements(movData.map(mapMovementFromDb));
         stats.movements = movData.length;
       }
@@ -1478,6 +1340,7 @@ class SupabaseSyncService {
       const { data: stmtData, error: stmtErr } = await this.fetchAllRows(client, CONTAJU_TABLES.STATEMENTS);
       if (stmtErr) errors.push(`Extratos: ${stmtErr.message}`);
       else if (stmtData && stmtData.length > 0) {
+        this.rememberCloudRows(CONTAJU_TABLES.STATEMENTS, stmtData.map(r => mapStatementToDb(mapStatementFromDb(r))));
         storage.saveStatementEntries(stmtData.map(mapStatementFromDb));
         stats.statements = stmtData.length;
       }
@@ -1541,6 +1404,27 @@ class SupabaseSyncService {
         storage.saveAuditLogs(auditData.map(mapAuditLogFromDb));
         stats.auditLogs = auditData.length;
       }
+
+      // Cadastros de apoio que vieram da nuvem ficam registrados como "já estão lá" (só os que vieram dela:
+      // o que existe apenas neste aparelho continua pendente e sobe no próximo envio)
+      try {
+        const idsOf = (rows: any[] | null | undefined, err: any) => (err || !rows ? null : new Set(rows.map(r => String(r.id))));
+        const cloudIds: Record<string, Set<string> | null> = {
+          [CONTAJU_TABLES.COMPANIES]: idsOf(compData, compErr),
+          [CONTAJU_TABLES.USERS]: idsOf(usersData, usersErr),
+          [CONTAJU_TABLES.CREDIT_CARDS]: idsOf(cardsData, cardsErr),
+          [CONTAJU_TABLES.CARD_PURCHASES]: idsOf(purchasesData, purErr),
+          [CONTAJU_TABLES.BANK_CLOSINGS]: idsOf(closingsData, closingsErr),
+          [CONTAJU_TABLES.CASH_COUNTS]: idsOf(countsData, countsErr),
+          [CONTAJU_TABLES.PERIOD_CLOSURES]: idsOf(closuresData, clsErr),
+          [CONTAJU_TABLES.RECONCILIATION_RULES]: idsOf(rulesData, rlsErr),
+          [CONTAJU_TABLES.AUDIT_LOGS]: idsOf(auditData, audErr)
+        };
+        for (const part of [...this.supportRowsForPush(false), ...this.supportRowsForPush(true)]) {
+          const ids = cloudIds[part.table];
+          if (ids && ids.size > 0) this.rememberCloudRows(part.table, part.rows.filter(r => ids.has(String(r.id))));
+        }
+      } catch { /* só evita reenvio desnecessário */ }
 
       stats.totalRecords = 
         stats.companies +
@@ -1844,10 +1728,10 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || banks.length === 0) return { success: false };
     try {
-      const payload = banks.map(mapBankAccountToDb);
-      const { error } = await client.from(CONTAJU_TABLES.BANK_ACCOUNTS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
-      return { success: true };
+      // Só as contas que mudaram (antes a lista inteira subia a cada baixa e uma aba velha regravava saldos antigos)
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.BANK_ACCOUNTS, banks.map(mapBankAccountToDb), 'Contas Bancárias', errs);
+      return ok ? { success: true } : { success: false, error: errs[0] };
     } catch (e: any) {
       return { success: false, error: e.message };
     }
@@ -1882,10 +1766,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || cards.length === 0) return { success: false };
     try {
-      const payload = cards.map(mapCreditCardToDb);
-      const { error } = await client.from(CONTAJU_TABLES.CREDIT_CARDS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
-      return { success: true };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.CREDIT_CARDS, cards.map(mapCreditCardToDb), 'Cartões', errs);
+      return ok ? { success: true } : { success: false, error: errs[0] };
     } catch (e: any) {
       return { success: false, error: e.message };
     }
@@ -1922,10 +1805,9 @@ class SupabaseSyncService {
     if (!client || purchases.length === 0) return { success: false };
     try {
       const fallbackId = storage.getChartAccounts().find(a => a.isAnalytical && a.nature.startsWith('DESPESA'))?.id || 'acc-3.2.04';
-      const payload = purchases.map(p => mapCardPurchaseToDb(p, fallbackId));
-      const { error } = await client.from(CONTAJU_TABLES.CARD_PURCHASES).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
-      return { success: true };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.CARD_PURCHASES, purchases.map(p => mapCardPurchaseToDb(p, fallbackId)), 'Compras Cartão', errs);
+      return ok ? { success: true } : { success: false, error: errs[0] };
     } catch (e: any) {
       return { success: false, error: e.message };
     }
@@ -2079,10 +1961,9 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client || users.length === 0) return { success: false };
     try {
-      const payload = users.map(mapUserToDb);
-      const { error } = await client.from(CONTAJU_TABLES.USERS).upsert(payload, { onConflict: 'id' });
-      if (error) return { success: false, error: error.message };
-      return { success: true };
+      const errs: string[] = [];
+      const ok = await this.pushDelta(client, CONTAJU_TABLES.USERS, users.map(mapUserToDb), 'Usuários', errs);
+      return ok ? { success: true } : { success: false, error: errs[0] };
     } catch (e: any) {
       return { success: false, error: e.message };
     }
@@ -2155,19 +2036,197 @@ class SupabaseSyncService {
   // Antes, cada gravação reenviava milhares de linhas, travando a tela e a rede.
   private pushedSig = new Map<string, Map<string, string>>();
 
-  private deltaOf(table: string, rows: any[]): { changed: Array<{ row: any; json: string }>; mark: (items: Array<{ row: any; json: string }>) => void } {
+  /**
+   * Cadastros de apoio no formato em que sobem para a nuvem. Usado no envio e também logo depois de ler a nuvem
+   * (para registrar o que já está lá e não regravar por cima com uma cópia velha deste aparelho).
+   * rest=false: empresa e usuários; rest=true: cartões, compras, fechamentos, regras, conferências, caixa, orçamentos e auditoria.
+   */
+  private supportRowsForPush(rest: boolean): Array<{ table: string; rows: any[]; label: string; stat?: string }> {
+    const parts: Array<{ table: string; rows: any[]; label: string; stat?: string }> = [];
+    if (!rest) {
+      const company = storage.getCompany();
+      if (company?.id) parts.push({ table: CONTAJU_TABLES.COMPANIES, rows: [mapCompanyToDb(company)], label: 'Empresas', stat: 'companies' });
+      const users = storage.getUsers();
+      if (users.length > 0) parts.push({ table: CONTAJU_TABLES.USERS, rows: users.map(mapUserToDb), label: 'Usuários', stat: 'users' });
+      return parts;
+    }
+      // 13. Cartões de Crédito
+      const cards = storage.getCreditCards();
+      if (cards.length > 0) {
+        const mappedCards = cards.map(c => ({
+          id: c.id,
+          name: c.name,
+          institution: c.institution,
+          brand: c.brand,
+          last_four_digits: c.lastFourDigits,
+          credit_limit: c.creditLimit,
+          closing_day: c.closingDay,
+          due_day: c.dueDay,
+          color: c.color,
+          default_payment_bank_account_id: c.defaultPaymentBankAccountId || null,
+          status: c.status || 'ATIVO',
+          notes: c.notes || null,
+          created_at: c.createdAt || new Date().toISOString()
+        }));
+        parts.push({ table: CONTAJU_TABLES.CREDIT_CARDS, rows: mappedCards, label: 'Cartões', stat: 'creditCards' });
+      }
+
+      // 14. Compras de Cartão
+      const cardPurchases = storage.getCardPurchases();
+      const validAccountIds = new Set(storage.getChartAccounts().map(a => a.id));
+      const fallbackExpenseAccountId = storage.getChartAccounts().find(a => a.isAnalytical && a.nature.startsWith('DESPESA'))?.id || 'acc-3.2.04';
+      if (cardPurchases.length > 0) {
+        const mappedPurchases = cardPurchases.map(p => ({
+          id: p.id,
+          card_id: p.cardId,
+          purchase_date: p.purchaseDate,
+          description: p.description,
+          counterparty_id: p.counterpartyId || null,
+          counterparty_name: p.counterpartyName || null,
+          chart_account_id: validAccountIds.has(p.chartAccountId) ? p.chartAccountId : fallbackExpenseAccountId,
+          total_amount: p.totalAmount,
+          installments_count: p.installmentsCount || 1,
+          calculation_mode: p.calculationMode,
+          installment_value: p.installmentValue,
+          installments: p.installments || [],
+          invoice_month: p.invoiceMonth,
+          notes: p.notes || null,
+          created_at: p.createdAt || new Date().toISOString()
+        }));
+        parts.push({ table: CONTAJU_TABLES.CARD_PURCHASES, rows: mappedPurchases, label: 'Compras Cartão', stat: 'cardPurchases' });
+      }
+
+      // 15. Fechamentos de Período
+      const closures = storage.getPeriodClosures();
+      if (closures.length > 0) {
+        const mappedClosures = closures.map(fc => ({
+          id: fc.id,
+          year_month: fc.yearMonth || fc.competence || '2026-01',
+          closed_at: fc.closedAt,
+          closed_by: fc.closedBy,
+          notes: fc.notes || null,
+          is_closed: fc.isClosed !== false,
+          reopened_at: fc.reopenedAt || null,
+          reopened_by: fc.reopenedBy || null,
+          reopen_reason: fc.reopenReason || null,
+          bank_snapshots: fc.bankSnapshots || [],
+          checklist_snapshot: fc.checklistSnapshot || null
+        }));
+        parts.push({ table: CONTAJU_TABLES.PERIOD_CLOSURES, rows: mappedClosures, label: 'Fechamentos de Período', stat: 'periodClosures' });
+      }
+
+      // 16. Regras de Conciliação
+      const rules = storage.getReconciliationRules();
+      if (rules.length > 0) {
+        const mappedRules = rules.map(r => ({
+          id: r.id,
+          name: r.name,
+          pattern: r.pattern,
+          match_type: r.matchType,
+          transaction_type: r.transactionType,
+          chart_account_id: validAccountIds.has(r.chartAccountId) ? r.chartAccountId : fallbackExpenseAccountId,
+          counterparty_id: r.counterpartyId || null,
+          action: r.action,
+          active: r.active,
+          priority: r.priority || 10,
+          description_template: r.descriptionTemplate || null,
+          tags: r.tags || [],
+          created_at: r.createdAt || new Date().toISOString(),
+          updated_at: r.updatedAt || new Date().toISOString()
+        }));
+        parts.push({ table: CONTAJU_TABLES.RECONCILIATION_RULES, rows: mappedRules, label: 'Regras de Conciliação', stat: 'reconciliationRules' });
+      }
+
+      // 17. Fechamentos de Saldo Bancário
+      const bankClosings = storage.getBankClosingRecords();
+      if (bankClosings.length > 0) {
+        const mappedClosings = bankClosings.map(bc => ({
+          id: bc.id,
+          bank_account_id: bc.bankAccountId,
+          closing_date: bc.closingDate,
+          closing_time: bc.closingTime,
+          closed_by: bc.closedBy,
+          system_balance: bc.systemBalance,
+          real_balance: bc.realBalance,
+          difference: bc.difference,
+          status: bc.status,
+          notes: bc.notes || null,
+          created_at: bc.createdAt || new Date().toISOString()
+        }));
+        parts.push({ table: CONTAJU_TABLES.BANK_CLOSINGS, rows: mappedClosings, label: 'Fechamentos de Saldo', stat: 'bankClosings' });
+      }
+
+      // 17b. Contagens do caixa em dinheiro
+      const cashCounts = storage.getCashCounts();
+      if (cashCounts.length > 0) {
+        parts.push({ table: CONTAJU_TABLES.CASH_COUNTS, rows: cashCounts.map(mapCashCountToDb), label: 'Contagens do caixa' });
+      }
+
+      // 18. Orçamentos Anuais
+      const budgetPlans = storage.getBudgetPlans();
+      if (budgetPlans.length > 0) {
+        const mappedPlans = budgetPlans.map(bp => ({
+          id: bp.id,
+          year: bp.year,
+          name: bp.name,
+          updated_at: bp.updatedAt || new Date().toISOString(),
+          notes: bp.notes || null,
+          items: bp.items || []
+        }));
+        parts.push({ table: CONTAJU_TABLES.BUDGET_PLANS, rows: mappedPlans, label: 'Planos Orçamentários', stat: 'budgetPlans' });
+      }
+
+      // 19. Auditoria
+      const logs = storage.getAuditLogs();
+      if (logs.length > 0) {
+        const mappedLogs = logs.slice(0, 200).map(l => ({
+          id: l.id,
+          timestamp: l.timestamp,
+          user_name: l.userName,
+          user_role: l.userRole,
+          action: l.action,
+          module: l.module,
+          record_id: l.recordId || null,
+          details: l.details,
+          previous_value: l.previousValue || null,
+          new_value: l.newValue || null
+        }));
+        parts.push({ table: CONTAJU_TABLES.AUDIT_LOGS, rows: mappedLogs, label: 'Logs de Auditoria', stat: 'auditLogs' });
+      }
+    return parts;
+  }
+
+  private sigMap(table: string): Map<string, string> {
     const org = getTabOrg() || 'local';
     const key = `${org}|${table}`;
     let sig = this.pushedSig.get(key);
     if (!sig) { sig = new Map(); this.pushedSig.set(key, sig); }
-    const known = sig;
+    return sig;
+  }
+
+  // Datas de criação/atualização geradas na hora (quando faltam) não contam como mudança
+  private sigJson(row: any): string {
+    return JSON.stringify(row, (k, v) => (k === 'created_at' || k === 'updated_at' ? undefined : v));
+  }
+
+  private deltaOf(table: string, rows: any[]): { changed: Array<{ row: any; json: string }>; mark: (items: Array<{ row: any; json: string }>) => void } {
+    const known = this.sigMap(table);
     const changed: Array<{ row: any; json: string }> = [];
     for (const row of rows) {
-      // Datas de criação/atualização geradas na hora (quando faltam) não contam como mudança
-      const json = JSON.stringify(row, (k, v) => (k === "created_at" || k === "updated_at" ? undefined : v));
+      const json = this.sigJson(row);
       if (known.get(row.id) !== json) changed.push({ row, json });
     }
     return { changed, mark: items => items.forEach(c => known.set(c.row.id, c.json)) };
+  }
+
+  /**
+   * Registra o que acabou de chegar da nuvem como "já está lá". Assim o primeiro envio depois de abrir o sistema
+   * manda só o que de fato mudou neste aparelho, e não regrava a lista inteira por cima (o que apagava
+   * alterações feitas em outro aparelho no meio tempo, porque o banco carimba a gravação como a mais nova).
+   */
+  private rememberCloudRows(table: string, dbRows: any[]): void {
+    const known = this.sigMap(table);
+    for (const row of dbRows) if (row && row.id != null) known.set(row.id, this.sigJson(row));
   }
 
   private async pushDelta(client: any, table: string, rows: any[], label: string, errors: string[]): Promise<boolean> {
@@ -2184,7 +2243,14 @@ class SupabaseSyncService {
       let bad = 0;
       let firstMsg = '';
       for (const item of chunk) {
-        const r = await client.from(table).upsert([item.row], { onConflict: 'id' });
+        let r = await client.from(table).upsert([item.row], { onConflict: 'id' });
+        // Movimentação de caixa recusada porque o cliente/fornecedor ligado a ela não está na nuvem:
+        // o dinheiro que entrou ou saiu é o que importa para o saldo do banco, então grava sem o vínculo
+        // em vez de perder a movimentação (isso deixava baixas sem lançamento no banco).
+        if (r.error && (r.error as any).code === '23503' && table === CONTAJU_TABLES.MOVEMENTS
+          && /counterparty_id_fkey/.test(String(r.error.message || '')) && item.row.counterparty_id) {
+          r = await client.from(table).upsert([{ ...item.row, counterparty_id: null }], { onConflict: 'id' });
+        }
         if (r.error) {
           bad++;
           if (!firstMsg) {

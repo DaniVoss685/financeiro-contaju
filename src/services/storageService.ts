@@ -66,7 +66,7 @@ import {
 import { INITIAL_RECONCILIATION_RULES } from '../data/reconciliationRulesData';
 import { INITIAL_AGENT_DEFINITIONS } from '../data/initialAgentsData';
 import { advanceCompetence, addMonthsSafe } from '../utils/dateUtils';
-import { SYNC_KEYS, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
+import { SYNC_KEYS, TABLE_TO_KEY, markDirty, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
 
 const STORAGE_KEYS = {
   AGENT_DEFINITIONS: 'contaju_agent_definitions',
@@ -183,6 +183,22 @@ class StorageService {
     return this.isCloudHydrated;
   }
 
+  public isCloudPullInProgress(): boolean {
+    return this.isPullingFromCloud;
+  }
+
+  private isCloudConfigured(): boolean {
+    try {
+      const env = (typeof import.meta !== 'undefined' ? (import.meta as any).env : undefined) || {};
+      const proc = typeof process !== 'undefined' ? process.env : ({} as any);
+      const url = localStorage.getItem('contaju_supabase_url') || env.VITE_SUPABASE_URL || proc.VITE_SUPABASE_URL;
+      const key = localStorage.getItem('contaju_supabase_anon_key') || env.VITE_SUPABASE_ANON_KEY || proc.VITE_SUPABASE_ANON_KEY;
+      return Boolean(url && key);
+    } catch {
+      return false;
+    }
+  }
+
   constructor() {
     this.freeUpLocalStorageSpace();
     this.initIfEmpty();
@@ -196,6 +212,10 @@ class StorageService {
         this.notify();
       });
       window.addEventListener('storage', (e) => {
+        // Outra aba gravou. Marcas internas (hora do último envio, pendências, diagnóstico) não mudam a tela;
+        // antes elas faziam esta aba reenviar tudo, a outra respondia e as duas ficavam num vaivém sem fim
+        // (milhares de gravações por hora, mandando cópias velhas por cima).
+        if (e.key && !(Object.values(STORAGE_KEYS) as string[]).includes(e.key)) return;
         if (e.key) {
           this.inMemoryCache.delete(e.key);
           if (e.key === STORAGE_KEYS.TITLES) {
@@ -205,7 +225,8 @@ class StorageService {
           this.inMemoryCache.clear();
           this.normalizedTitlesCache = null;
         }
-        this.notify();
+        // Só atualiza a tela: quem gravou foi a outra aba, e ela mesma envia para a nuvem
+        this.notify({ skipAutoSync: true });
       });
     }
   }
@@ -231,6 +252,10 @@ class StorageService {
 
   private triggerAutoSyncIfConfigured() {
     if (typeof window === 'undefined') return;
+    // Enquanto o aparelho lê a nuvem (ou ainda não leu nesta abertura), a cópia local pode estar velha:
+    // enviar agora gravava o título "em aberto" por cima do que já tinha sido pago em outro aparelho.
+    // O envio fica para depois da leitura (ver initializeDatabaseFirst).
+    if (this.isPullingFromCloud || !this.isCloudHydrated) return;
     try {
       const autoSyncSaved = localStorage.getItem('contaju_supabase_auto_sync');
       const isAutoSync = autoSyncSaved !== null ? autoSyncSaved === 'true' : true;
@@ -265,7 +290,7 @@ class StorageService {
 
   private notifyScheduled = false;
 
-  private notify() {
+  private notify(opts?: { skipAutoSync?: boolean }) {
     // Agendado no próximo tick para evitar "Cannot update a component while rendering a different component".
     // Várias gravações seguidas (importação, baixa em lote) viram um único aviso: antes cada uma refazia todas as telas.
     if (!this.notifyScheduled) {
@@ -277,7 +302,7 @@ class StorageService {
         });
       }, 0);
     }
-    this.triggerAutoSyncIfConfigured();
+    if (!opts?.skipAutoSync) this.triggerAutoSyncIfConfigured();
   }
 
   public initIfEmpty(force = false) {
@@ -650,6 +675,13 @@ class StorageService {
 
     // Persistência Direta e Imediata no Supabase (Database-First)
     if (!this.isPullingFromCloud && !options?.skipRemoteSync) {
+      if (!this.isCloudHydrated && this.isCloudConfigured()) {
+        // A nuvem ainda não foi lida nesta abertura: a lista deste aparelho pode estar velha e subiria inteira.
+        // Fica marcada como pendente; ao terminar a leitura, o que mudou aqui é somado à nuvem e enviado.
+        const table = Object.keys(TABLE_TO_KEY).find(t => TABLE_TO_KEY[t] === key);
+        if (table) markDirty(table);
+        return;
+      }
       this.syncKeyDirectlyToSupabase(key, value);
     }
   }
@@ -1506,7 +1538,20 @@ class StorageService {
     return this.get(STORAGE_KEYS.BANK_ACCOUNTS, INITIAL_BANK_ACCOUNTS);
   }
   public saveBankAccounts(banks: BankAccount[]) {
-    this.set(STORAGE_KEYS.BANK_ACCOUNTS, banks);
+    // Carimba a data nas contas novas ou alteradas: é ela que diz, ao recarregar da nuvem, que a conta é nova
+    // e precisa ser mantida e reenviada (sem data a conta era descartada e "sumia").
+    // Lista vinda da nuvem já traz as datas do banco: grava como veio
+    if (this.isPullingFromCloud) { this.set(STORAGE_KEYS.BANK_ACCOUNTS, banks); return; }
+    const now = new Date().toISOString();
+    const strip = (b: any) => JSON.stringify({ ...b, createdAt: undefined, updatedAt: undefined });
+    const prev = new Map<string, string>((this.get<BankAccount[]>(STORAGE_KEYS.BANK_ACCOUNTS, []) || []).map(b => [b.id, strip(b)]));
+    const stamped = banks.map(b => {
+      const before = prev.get(b.id);
+      if (before === undefined) return { ...b, createdAt: b.createdAt || now, updatedAt: now };
+      if (before !== strip(b)) return { ...b, updatedAt: now };
+      return b;
+    });
+    this.set(STORAGE_KEYS.BANK_ACCOUNTS, stamped);
   }
 
   // Counterparties (Clients/Suppliers)
@@ -3578,7 +3623,16 @@ class StorageService {
   // ==========================================
   // SINCRONIZAÇÃO E RESTAURAÇÃO RESILIENTE NA NUVEM (SUPABASE - DATABASE FIRST)
   // ==========================================
-  public async initializeDatabaseFirst(): Promise<boolean> {
+  private cloudInitPromise: Promise<boolean> | null = null;
+
+  public initializeDatabaseFirst(): Promise<boolean> {
+    // Uma leitura por vez: duas leituras juntas (abertura + nova tentativa) liberavam o envio antes da hora
+    if (this.cloudInitPromise) return this.cloudInitPromise;
+    this.cloudInitPromise = this.runDatabaseFirst().finally(() => { this.cloudInitPromise = null; });
+    return this.cloudInitPromise;
+  }
+
+  private async runDatabaseFirst(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
     try {
       const hasUrl = localStorage.getItem('contaju_supabase_url') || (
@@ -3606,7 +3660,11 @@ class StorageService {
       this.startCloudPull();
       try {
         const pullRes = await supabaseSync.pullAllFromSupabase();
-        if (pullRes.success || (pullRes.stats?.totalRecords || 0) > 0) {
+        // Só conta como "lido da nuvem" se os lançamentos vieram inteiros. Se a lista de títulos ou de baixas
+        // falhou, a cópia do aparelho fica sem comparação e não pode subir (tenta ler de novo depois).
+        const CORE = /^(Títulos|Liquidações|Contas Bancárias|Movimentações|Contrapartes|Plano de Contas|Contratos|Vendas|Extratos|Cartões|Compras Cartão):/;
+        const coreFailed = (pullRes.errors || []).some(e => CORE.test(e));
+        if (!coreFailed && (pullRes.success || (pullRes.stats?.totalRecords || 0) > 0)) {
           this.isCloudHydrated = true;
           this.inMemoryCache.clear();
           this.normalizedTitlesCache = null;
@@ -3616,6 +3674,9 @@ class StorageService {
             localStorage.setItem('contaju_hydrated_from_supabase', 'true');
           } catch {}
           this.notify();
+          // Depois de somar com a nuvem, manda o que mudou só aqui (contas novas, baixas feitas antes da leitura).
+          // Roda após encerrar a leitura, quando o envio volta a ser permitido.
+          setTimeout(() => this.triggerAutoSyncIfConfigured(), 0);
           return true;
         }
       } finally {

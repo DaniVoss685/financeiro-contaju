@@ -183,6 +183,10 @@ export async function flushUnsynced(): Promise<boolean> {
     if (!client) return false;
     const { data } = await client.auth.getSession();
     if (!data.session) { setSessionExpired(true); return false; }
+    // Antes de enviar, o aparelho precisa ter somado a cópia dele com a nuvem nesta abertura
+    // (senão uma cópia velha regravaria por cima). A leitura, ao terminar, chama este envio de novo.
+    const { storage } = await import('./storageService');
+    if (!storage.isHydratedFromCloud()) { void storage.ensureCloudSync(); return false; }
     // (getSession já renova sozinho quando o acesso venceu; não chamamos a renovação à mão para não disputar com ela)
     const { supabaseSync } = await import('./supabaseSyncService');
     let res = await supabaseSync.syncAllToSupabase();
