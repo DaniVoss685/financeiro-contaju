@@ -150,6 +150,8 @@ let emAndamento = false;
 export async function processarRecebimentos(): Promise<ResultadoBaixa> {
   const vazio: ResultadoBaixa = { baixadas: 0, comErro: 0, receitas: 0 };
   if (emAndamento) return vazio;
+  // Só depois de os dados da nuvem chegarem neste aparelho: com a lista ainda vazia/velha, a baixa sairia errada
+  if (!storage.isHydratedFromCloud()) return vazio;
   emAndamento = true;
   try {
     const cfg = await lerConfig();

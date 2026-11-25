@@ -32,6 +32,13 @@ export function stopForeverSeries(titleIds: string[]) {
 
 /** Mantém sempre 12 a 24 meses à frente nas contas que se repetem "sempre". */
 export function renewForeverRecurrences(): number {
+  // DESLIGADO (25/11/2026, pedido do Guilherme): nenhuma rotina gera lançamento sozinha.
+  // Ela rodava ao abrir o sistema, às vezes antes de os dados da nuvem chegarem, e recriava todas as
+  // faturas (Contaju foi de 1.417 para 2.779 lançamentos em 24/11). Recorrência é criada só quando o
+  // usuário cadastra ou edita o contrato/lançamento.
+  return 0;
+  // eslint-disable-next-line no-unreachable
+
   const titles = storage.getTitles();
   const groups = new Map<string, FinancialTitle[]>();
   titles.forEach(t => {
@@ -88,6 +95,13 @@ export function renewForeverRecurrences(): number {
 
 /** Contratos que se repetem todo mês: garante as faturas dos últimos meses e dos próximos 12. */
 export function renewContractInvoices() {
+  // DESLIGADO (25/11/2026, pedido do Guilherme): nenhuma rotina gera lançamento sozinha.
+  // Ela rodava ao abrir o sistema, às vezes antes de os dados da nuvem chegarem, e recriava todas as
+  // faturas (Contaju foi de 1.417 para 2.779 lançamentos em 24/11). Recorrência é criada só quando o
+  // usuário cadastra ou edita o contrato/lançamento.
+  return;
+  // eslint-disable-next-line no-unreachable
+
   const back = monthsAhead(-3);
   storage.getContracts()
     .filter(c => c.status === 'ATIVO' && c.contractType !== 'AVULSO' && c.isRecurring !== false && !c.endDate && c.autoGenerateFutureMonths !== false)
@@ -103,6 +117,13 @@ export function renewContractInvoices() {
  * (do mês atual até 12 meses à frente). Quem manda é a data de vencimento, não a competência.
  */
 export function renewContractDueMonths(): number {
+  // DESLIGADO (25/11/2026, pedido do Guilherme): nenhuma rotina gera lançamento sozinha.
+  // Ela rodava ao abrir o sistema, às vezes antes de os dados da nuvem chegarem, e recriava todas as
+  // faturas (Contaju foi de 1.417 para 2.779 lançamentos em 24/11). Recorrência é criada só quando o
+  // usuário cadastra ou edita o contrato/lançamento.
+  return 0;
+  // eslint-disable-next-line no-unreachable
+
   const titles = storage.getTitles();
   const created: FinancialTitle[] = [];
   const now = new Date().toISOString();
