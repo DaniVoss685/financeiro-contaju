@@ -29,6 +29,7 @@ import { storage } from '../../services/storageService';
 import { learnAndCreateRuleFromTransaction } from '../../services/reconciliationRulesService';
 import { calculateReconciliationSimilarity } from '../../services/reconciliationMatchingEngine';
 import { TitleSettlementHistoryModal } from './TitleSettlementHistoryModal';
+import { RecurringSeriesService } from '../../services/recurringSeriesService';
 
 interface ReconciliationFloatingModalProps {
   isOpen: boolean;
@@ -88,6 +89,8 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   const [showExtras, setShowExtras] = useState<boolean>(false);
   const [isManualEditOpen, setIsManualEditOpen] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // "Ajustar este e os próximos meses": o novo valor também vale para as próximas recorrências em aberto
+  const [adjustFuture, setAdjustFuture] = useState<boolean>(false);
 
   // Inicializa valores sempre que o modal abre ou os itens mudam
   useEffect(() => {
@@ -104,6 +107,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
       setAdjDiscount(0);
       setAdjBankFee(0);
       setIsPartialSettlement(shouldBePartial);
+      setAdjustFuture(false);
       
       // Abre a edição manual se houver divergência inicial
       const isExact = Math.abs(stmtAbs - titleBal) < 0.005;
@@ -143,6 +147,30 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   const stmtAbsAmount = singleStmt ? Math.round(Math.abs(Number(singleStmt.amount) || 0) * 100) / 100 : 0;
   const currentTitleBalance = singleTitle ? (singleTitle.balancePrincipal > 0 ? singleTitle.balancePrincipal : singleTitle.originalAmount) : 0;
   
+  // Recorrência: próximos lançamentos da mesma série ainda em aberto (meses pagos ou fechados nunca são alterados)
+  const futureOpenTitles = useMemo(() => {
+    if (!isOpen || !singleTitle || isMultiSelection) return [] as FinancialTitle[];
+    try {
+      const series = RecurringSeriesService.detectSeries(singleTitle);
+      if (!series.isSeries) return [] as FinancialTitle[];
+      return series.subsequentOpenTitles.filter(t =>
+        t.settlementState !== 'LIQUIDADO' && t.settlementState !== 'PARCIAL' && !((t.settledPrincipal || 0) > 0) &&
+        !FinancialEngine.isPeriodClosed(t.competence || (t.dueDate || '').substring(0, 7))
+      );
+    } catch {
+      return [] as FinancialTitle[];
+    }
+  }, [isOpen, singleTitle, isMultiSelection]);
+  const futureRangeLabel = (() => {
+    if (futureOpenTitles.length === 0) return '';
+    const ym = (t: FinancialTitle) => (t.dueDate || '').substring(0, 7);
+    const sorted = [...futureOpenTitles].sort((a, b) => ym(a).localeCompare(ym(b)));
+    const fmt = (v: string) => (v ? v.substring(5, 7) + '/' + v.substring(0, 4) : '');
+    const first = fmt(ym(sorted[0]));
+    const last = fmt(ym(sorted[sorted.length - 1]));
+    return first === last ? first : first + ' a ' + last;
+  })();
+
   // Opção de Pagamento / Recebimento Parcial (quando o extrato é menor que o saldo do título)
   const canPartialSettlement = Boolean(!isMultiSelection && singleStmt && singleTitle && stmtAbsAmount < currentTitleBalance - 0.005);
 
@@ -177,6 +205,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   // Ações de Ajuste Rápido
   const handleEnablePartialSettlement = () => {
     setIsPartialSettlement(true);
+    setAdjustFuture(false);
     setAdjPrincipal(stmtAbsAmount);
     setAdjInterest(0);
     setAdjFine(0);
@@ -187,6 +216,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   // Terceira opção: o título passa a valer exatamente o que o extrato mostra (sem desconto, juros ou multa)
   const handleAdjustToStatement = () => {
     setIsPartialSettlement(false);
+    setAdjustFuture(false);
     setAdjPrincipal(stmtAbsAmount);
     setAdjInterest(0);
     setAdjFine(0);
@@ -194,7 +224,14 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
     setAdjBankFee(0);
   };
 
+  // Quarta opção: ajusta este e as próximas recorrências em aberto para o valor do extrato (ex.: mensalidade reajustada)
+  const handleAdjustToStatementAndFuture = () => {
+    handleAdjustToStatement();
+    setAdjustFuture(true);
+  };
+
   const handleApplyDiffAsInterest = () => {
+    setAdjustFuture(false);
     setAdjPrincipal(currentTitleBalance);
     setAdjInterest(Math.max(0, Math.round((stmtAbsAmount - currentTitleBalance) * 100) / 100));
     setAdjFine(0);
@@ -203,6 +240,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   };
 
   const handleApplyDiffAsFine = () => {
+    setAdjustFuture(false);
     setAdjPrincipal(currentTitleBalance);
     setAdjInterest(0);
     setAdjFine(Math.max(0, Math.round((stmtAbsAmount - currentTitleBalance) * 100) / 100));
@@ -211,6 +249,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   };
 
   const handleApplyDiffAsDiscount = () => {
+    setAdjustFuture(false);
     setAdjPrincipal(currentTitleBalance);
     setAdjInterest(0);
     setAdjFine(0);
@@ -219,6 +258,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
   };
 
   const handleApplyDiffAsBankFee = () => {
+    setAdjustFuture(false);
     setAdjPrincipal(currentTitleBalance);
     setAdjInterest(0);
     setAdjFine(0);
@@ -377,8 +417,31 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
         const effectiveFine = isPartial ? 0 : adjFine;
         const effectiveBankFee = isPartial ? 0 : adjBankFee;
 
-        // Se o valor principal for maior que o saldo (acréscimo no valor original)
-        if (!isPartial && Math.abs(effectivePrincipalToSettle - currentTitleBalance) > 0.005) {
+        const applyFuture = !isPartial && adjustFuture && futureOpenTitles.length > 0
+          && Math.abs(effectivePrincipalToSettle - currentTitleBalance) > 0.005;
+        let futureUpdatedCount = 0;
+
+        if (applyFuture) {
+          // Este lançamento e os próximos em aberto da recorrência passam a valer o novo valor
+          const fresh = storage.getTitles().find(t => t.id === singleTitle.id) || singleTitle;
+          const freshBal = fresh.balancePrincipal > 0 ? fresh.balancePrincipal : fresh.originalAmount;
+          const newOriginal = Math.round(Math.max(0.01, fresh.originalAmount + (effectivePrincipalToSettle - freshBal)) * 100) / 100;
+          const currentUser = storage.getCurrentUser();
+          const res = RecurringSeriesService.executeSeriesUpdate({
+            targetTitleId: singleTitle.id,
+            newAmount: newOriginal,
+            updates: {},
+            applyToSubsequent: true,
+            subsequentTitleIds: futureOpenTitles.map(t => t.id),
+            contractId: singleTitle.contractId,
+            propagateDueDay: false,
+            propagateAccount: false,
+            propagateBankAccount: false,
+            currentUser: { name: currentUser.name, role: currentUser.role }
+          });
+          futureUpdatedCount = res.subsequentCount;
+        } else if (!isPartial && Math.abs(effectivePrincipalToSettle - currentTitleBalance) > 0.005) {
+          // Se o valor principal for maior que o saldo (acréscimo no valor original)
           const allTitles = storage.getTitles();
           const updatedTitles = allTitles.map(t => {
             if (t.id === singleTitle.id) {
@@ -471,7 +534,9 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
 
         onSuccess(isPartial
           ? `✓ Sucesso! Pagamento parcial de ${formatBRL(effectivePrincipalToSettle)} conciliado. O título #${singleTitle.titleNumber} continua em aberto com saldo de ${formatBRL(currentTitleBalance - effectivePrincipalToSettle)}.`
-          : `Conciliação concluída com sucesso! Extrato e Título 100% conferidos e quitados no ERP.`
+          : futureUpdatedCount > 0
+            ? `Conciliação concluída! O lançamento foi ajustado para ${formatBRL(effectivePrincipalToSettle)} e os próximos ${futureUpdatedCount} mês(es) em aberto também passaram a ${formatBRL(effectivePrincipalToSettle)}.`
+            : `Conciliação concluída com sucesso! Extrato e Título 100% conferidos e quitados no ERP.`
         );
         onClose();
       }
@@ -573,6 +638,18 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                     <span>Ajustar para {formatBRL(stmtAbsAmount)} (valor do extrato)</span>
                   </button>
 
+                  {futureOpenTitles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleAdjustToStatementAndFuture}
+                      className="px-3.5 py-2 rounded-lg text-xs font-semibold border border-amber-500/60 bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-1.5 cursor-pointer"
+                      title="Use quando o valor mudou de vez (ex.: mensalidade reajustada): este lançamento e os próximos meses em aberto passam a valer o valor do extrato"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Ajustar este e os próximos {futureOpenTitles.length} {futureOpenTitles.length === 1 ? 'mês' : 'meses'} para {formatBRL(stmtAbsAmount)}</span>
+                    </button>
+                  )}
+
                   {stmtAbsAmount < currentTitleBalance ? (
                     <button
                       type="button"
@@ -594,7 +671,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
               )}
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-emerald-900 dark:text-emerald-300 flex items-center justify-between gap-3 animate-in fade-in">
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-[var(--status-success)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-500 shrink-0">
                   <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
@@ -603,7 +680,7 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <span className="font-bold text-xs">
                     Valores 100% Batendo e Conferidos (Diferença: R$ 0,00)
                   </span>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                     O valor do extrato e a composição contábil conferem integralmente. A conciliação está liberada para efetivação.
                   </p>
                 </div>
@@ -620,6 +697,24 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   <span>Lembrar Regra De-Para</span>
                 </button>
               )}
+            </div>
+          )}
+
+          {!isMultiSelection && adjustFuture && futureOpenTitles.length > 0 && (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 animate-in fade-in">
+              <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                <Calendar className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-[var(--text-primary)] leading-relaxed">
+                  Valor reajustado: este lançamento e os próximos <strong>{futureOpenTitles.length}</strong> {futureOpenTitles.length === 1 ? 'mês' : 'meses'} em aberto ({futureRangeLabel}) passam a <strong className="tabular-nums">{formatBRL(stmtAbsAmount)}</strong>. Meses já pagos não mudam.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdjustFuture(false)}
+                className="self-start sm:self-auto px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[var(--border-highlight)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] cursor-pointer shrink-0"
+              >
+                Ajustar só este mês
+              </button>
             </div>
           )}
 
