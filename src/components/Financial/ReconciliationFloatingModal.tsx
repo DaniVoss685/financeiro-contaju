@@ -152,8 +152,21 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
     if (!isOpen || !singleTitle || isMultiSelection) return [] as FinancialTitle[];
     try {
       const series = RecurringSeriesService.detectSeries(singleTitle);
-      if (!series.isSeries) return [] as FinancialTitle[];
-      return series.subsequentOpenTitles.filter(t =>
+      let candidates = series.isSeries ? series.subsequentOpenTitles : [];
+      if (candidates.length === 0) {
+        // Lançamentos importados (ex.: Conta Azul) não têm marca de recorrência: mesmo fornecedor e mesma
+        // descrição em meses seguintes contam como a mesma despesa/receita mensal
+        const norm = (v?: string) => (v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        const desc = norm(singleTitle.description);
+        if (singleTitle.counterpartyId && desc) {
+          candidates = storage.getTitles().filter(t =>
+            t.id !== singleTitle.id && t.type === singleTitle.type && t.documentState !== 'CANCELADO' &&
+            t.counterpartyId === singleTitle.counterpartyId && norm(t.description) === desc &&
+            (t.dueDate || '') > (singleTitle.dueDate || '')
+          );
+        }
+      }
+      return candidates.filter(t =>
         t.settlementState !== 'LIQUIDADO' && t.settlementState !== 'PARCIAL' && !((t.settledPrincipal || 0) > 0) &&
         !FinancialEngine.isPeriodClosed(t.competence || (t.dueDate || '').substring(0, 7))
       );
