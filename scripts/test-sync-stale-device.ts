@@ -105,7 +105,10 @@ store.set('contaju_supabase_anon_key', 'fake-anon-key');
 store.set('contaju_schema_version', 'v7_supabase_database_first');
 // Título 3: existia no aparelho, mas foi apagado em outro aparelho (não está mais na nuvem) — não pode voltar
 const T3 = 'tit-apagado-em-outro-aparelho';
-store.set('contaju_titles', JSON.stringify([staleTitle, { ...staleTitle, id: T2, titleNumber: 'PAG-TESTE-2' }, { ...staleTitle, id: T3, titleNumber: 'PAG-APAGADO' }]));
+// Título 4: cópia duplicada que foi apagada na nuvem e anotada na lista de apagados; o aparelho ainda a tem
+const T4 = 'tit-copia-duplicada';
+db.contaju_deleted_records = [{ table_name: 'contaju_financial_titles', record_id: T4 }];
+store.set('contaju_titles', JSON.stringify([staleTitle, { ...staleTitle, id: T2, titleNumber: 'PAG-TESTE-2' }, { ...staleTitle, id: T3, titleNumber: 'PAG-APAGADO' }, { ...staleTitle, id: T4, titleNumber: 'PAG-COPIA', createdAt: '2026-11-24T19:32:00.000Z', updatedAt: '2026-11-24T19:32:00.000Z' }]));
 store.set('contaju_settlements', JSON.stringify([]));
 store.set('contaju_bank_accounts', JSON.stringify([
   { id: 'acc-a', institution: 'Inter', name: 'Inter', type: 'CORRENTE', currency: 'BRL', initialBalance: 0, currentBalance: 0, baseDate: '2026-11-01', includeInCashFlow: true, status: 'ATIVO' },
@@ -155,6 +158,8 @@ const check = (ok: boolean, msg: string) => { console.log(`${ok ? 'OK  ' : 'FALH
   check(t2Cloud?.settlement_state === 'LIQUIDADO', `e a nuvem é corrigida (está ${t2Cloud?.settlement_state})`);
   check(!db.contaju_financial_titles.some(t => t.id === T3), 'título apagado em outro aparelho não voltou para a nuvem');
   check(!storage.getTitles().some(t => t.id === T3), 'nem continua aparecendo no aparelho B');
+  check(!storage.getTitles().some(t => t.id === T4), 'cópia apagada (lista de apagados) sumiu do aparelho B');
+  check(!db.contaju_financial_titles.some(t => t.id === T4), 'e não foi reenviada para a nuvem');
   check(storage.getBankAccounts().some(b => b.id === 'acc-consumo'), 'aparelho B ainda tem a conta Consumo');
   check(db.contaju_bank_accounts.some(b => b.id === 'acc-consumo'), 'conta Consumo foi enviada para a nuvem');
 

@@ -25,7 +25,9 @@ import {
   ImprovementRequest
 } from '../types';
 import { ConflictResolutionEngine } from './conflictResolutionEngine';
-import { markSyncedOk, readCloudIds, writeCloudIds } from './unsyncedGuard';
+import { markSyncedOk, readCloudIds, writeCloudIds, writeDeletedIds, TABLE_TO_KEY } from './unsyncedGuard';
+
+const DELETED_RECORDS_TABLE = 'contaju_deleted_records';
 import { OfflineSyncService } from './offlineSyncService';
 
 export interface SyncStats {
@@ -1157,11 +1159,11 @@ class SupabaseSyncService {
    * Baixa dados do Supabase e atualiza o armazenamento local (Pull)
    */
   /** Lê a tabela inteira em páginas de 1000 linhas (o Supabase corta em 1000 por consulta). */
-  private async fetchAllRows(client: any, table: string): Promise<{ data: any[] | null; error: any }> {
+  private async fetchAllRows(client: any, table: string, orderBy = 'id'): Promise<{ data: any[] | null; error: any }> {
     const pageSize = 1000;
     const all: any[] = [];
     for (let from = 0; from < 200000; from += pageSize) {
-      const { data, error } = await client.from(table).select('*').order('id', { ascending: true }).range(from, from + pageSize - 1);
+      const { data, error } = await client.from(table).select('*').order(orderBy, { ascending: true }).range(from, from + pageSize - 1);
       if (error) return { data: null, error };
       all.push(...(data || []));
       if (!data || data.length < pageSize) break;
@@ -1287,6 +1289,21 @@ class SupabaseSyncService {
       }
 
       // 9 e 10. Títulos Financeiros e Baixas com Resolução Automática de Conflitos (LWW + Preservação de Saldo)
+      // Registros apagados (em qualquer aparelho): saem da cópia deste aparelho e nunca voltam
+      const { data: delData, error: delErr } = await this.fetchAllRows(client, DELETED_RECORDS_TABLE, 'record_id');
+      const deleted: Record<string, Set<string>> = {};
+      if (!delErr && delData) {
+        for (const r of delData) (deleted[r.table_name] = deleted[r.table_name] || new Set()).add(String(r.record_id));
+        const byKey: Record<string, string[]> = {};
+        for (const [tb, ids] of Object.entries(deleted)) if (TABLE_TO_KEY[tb]) byKey[TABLE_TO_KEY[tb]] = Array.from(ids);
+        writeDeletedIds(byKey);
+        const dropFrom = (tb: string, rows: any[]) => (deleted[tb] ? rows.filter(r => !deleted[tb].has(String(r?.id))) : rows);
+        if (deleted[CONTAJU_TABLES.TITLES]) storage.saveTitles(dropFrom(CONTAJU_TABLES.TITLES, storage.getTitles()));
+        if (deleted[CONTAJU_TABLES.SETTLEMENTS]) storage.saveSettlements(dropFrom(CONTAJU_TABLES.SETTLEMENTS, storage.getSettlements()));
+        if (deleted[CONTAJU_TABLES.MOVEMENTS]) storage.saveMovements(dropFrom(CONTAJU_TABLES.MOVEMENTS, storage.getMovements()));
+        if (deleted[CONTAJU_TABLES.SALES]) storage.saveSales(dropFrom(CONTAJU_TABLES.SALES, storage.getSales()));
+      }
+
       const { data: titlesData, error: titlesErr } = await this.fetchAllRows(client, CONTAJU_TABLES.TITLES);
       if (titlesErr) errors.push(`Títulos: ${titlesErr.message}`);
 
@@ -1547,6 +1564,7 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client) return { success: false, error: 'Supabase não conectado' };
     try {
+      await this.markDeleted(client, CONTAJU_TABLES.TITLES, [id]);
       const { error } = await client.from(CONTAJU_TABLES.TITLES).delete().eq('id', id);
       if (error) {
         console.error('[SupabaseDirect] Erro ao deletar título:', error);
@@ -1564,6 +1582,7 @@ class SupabaseSyncService {
     try {
       const chunks = this.chunkArray(ids, 100);
       for (const chunk of chunks) {
+        await this.markDeleted(client, CONTAJU_TABLES.TITLES, chunk);
         const { error } = await client.from(CONTAJU_TABLES.TITLES).delete().in('id', chunk);
         if (error) {
           console.error('[SupabaseDirect] Erro ao deletar títulos em lote:', error);
@@ -1682,6 +1701,7 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client) return { success: false };
     try {
+      await this.markDeleted(client, CONTAJU_TABLES.SETTLEMENTS, [id]);
       const { error } = await client.from(CONTAJU_TABLES.SETTLEMENTS).delete().eq('id', id);
       if (error) return { success: false, error: error.message };
       return { success: true };
@@ -1720,6 +1740,7 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client) return { success: false };
     try {
+      await this.markDeleted(client, CONTAJU_TABLES.MOVEMENTS, [id]);
       const { error } = await client.from(CONTAJU_TABLES.MOVEMENTS).delete().eq('id', id);
       if (error) return { success: false, error: error.message };
       return { success: true };
@@ -1940,6 +1961,7 @@ class SupabaseSyncService {
     const client = getSupabaseClient();
     if (!client) return { success: false };
     try {
+      await this.markDeleted(client, CONTAJU_TABLES.SALES, [id]);
       const { error } = await client.from(CONTAJU_TABLES.SALES).delete().eq('id', id);
       if (error) return { success: false, error: error.message };
       return { success: true };
@@ -2211,6 +2233,14 @@ class SupabaseSyncService {
         parts.push({ table: CONTAJU_TABLES.AUDIT_LOGS, rows: mappedLogs, label: 'Logs de Auditoria', stat: 'auditLogs' });
       }
     return parts;
+  }
+
+  /** Anota na nuvem que o registro foi apagado: nenhum aparelho com cópia velha consegue recriá-lo depois. */
+  private async markDeleted(client: any, table: string, ids: string[]): Promise<void> {
+    if (!ids || ids.length === 0) return;
+    try {
+      await client.from(DELETED_RECORDS_TABLE).insert(ids.map(id => ({ table_name: table, record_id: String(id) })));
+    } catch { /* a exclusão segue; o aparelho também guarda a lista */ }
   }
 
   private sigMap(table: string): Map<string, string> {

@@ -181,6 +181,15 @@ export function writeCloudIds(localKey: string, ids: string[], org: string = cac
   } catch { /* sem espaço: segue com a regra antiga */ }
 }
 
+// Ids apagados (vêm da nuvem): nunca voltam da cópia deste aparelho
+const deletedKey = (org: string) => `contaju_deleted_ids_${org}`;
+export function readDeletedIds(org: string = cacheOrg()): Record<string, string[]> {
+  try { return JSON.parse(localStorage.getItem(deletedKey(org)) || '{}'); } catch { return {}; }
+}
+export function writeDeletedIds(byKey: Record<string, string[]>, org: string = cacheOrg()): void {
+  try { localStorage.setItem(deletedKey(org), JSON.stringify(byKey)); } catch { /* sem espaço */ }
+}
+
 export function markSyncedOk(): void {
   try { localStorage.setItem(`${LAST_OK_KEY}_${cacheOrg()}`, new Date().toISOString()); } catch { /* ignora */ }
 }

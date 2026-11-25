@@ -66,7 +66,7 @@ import {
 import { INITIAL_RECONCILIATION_RULES } from '../data/reconciliationRulesData';
 import { INITIAL_AGENT_DEFINITIONS } from '../data/initialAgentsData';
 import { advanceCompetence, addMonthsSafe } from '../utils/dateUtils';
-import { SYNC_KEYS, readCloudIds, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
+import { SYNC_KEYS, readCloudIds, readDeletedIds, readStash, unionById, hasUnsynced, lastSyncOk, flushUnsynced } from './unsyncedGuard';
 
 const STORAGE_KEYS = {
   AGENT_DEFINITIONS: 'contaju_agent_definitions',
@@ -3745,10 +3745,12 @@ class StorageService {
         const cloud = (this.get<any[]>(key, []) as any[]) || [];
         const byId = new Map<string, any>(cloud.map(r => [String(r.id), r]));
         const known = Array.isArray(knownBefore[key]) ? new Set(knownBefore[key].map(String)) : null;
+        const gone = new Set((readDeletedIds()[key] || []).map(String));
         const extra: any[] = [];
         const newer: any[] = [];
         for (const r of local) {
           if (!r || r.id == null) continue;
+          if (gone.has(String(r.id))) continue; // apagado em algum aparelho: não volta
           const c = byId.get(String(r.id));
           if (!c) {
             if (known) {
