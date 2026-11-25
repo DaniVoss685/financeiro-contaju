@@ -682,6 +682,15 @@ export const ReconciliationFloatingModal: React.FC<ReconciliationFloatingModalPr
                   )}
                 </div>
               )}
+
+              {!isMultiSelection && singleTitle && futureOpenTitles.length === 0 && (
+                <p className="flex items-start gap-2 text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                  <Calendar className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>
+                    Este lançamento não se repete nos próximos meses (ou os próximos já estão pagos), então o ajuste vale só para ele. Se o valor mudou de vez, ajuste também a recorrência em {isReceipt ? 'Contas a receber' : 'Contas a pagar'}.
+                  </span>
+                </p>
+              )}
             </div>
           ) : (
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-[var(--status-success)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
