@@ -1548,8 +1548,14 @@ class SupabaseSyncService {
           ({ error } = await client.from(CONTAJU_TABLES.TITLES).upsert(payload, { onConflict: 'id' }));
         }
         if (error) {
-          console.error('[SupabaseDirect] Erro no lote de títulos:', error);
-          return { success: false, error: error.message };
+          // Uma linha com problema não pode segurar o lote: envia linha por linha (sobe o cliente que faltar)
+          const errs: string[] = [];
+          const ok = await this.pushDelta(client, CONTAJU_TABLES.TITLES, payload, 'Títulos Financeiros', errs);
+          if (!ok) {
+            console.error('[SupabaseDirect] Erro no lote de títulos:', errs[0] || error);
+            return { success: false, error: errs[0] || error.message };
+          }
+          continue;
         }
         mark(chunkItems);
       }
@@ -2235,6 +2241,21 @@ class SupabaseSyncService {
     return parts;
   }
 
+  /** Garante que o cliente/fornecedor deste aparelho exista na nuvem (sobe o cadastro se faltar). */
+  private async ensureCounterpartyInCloud(client: any, id: string): Promise<boolean> {
+    try {
+      // Só se a cópia deste aparelho é da empresa logada nesta aba (nunca sobe cadastro de outra empresa)
+      const cacheOrg = localStorage.getItem('contaju_cache_org');
+      if (!getTabOrg() || (cacheOrg && cacheOrg !== getTabOrg())) return false;
+      const cp = storage.getCounterparties().find(c => c.id === id);
+      if (!cp) return false;
+      const { error } = await client.from(CONTAJU_TABLES.COUNTERPARTIES).upsert([mapCounterpartyToDb(cp)], { onConflict: 'id' });
+      return !error;
+    } catch {
+      return false;
+    }
+  }
+
   /** Anota na nuvem que o registro foi apagado: nenhum aparelho com cópia velha consegue recriá-lo depois. */
   private async markDeleted(client: any, table: string, ids: string[]): Promise<void> {
     if (!ids || ids.length === 0) return;
@@ -2291,12 +2312,18 @@ class SupabaseSyncService {
       let firstMsg = '';
       for (const item of chunk) {
         let r = await client.from(table).upsert([item.row], { onConflict: 'id' });
-        // Movimentação de caixa recusada porque o cliente/fornecedor ligado a ela não está na nuvem:
-        // o dinheiro que entrou ou saiu é o que importa para o saldo do banco, então grava sem o vínculo
-        // em vez de perder a movimentação (isso deixava baixas sem lançamento no banco).
-        if (r.error && (r.error as any).code === '23503' && table === CONTAJU_TABLES.MOVEMENTS
-          && /counterparty_id_fkey/.test(String(r.error.message || '')) && item.row.counterparty_id) {
-          r = await client.from(table).upsert([{ ...item.row, counterparty_id: null }], { onConflict: 'id' });
+        // Recusado porque o cliente/fornecedor ligado a ele ainda não está na nuvem: sobe o cliente primeiro
+        // (ele existe neste aparelho) e tenta de novo. Se nem o aparelho tem o cliente, grava sem o vínculo:
+        // perder o lançamento ou a movimentação é pior (antes ficavam só no aparelho, para sempre).
+        if (r.error && (r.error as any).code === '23503' && /counterparty_id_fkey/.test(String(r.error.message || ''))
+          && item.row.counterparty_id && (table === CONTAJU_TABLES.MOVEMENTS || table === CONTAJU_TABLES.TITLES)) {
+          if (await this.ensureCounterpartyInCloud(client, String(item.row.counterparty_id))) {
+            r = await client.from(table).upsert([item.row], { onConflict: 'id' });
+          }
+          const sameOrgCache = !!getTabOrg() && (!localStorage.getItem('contaju_cache_org') || localStorage.getItem('contaju_cache_org') === getTabOrg());
+          if (sameOrgCache && r.error && (r.error as any).code === '23503' && /counterparty_id_fkey/.test(String(r.error.message || ''))) {
+            r = await client.from(table).upsert([{ ...item.row, counterparty_id: null }], { onConflict: 'id' });
+          }
         }
         if (r.error) {
           bad++;
