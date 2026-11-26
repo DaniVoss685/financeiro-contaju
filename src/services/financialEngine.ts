@@ -492,6 +492,9 @@ export class FinancialEngine {
     if (settlement.isReversed) {
       return { success: false, message: 'Esta baixa já foi estornada anteriormente.' };
     }
+    if (settlement.id.startsWith('sett-cc')) {
+      return { success: false, message: 'Esta baixa veio do pagamento da fatura do cartão. Para desfazer, vá em Cartões de crédito e use "Reabrir fatura".' };
+    }
 
     const titles = storage.getTitles();
     const titleIdx = titles.findIndex(t => t.id === settlement.titleId);
@@ -591,7 +594,7 @@ export class FinancialEngine {
    * Estorna em massa os pagamentos ou recebimentos dos títulos informados,
    * desvinculando movimentações e saldos bancários com integridade contábil atômica.
    */
-  public static reopenTitlesToOpenBatch(titleIds: string[], reason?: string): {
+  public static reopenTitlesToOpenBatch(titleIds: string[], reason?: string, options?: { fromCardInvoice?: boolean }): {
     success: boolean;
     message: string;
     reopenedCount: number;
@@ -659,6 +662,29 @@ export class FinancialEngine {
         reopenedTitles: [],
         errors: closedPeriodErrors
       };
+    }
+
+    // Despesa paga junto com a fatura do cartão: a saída do banco é uma só para a fatura inteira.
+    // Reabrir só este título deixaria o banco debitado e a fatura em aberto (risco de pagar duas vezes).
+    if (!options?.fromCardInvoice) {
+      const targetIds = new Set(targetTitles.map(t => t.id));
+      const paidByInvoice = targetTitles.filter(t => settlements.some(s =>
+        targetIds.has(s.titleId) && s.titleId === t.id && !s.isReversed && s.id.startsWith('sett-cc')
+      ));
+      if (paidByInvoice.length > 0) {
+        const names = Array.from(new Set(paidByInvoice.map(t => {
+          const card = storage.getCreditCards().find(c => c.id === t.creditCardId);
+          return `${card?.name || 'cartão'} (fatura ${t.creditCardInvoiceMonth ? formatCompetence(t.creditCardInvoiceMonth) : ''})`;
+        })));
+        return {
+          success: false,
+          message: `${paidByInvoice.length === 1 ? 'Este lançamento foi pago' : `${paidByInvoice.length} lançamentos foram pagos`} junto com a fatura do cartão ${names.join(', ')}. Para desfazer, vá em Cartões de crédito e use "Reabrir fatura".`,
+          reopenedCount: 0,
+          reversedSettlementsCount: 0,
+          reopenedTitles: [],
+          errors: ['Pago pela fatura do cartão.']
+        };
+      }
     }
 
     const validTitlesToReopen = targetTitles.filter(t => !this.isPeriodClosed(t.competence));
@@ -2639,6 +2665,7 @@ export class FinancialEngine {
       let applied = 0;
       let hasSettlement = false;
       for (const t of payable) {
+        if ((t.settledPrincipal || 0) > 0.005) hasSettlement = true;
         for (const s of activeSettlementsByTitle.get(t.id) || []) {
           hasSettlement = true;
           if (s.id.startsWith('sett-ccred-')) applied += s.components.principalSettled;
@@ -3055,7 +3082,7 @@ export class FinancialEngine {
     // 3. Estorna as baixas e volta os títulos para EM ABERTO (também desfaz conciliação ligada aos títulos)
     let reopenedTitles = 0;
     if (reopenIds.size > 0) {
-      const res = this.reopenTitlesToOpenBatch(Array.from(reopenIds), reason);
+      const res = this.reopenTitlesToOpenBatch(Array.from(reopenIds), reason, { fromCardInvoice: true });
       if (!res.success) {
         return fail(res.message || 'Não foi possível reabrir os títulos da fatura.');
       }

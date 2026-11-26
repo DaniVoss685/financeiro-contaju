@@ -173,10 +173,31 @@ async function main() {
 
   console.log('\n[10] Editar compra já paga');
   const pur = storage.getCardPurchases().find(p => p.id === p1)!;
-  storage.updateCardPurchaseAndSyncTitles({ ...pur, description: 'Compra A (editada)' });
+  // Igual à tela de edição: as parcelas são remontadas com "settled: false"
+  storage.updateCardPurchaseAndSyncTitles({ ...pur, description: 'Compra A (editada)', installments: pur.installments.map(i => ({ ...i, settled: false, settledAt: undefined, settlementId: undefined })) });
   const t10 = storage.getTitles().find(t => t.originId === p1)!;
   ok(t10.settlementState === 'LIQUIDADO' && near(t10.balancePrincipal, 0), `título continua LIQUIDADO depois de editar (veio ${t10.settlementState})`);
   ok(inv('2026-08').status === 'PAGA', 'fatura 08/2026 continua PAGA');
+  // Compra paga título a título no Contas a Pagar (caso real do INTER - PRI) e depois editada
+  const pG = addPurchase('Compra G', 40, 1, '2026-09-03');
+  const tG = storage.getTitles().find(t => t.originId === pG)!;
+  FinancialEngine.postSettlement({ titleId: tG.id, settlementDate: '2026-11-10', bankAccountId: BANK, principalSettled: 40 } as any);
+  const purG = storage.getCardPurchases().find(p => p.id === pG)!;
+  ok(purG.installments.every(i => !i.settled), 'parcela da Compra G continua gravada como não paga no cartão (como no banco real)');
+  storage.updateCardPurchaseAndSyncTitles({ ...purG, description: 'Compra G (editada)' });
+  const tG2 = storage.getTitles().find(t => t.originId === pG)!;
+  ok(tG2.settlementState === 'LIQUIDADO', `título pago no Contas a Pagar continua LIQUIDADO depois de editar (veio ${tG2.settlementState})`);
+  ok(FinancialEngine.getCardInvoiceState(card.id).installmentPaid.get(`${pG}-1`) === true, 'cartão mostra a Compra G como paga');
+
+  console.log('\n[11] Reabrir no Contas a Pagar um título pago pela fatura');
+  const t11 = titlesOf('2026-08')[0];
+  const r11 = FinancialEngine.reopenTitlesToOpenBatch([t11.id], 'teste');
+  ok(!r11.success && storage.getTitles().find(t => t.id === t11.id)!.settlementState === 'LIQUIDADO', `recusado e aponta para "Reabrir fatura" ("${r11.message}")`);
+  const s11 = storage.getSettlements().find(s => s.titleId === t11.id && !s.isReversed)!;
+  const r11b = FinancialEngine.reverseSettlement(s11.id, 'teste');
+  ok(!r11b.success, `estorno avulso da baixa da fatura também recusado ("${r11b.message}")`);
+  const tGr = FinancialEngine.reopenTitlesToOpenBatch([tG.id], 'teste');
+  ok(tGr.success, 'título pago avulso no Contas a Pagar continua podendo ser reaberto lá');
 
   console.log(failures === 0 ? '\nTUDO CERTO' : `\n${failures} FALHA(S)`);
   process.exit(failures === 0 ? 0 : 1);
