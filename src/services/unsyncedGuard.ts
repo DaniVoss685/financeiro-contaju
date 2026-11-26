@@ -266,6 +266,8 @@ export function startSyncWatch(): void {
   };
   const tick = () => { if (document.visibilityState === 'visible') void check(); };
   window.setInterval(tick, 45000);
+  // Se algo não subiu, tenta de novo a cada 10 segundos (não espera o próximo ciclo)
+  window.setInterval(() => { if (document.visibilityState === 'visible' && hasUnsynced()) void check(); }, 10000);
   window.addEventListener('online', () => void check());
   document.addEventListener('visibilitychange', tick);
   window.setTimeout(() => void check(), 4000);

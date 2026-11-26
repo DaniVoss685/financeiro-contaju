@@ -647,6 +647,11 @@ class StorageService {
   }
 
   private set<T>(key: string, value: T, options?: { skipRemoteSync?: boolean }) {
+    // Versão anterior desta lista (para mandar à nuvem só o que mudou agora)
+    // (para títulos, a versão "completa" que as telas usam, senão os campos completados contariam como mudança)
+    const previous = key === STORAGE_KEYS.TITLES
+      ? this.getTitles()
+      : (this.inMemoryCache.has(key) ? this.inMemoryCache.get(key) : this.get<any>(key, undefined as any));
     this.inMemoryCache.set(key, value);
     if (key === STORAGE_KEYS.TITLES) {
       this.normalizedTitlesCache = null;
@@ -676,14 +681,24 @@ class StorageService {
     // Persistência Direta e Imediata no Supabase (Database-First)
     if (!this.isPullingFromCloud && !options?.skipRemoteSync) {
       if (!this.isCloudHydrated && this.isCloudConfigured()) {
-        // A nuvem ainda não foi lida nesta abertura: a lista deste aparelho pode estar velha e subiria inteira.
-        // Não envia agora. Ao terminar a leitura, registro novo feito aqui (criado depois do último envio completo)
-        // é mantido e sobe; registro que já existe na nuvem fica com a versão da nuvem.
-        // (Não marca "pendente" de propósito: a marca faria a cópia velha inteira vencer a nuvem.)
+        // A nuvem ainda não foi lida nesta abertura: a lista deste aparelho pode estar velha. Mesmo assim o que a
+        // pessoa acabou de lançar/alterar vai para o Supabase NA HORA — só as linhas que mudaram agora (nunca a
+        // lista velha inteira, que gravaria por cima do que foi feito em outro aparelho).
+        if (Array.isArray(value)) {
+          const changed = StorageService.changedRows(previous, value as any[]);
+          if (changed.length > 0) this.syncKeyDirectlyToSupabase(key, changed);
+        }
         return;
       }
       this.syncKeyDirectlyToSupabase(key, value);
     }
+  }
+
+  /** Linhas novas ou alteradas entre a versão anterior e a nova de uma lista (comparação por id). */
+  private static changedRows(previous: any, next: any[]): any[] {
+    const before = new Map<string, string>();
+    if (Array.isArray(previous)) for (const r of previous) if (r && r.id != null) before.set(String(r.id), JSON.stringify(r));
+    return next.filter(r => r && r.id != null && before.get(String(r.id)) !== JSON.stringify(r));
   }
 
   private async syncKeyDirectlyToSupabase(key: string, value: any) {

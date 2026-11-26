@@ -51,10 +51,10 @@ export const SyncGuardNotice: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] max-w-[92vw] flex items-center gap-3 rounded-xl border border-[var(--gold-edge)] bg-[var(--surface-card)] shadow-xl px-4 py-3 text-sm">
-      <CloudOff className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
+    <div role="alert" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] max-w-[92vw] flex items-center gap-3 rounded-xl border border-rose-500/50 bg-[var(--surface-card)] shadow-xl px-4 py-3 text-sm">
+      <CloudOff className="w-4 h-4 text-rose-500 shrink-0" />
       <span className="text-[var(--text-primary)]">
-        Alguns lançamentos ainda não foram enviados para a nuvem. Estão guardados aqui.
+        Não foi possível salvar o último lançamento na nuvem (sem internet ou o banco não respondeu). O sistema está tentando de novo sozinho — não feche esta tela até este aviso sumir.
         {retryMsg && <span className="block text-xs text-rose-500 mt-0.5">{retryMsg}</span>}
       </span>
       <button
@@ -63,7 +63,7 @@ export const SyncGuardNotice: React.FC = () => {
         disabled={busy}
         className="px-3 h-8 rounded-lg btn-gold text-xs font-semibold cursor-pointer disabled:opacity-60 shrink-0"
       >
-        {busy ? 'Enviando...' : 'Enviar agora'}
+        {busy ? 'Salvando...' : 'Tentar agora'}
       </button>
     </div>
   );

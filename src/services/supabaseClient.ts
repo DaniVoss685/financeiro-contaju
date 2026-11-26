@@ -169,6 +169,26 @@ function scopeToOrg(client: SupabaseClient): SupabaseClient {
 
 // Observa as respostas do banco: gravação recusada (sessão vencida, sem permissão, servidor fora) ou sem rede
 // deixa uma marca de "dados só neste aparelho" e a sessão vencida aparece na tela, em vez de falhar em silêncio.
+// Gravações nos dados do Contaju saem UMA DE CADA VEZ, na ordem em que foram feitas.
+// Antes saíam em paralelo e duas gravações da mesma baixa (título + baixa) travavam uma na outra no banco
+// ("deadlock", erro 500): o banco recusava as duas e o lançamento ficava só no aparelho.
+let writeTail: Promise<unknown> = Promise.resolve();
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+// Engasgo passageiro do banco ou da rede (500, 502, 503, 504 ou queda de conexão): tenta de novo sozinho, na hora.
+async function sendWithRetry(input: any, init?: any): Promise<Response> {
+  const waits = [400, 1200, 3000];
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(input, init);
+      if (res.status >= 500 && attempt < waits.length) { await sleep(waits[attempt]); continue; }
+      return res;
+    } catch (e) {
+      if (attempt < waits.length) { await sleep(waits[attempt]); continue; }
+      throw e;
+    }
+  }
+}
+
 const guardedFetch: typeof fetch = async (input: any, init?: any) => {
   let table = '';
   let method = 'GET';
@@ -182,7 +202,14 @@ const guardedFetch: typeof fetch = async (input: any, init?: any) => {
   const isAuthToken = typeof input === 'string' ? input.includes('/auth/v1/token') : String(input?.url || '').includes('/auth/v1/token');
   const isWrite = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
   try {
-    const res = await fetch(input, init);
+    let res: Response;
+    if (isWrite && table.startsWith('contaju_')) {
+      const run = writeTail.then(() => sendWithRetry(input, init));
+      writeTail = run.catch(() => undefined);
+      res = await run;
+    } else {
+      res = await fetch(input, init);
+    }
     // Caixa-preta do login: se o banco recusar a renovação do acesso, guarda o motivo exato (código e hora) para diagnóstico
     if (isAuthToken && !res.ok) {
       res.clone().json().then((b: any) => {
