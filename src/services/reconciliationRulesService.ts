@@ -129,7 +129,7 @@ export function applyReconciliationRules(
           companyId: 'comp-1',
           type: targetType,
           titleNumber,
-          counterpartyId: matchedRule.counterpartyId || (isDebit ? 'forn-1' : 'cli-1'),
+          counterpartyId: matchedRule.counterpartyId || undefined,
           description: effectiveDescription,
           accountId: matchedRule.chartAccountId,
           launchDate: stmt.date || today,

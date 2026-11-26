@@ -1525,15 +1525,15 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                         )}
                       </div>
 
-                      {/* Fornecedor / Favorecido em Destaque */}
-                      <div className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm leading-snug">
-                        {supplier?.name || supplier?.tradeName || 'Fornecedor não especificado'}
-                      </div>
-
-                      {/* Descrição em Destaque: maior, legível e com quebra de linha natural */}
-                      <div className="text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-semibold break-words whitespace-normal leading-snug mt-1">
+                      {/* Descrição em destaque; fornecedor pequeno embaixo (só se tiver) */}
+                      <div className="text-sm sm:text-[15px] text-slate-900 dark:text-slate-100 font-bold break-words whitespace-normal leading-snug">
                         {t.description || 'Sem descrição informada'}
                       </div>
+                      {(supplier?.name || supplier?.tradeName) && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
+                          {supplier?.name || supplier?.tradeName}
+                        </div>
+                      )}
 
                       {/* Categoria do Plano de Contas (apenas nome com cor temática) e Código do Documento */}
                       {(() => {
@@ -1622,7 +1622,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                       <div>
                         <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block uppercase tracking-wider">Fornecedor / Favorecido</span>
                         <span className="font-medium text-slate-900 dark:text-slate-100 block truncate">
-                          {supplier?.name || 'Fornecedor não especificado'}
+                          {supplier?.name || 'Sem fornecedor'}
                         </span>
                         {supplier?.document && (
                           <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-mono">{supplier.document}</span>
@@ -2066,7 +2066,7 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
 
                       <td className="py-3 px-4 min-w-[250px] max-w-[420px]">
                         {/* Descrição em Destaque: maior, legível e quebrando linha naturalmente */}
-                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words whitespace-normal">
+                        <div className="text-[15px] font-bold text-slate-900 dark:text-slate-100 leading-snug break-words whitespace-normal">
                           {cleanTitleDescription(t.description) || 'Sem descrição'}
                           {dupIds.has(t.id) && (
                             <span className="ml-2 align-middle text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-[var(--status-danger)] text-[var(--status-danger)]" title="Mesmo cliente e mesmo valor aparecem mais de uma vez neste período">Possível duplicado</span>
@@ -2133,8 +2133,14 @@ export const PayablesView: React.FC<PayablesViewProps> = ({ onOpenNewTitleModal,
                   </td>
 
                       <td className="py-3 px-4">
-                        <div className="font-medium text-slate-800 dark:text-slate-200">{supplier?.name || 'Fornecedor'}</div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400">{supplier?.document}</div>
+                        {supplier ? (
+                          <>
+                            <div className="text-xs font-normal text-slate-600 dark:text-slate-400 leading-snug">{supplier.name}</div>
+                            {supplier.document && <div className="text-[10px] text-slate-400 dark:text-slate-500">{supplier.document}</div>}
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-400 dark:text-slate-500" title="Lançamento sem fornecedor">—</span>
+                        )}
                       </td>
 
                       <td className="adv-only hidden xl:table-cell py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">

@@ -391,16 +391,9 @@ function mapSaleFromDb(row: any): Sale {
 }
 
 function mapTitleToDb(t: FinancialTitle) {
-  const counterparties = storage.getCounterparties();
-  const existingCounterpartyIds = new Set(counterparties.map(cp => cp.id));
-  
-  const fallbackCounterpartyId = t.type === 'RECEBER'
-    ? (counterparties.find(cp => cp.type === 'CLIENTE' || cp.type === 'AMBOS')?.id || 'cli-1')
-    : (counterparties.find(cp => cp.type === 'FORNECEDOR' || cp.type === 'AMBOS')?.id || 'forn-1');
-
-  const validCounterpartyId = t.counterpartyId && existingCounterpartyIds.has(t.counterpartyId)
-    ? t.counterpartyId
-    : fallbackCounterpartyId;
+  // Fornecedor/cliente é opcional: sem vínculo vai vazio. Antes ia o PRIMEIRO fornecedor/cliente da lista,
+  // e despesas sem fornecedor apareciam como "VALE ALIMENTACAO CAROL" (e receitas como o primeiro cliente).
+  const validCounterpartyId = t.counterpartyId ? t.counterpartyId : null;
 
   const chartAccounts = storage.getChartAccounts();
   const validAccountIds = new Set(chartAccounts.filter(a => a.isAnalytical).map(a => a.id));
@@ -458,7 +451,7 @@ function mapTitleFromDb(row: any): FinancialTitle {
     companyId: row.company_id || 'comp-1',
     type: row.type,
     titleNumber: row.title_number,
-    counterpartyId: row.counterparty_id,
+    counterpartyId: row.counterparty_id || undefined,
     description: row.description,
     accountId: row.account_id,
     launchDate: row.launch_date,

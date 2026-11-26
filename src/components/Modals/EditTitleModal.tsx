@@ -365,7 +365,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
         // Verifica se já existe um lançamento com os mesmos dados fundamentais no mesmo mês para evitar duplicidade
         const alreadyExists = existingTitles.some(
-          et => et.counterpartyId === counterpartyId && 
+          et => (et.counterpartyId || '') === counterpartyId && 
                 et.competence === targetComp && 
                 et.type === title.type &&
                 et.description === description.trim() &&
@@ -381,7 +381,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
           companyId: title.companyId || 'comp-1',
           titleNumber: newTitleNumber,
           type: title.type,
-          counterpartyId,
+          counterpartyId: counterpartyId || undefined,
           description: description.trim(),
           launchDate: today,
           issueDate: today,
@@ -479,10 +479,6 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
     e.preventDefault();
     setErrorMessage('');
 
-    if (!counterpartyId) {
-      setErrorMessage(isReceber ? 'Selecione o cliente.' : 'Selecione o fornecedor.');
-      return;
-    }
     if (!description.trim()) {
       setErrorMessage('Informe a descrição do lançamento.');
       return;
@@ -559,7 +555,8 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
 
     const updatesPayload: Partial<FinancialTitle> = {
       description: description.trim(),
-      counterpartyId,
+      // Fornecedor/cliente é opcional: vazio fica sem vínculo (nunca um fornecedor qualquer)
+      counterpartyId: counterpartyId || undefined,
       accountId,
       competence,
       dueDate,
@@ -674,7 +671,7 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <div className="flex items-center gap-2">
                     <label className="block font-semibold text-slate-800 dark:text-slate-200">
-                      {isReceber ? 'Cliente *' : 'Fornecedor ou Cliente *'}
+                      {isReceber ? 'Cliente' : 'Fornecedor ou Cliente'} <span className="font-normal text-slate-500">(opcional)</span>
                     </label>
                     {!isReceber && (
                       <div className="flex items-center gap-1 text-[10px] bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -748,7 +745,6 @@ export const EditTitleModal: React.FC<EditTitleModalProps> = ({
                   allowQuickCreate={true}
                   quickCreateLabel={(q) => `+ Cadastrar rápido "${q}"`}
                   onQuickCreate={handleQuickCreateCounterparty}
-                  required
                 />
               </div>
 

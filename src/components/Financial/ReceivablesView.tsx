@@ -1631,15 +1631,15 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                         )}
                       </div>
 
-                      {/* Cliente / Devedor em Destaque */}
-                      <div className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm leading-snug">
-                        {customer?.tradeName || customer?.name || 'Cliente não especificado'}
-                      </div>
-
-                      {/* Descrição em Destaque: maior, legível e com quebra de linha natural */}
-                      <div className="text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-semibold break-words whitespace-normal leading-snug mt-1">
+                      {/* Descrição em destaque; cliente pequeno embaixo (só se tiver) */}
+                      <div className="text-sm sm:text-[15px] text-slate-900 dark:text-slate-100 font-bold break-words whitespace-normal leading-snug">
                         {t.description || 'Sem descrição informada'}
                       </div>
+                      {(customer?.tradeName || customer?.name) && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
+                          {customer?.tradeName || customer?.name}
+                        </div>
+                      )}
 
                       {/* Categoria do Plano de Contas (apenas nome com cor temática) e Código do Documento */}
                       {(() => {
@@ -1731,7 +1731,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
                       <div>
                         <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block uppercase tracking-wider">Cliente / Devedor</span>
                         <span className="font-medium text-slate-900 dark:text-slate-100 block truncate">
-                          {customer?.name || 'Cliente não especificado'}
+                          {customer?.name || 'Sem cliente'}
                         </span>
                         {customer?.document && (
                           <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-mono">{customer.document}</span>
@@ -2229,7 +2229,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                       <td className="py-3 px-4 min-w-[250px] max-w-[420px]">
                         {/* Descrição em Destaque: maior, legível e quebrando linha naturalmente */}
-                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words whitespace-normal">
+                        <div className="text-[15px] font-bold text-slate-900 dark:text-slate-100 leading-snug break-words whitespace-normal">
                           {cleanTitleDescription(t.description) || 'Sem descrição'}
                           {dupIds.has(t.id) && (
                             <span className="ml-2 align-middle text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-[var(--status-danger)] text-[var(--status-danger)]" title="Mesmo cliente e mesmo valor aparecem mais de uma vez neste período">Possível duplicado</span>
@@ -2290,7 +2290,7 @@ export const ReceivablesView: React.FC<ReceivablesViewProps> = ({ onOpenNewTitle
 
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-medium text-slate-800">{client?.name || 'Cliente'}</span>
+                          <span className="text-xs font-normal text-slate-600 dark:text-slate-400">{client?.name || '—'}</span>
                           {portfolioRisk.customerProfiles[t.counterpartyId] && (
                             <span
                               title={`${portfolioRisk.customerProfiles[t.counterpartyId].recommendedAction} `}

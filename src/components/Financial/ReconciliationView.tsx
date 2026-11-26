@@ -1851,7 +1851,7 @@ export const ReconciliationView: React.FC = () => {
       companyId: 'comp-1',
       titleNumber,
       type: newTitleType,
-      counterpartyId: newTitleEntity || (newTitleType === 'PAGAR' ? 'cli-1' : 'cli-2'),
+      counterpartyId: newTitleEntity || undefined,
       expectedBankAccountId: selectedAccountId,
       accountId: newTitleCategory || (newTitleType === 'PAGAR' ? 'acc-4.1.01' : 'acc-3.1.01'),
       description: newTitleDesc,
@@ -1953,7 +1953,7 @@ export const ReconciliationView: React.FC = () => {
       c => c.name.toLowerCase() === (sug.suggestedCategory || '').toLowerCase() || c.code === sug.suggestedCategory
     );
     const accountId = matchedCat?.id || (targetType === 'PAGAR' ? 'acc-4.1.01' : 'acc-3.1.01');
-    const defaultCounterpartyId = persons[0]?.id || (targetType === 'PAGAR' ? 'cli-1' : 'cli-2');
+    const defaultCounterpartyId: string | undefined = undefined; // sem fornecedor: não chuta o primeiro da lista
 
     const titleNumber = `TIT-${targetType === 'PAGAR' ? 'PAG' : 'REC'}-${Date.now().toString().slice(-6)}`;
     const newTitle: FinancialTitle = {
