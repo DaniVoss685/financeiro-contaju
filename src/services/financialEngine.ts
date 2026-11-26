@@ -2531,28 +2531,150 @@ export class FinancialEngine {
   // ==========================================
   // CARTÃO DE CRÉDITO & FATURAS
   // ==========================================
+  // --------------------------------------------------------------------------
+  // Vínculo fatura do cartão <-> Contas a Pagar
+  // O título do Contas a Pagar é a fonte da verdade: pagar a fatura aqui dá baixa nos títulos,
+  // e dar baixa nos títulos lá (um a um ou em lote) faz a fatura aparecer paga aqui.
+  // --------------------------------------------------------------------------
+  private static r2(n: number): number {
+    return Math.round((n + Number.EPSILON) * 100) / 100;
+  }
+
+  private static isCardCreditPurchase(p: CreditCardPurchase): boolean {
+    return p.transactionType === 'ESTORNO' || p.transactionType === 'CASHBACK';
+  }
+
+  /** Título do Contas a Pagar que representa a parcela N da compra no cartão. */
+  private static findCardInstallmentTitle(titles: FinancialTitle[], purchaseId: string, installmentNumber: number): FinancialTitle | undefined {
+    return titles.find(t => t.id === `title-cc-${purchaseId}-${installmentNumber}`)
+      || titles.find(t => t.originType === 'CARTAO_CREDITO' && t.originId === purchaseId && t.installmentIndex === installmentNumber);
+  }
+
+  /** Títulos a pagar (despesas) de uma fatura. Estornos/cashbacks são RECEBER e ficam de fora. */
+  private static getCardInvoicePayableTitles(cardId: string, invoiceMonth: string, titles: FinancialTitle[] = storage.getTitles()): FinancialTitle[] {
+    return titles.filter(t =>
+      t.creditCardId === cardId &&
+      t.creditCardInvoiceMonth === invoiceMonth &&
+      t.type === 'PAGAR' &&
+      t.documentState !== 'CANCELADO'
+    );
+  }
+
+  private static cardInvoiceRef(cardId: string, invoiceMonth: string): string {
+    return `cc-${cardId}-${invoiceMonth}`;
+  }
+
+  /**
+   * Situação de cada fatura do cartão, lida dos títulos do Contas a Pagar.
+   * - balance: quanto falta pagar (despesas em aberto menos estornos/cashbacks ainda não compensados)
+   * - installmentPaid: parcela por parcela (chave `${purchaseId}-${n}`), se já está paga
+   */
+  public static getCardInvoiceState(cardId: string): {
+    months: Map<string, {
+      debits: number;
+      credits: number;
+      total: number;
+      openDebits: number;
+      appliedCredits: number;
+      balance: number;
+      paid: number;
+      itemsCount: number;
+      hasPayment: boolean;
+    }>;
+    installmentPaid: Map<string, boolean>;
+  } {
+    const titles = storage.getTitles();
+    const settlements = storage.getSettlements();
+    const movements = storage.getMovements();
+    const purchases = storage.getCardPurchases().filter(p => p.cardId === cardId);
+
+    const activeSettlementsByTitle = new Map<string, Settlement[]>();
+    for (const s of settlements) {
+      if (s.isReversed) continue;
+      const list = activeSettlementsByTitle.get(s.titleId) || [];
+      list.push(s);
+      activeSettlementsByTitle.set(s.titleId, list);
+    }
+
+    const months = new Map<string, {
+      debits: number; credits: number; total: number; openDebits: number; appliedCredits: number;
+      balance: number; paid: number; itemsCount: number; hasPayment: boolean;
+    }>();
+    const installmentPaid = new Map<string, boolean>();
+    const creditKeysByMonth = new Map<string, string[]>();
+
+    const ensure = (m: string) => {
+      let cur = months.get(m);
+      if (!cur) {
+        cur = { debits: 0, credits: 0, total: 0, openDebits: 0, appliedCredits: 0, balance: 0, paid: 0, itemsCount: 0, hasPayment: false };
+        months.set(m, cur);
+      }
+      return cur;
+    };
+
+    for (const pur of purchases) {
+      const isCredit = this.isCardCreditPurchase(pur);
+      for (const inst of pur.installments) {
+        const cur = ensure(inst.invoiceMonth);
+        cur.itemsCount += 1;
+        const key = `${pur.id}-${inst.installmentNumber}`;
+        if (isCredit) {
+          cur.credits = this.r2(cur.credits + inst.amount);
+          const list = creditKeysByMonth.get(inst.invoiceMonth) || [];
+          list.push(key);
+          creditKeysByMonth.set(inst.invoiceMonth, list);
+          continue;
+        }
+        cur.debits = this.r2(cur.debits + inst.amount);
+        const title = this.findCardInstallmentTitle(titles, pur.id, inst.installmentNumber);
+        const usableTitle = title && title.type === 'PAGAR' && title.documentState !== 'CANCELADO' ? title : undefined;
+        const open = usableTitle ? Math.max(0, usableTitle.balancePrincipal) : (inst.settled ? 0 : inst.amount);
+        cur.openDebits = this.r2(cur.openDebits + open);
+        installmentPaid.set(key, open <= 0.005);
+      }
+    }
+
+    for (const [month, cur] of months) {
+      const payable = this.getCardInvoicePayableTitles(cardId, month, titles);
+      let applied = 0;
+      let hasSettlement = false;
+      for (const t of payable) {
+        for (const s of activeSettlementsByTitle.get(t.id) || []) {
+          hasSettlement = true;
+          if (s.id.startsWith('sett-ccred-')) applied += s.components.principalSettled;
+        }
+      }
+      const ref = this.cardInvoiceRef(cardId, month);
+      const hasLump = movements.some(m => m.originType === 'FATURA_CARTAO' && m.originReferenceId === ref && !m.isReversed);
+      const legacySettled = purchases.some(p => !this.isCardCreditPurchase(p) && p.installments.some(i => i.invoiceMonth === month && i.settled));
+
+      cur.appliedCredits = this.r2(applied);
+      const unappliedCredits = Math.max(0, this.r2(cur.credits - cur.appliedCredits));
+      cur.total = Math.max(0, this.r2(cur.debits - cur.credits));
+      cur.balance = Math.max(0, this.r2(cur.openDebits - unappliedCredits));
+      cur.paid = Math.max(0, this.r2(cur.total - cur.balance));
+      cur.hasPayment = hasSettlement || hasLump || (legacySettled && payable.length === 0);
+
+      const creditsSettled = cur.total > 0 ? cur.balance <= 0.005 : cur.openDebits <= 0.005 && cur.hasPayment;
+      for (const key of creditKeysByMonth.get(month) || []) {
+        installmentPaid.set(key, creditsSettled);
+      }
+    }
+
+    return { months, installmentPaid };
+  }
+
   public static getCardAvailableLimit(cardId: string): { limit: number; used: number; available: number } {
     const cards = storage.getCreditCards();
     const card = cards.find(c => c.id === cardId);
     if (!card) return { limit: 0, used: 0, available: 0 };
 
-    const purchases = storage.getCardPurchases().filter(p => p.cardId === cardId);
+    const { months } = this.getCardInvoiceState(cardId);
     let used = 0;
-    for (const pur of purchases) {
-      const isCredit = pur.transactionType === 'ESTORNO' || pur.transactionType === 'CASHBACK';
-      for (const inst of pur.installments) {
-        if (!inst.settled) {
-          if (isCredit) {
-            used -= inst.amount;
-          } else {
-            used += inst.amount;
-          }
-        }
-      }
-    }
-    used = Math.max(0, Math.round(used * 100) / 100);
+    for (const m of months.values()) used += m.balance;
+    used = Math.max(0, this.r2(used));
 
-    const available = Math.max(0, Math.round((card.creditLimit - used) * 100) / 100);
+    const available = Math.max(0, this.r2(card.creditLimit - used));
     return { limit: card.creditLimit, used, available };
   }
 
@@ -2565,55 +2687,31 @@ export class FinancialEngine {
     balance: number;
     status: 'ABERTA' | 'FECHADA' | 'PAGA';
     itemsCount: number;
+    hasPayment: boolean;
   }> {
     const cards = storage.getCreditCards();
     const card = cards.find(c => c.id === cardId);
     if (!card) return [];
 
-    const purchases = storage.getCardPurchases().filter(p => p.cardId === cardId);
-    const payments = storage.getCardInvoicePayments().filter(p => p.cardId === cardId);
+    const { months } = this.getCardInvoiceState(cardId);
 
-    const monthMap = new Map<string, {
-      total: number;
-      settledCount: number;
-      totalCount: number;
-    }>();
-
-    for (const pur of purchases) {
-      const isCredit = pur.transactionType === 'ESTORNO' || pur.transactionType === 'CASHBACK';
-      for (const inst of pur.installments) {
-        const m = inst.invoiceMonth;
-        const current = monthMap.get(m) || { total: 0, settledCount: 0, totalCount: 0 };
-        if (isCredit) {
-          current.total -= inst.amount;
-        } else {
-          current.total += inst.amount;
-        }
-        current.totalCount += 1;
-        if (inst.settled) current.settledCount += 1;
-        monthMap.set(m, current);
-      }
-    }
-
-    // Also ensure current and neighbouring months exist
+    // Também garante o mês atual e os vizinhos
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
     for (let offset = -2; offset <= 3; offset++) {
-      const d = new Date(currentYear, currentMonth - 1 + offset, 1);
+      const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
       const mStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (!monthMap.has(mStr)) {
-        monthMap.set(mStr, { total: 0, settledCount: 0, totalCount: 0 });
+      if (!months.has(mStr)) {
+        months.set(mStr, { debits: 0, credits: 0, total: 0, openDebits: 0, appliedCredits: 0, balance: 0, paid: 0, itemsCount: 0, hasPayment: false });
       }
     }
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    const result = Array.from(monthMap.entries()).map(([month, data]) => {
+    const result = Array.from(months.entries()).map(([month, data]) => {
       const [year, m] = month.split('-');
       const closingDay = String(card.closingDay).padStart(2, '0');
       const dueDay = String(card.dueDay).padStart(2, '0');
-      
+
       const closingDate = `${year}-${m}-${closingDay}`;
       let dueYear = parseInt(year);
       let dueMonthNum = parseInt(m);
@@ -2626,31 +2724,23 @@ export class FinancialEngine {
       }
       const dueDate = `${dueYear}-${String(dueMonthNum).padStart(2, '0')}-${dueDay}`;
 
-      const paidForMonth = payments
-        .filter(p => p.invoiceMonth === month)
-        .reduce((sum, p) => sum + p.amountPaid, 0);
-
-      const normalizedTotal = Math.max(0, Math.round(data.total * 100) / 100);
-      const balance = Math.max(0, Math.round((normalizedTotal - paidForMonth) * 100) / 100);
       let status: 'ABERTA' | 'FECHADA' | 'PAGA' = 'ABERTA';
-
-      if (normalizedTotal > 0 && (balance <= 0.01 || data.settledCount === data.totalCount)) {
+      if (data.total > 0 && data.balance <= 0.01) {
         status = 'PAGA';
       } else if (todayStr >= closingDate) {
         status = 'FECHADA';
-      } else {
-        status = 'ABERTA';
       }
 
       return {
         invoiceMonth: month,
         closingDate,
         dueDate,
-        totalAmount: normalizedTotal,
-        paidAmount: paidForMonth,
-        balance,
+        totalAmount: data.total,
+        paidAmount: data.paid,
+        balance: data.balance,
         status,
-        itemsCount: data.totalCount
+        itemsCount: data.itemsCount,
+        hasPayment: data.hasPayment
       };
     });
 
@@ -2664,7 +2754,7 @@ export class FinancialEngine {
     amountPaid: number;
     paymentDate: string;
     notes?: string;
-  }): { success: boolean; error?: string } {
+  }): { success: boolean; error?: string; settledTitles?: number } {
     const cards = storage.getCreditCards();
     const card = cards.find(c => c.id === params.cardId);
     if (!card) return { success: false, error: 'Cartão não encontrado.' };
@@ -2672,7 +2762,8 @@ export class FinancialEngine {
     const bank = storage.getBankAccounts().find(b => b.id === params.bankAccountId);
     if (!bank) return { success: false, error: 'Conta bancária pagadora não encontrada.' };
 
-    if (!params.amountPaid || params.amountPaid <= 0) {
+    const amountPaid = this.r2(Number(params.amountPaid) || 0);
+    if (amountPaid <= 0) {
       return { success: false, error: 'O valor do pagamento da fatura deve ser maior que R$ 0,00.' };
     }
 
@@ -2681,151 +2772,338 @@ export class FinancialEngine {
 
     // Validação estrita de fechamento de período contábil
     if (this.isPeriodClosed(params.invoiceMonth) || this.isPeriodClosed(paymentMonth)) {
-      return { 
-        success: false, 
-        error: `O período financeiro (${params.invoiceMonth} ou ${paymentMonth}) encontra-se encerrado para movimentações ou baixas.` 
+      return {
+        success: false,
+        error: `O período financeiro (${params.invoiceMonth} ou ${paymentMonth}) encontra-se encerrado para movimentações ou baixas.`
       };
     }
 
-    const currentUser = storage.getCurrentUser();
+    const state = this.getCardInvoiceState(params.cardId).months.get(params.invoiceMonth);
+    const openBalance = state ? state.balance : 0;
+    if (openBalance <= 0.005) {
+      return { success: false, error: 'Esta fatura já está paga no Contas a Pagar. Se o pagamento foi lançado errado, use "Reabrir fatura".' };
+    }
+    if (amountPaid > openBalance + 0.005) {
+      return { success: false, error: `O valor informado (${formatBRL(amountPaid)}) é maior que o saldo em aberto da fatura (${formatBRL(openBalance)}).` };
+    }
 
-    // 1. Cria a movimentação financeira (SAÍDA bancária na data de pagamento)
-    const movementId = `mov-ccpay-${Date.now()}`;
+    const currentUser = storage.getCurrentUser();
+    const nowIso = new Date().toISOString();
+    const stamp = Date.now();
+
+    // 1. Títulos a pagar da fatura ainda em aberto, do vencimento mais antigo para o mais novo
+    const titles = storage.getTitles();
+    const openTitles = this.getCardInvoicePayableTitles(params.cardId, params.invoiceMonth, titles)
+      .filter(t => t.balancePrincipal > 0.005)
+      .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || '') || a.id.localeCompare(b.id));
+
+    // Estornos/cashbacks da fatura ainda não compensados abatem os títulos sem sair dinheiro do banco
+    let creditLeft = state ? Math.max(0, this.r2(state.credits - state.appliedCredits)) : 0;
+    let moneyLeft = amountPaid;
+
+    const newSettlements: Settlement[] = [];
+    const settlementIds: string[] = [];
+    const titleUpdates = new Map<string, FinancialTitle>();
+    let seq = 0;
+
+    const settle = (t: FinancialTitle, amount: number, kind: 'credito' | 'pagamento') => {
+      const current = titleUpdates.get(t.id) || t;
+      const settId = kind === 'credito'
+        ? `sett-ccred-${t.id}-${stamp}-${seq++}`
+        : `sett-cc-${t.id}-${stamp}-${seq++}`;
+      settlementIds.push(settId);
+      newSettlements.push({
+        id: settId,
+        titleId: t.id,
+        settlementNumber: `LQD-CC-${String(stamp).slice(-6)}-${seq}`,
+        settlementDate: today,
+        bankAccountId: params.bankAccountId,
+        components: {
+          principalSettled: amount,
+          discount: 0,
+          interest: 0,
+          fine: 0,
+          bankFee: 0,
+          netFinancialAmount: kind === 'credito' ? 0 : amount
+        },
+        notes: kind === 'credito'
+          ? `Compensado com estorno/cashback da própria fatura do cartão ${card.name}`
+          : `Liquidado via Pagamento de Fatura do Cartão ${card.name}${amount < current.balancePrincipal - 0.005 ? ' (Amortização Parcial)' : ''}`,
+        isReversed: false,
+        createdAt: nowIso,
+        createdBy: currentUser.name
+      });
+      const newBalance = Math.max(0, this.r2(current.balancePrincipal - amount));
+      titleUpdates.set(t.id, {
+        ...current,
+        settledPrincipal: this.r2((current.settledPrincipal || 0) + amount),
+        balancePrincipal: newBalance,
+        settlementState: (newBalance <= 0.005 ? 'LIQUIDADO' : 'PARCIAL') as TitleSettlementState,
+        expectedBankAccountId: params.bankAccountId,
+        updatedAt: nowIso
+      });
+    };
+
+    for (const t of openTitles) {
+      if (creditLeft <= 0.005) break;
+      const bal = (titleUpdates.get(t.id) || t).balancePrincipal;
+      const amount = this.r2(Math.min(bal, creditLeft));
+      if (amount <= 0.005) continue;
+      settle(t, amount, 'credito');
+      creditLeft = this.r2(creditLeft - amount);
+    }
+    for (const t of openTitles) {
+      if (moneyLeft <= 0.005) break;
+      const bal = (titleUpdates.get(t.id) || t).balancePrincipal;
+      if (bal <= 0.005) continue;
+      const amount = this.r2(Math.min(bal, moneyLeft));
+      settle(t, amount, 'pagamento');
+      moneyLeft = this.r2(moneyLeft - amount);
+    }
+
+    // 2. Saída bancária única na data do pagamento
+    const movementId = `mov-ccpay-${stamp}`;
     const newMovement: FinancialMovement = {
       id: movementId,
       bankAccountId: params.bankAccountId,
       date: today,
       direction: 'SAIDA',
-      amount: params.amountPaid,
+      amount: amountPaid,
       originType: 'FATURA_CARTAO',
-      originReferenceId: `cc-${params.cardId}-${params.invoiceMonth}`,
+      originReferenceId: this.cardInvoiceRef(params.cardId, params.invoiceMonth),
       description: `Pagamento Fatura Cartão ${card.name} (Ref: ${formatCompetence(params.invoiceMonth)})`,
       cashFlowCategory: 'OPERACIONAL',
-      createdAt: new Date().toISOString()
+      createdAt: nowIso
     };
+
+    // 3. Grava tudo (só depois de todas as validações)
     storage.saveMovements([newMovement, ...storage.getMovements()]);
-
-    // 2. Localiza os títulos a pagar da fatura
-    const titles = storage.getTitles();
-    const matchingTitles = titles.filter(t => 
-      t.creditCardId === params.cardId && 
-      t.creditCardInvoiceMonth === params.invoiceMonth &&
-      t.type === 'PAGAR' &&
-      t.documentState !== 'CANCELADO'
-    );
-
-    const settlementIds: string[] = [];
-    const currentSettlements = storage.getSettlements();
-    const newSettlements: Settlement[] = [];
-
-    // Alocação exata do valor pago (quitação total ou parcial sem perda de centavos)
-    let remainingToAllocate = Math.round(params.amountPaid * 100) / 100;
-    const fullySettledTitleIds = new Set<string>();
-
-    const updatedTitles = titles.map(t => {
-      const isMatch = matchingTitles.some(mt => mt.id === t.id);
-      if (!isMatch || t.balancePrincipal <= 0) return t;
-
-      if (remainingToAllocate <= 0) {
-        return t; // Valor pago já foi totalmente alocado a títulos anteriores
-      }
-
-      const settleAmount = Math.min(t.balancePrincipal, remainingToAllocate);
-      remainingToAllocate = Math.round((remainingToAllocate - settleAmount) * 100) / 100;
-
-      const settId = `sett-cc-${t.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      settlementIds.push(settId);
-
-      newSettlements.push({
-        id: settId,
-        titleId: t.id,
-        settlementNumber: `LQD-CC-${Date.now().toString().slice(-6)}`,
-        settlementDate: today,
-        bankAccountId: params.bankAccountId,
-        components: {
-          principalSettled: settleAmount,
-          discount: 0,
-          interest: 0,
-          fine: 0,
-          bankFee: 0,
-          netFinancialAmount: settleAmount
-        },
-        notes: `Liquidado via Pagamento de Fatura do Cartão ${card.name}${settleAmount < t.balancePrincipal ? ' (Amortização Parcial)' : ''}`,
-        isReversed: false,
-        createdAt: new Date().toISOString(),
-        createdBy: currentUser.name
-      });
-
-      const newBalance = Math.round((t.balancePrincipal - settleAmount) * 100) / 100;
-      const newSettled = Math.round(((t.settledPrincipal || 0) + settleAmount) * 100) / 100;
-      const isComplete = newBalance <= 0;
-
-      if (isComplete) {
-        fullySettledTitleIds.add(t.id);
-      }
-
-      return {
-        ...t,
-        settledPrincipal: newSettled,
-        balancePrincipal: Math.max(0, newBalance),
-        settlementState: (isComplete ? 'LIQUIDADO' : 'PARCIAL') as TitleSettlementState,
-        expectedBankAccountId: params.bankAccountId,
-        updatedAt: new Date().toISOString()
-      };
-    });
-
-    storage.saveTitles(updatedTitles);
+    if (titleUpdates.size > 0) {
+      storage.saveTitles(titles.map(t => titleUpdates.get(t.id) || t));
+    }
     if (newSettlements.length > 0) {
-      storage.saveSettlements([...newSettlements, ...currentSettlements]);
+      storage.saveSettlements([...newSettlements, ...storage.getSettlements()]);
     }
 
-    // 3. Atualiza parcelas nas compras com cartão
+    // 4. Parcelas do cartão: cada uma fica paga só quando o seu título estiver quitado
+    const fullyPaidInvoice = this.r2(openBalance - amountPaid) <= 0.005;
+    const finalTitles = storage.getTitles();
     const purchases = storage.getCardPurchases();
-    const updatedPurchases = purchases.map(pur => {
+    storage.saveCardPurchases(purchases.map(pur => {
       if (pur.cardId !== params.cardId) return pur;
-      const updatedInstallments = pur.installments.map(inst => {
-        if (inst.invoiceMonth === params.invoiceMonth) {
-          // Se a fatura foi paga totalmente ou se o título vinculado foi quitado
-          const isSettled = remainingToAllocate <= 0 || fullySettledTitleIds.size === matchingTitles.length;
-          return {
-            ...inst,
-            settled: isSettled,
-            settledAt: isSettled ? today : inst.settledAt,
-            settlementId: isSettled ? movementId : inst.settlementId
-          };
+      const isCredit = this.isCardCreditPurchase(pur);
+      let changed = false;
+      const installments = pur.installments.map(inst => {
+        if (inst.invoiceMonth !== params.invoiceMonth) return inst;
+        let isSettled: boolean;
+        if (isCredit) {
+          isSettled = fullyPaidInvoice;
+        } else {
+          const title = this.findCardInstallmentTitle(finalTitles, pur.id, inst.installmentNumber);
+          isSettled = title ? title.balancePrincipal <= 0.005 : fullyPaidInvoice;
         }
-        return inst;
+        if (isSettled === inst.settled) return inst;
+        changed = true;
+        return {
+          ...inst,
+          settled: isSettled,
+          settledAt: isSettled ? today : undefined,
+          settlementId: isSettled ? movementId : undefined
+        };
       });
-      return { ...pur, installments: updatedInstallments };
-    });
-    storage.saveCardPurchases(updatedPurchases);
+      return changed ? { ...pur, installments } : pur;
+    }));
 
-    // 4. Record invoice payment
+    // 5. Registro do pagamento da fatura (histórico deste aparelho)
     storage.addCardInvoicePayment({
-      id: `inv-pay-${Date.now()}`,
+      id: `inv-pay-${stamp}`,
       cardId: params.cardId,
       invoiceMonth: params.invoiceMonth,
       paymentDate: today,
       bankAccountId: params.bankAccountId,
-      amountPaid: params.amountPaid,
+      amountPaid,
       notes: params.notes,
       movementId,
       settlementIds,
-      createdAt: new Date().toISOString(),
+      createdAt: nowIso,
       createdBy: currentUser.name
     });
 
-    // 5. Audit Log
+    // 6. Saldo da conta bancária
+    storage.saveBankAccounts(storage.getBankAccounts().map(ba =>
+      ba.id === params.bankAccountId
+        ? { ...ba, currentBalance: FinancialEngine.getAccountBalance(ba.id), updatedAt: nowIso }
+        : ba
+    ));
+
+    // 7. Auditoria
     storage.addAuditLog({
       userName: currentUser.name,
       userRole: currentUser.role,
       action: 'PAGAMENTO_FATURA_CARTAO',
       module: 'Bancos e Contas',
       recordId: params.cardId,
-      details: `Pagamento da fatura ${params.invoiceMonth} do cartão ${card.name} no valor de ${formatBRL(params.amountPaid)} com débito na conta ${bank.name}.`
+      details: `Pagamento da fatura ${params.invoiceMonth} do cartão ${card.name} no valor de ${formatBRL(amountPaid)} com débito na conta ${bank.name}. ${titleUpdates.size} título(s) baixado(s) no Contas a Pagar.`
     });
 
-    return { success: true };
+    return { success: true, settledTitles: titleUpdates.size };
+  }
+
+  /** O que "Reabrir fatura" vai desfazer (para mostrar antes de confirmar). */
+  public static previewCardInvoiceReopen(cardId: string, invoiceMonth: string): {
+    titlesCount: number;
+    settlementsCount: number;
+    bankAmount: number;
+    bankNames: string[];
+    reconciledCount: number;
+    closedPeriods: string[];
+  } {
+    const titles = this.getCardInvoicePayableTitles(cardId, invoiceMonth);
+    const titleIds = new Set(titles.map(t => t.id));
+    const settlements = storage.getSettlements().filter(s => titleIds.has(s.titleId) && !s.isReversed);
+    const settlementIds = new Set(settlements.map(s => s.id));
+    const ref = this.cardInvoiceRef(cardId, invoiceMonth);
+    const movements = storage.getMovements().filter(m => !m.isReversed && (
+      (m.originType === 'FATURA_CARTAO' && m.originReferenceId === ref) ||
+      (m.originReferenceId && settlementIds.has(m.originReferenceId))
+    ));
+    const movementIds = new Set(movements.map(m => m.id));
+    const banks = storage.getBankAccounts();
+    const bankNames = Array.from(new Set(movements.map(m => banks.find(b => b.id === m.bankAccountId)?.name || 'Conta bancária')));
+    const reconciledCount = storage.getStatementEntries().filter(st =>
+      (st.matchedMovementId && movementIds.has(st.matchedMovementId)) ||
+      (st.matchedTitleId && titleIds.has(st.matchedTitleId))
+    ).length;
+
+    const months = new Set<string>([invoiceMonth]);
+    titles.forEach(t => t.competence && months.add(t.competence));
+    settlements.forEach(s => months.add(s.settlementDate.substring(0, 7)));
+    movements.forEach(m => months.add(m.date.substring(0, 7)));
+    const closedPeriods = Array.from(months).filter(m => this.isPeriodClosed(m)).sort();
+
+    const reopenTitleIds = new Set(settlements.map(s => s.titleId));
+    titles.forEach(t => { if ((t.settledPrincipal || 0) > 0.005) reopenTitleIds.add(t.id); });
+
+    return {
+      titlesCount: reopenTitleIds.size,
+      settlementsCount: settlements.length,
+      bankAmount: this.r2(movements.reduce((sum, m) => sum + (m.direction === 'SAIDA' ? m.amount : -m.amount), 0)),
+      bankNames,
+      reconciledCount,
+      closedPeriods
+    };
+  }
+
+  /**
+   * REABRIR FATURA DO CARTÃO
+   * Desfaz o pagamento da fatura (seja feito aqui no cartão ou título a título no Contas a Pagar):
+   * estorna as baixas, estorna a saída do banco, desfaz a conciliação com o extrato e volta
+   * os títulos e as parcelas para EM ABERTO. Nada é apagado: tudo fica marcado como estornado.
+   */
+  public static reopenCardInvoice(params: {
+    cardId: string;
+    invoiceMonth: string;
+    reason?: string;
+  }): { success: boolean; message: string; reopenedTitles: number; reversedAmount: number } {
+    const fail = (message: string) => ({ success: false, message, reopenedTitles: 0, reversedAmount: 0 });
+
+    const currentUser = storage.getCurrentUser();
+    if (currentUser.role === 'CONSULTA') {
+      return fail('Perfil de Consulta não pode reabrir faturas.');
+    }
+
+    const card = storage.getCreditCards().find(c => c.id === params.cardId);
+    if (!card) return fail('Cartão não encontrado.');
+
+    const preview = this.previewCardInvoiceReopen(params.cardId, params.invoiceMonth);
+    if (preview.closedPeriods.length > 0) {
+      return fail(`Não dá para reabrir: o período ${preview.closedPeriods.map(m => formatCompetence(m)).join(', ')} está encerrado. Reabra o período antes.`);
+    }
+
+    const ref = this.cardInvoiceRef(params.cardId, params.invoiceMonth);
+    const payableTitles = this.getCardInvoicePayableTitles(params.cardId, params.invoiceMonth);
+    const payableIds = new Set(payableTitles.map(t => t.id));
+    const activeSettlements = storage.getSettlements().filter(s => payableIds.has(s.titleId) && !s.isReversed);
+    const reopenIds = new Set(activeSettlements.map(s => s.titleId));
+    payableTitles.forEach(t => { if ((t.settledPrincipal || 0) > 0.005) reopenIds.add(t.id); });
+
+    const movements = storage.getMovements();
+    const lumpIds = new Set(movements
+      .filter(m => m.originType === 'FATURA_CARTAO' && m.originReferenceId === ref && !m.isReversed)
+      .map(m => m.id));
+    const purchasesBefore = storage.getCardPurchases();
+    const hasSettledInstallment = purchasesBefore.some(p => p.cardId === params.cardId && p.installments.some(i => i.invoiceMonth === params.invoiceMonth && i.settled));
+
+    if (reopenIds.size === 0 && lumpIds.size === 0 && !hasSettledInstallment) {
+      return fail('Esta fatura não tem pagamento para desfazer.');
+    }
+
+    const reason = (params.reason || '').trim() || `Reabertura da fatura ${formatCompetence(params.invoiceMonth)} do cartão ${card.name}`;
+    const nowIso = new Date().toISOString();
+
+    // 1. Estorna a saída bancária do pagamento da fatura (a baixa título a título é estornada no passo 3)
+    if (lumpIds.size > 0) {
+      storage.saveMovements(movements.map(m => lumpIds.has(m.id) ? { ...m, isReversed: true } : m));
+      // 2. Desfaz a conciliação do extrato com essa saída
+      storage.saveStatementEntries(storage.getStatementEntries().map(st =>
+        st.matchedMovementId && lumpIds.has(st.matchedMovementId)
+          ? { ...st, reconciliationStatus: 'PENDENTE' as const, matchedMovementId: undefined, matchedTitleId: undefined }
+          : st
+      ));
+    }
+
+    // 3. Estorna as baixas e volta os títulos para EM ABERTO (também desfaz conciliação ligada aos títulos)
+    let reopenedTitles = 0;
+    if (reopenIds.size > 0) {
+      const res = this.reopenTitlesToOpenBatch(Array.from(reopenIds), reason);
+      if (!res.success) {
+        return fail(res.message || 'Não foi possível reabrir os títulos da fatura.');
+      }
+      reopenedTitles = res.reopenedCount;
+    }
+
+    // 4. Parcelas do cartão voltam para em aberto
+    storage.saveCardPurchases(storage.getCardPurchases().map(pur => {
+      if (pur.cardId !== params.cardId) return pur;
+      let changed = false;
+      const installments = pur.installments.map(inst => {
+        if (inst.invoiceMonth !== params.invoiceMonth || !inst.settled) return inst;
+        changed = true;
+        return { ...inst, settled: false, settledAt: undefined, settlementId: undefined };
+      });
+      return changed ? { ...pur, installments } : pur;
+    }));
+
+    // 5. Histórico local de pagamentos desta fatura deixa de contar
+    const payments = storage.getCardInvoicePayments();
+    const remaining = payments.filter(p => !(p.cardId === params.cardId && p.invoiceMonth === params.invoiceMonth));
+    if (remaining.length !== payments.length) storage.saveCardInvoicePayments(remaining);
+
+    // 6. Saldo das contas bancárias
+    storage.saveBankAccounts(storage.getBankAccounts().map(ba => ({
+      ...ba,
+      currentBalance: FinancialEngine.getAccountBalance(ba.id),
+      updatedAt: nowIso
+    })));
+
+    // 7. Auditoria
+    storage.addAuditLog({
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      action: 'REABERTURA_FATURA_CARTAO',
+      module: 'Cartões de Crédito',
+      recordId: params.cardId,
+      details: `Fatura ${params.invoiceMonth} do cartão ${card.name} reaberta. ${reopenedTitles} título(s) voltaram para EM ABERTO e ${formatBRL(preview.bankAmount)} de saída bancária foi estornada. Motivo: ${reason}.`,
+      previousValue: 'Fatura paga',
+      newValue: 'Fatura em aberto'
+    });
+
+    return {
+      success: true,
+      message: `Fatura de ${formatCompetence(params.invoiceMonth)} reaberta.`,
+      reopenedTitles,
+      reversedAmount: preview.bankAmount
+    };
   }
 
   // ==========================================

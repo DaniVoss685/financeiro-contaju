@@ -2954,6 +2954,13 @@ class StorageService {
 
     for (const inst of updatedPurchase.installments) {
       const titleId = `title-cc-${updatedPurchase.id}-${inst.installmentNumber}`;
+      // Se a parcela já teve baixa (pela fatura ou no Contas a Pagar), mantém o que foi pago
+      const previousTitle = titles.find(t => t.id === titleId)
+        || titles.find(t => t.originId === updatedPurchase.id && t.installmentIndex === inst.installmentNumber);
+      const keptSettled = !isCredit && previousTitle && previousTitle.type === 'PAGAR' && (previousTitle.settledPrincipal || 0) > 0.005
+        ? Math.min(inst.amount, previousTitle.settledPrincipal)
+        : null;
+      const keptBalance = keptSettled !== null ? Math.max(0, Math.round((inst.amount - keptSettled) * 100) / 100) : null;
       newTitles.push({
         id: titleId,
         companyId: 'comp-1',
@@ -2968,12 +2975,16 @@ class StorageService {
         dueDate: inst.dueDate,
         expectedCashDate: inst.dueDate,
         originalAmount: inst.amount,
-        settledPrincipal: isCredit ? inst.amount : (inst.settled ? inst.amount : 0),
-        balancePrincipal: isCredit ? 0 : (inst.settled ? 0 : inst.amount),
+        settledPrincipal: isCredit ? inst.amount : (keptSettled !== null ? keptSettled : (inst.settled ? inst.amount : 0)),
+        balancePrincipal: isCredit ? 0 : (keptBalance !== null ? keptBalance : (inst.settled ? 0 : inst.amount)),
         accruedInterest: 0,
         accruedFine: 0,
         documentState: 'CONFIRMADO',
-        settlementState: (isCredit || inst.settled) ? 'LIQUIDADO' : 'ABERTO',
+        settlementState: isCredit
+          ? 'LIQUIDADO'
+          : keptBalance !== null
+            ? (keptBalance <= 0.005 ? 'LIQUIDADO' : 'PARCIAL')
+            : (inst.settled ? 'LIQUIDADO' : 'ABERTO'),
         originType: 'CARTAO_CREDITO',
         originId: updatedPurchase.id,
         installmentIndex: inst.installmentNumber,
@@ -2981,9 +2992,9 @@ class StorageService {
         creditCardId: updatedPurchase.cardId,
         creditCardInvoiceMonth: inst.invoiceMonth,
         isCreditCardPurchase: true,
-        expectedBankAccountId: card?.defaultPaymentBankAccountId || 'bank-1',
-        notes: isCredit 
-          ? `Crédito/Estorno de Cartão de Crédito - Fatura ${inst.invoiceMonth}` 
+        expectedBankAccountId: (keptSettled !== null && previousTitle?.expectedBankAccountId) || card?.defaultPaymentBankAccountId || 'bank-1',
+        notes: isCredit
+          ? `Crédito/Estorno de Cartão de Crédito - Fatura ${inst.invoiceMonth}`
           : `Parcela de Cartão de Crédito - Fatura ${inst.invoiceMonth}`,
         createdAt: updatedPurchase.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()

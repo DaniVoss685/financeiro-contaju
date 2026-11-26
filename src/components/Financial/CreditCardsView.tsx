@@ -61,6 +61,12 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
   const [isPayInvoiceModalOpen, setIsPayInvoiceModalOpen] = useState(false);
   const [isImportInvoiceModalOpen, setIsImportInvoiceModalOpen] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<CreditCardType | null>(null);
+  const [dataVersion, setDataVersion] = useState(0);
+  const [reopenTarget, setReopenTarget] = useState<{ invoiceMonth: string } | null>(null);
+  const [reopenReason, setReopenReason] = useState('');
+  const [reopenError, setReopenError] = useState<string | null>(null);
+  const [isReopening, setIsReopening] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<{ title: string; lines: string[] } | null>(null);
   const [purchaseToDelete, setPurchaseToDelete] = useState<{ id: string; description: string; amount: number } | null>(null);
 
   const handleOpenNewPurchase = (type: 'DESPESA' | 'ESTORNO' = 'DESPESA') => {
@@ -90,6 +96,8 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
     setBankAccounts(loadedBanks);
     setCounterparties(loadedCounterparties);
     setChartAccounts(loadedChartAccounts);
+    // Baixas feitas no Contas a Pagar mudam os títulos, não as compras: força recalcular a fatura
+    setDataVersion(v => v + 1);
 
     if (loadedCards.length > 0) {
       if (!selectedCardId || !loadedCards.some(c => c.id === selectedCardId)) {
@@ -113,7 +121,13 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
     if (!activeCard) return [];
     // Da fatura mais antiga para a mais nova (a atual fica no meio, destacada)
     return [...FinancialEngine.getCardInvoices(activeCard.id)].sort((a, b) => a.invoiceMonth.localeCompare(b.invoiceMonth));
-  }, [activeCard, purchases]);
+  }, [activeCard, purchases, dataVersion]);
+
+  // Parcela por parcela: paga ou em aberto, conforme o título no Contas a Pagar
+  const installmentPaid = useMemo(() => {
+    if (!activeCard) return new Map<string, boolean>();
+    return FinancialEngine.getCardInvoiceState(activeCard.id).installmentPaid;
+  }, [activeCard, purchases, dataVersion]);
 
   // Set default invoice month if not set
   useEffect(() => {
@@ -171,7 +185,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
             totalInstallments: inst.totalInstallments,
             amount: inst.amount,
             dueDate: inst.dueDate,
-            settled: inst.settled
+            settled: installmentPaid.get(`${pur.id}-${inst.installmentNumber}`) ?? inst.settled
           });
         }
       }
@@ -185,7 +199,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
       it.counterpartyName.toLowerCase().includes(term) ||
       it.chartAccountName.toLowerCase().includes(term)
     );
-  }, [activeCard, purchases, selectedInvoiceMonth, chartAccounts, searchFilter]);
+  }, [activeCard, purchases, selectedInvoiceMonth, chartAccounts, searchFilter, installmentPaid]);
 
   // Invoice payment records
   const invoicePayments = useMemo(() => {
@@ -193,7 +207,64 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
     return storage.getCardInvoicePayments()
       .filter(p => p.cardId === activeCard.id)
       .sort((a, b) => b.paymentDate.localeCompare(a.paymentDate));
-  }, [activeCard]);
+  }, [activeCard, dataVersion]);
+
+  // O que "Reabrir fatura" vai desfazer
+  const reopenPreview = useMemo(() => {
+    if (!activeCard || !reopenTarget) return null;
+    return FinancialEngine.previewCardInvoiceReopen(activeCard.id, reopenTarget.invoiceMonth);
+  }, [activeCard, reopenTarget, dataVersion]);
+
+  const handleOpenReopen = () => {
+    if (!activeInvoice) return;
+    setReopenReason('');
+    setReopenError(null);
+    setReopenTarget({ invoiceMonth: activeInvoice.invoiceMonth });
+  };
+
+  const handleConfirmReopen = () => {
+    if (!activeCard || !reopenTarget) return;
+    setIsReopening(true);
+    setReopenError(null);
+    const res = FinancialEngine.reopenCardInvoice({
+      cardId: activeCard.id,
+      invoiceMonth: reopenTarget.invoiceMonth,
+      reason: reopenReason
+    });
+    setIsReopening(false);
+    if (!res.success) {
+      setReopenError(res.message);
+      return;
+    }
+    const month = reopenTarget.invoiceMonth;
+    setReopenTarget(null);
+    loadData();
+    setSuccessInfo({
+      title: 'Fatura reaberta',
+      lines: [
+        `A fatura de ${formatCompetenceShort(month)} do cartão ${activeCard.name} voltou para em aberto.`,
+        res.reopenedTitles > 0
+          ? `${res.reopenedTitles} ${res.reopenedTitles === 1 ? 'lançamento voltou' : 'lançamentos voltaram'} para em aberto no Contas a Pagar.`
+          : 'Nenhum lançamento do Contas a Pagar precisou ser reaberto.',
+        res.reversedAmount > 0
+          ? `A saída de ${formatBRL(res.reversedAmount)} no banco foi estornada e a conciliação foi desfeita.`
+          : 'Não havia saída no banco para estornar.'
+      ]
+    });
+  };
+
+  const handlePaySuccess = (amountPaid?: number) => {
+    loadData();
+    if (!activeCard || !activeInvoice) return;
+    setSuccessInfo({
+      title: 'Fatura paga',
+      lines: [
+        `Pagamento de ${formatBRL(amountPaid || 0)} registrado na fatura de ${formatCompetenceShort(activeInvoice.invoiceMonth)} do cartão ${activeCard.name}.`,
+        'Os lançamentos desta fatura receberam baixa no Contas a Pagar.',
+        'Se precisar desfazer, use "Reabrir fatura" aqui no cartão.'
+      ]
+    });
+  };
 
   const handleOpenNewCard = () => {
     setEditingCard(null);
@@ -479,10 +550,22 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
                       <CheckCircle2 className="w-4 h-4" />
                       {activeInvoice.balance > 0 ? 'Pagar Fatura' : 'Fatura Totalmente Paga'}
                     </button>
-                    {activeInvoice.balance > 0 && (
+                    {activeInvoice.balance > 0 && !activeInvoice.hasPayment && (
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center block mt-1.5">
                         Debita de banco PJ e liquida no Contas a Pagar
                       </span>
+                    )}
+                    {activeInvoice.hasPayment && (
+                      <button
+                        id="btn-reopen-invoice"
+                        type="button"
+                        onClick={handleOpenReopen}
+                        className="w-full mt-2 py-2 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-[var(--border-subtle)] text-slate-700 dark:text-slate-300 bg-white dark:bg-[#131316] hover:border-rose-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                        title="Desfaz o pagamento: os lançamentos voltam para em aberto e a saída do banco é estornada"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Reabrir fatura
+                      </button>
                     )}
                   </div>
                 </div>
@@ -702,6 +785,7 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
 
       {activeCard && activeInvoice && (
         <CreditCardInvoicePaymentModal
+          key={`${activeCard.id}-${activeInvoice.invoiceMonth}-${isPayInvoiceModalOpen ? 'aberto' : 'fechado'}`}
           isOpen={isPayInvoiceModalOpen}
           onClose={() => setIsPayInvoiceModalOpen(false)}
           card={activeCard}
@@ -710,8 +794,139 @@ export const CreditCardsView: React.FC<CreditCardsViewProps> = ({ onNavigateToPa
           invoiceBalance={activeInvoice.balance}
           dueDate={activeInvoice.dueDate}
           bankAccounts={bankAccounts}
-          onSuccess={loadData}
+          onSuccess={handlePaySuccess}
         />
+      )}
+
+      {/* Modal: Reabrir fatura */}
+      {activeCard && reopenTarget && reopenPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+          <div
+            className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-3xl w-full max-w-md p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
+              <RotateCcw className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
+              Reabrir a fatura de {formatCompetenceShort(reopenTarget.invoiceMonth)}?
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+              Use quando o pagamento foi lançado errado. O cartão <strong className="text-slate-900 dark:text-white">{activeCard.name}</strong> volta a mostrar esta fatura em aberto.
+            </p>
+
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1b1b20] border border-slate-200 dark:border-[#26262b] space-y-2.5 text-xs text-slate-700 dark:text-slate-300 mb-4">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mt-px" />
+                <span>
+                  {reopenPreview.titlesCount > 0
+                    ? <><strong>{reopenPreview.titlesCount}</strong> {reopenPreview.titlesCount === 1 ? 'lançamento volta' : 'lançamentos voltam'} para em aberto no Contas a Pagar</>
+                    : 'Nenhum lançamento do Contas a Pagar está baixado'}
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mt-px" />
+                <span>
+                  {reopenPreview.bankAmount > 0
+                    ? <>Estorna a saída de <strong className="font-mono">{formatBRL(reopenPreview.bankAmount)}</strong> em {reopenPreview.bankNames.join(', ')}</>
+                    : 'Não há saída no banco para estornar'}
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mt-px" />
+                <span>
+                  {reopenPreview.reconciledCount > 0
+                    ? <>Desfaz a conciliação de <strong>{reopenPreview.reconciledCount}</strong> {reopenPreview.reconciledCount === 1 ? 'linha' : 'linhas'} do extrato (voltam para pendente)</>
+                    : 'Nenhuma linha do extrato está conciliada com este pagamento'}
+                </span>
+              </div>
+              <p className="pt-2 border-t border-slate-200 dark:border-[#26262b] text-[11px] text-slate-500 dark:text-slate-400">
+                Nada é apagado: as baixas ficam marcadas como estornadas no histórico.
+              </p>
+            </div>
+
+            {reopenPreview.closedPeriods.length > 0 && (
+              <div className="p-3 mb-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-px" />
+                <span>O período {reopenPreview.closedPeriods.map(m => formatCompetenceShort(m)).join(', ')} está encerrado. Reabra o período antes de reabrir a fatura.</span>
+              </div>
+            )}
+
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Motivo (opcional)
+            </label>
+            <input
+              type="text"
+              value={reopenReason}
+              onChange={(e) => setReopenReason(e.target.value)}
+              placeholder="Ex: paguei a fatura errada"
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-[#26262b] bg-slate-50 dark:bg-[#1b1b20] text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 mb-4"
+            />
+
+            {reopenError && (
+              <div className="p-3 mb-4 bg-rose-500/15 border border-rose-500/30 rounded-xl text-xs text-rose-700 dark:text-rose-300">
+                {reopenError}
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setReopenTarget(null)}
+                className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                id="btn-confirm-reopen-invoice"
+                type="button"
+                disabled={isReopening || reopenPreview.closedPeriods.length > 0}
+                onClick={handleConfirmReopen}
+                className="px-4 py-2.5 text-xs font-bold btn-gold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                {isReopening ? 'Reabrindo...' : 'Sim, reabrir fatura'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de sucesso (pagar / reabrir fatura) */}
+      {successInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
+          <div
+            className="bg-white dark:bg-[#131316] border border-slate-200 dark:border-[#26262b] rounded-3xl w-full max-w-md p-6 shadow-2xl text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">{successInfo.title}</h3>
+            <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+              {successInfo.lines.map((l, i) => <p key={i}>{l}</p>)}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
+              {onNavigateToPayables && (
+                <button
+                  type="button"
+                  onClick={() => { setSuccessInfo(null); onNavigateToPayables(); }}
+                  className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#1b1b20] dark:hover:bg-slate-800 border border-slate-200 dark:border-[#26262b] rounded-xl transition-colors cursor-pointer"
+                >
+                  Ver no Contas a Pagar
+                </button>
+              )}
+              <button
+                id="btn-success-ok"
+                type="button"
+                onClick={() => setSuccessInfo(null)}
+                className="px-6 py-2.5 text-xs font-bold btn-gold rounded-xl shadow-md cursor-pointer"
+              >
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {activeCard && isImportInvoiceModalOpen && (

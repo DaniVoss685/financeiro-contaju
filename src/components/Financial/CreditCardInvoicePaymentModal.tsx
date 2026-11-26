@@ -28,7 +28,7 @@ interface CreditCardInvoicePaymentModalProps {
   invoiceBalance: number;
   dueDate: string;
   bankAccounts: BankAccount[];
-  onSuccess: () => void;
+  onSuccess: (amountPaid?: number) => void;
 }
 
 export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentModalProps> = ({
@@ -60,7 +60,7 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
     e.preventDefault();
     setError(null);
 
-    const val = parseFloat(amountToPay);
+    const val = Math.round((parseFloat(amountToPay) || 0) * 100) / 100;
     if (isNaN(val) || val <= 0) {
       setError('Por favor, informe um valor de pagamento válido.');
       return;
@@ -96,7 +96,7 @@ export const CreditCardInvoicePaymentModal: React.FC<CreditCardInvoicePaymentMod
         details: `Pagamento de fatura ${invoiceMonth} do cartão ${card.name} no valor de ${formatBRL(val)} debitado da conta ${selectedBank?.name || 'PJ'}.`
       });
 
-      onSuccess();
+      onSuccess(val);
       onClose();
     } else {
       setError(res.error || 'Erro ao processar o pagamento da fatura.');
